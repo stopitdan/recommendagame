@@ -212,7 +212,7 @@ function AnimatedD20({
       precAxis.normalize();
 
       state.current.precessionAxis.copy(precAxis);
-      state.current.precessionRate = 0.8 + Math.random() * 0.7; // 0.8-1.5 rad/s
+      state.current.precessionRate = 1.5 + Math.random() * 1.0; // 1.5-2.5 rad/s
       state.current.resultReported = false;
 
       if (scaleRef.current > 0.95) {
@@ -269,14 +269,19 @@ function AnimatedD20({
         group.quaternion.premultiply(s.deltaQ);
         group.quaternion.normalize();
 
-        // Bounce
+        // Bounce: 5 bounces, each ~60% the height of the previous
+        // 1111 > 111 > 11 > 1 > 0 pattern
         let bounceY = 0;
-        if (t < 0.3) {
-          bounceY = Math.sin((t / 0.3) * Math.PI) * 0.5;
+        if (t < 0.25) {
+          bounceY = Math.sin((t / 0.25) * Math.PI) * 0.50;       // Big toss
+        } else if (t < 0.42) {
+          bounceY = Math.sin(((t - 0.25) / 0.17) * Math.PI) * 0.28;  // ~60% of first
         } else if (t < 0.55) {
-          bounceY = Math.sin(((t - 0.3) / 0.25) * Math.PI) * 0.15;
-        } else if (t < 0.7) {
-          bounceY = Math.sin(((t - 0.55) / 0.15) * Math.PI) * 0.04;
+          bounceY = Math.sin(((t - 0.42) / 0.13) * Math.PI) * 0.15;  // ~55% of second
+        } else if (t < 0.65) {
+          bounceY = Math.sin(((t - 0.55) / 0.10) * Math.PI) * 0.07;  // Small hop
+        } else if (t < 0.72) {
+          bounceY = Math.sin(((t - 0.65) / 0.07) * Math.PI) * 0.025; // Tiny tap
         }
         group.position.y = bounceY;
 
