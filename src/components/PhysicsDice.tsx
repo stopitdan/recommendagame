@@ -5,15 +5,25 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
 /**
- * 3D D20 with canvas-baked number textures and guaranteed flat landing.
+ * 3D D20 with physically correct rigid body rotation.
  *
- * Uses quaternion SLERP for the final landing — not Euler angles —
- * so the die always settles perfectly flat on a triangular face
- * with the correct number pointing straight up.
+ * Physics: A regular icosahedron is a "spherical top" — all three
+ * principal moments of inertia are equal (I1 = I2 = I3). For a
+ * torque-free spherical top, angular velocity omega is CONSTANT
+ * in the world frame (conservation of angular momentum).
  *
- * Two-phase animation:
- *   Phase 1 (0–70%): Chaotic tumble with consistent momentum
- *   Phase 2 (70–100%): Smooth SLERP to the exact landing quaternion
+ * This means: every frame we apply the exact same incremental
+ * rotation quaternion. No direction changes, no wobble artifacts.
+ * The die spins around a fixed axis in space, which has components
+ * on all 3 coordinate axes for realistic multi-axis tumble.
+ *
+ * Integration: q(t+dt) = deltaQ * q(t)
+ * where deltaQ = Quaternion.setFromAxisAngle(omega.normalized(), |omega| * dt)
+ *
+ * Sources:
+ * - Ashwin Narayan, "How to Integrate Quaternions"
+ * - Euler's equations for torque-free rigid body dynamics
+ * - Three.js Quaternion.premultiply for world-frame rotation
  */
 
 // ─── Compute face data from icosahedron geometry ─────────────
@@ -21,8 +31,6 @@ import * as THREE from 'three';
 interface FaceData {
   center: THREE.Vector3;
   normal: THREE.Vector3;
-  /** Quaternion that rotates this face's normal to point straight up (+Y) */
-  landingQuat: THREE.Quaternion;
 }
 
 function computeFaceData(): FaceData[] {
@@ -30,29 +38,25 @@ function computeFaceData(): FaceData[] {
   const pos = geo.attributes.position;
   const faces: FaceData[] = [];
 
-  // Camera is at [0, 2.5, 3] — land the rolled face pointing toward the viewer
-  const toCamera = new THREE.Vector3(0, 2.5, 3).normalize();
-
   for (let i = 0; i < pos.count; i += 3) {
     const a = new THREE.Vector3(pos.getX(i), pos.getY(i), pos.getZ(i));
     const b = new THREE.Vector3(pos.getX(i + 1), pos.getY(i + 1), pos.getZ(i + 1));
     const c = new THREE.Vector3(pos.getX(i + 2), pos.getY(i + 2), pos.getZ(i + 2));
 
     const center = a.clone().add(b).add(c).divideScalar(3);
-
     const normal = new THREE.Vector3()
       .crossVectors(b.clone().sub(a), c.clone().sub(a))
       .normalize();
 
-    // Land so this face's normal points toward the camera (facing the user)
-    const landingQuat = new THREE.Quaternion().setFromUnitVectors(normal, toCamera);
-
-    faces.push({ center, normal, landingQuat });
+    faces.push({ center, normal });
   }
 
   geo.dispose();
   return faces;
 }
+
+// Compute once, shared by all components
+const globalFaces = computeFaceData();
 
 // ─── Create number texture via canvas ────────────────────────
 
@@ -64,7 +68,6 @@ function createNumberTexture(num: number): THREE.CanvasTexture {
   const ctx = canvas.getContext('2d')!;
 
   ctx.clearRect(0, 0, size, size);
-
   ctx.shadowColor = 'rgba(0,0,0,0.5)';
   ctx.shadowBlur = 4;
   ctx.fillStyle = '#FFFFFF';
@@ -77,9 +80,6 @@ function createNumberTexture(num: number): THREE.CanvasTexture {
   tex.needsUpdate = true;
   return tex;
 }
-
-// Compute once, shared by both AnimatedD20 and FaceLabels
-const globalFaces = computeFaceData();
 
 // ─── Number labels on faces ──────────────────────────────────
 
@@ -111,256 +111,196 @@ function FaceLabels({ faces }: { faces: FaceData[] }) {
   );
 }
 
-// ─── Animated D20 ────────────────────────────────────────────
+// ─── Animated D20 with rigid body physics ────────────────────
 
-type Phase = 'idle' | 'shrink' | 'roll' | 'present';
-
-interface AnimState {
-  phase: Phase;
-  startTime: number;
-  /** Roll duration */
-  rollDuration: number;
-  /**
-   * Waypoints: a chain of quaternions the die SLERPs through.
-   * Each segment is a <180° rotation so SLERP takes the intended path.
-   * The last waypoint is the exact landing quaternion.
-   * This forces the die through 2-3 full visual rotations.
-   */
-  waypoints: THREE.Quaternion[];
-  /** Wobble parameters (decaying sinusoidal noise) */
-  wobbleAxis1: THREE.Vector3;
-  wobbleAxis2: THREE.Vector3;
-  wobbleFreq1: number;
-  wobbleFreq2: number;
-  /** Result */
-  resultValue: number;
-  resultReported: boolean;
-}
+type Phase = 'idle' | 'shrink' | 'flight' | 'decel' | 'settle' | 'present';
 
 const SHRINK_DUR = 0.25;
-const PRESENT_DUR = 0.35;
+const FLIGHT_DUR = 0.9;   // Free flight at constant omega
+const DECEL_DUR = 0.8;    // Friction slowing it down
+const SETTLE_DUR = 0.3;   // Final tiny SLERP to flat face
+const PRESENT_DUR = 0.35; // Grow to highlight result
+
+/** Camera direction — the face we want pointing at the user */
+const TO_CAMERA = new THREE.Vector3(0, 2.5, 3).normalize();
 
 function AnimatedD20({
   rolling,
   onSettled,
-  faces,
 }: {
   rolling: boolean;
   onSettled: (value: number) => void;
-  faces: FaceData[];
 }) {
   const groupRef = useRef<THREE.Group>(null);
 
-  const anim = useRef<AnimState>({
-    phase: 'idle',
-    startTime: 0,
-    rollDuration: 2.0,
-    waypoints: [],
-    wobbleAxis1: new THREE.Vector3(1, 0, 0),
-    wobbleAxis2: new THREE.Vector3(0, 0, 1),
-    wobbleFreq1: 12,
-    wobbleFreq2: 9,
+  const state = useRef({
+    phase: 'idle' as Phase,
+    phaseStart: 0,
+    // Angular velocity vector (rad/s) — constant during flight
+    omega: new THREE.Vector3(),
+    // Current omega magnitude (decays during decel phase)
+    speed: 0,
+    // Normalized omega direction (never changes)
+    axis: new THREE.Vector3(0, 1, 0),
+    // Reusable quaternion for incremental rotation
+    deltaQ: new THREE.Quaternion(),
+    // Settle targets
+    settleFrom: new THREE.Quaternion(),
+    settleTo: new THREE.Quaternion(),
+    // Result
     resultValue: 1,
     resultReported: false,
   });
 
   const scaleRef = useRef(1);
   const lastRolling = useRef(false);
-  const tempQuat = useRef(new THREE.Quaternion());
-  const wobbleQuat = useRef(new THREE.Quaternion());
 
   function setPhase(phase: Phase) {
-    anim.current.phase = phase;
-    anim.current.startTime = 0;
+    state.current.phase = phase;
+    state.current.phaseStart = 0;
   }
 
-  /**
-   * Build waypoints by spinning on ONE axis the entire time.
-   * Instead of pre-picking a face then forcing the die there,
-   * we spin on a random axis and find which face the spin
-   * naturally ends closest to. The result is truly determined
-   * by the "physics" of the spin.
-   *
-   * Steps:
-   * 1. Pick a random spin axis and step angle
-   * 2. Generate N waypoints (2-3 full rotations)
-   * 3. From the final tumble orientation, find which face is
-   *    closest to the camera and do a TINY final correction
-   *    (same spin direction, just a few more degrees)
-   */
-  function buildWaypoints(start: THREE.Quaternion): { waypoints: THREE.Quaternion[]; value: number } {
-    const toCamera = new THREE.Vector3(0, 2.5, 3).normalize();
+  /** Find nearest face to camera and compute landing quaternion */
+  function computeLanding(group: THREE.Group): { value: number; quat: THREE.Quaternion } {
     const worldNormal = new THREE.Vector3();
-
-    // Two consistent spin axes — primary (big rotation) + secondary (wobble)
-    // Like a real die: main spin + tumble
-    const primaryAxis = new THREE.Vector3(
-      Math.random() - 0.5,
-      Math.random() - 0.5,
-      Math.random() - 0.5,
-    ).normalize();
-
-    // Secondary axis: roughly perpendicular to primary for realistic tumble
-    const secondaryAxis = new THREE.Vector3(
-      Math.random() - 0.5,
-      Math.random() - 0.5,
-      Math.random() - 0.5,
-    ).normalize();
-    // Make it more perpendicular by removing the primary component
-    secondaryAxis.addScaledVector(primaryAxis, -secondaryAxis.dot(primaryAxis));
-    secondaryAxis.normalize();
-
-    const STEPS = 10 + Math.floor(Math.random() * 4); // 10-13 steps for more rotation
-    const primaryAngle = (80 + Math.random() * 40) * (Math.PI / 180);    // ~80-120° per step
-    const secondaryAngle = (40 + Math.random() * 40) * (Math.PI / 180);  // ~40-80° per step
-
-    const primaryStep = new THREE.Quaternion().setFromAxisAngle(primaryAxis, primaryAngle);
-    const secondaryStep = new THREE.Quaternion().setFromAxisAngle(secondaryAxis, secondaryAngle);
-
-    // Alternate primary and secondary rotations so both axes are
-    // visually distinct. This prevents them collapsing into one axis.
-    const waypoints: THREE.Quaternion[] = [start.clone()];
-    for (let i = 1; i <= STEPS; i++) {
-      const prev = waypoints[waypoints.length - 1];
-      if (i % 2 === 1) {
-        // Primary rotation step
-        waypoints.push(prev.clone().multiply(primaryStep));
-      } else {
-        // Secondary rotation step (different axis — visible tumble)
-        waypoints.push(prev.clone().multiply(secondaryStep));
-      }
-    }
-
-    // Find which face is closest to camera at the end of the tumble
-    const endQuat = waypoints[waypoints.length - 1];
     let bestDot = -Infinity;
     let bestIdx = 0;
 
-    for (let i = 0; i < faces.length; i++) {
-      worldNormal.copy(faces[i].normal).applyQuaternion(endQuat);
-      const dot = worldNormal.dot(toCamera);
+    for (let i = 0; i < globalFaces.length; i++) {
+      worldNormal.copy(globalFaces[i].normal).applyQuaternion(group.quaternion);
+      const dot = worldNormal.dot(TO_CAMERA);
       if (dot > bestDot) {
         bestDot = dot;
         bestIdx = i;
       }
     }
 
-    // Tiny correction (<20°) to align the closest face exactly
-    worldNormal.copy(faces[bestIdx].normal).applyQuaternion(endQuat);
-    const correction = new THREE.Quaternion().setFromUnitVectors(worldNormal, toCamera);
-    const finalQuat = endQuat.clone().premultiply(correction);
+    worldNormal.copy(globalFaces[bestIdx].normal).applyQuaternion(group.quaternion);
+    const correction = new THREE.Quaternion().setFromUnitVectors(worldNormal, TO_CAMERA);
+    const landingQuat = group.quaternion.clone().premultiply(correction);
 
-    waypoints.push(finalQuat);
-
-    return { waypoints, value: bestIdx + 1 };
+    return { value: bestIdx + 1, quat: landingQuat };
   }
 
   useEffect(() => {
     if (rolling && !lastRolling.current) {
-      const startQ = groupRef.current
-        ? groupRef.current.quaternion.clone()
-        : new THREE.Quaternion();
+      // Random angular velocity: all 3 axes for multi-axis tumble
+      // Magnitude 15-25 rad/s for a satisfying spin speed
+      const omega = new THREE.Vector3(
+        (Math.random() - 0.5) * 2,
+        (Math.random() - 0.5) * 2,
+        (Math.random() - 0.5) * 2,
+      ).normalize().multiplyScalar(15 + Math.random() * 10);
 
-      const { waypoints, value } = buildWaypoints(startQ);
-
-      const w1 = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize();
-      const w2 = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize();
-
-      anim.current.rollDuration = 2.0 + Math.random() * 0.5;
-      anim.current.waypoints = waypoints;
-      anim.current.wobbleAxis1.copy(w1);
-      anim.current.wobbleAxis2.copy(w2);
-      anim.current.wobbleFreq1 = 10 + Math.random() * 6;
-      anim.current.wobbleFreq2 = 7 + Math.random() * 5;
-      anim.current.resultValue = value;
-      anim.current.resultReported = false;
+      state.current.omega.copy(omega);
+      state.current.speed = omega.length();
+      state.current.axis.copy(omega).normalize();
+      state.current.resultReported = false;
 
       if (scaleRef.current > 0.95) {
         setPhase('shrink');
       } else {
-        setPhase('roll');
+        setPhase('flight');
       }
     }
     lastRolling.current = rolling;
-  }, [rolling, faces]);
+  }, [rolling]);
 
-  useFrame(() => {
-    const a = anim.current;
+  useFrame((_, dt) => {
+    const s = state.current;
     const group = groupRef.current;
-    if (!group || a.phase === 'idle') return;
+    if (!group || s.phase === 'idle') return;
 
-    if (a.startTime === 0) a.startTime = performance.now();
-    const elapsed = (performance.now() - a.startTime) / 1000;
+    if (s.phaseStart === 0) s.phaseStart = performance.now();
+    const elapsed = (performance.now() - s.phaseStart) / 1000;
 
-    switch (a.phase) {
+    switch (s.phase) {
       // ── Shrink before re-roll ──
       case 'shrink': {
         const t = Math.min(elapsed / SHRINK_DUR, 1);
-        scaleRef.current = 1.08 - t * 0.78; // 1.08 → 0.3
+        scaleRef.current = 1.08 - t * 0.78;
         group.scale.setScalar(scaleRef.current);
-
         if (t >= 1) {
           scaleRef.current = 0.3;
           group.scale.setScalar(0.3);
-          setPhase('roll');
+          setPhase('flight');
         }
         break;
       }
 
-      // ── Roll: walk through waypoint chain with decaying wobble ──
-      case 'roll': {
-        const t = Math.min(elapsed / a.rollDuration, 1);
-        const wp = a.waypoints;
-        const numSegments = wp.length - 1;
+      // ── Free flight: constant angular velocity (real physics) ──
+      case 'flight': {
+        const t = Math.min(elapsed / FLIGHT_DUR, 1);
 
-        // Scale back up
+        // Scale back up at start
         if (scaleRef.current < 1) {
           const growT = Math.min(elapsed / 0.3, 1);
           scaleRef.current = 0.3 + 0.7 * (1 - Math.pow(1 - growT, 3));
           group.scale.setScalar(scaleRef.current);
         }
 
-        // Ease: fast start, gradual smooth deceleration (not abrupt)
-        // Quadratic ease-out: decelerates linearly, feels natural
-        const ease = t * (2 - t);
-
-        // Map eased progress to waypoint chain
-        const chainPos = ease * numSegments;
-        const segIdx = Math.min(Math.floor(chainPos), numSegments - 1);
-        const segT = chainPos - segIdx;
-
-        // SLERP within the current segment
-        tempQuat.current.slerpQuaternions(wp[segIdx], wp[segIdx + 1], segT);
-
-        // Decaying wobble for extra chaos (fades to zero)
-        const wobbleStrength = Math.pow(1 - t, 3) * 0.25;
-        const w1Angle = Math.sin(elapsed * a.wobbleFreq1) * wobbleStrength;
-        const w2Angle = Math.sin(elapsed * a.wobbleFreq2 * 1.3) * wobbleStrength * 0.6;
-
-        wobbleQuat.current.setFromAxisAngle(a.wobbleAxis1, w1Angle);
-        tempQuat.current.multiply(wobbleQuat.current);
-        wobbleQuat.current.setFromAxisAngle(a.wobbleAxis2, w2Angle);
-        tempQuat.current.multiply(wobbleQuat.current);
-
-        group.quaternion.copy(tempQuat.current);
+        // Integrate rotation: q(t+dt) = deltaQ * q(t)
+        // deltaQ = Quaternion(axis, |omega| * dt)
+        // This is exact for constant omega (spherical top)
+        const theta = s.speed * dt;
+        s.deltaQ.setFromAxisAngle(s.axis, theta);
+        group.quaternion.premultiply(s.deltaQ);
+        group.quaternion.normalize();
 
         // Bounce
         let bounceY = 0;
-        if (t < 0.22) {
-          bounceY = Math.sin((t / 0.22) * Math.PI) * 0.5;
-        } else if (t < 0.42) {
-          bounceY = Math.sin(((t - 0.22) / 0.2) * Math.PI) * 0.15;
+        if (t < 0.3) {
+          bounceY = Math.sin((t / 0.3) * Math.PI) * 0.5;
         } else if (t < 0.55) {
-          bounceY = Math.sin(((t - 0.42) / 0.13) * Math.PI) * 0.04;
+          bounceY = Math.sin(((t - 0.3) / 0.25) * Math.PI) * 0.15;
+        } else if (t < 0.7) {
+          bounceY = Math.sin(((t - 0.55) / 0.15) * Math.PI) * 0.04;
         }
         group.position.y = bounceY;
 
         if (t >= 1) {
-          // Snap to exact landing (last waypoint)
-          group.quaternion.copy(wp[wp.length - 1]);
           group.position.y = 0;
           scaleRef.current = 1;
           group.scale.setScalar(1);
+          setPhase('decel');
+        }
+        break;
+      }
+
+      // ── Deceleration: friction slowing the spin ──
+      case 'decel': {
+        const t = Math.min(elapsed / DECEL_DUR, 1);
+
+        // Exponential decay of speed (same axis, just slower)
+        // At t=0: full speed. At t=1: ~5% of original speed.
+        const decayedSpeed = s.speed * Math.exp(-3.0 * t);
+
+        // Same integration, just with shrinking speed
+        const theta = decayedSpeed * dt;
+        s.deltaQ.setFromAxisAngle(s.axis, theta);
+        group.quaternion.premultiply(s.deltaQ);
+        group.quaternion.normalize();
+
+        if (t >= 1) {
+          // Die is nearly stopped — find nearest face and settle
+          const { value, quat } = computeLanding(group);
+          s.settleFrom.copy(group.quaternion);
+          s.settleTo.copy(quat);
+          s.resultValue = value;
+          setPhase('settle');
+        }
+        break;
+      }
+
+      // ── Settle: tiny SLERP to exact flat face ──
+      case 'settle': {
+        const t = Math.min(elapsed / SETTLE_DUR, 1);
+        // Quadratic ease-out: gentle final adjustment
+        const ease = t * (2 - t);
+        group.quaternion.slerpQuaternions(s.settleFrom, s.settleTo, ease);
+
+        if (t >= 1) {
+          group.quaternion.copy(s.settleTo);
           setPhase('present');
         }
         break;
@@ -376,11 +316,11 @@ function AnimatedD20({
         if (t >= 1) {
           scaleRef.current = 1.08;
           group.scale.setScalar(1.08);
-          a.phase = 'idle';
+          s.phase = 'idle';
 
-          if (!a.resultReported) {
-            a.resultReported = true;
-            onSettled(a.resultValue);
+          if (!s.resultReported) {
+            s.resultReported = true;
+            onSettled(s.resultValue);
           }
         }
         break;
@@ -422,7 +362,7 @@ export default function PhysicsDice({ rolling, onSettled }: PhysicsDiceProps) {
         <ambientLight intensity={0.6} />
         <directionalLight position={[3, 5, 3]} intensity={1.2} />
         <pointLight position={[-2, 3, -1]} intensity={0.3} color="#FF6D3F" />
-        <AnimatedD20 rolling={rolling} onSettled={onSettled} faces={globalFaces} />
+        <AnimatedD20 rolling={rolling} onSettled={onSettled} />
       </Canvas>
     </div>
   );
