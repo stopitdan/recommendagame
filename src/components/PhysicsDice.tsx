@@ -114,16 +114,15 @@ interface AnimState {
   active: boolean;
   startTime: number;
   duration: number;
-  /** Starting quaternion (captured when roll begins) */
-  startQuat: THREE.Quaternion;
-  /** The exact quaternion for flat landing with face toward camera */
+  /** Consistent tumble velocity — one direction, never changes */
+  velX: number;
+  velY: number;
+  velZ: number;
+  /** Landing quaternion (face toward camera) */
   landingQuat: THREE.Quaternion;
-  /**
-   * Intermediate "overshoot" quaternion — we SLERP through this midpoint
-   * so the path feels like a chaotic tumble rather than a direct rotation.
-   * Computed by applying random full rotations to the start orientation.
-   */
-  midQuat: THREE.Quaternion;
+  /** Quaternion captured late in the tumble for final correction */
+  lateQuat: THREE.Quaternion;
+  lateCaptured: boolean;
   settled: boolean;
   targetValue: number;
 }
@@ -142,56 +141,37 @@ function AnimatedD20({
     active: false,
     startTime: 0,
     duration: 2.2,
-    startQuat: new THREE.Quaternion(),
+    velX: 0, velY: 0, velZ: 0,
     landingQuat: new THREE.Quaternion(),
-    midQuat: new THREE.Quaternion(),
+    lateQuat: new THREE.Quaternion(),
+    lateCaptured: false,
     settled: false,
     targetValue: 1,
   });
 
   const lastRolling = useRef(false);
   const tempQuat = useRef(new THREE.Quaternion());
-  const tempQuat2 = useRef(new THREE.Quaternion());
 
   useEffect(() => {
     if (rolling && !lastRolling.current) {
       const value = Math.floor(Math.random() * 20) + 1;
 
-      // Capture current orientation as start
-      const startQ = groupRef.current
-        ? groupRef.current.quaternion.clone()
-        : new THREE.Quaternion();
-
-      // Create a chaotic midpoint: apply 2-3 random full axis rotations
-      // This makes the SLERP path go through wild orientations
-      const midQ = startQ.clone();
-      const randomAxis1 = new THREE.Vector3(
-        Math.random() - 0.5,
-        Math.random() - 0.5,
-        Math.random() - 0.5,
-      ).normalize();
-      const randomAxis2 = new THREE.Vector3(
-        Math.random() - 0.5,
-        Math.random() - 0.5,
-        Math.random() - 0.5,
-      ).normalize();
-      const spin1 = new THREE.Quaternion().setFromAxisAngle(
-        randomAxis1,
-        (2 + Math.random() * 2) * Math.PI, // 2-4 half rotations
-      );
-      const spin2 = new THREE.Quaternion().setFromAxisAngle(
-        randomAxis2,
-        (1.5 + Math.random() * 1.5) * Math.PI,
-      );
-      midQ.premultiply(spin1).premultiply(spin2);
+      // One consistent spin direction for the entire roll.
+      // Primary axis gets most energy, secondary gets less, tertiary least.
+      // This mimics a real die with one dominant rotation axis.
+      const dirX = Math.random() > 0.5 ? 1 : -1;
+      const dirY = Math.random() > 0.5 ? 1 : -1;
 
       anim.current = {
         active: true,
         startTime: 0,
-        duration: 1.8 + Math.random() * 0.4, // 1.8-2.2s
-        startQuat: startQ,
+        duration: 1.8 + Math.random() * 0.4,
+        velX: dirX * (5 + Math.random() * 3),     // Primary: 5-8 rad/s
+        velY: dirY * (4 + Math.random() * 2.5),   // Secondary: 4-6.5 rad/s
+        velZ: dirX * dirY * (1.5 + Math.random()), // Tertiary: 1.5-2.5 rad/s
         landingQuat: faces[value - 1].landingQuat.clone(),
-        midQuat: midQ,
+        lateQuat: new THREE.Quaternion(),
+        lateCaptured: false,
         settled: false,
         targetValue: value,
       };
@@ -199,7 +179,7 @@ function AnimatedD20({
     lastRolling.current = rolling;
   }, [rolling, faces]);
 
-  useFrame(() => {
+  useFrame((_, delta) => {
     const a = anim.current;
     if (!a.active || !groupRef.current) return;
 
@@ -208,25 +188,34 @@ function AnimatedD20({
     const elapsed = (performance.now() - a.startTime) / 1000;
     const t = Math.min(elapsed / a.duration, 1);
 
-    // ── Single continuous rotation ──
-    // SLERP through two segments: start→mid (tumble) then mid→landing (settle)
-    // Use a cubic ease-in-out so it accelerates, peaks, then decelerates
-    const ease = t < 0.5
-      ? 4 * t * t * t                                    // ease-in (accelerate)
-      : 1 - Math.pow(-2 * t + 2, 3) / 2;                // ease-out (decelerate)
+    // Late transition: at 88% the die is barely spinning,
+    // so the SLERP correction is tiny and invisible.
+    const SNAP_START = 0.88;
 
-    if (ease < 0.5) {
-      // First half: SLERP from start to midpoint
-      const segT = ease * 2; // 0→1 over first half
-      tempQuat.current.slerpQuaternions(a.startQuat, a.midQuat, segT);
+    if (t < SNAP_START) {
+      // ── Euler tumble with cubic deceleration ──
+      // Velocity decreases continuously: fast at start, crawling by 88%
+      const decel = Math.pow(1 - (t / SNAP_START), 3);
+
+      groupRef.current.rotation.x += a.velX * decel * delta;
+      groupRef.current.rotation.y += a.velY * decel * delta;
+      groupRef.current.rotation.z += a.velZ * decel * delta;
     } else {
-      // Second half: SLERP from midpoint to landing
-      const segT = (ease - 0.5) * 2; // 0→1 over second half
-      tempQuat.current.slerpQuaternions(a.midQuat, a.landingQuat, segT);
-    }
-    groupRef.current.quaternion.copy(tempQuat.current);
+      // ── Final 12%: tiny SLERP to exact landing ──
+      if (!a.lateCaptured) {
+        a.lateCaptured = true;
+        a.lateQuat.copy(groupRef.current.quaternion);
+      }
 
-    // ── Bounce (Y position) ──
+      const snapT = (t - SNAP_START) / (1 - SNAP_START);
+      // Quadratic ease-out for gentle final settle
+      const ease = 1 - (1 - snapT) * (1 - snapT);
+
+      tempQuat.current.slerpQuaternions(a.lateQuat, a.landingQuat, ease);
+      groupRef.current.quaternion.copy(tempQuat.current);
+    }
+
+    // ── Bounce ──
     let bounceY = 0;
     if (t < 0.22) {
       bounceY = Math.sin((t / 0.22) * Math.PI) * 0.5;
