@@ -34,7 +34,7 @@ const BATCH_SIZE = 20;        // Max IDs per /thing request
 const THROTTLE_MS = 6000;     // 6 seconds between requests (safe margin)
 const MAX_RETRIES = 5;
 const BASE_BACKOFF_MS = 30000; // 30 seconds initial backoff
-const PROGRESS_INTERVAL = 100; // Log every N games
+const PROGRESS_INTERVAL = 5; // Log every N batches (100 games)
 
 const START_ID = parseInt(process.argv[2] ?? '1', 10);
 const END_ID = parseInt(process.argv[3] ?? '400000', 10);
@@ -234,11 +234,14 @@ function parseItem(item: any): GameRow | null {
 
   // Stats
   const stats = item.statistics?.ratings;
-  const rating = optFloat(stats?.average?.['@_value']);
+  const rawRating = optFloat(stats?.average?.['@_value']);
+  const rating = rawRating && rawRating >= 0 && rawRating <= 10 ? rawRating : null;
   const bayesAvg = optFloat(stats?.bayesaverage?.['@_value']);
   const ratingCount = optInt(stats?.usersrated?.['@_value']);
   const stddev = optFloat(stats?.stddev?.['@_value']);
-  const complexity = optFloat(stats?.averageweight?.['@_value']);
+  // BGG returns 0 for games with no complexity votes — our schema requires 1-5 or null
+  const rawComplexity = optFloat(stats?.averageweight?.['@_value']);
+  const complexity = rawComplexity && rawComplexity >= 1 && rawComplexity <= 5 ? rawComplexity : null;
   const owned = optInt(stats?.owned?.['@_value']);
   const wanting = optInt(stats?.wanting?.['@_value']);
   const wishing = optInt(stats?.wishing?.['@_value']);
