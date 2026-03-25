@@ -15,10 +15,38 @@ const roboto = Roboto({
 });
 
 export const metadata: Metadata = {
-  title: "Recommend a Game",
+  title: {
+    default: "Recommend a Game — Find Your Next Favorite Game",
+    template: "%s | Recommend a Game",
+  },
   description:
-    "Find your next game to play based on players, budget, and what you already own.",
+    "Smart game recommendation engine for board games, video games, word games, and party games. 100,000+ games scored by a 4-layer AI recommendation engine.",
   metadataBase: new URL("https://recommendagame.com"),
+  keywords: [
+    "game recommendations",
+    "board game finder",
+    "video game recommendations",
+    "what game should I play",
+    "party game ideas",
+    "game night",
+    "board game geek",
+    "game suggestion engine",
+  ],
+  openGraph: {
+    type: "website",
+    title: "Recommend a Game — Find Your Next Favorite Game",
+    description: "Tell us what you're in the mood for and we'll match you with something great to play. 100,000+ games.",
+    siteName: "Recommend a Game",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Recommend a Game",
+    description: "Smart game recommendation engine. Board games, video games, word games, and party games.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
