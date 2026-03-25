@@ -382,7 +382,7 @@ export default function RandomGameView() {
                       variant="overline"
                       sx={{ color: 'warning.main', fontWeight: 700, letterSpacing: 2 }}
                     >
-                      Legendary Pick
+                      Critical Success
                     </Typography>
                   )}
                   {isNat1 && (
@@ -390,7 +390,7 @@ export default function RandomGameView() {
                       variant="overline"
                       sx={{ color: 'error.main', fontWeight: 700, letterSpacing: 2 }}
                     >
-                      Cursed Pick
+                      Critical Failure
                     </Typography>
                   )}
                   <Typography variant="h5" fontWeight={700} sx={{ mb: 1 }}>
