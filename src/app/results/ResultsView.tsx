@@ -2,12 +2,18 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
 import Container from '@mui/material/Container';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
 import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import GameCard from '@/components/GameCard';
 import { GameCardSkeletonList } from '@/components/GameCardSkeleton';
@@ -32,6 +38,9 @@ export default function ResultsView() {
   const [engine, setEngine] = useState<string>('');
   const [totalCandidates, setTotalCandidates] = useState(0);
   const [shareCopied, setShareCopied] = useState(false);
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [presetName, setPresetName] = useState('');
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
 
   /**
    * Reconstructs the QuestionnaireState from URL search params
@@ -84,6 +93,51 @@ export default function ResultsView() {
     fetchResults();
   }, [fetchResults]);
 
+  async function saveAsPreset() {
+    if (!presetName.trim()) return;
+    setSaveStatus('saving');
+
+    const preferences = {
+      gameType: searchParams.get('type'),
+      playerCount: {
+        min: parseInt(searchParams.get('minPlayers') ?? '1', 10),
+        max: parseInt(searchParams.get('maxPlayers') ?? '8', 10),
+      },
+      timeAvailable: searchParams.get('time'),
+      complexity: {
+        min: parseFloat(searchParams.get('minComplexity') ?? '1'),
+        max: parseFloat(searchParams.get('maxComplexity') ?? '5'),
+      },
+      genres: searchParams.get('genres')?.split(',').filter(Boolean) ?? [],
+      moods: searchParams.get('moods')?.split(',').filter(Boolean) ?? [],
+      freeText: searchParams.get('freeText') ?? '',
+    };
+
+    try {
+      const res = await fetch('/api/presets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: presetName.trim(), preferences }),
+      });
+      if (res.status === 401) {
+        setSaveStatus('error');
+        return;
+      }
+      if (!res.ok) {
+        setSaveStatus('error');
+        return;
+      }
+      setSaveStatus('saved');
+      setTimeout(() => {
+        setSaveDialogOpen(false);
+        setSaveStatus('idle');
+        setPresetName('');
+      }, 1500);
+    } catch {
+      setSaveStatus('error');
+    }
+  }
+
   function changePopularity(mode: PopularityMode) {
     setPopularity(mode);
     fetchResults(mode);
@@ -103,7 +157,14 @@ export default function ResultsView() {
               </Typography>
             )}
           </Box>
-          <Box sx={{ display: 'flex', gap: 1 }}>
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => setSaveDialogOpen(true)}
+            >
+              💾 Save Preset
+            </Button>
             <Button
               variant="outlined"
               size="small"
@@ -115,9 +176,9 @@ export default function ResultsView() {
                 });
               }}
             >
-              {shareCopied ? 'Link Copied!' : 'Share Results'}
+              {shareCopied ? 'Link Copied!' : '🔗 Share'}
             </Button>
-            <Button variant="outlined" onClick={() => router.push('/questionnaire')}>
+            <Button variant="outlined" size="small" onClick={() => router.push('/questionnaire')}>
               Start Over
             </Button>
           </Box>
@@ -200,6 +261,41 @@ export default function ResultsView() {
           </Box>
         ))}
       </Stack>
+
+      {/* Save as Preset Dialog */}
+      <Dialog open={saveDialogOpen} onClose={() => setSaveDialogOpen(false)} maxWidth="xs" fullWidth>
+        <DialogTitle sx={{ fontWeight: 700 }}>💾 Save as Preset</DialogTitle>
+        <DialogContent>
+          {saveStatus === 'saved' && (
+            <Alert severity="success" sx={{ mb: 2 }}>Preset saved! Find it in your profile.</Alert>
+          )}
+          {saveStatus === 'error' && (
+            <Alert severity="error" sx={{ mb: 2 }}>Failed to save. Make sure you&apos;re logged in.</Alert>
+          )}
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Save these preferences so you can quickly get recommendations again without answering all the questions.
+          </Typography>
+          <TextField
+            autoFocus
+            fullWidth
+            label="Preset Name"
+            placeholder="e.g., Date Night, Game Night, Quick Break"
+            value={presetName}
+            onChange={(e) => setPresetName(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && saveAsPreset()}
+          />
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button onClick={() => setSaveDialogOpen(false)}>Cancel</Button>
+          <Button
+            variant="contained"
+            onClick={saveAsPreset}
+            disabled={!presetName.trim() || saveStatus === 'saving' || saveStatus === 'saved'}
+          >
+            {saveStatus === 'saving' ? 'Saving...' : saveStatus === 'saved' ? 'Saved!' : 'Save Preset'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 }

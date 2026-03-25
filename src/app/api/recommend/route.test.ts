@@ -79,15 +79,22 @@ function makeGameRow(id: string, overrides: Record<string, unknown> = {}) {
   };
 }
 
-const defaultPrefs = {
-  gameType: 'board',
-  playerCount: { min: 2, max: 4 },
-  timeAvailable: 'medium',
-  complexity: { min: 2, max: 4 },
-  genres: ['Strategy'],
-  moods: ['competitive'],
-  freeText: '',
-};
+let testCounter = 0;
+
+/** Each test gets unique prefs to avoid cache hits between tests */
+function uniquePrefs(overrides: Record<string, unknown> = {}) {
+  testCounter++;
+  return {
+    gameType: 'board',
+    playerCount: { min: 2, max: 4 },
+    timeAvailable: 'medium',
+    complexity: { min: 2, max: 4 },
+    genres: ['Strategy'],
+    moods: ['competitive'],
+    freeText: `test-${testCounter}`,
+    ...overrides,
+  };
+}
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -119,7 +126,7 @@ describe('POST /api/recommend', () => {
     ];
     chain.limit.mockResolvedValueOnce({ data: gameRows, error: null });
 
-    const res = await POST(makeRequest(defaultPrefs) as any);
+    const res = await POST(makeRequest(uniquePrefs()) as any);
     expect(res.status).toBe(200);
     const data = await res.json();
 
@@ -134,7 +141,7 @@ describe('POST /api/recommend', () => {
   it('returns empty results when DB returns no candidates', async () => {
     chain.limit.mockResolvedValueOnce({ data: [], error: null });
 
-    const res = await POST(makeRequest(defaultPrefs) as any);
+    const res = await POST(makeRequest(uniquePrefs()) as any);
     const data = await res.json();
     expect(data.count).toBe(0);
     expect(data.results).toEqual([]);
@@ -146,7 +153,7 @@ describe('POST /api/recommend', () => {
     );
     chain.limit.mockResolvedValueOnce({ data: gameRows, error: null });
 
-    const res = await POST(makeRequest({ ...defaultPrefs, limit: 3 }) as any);
+    const res = await POST(makeRequest(uniquePrefs({ limit: 3 })) as any);
     const data = await res.json();
     expect(data.count).toBe(3);
     expect(data.results).toHaveLength(3);
@@ -156,7 +163,7 @@ describe('POST /api/recommend', () => {
     const gameRows = Array.from({ length: 8 }, (_, i) => makeGameRow(String(i)));
     chain.limit.mockResolvedValueOnce({ data: gameRows, error: null });
 
-    const res = await POST(makeRequest({ ...defaultPrefs, limit: 3 }) as any);
+    const res = await POST(makeRequest(uniquePrefs({ limit: 3 })) as any);
     const data = await res.json();
     expect(data.totalCandidates).toBe(8);
     expect(data.count).toBe(3);
@@ -165,7 +172,7 @@ describe('POST /api/recommend', () => {
   it('accepts popularity mode parameter', async () => {
     chain.limit.mockResolvedValueOnce({ data: [makeGameRow('1')], error: null });
 
-    const res = await POST(makeRequest({ ...defaultPrefs, popularity: 'hidden-gems' }) as any);
+    const res = await POST(makeRequest(uniquePrefs({ popularity: 'hidden-gems' })) as any);
     const data = await res.json();
     expect(data.popularity).toBe('hidden-gems');
   });
@@ -173,7 +180,7 @@ describe('POST /api/recommend', () => {
   it('returns empty results gracefully on DB error', async () => {
     chain.limit.mockResolvedValueOnce({ data: null, error: { message: 'DB error' } });
 
-    const res = await POST(makeRequest(defaultPrefs) as any);
+    const res = await POST(makeRequest(uniquePrefs()) as any);
     const data = await res.json();
     expect(data.count).toBe(0);
   });
