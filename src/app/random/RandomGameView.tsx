@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -13,37 +14,47 @@ import Typography from '@mui/material/Typography';
 import { motion, AnimatePresence } from 'motion/react';
 import type { Game } from '@/types/game';
 
+// Dynamic import — Three.js can't SSR
+const PhysicsDice = dynamic(() => import('@/components/PhysicsDice'), {
+  ssr: false,
+  loading: () => (
+    <Box sx={{ width: '100%', height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <Typography sx={{ fontSize: '4rem' }}>🎲</Typography>
+    </Box>
+  ),
+});
+
 export default function RandomGameView() {
   const router = useRouter();
   const [game, setGame] = useState<Game | null>(null);
   const [loading, setLoading] = useState(false);
   const [rolling, setRolling] = useState(false);
+  const [diceValue, setDiceValue] = useState<number | null>(null);
   const [type, setType] = useState<string | null>(null);
 
   async function rollDice() {
+    if (rolling) return;
     setRolling(true);
     setLoading(true);
+    setDiceValue(null);
 
-    // Show rolling animation for at least 1 second
-    const start = Date.now();
     try {
       const params = type ? `?type=${type}` : '';
       const res = await fetch(`/api/games/random${params}`);
       if (!res.ok) return;
       const data = await res.json();
-
-      // Ensure rolling animation plays for minimum time
-      const elapsed = Date.now() - start;
-      if (elapsed < 1000) {
-        await new Promise((r) => setTimeout(r, 1000 - elapsed));
-      }
-
       setGame(data.game);
+    } catch {
+      // Fetch failed — dice will still settle
     } finally {
-      setRolling(false);
       setLoading(false);
     }
   }
+
+  const handleDiceSettled = useCallback((value: number) => {
+    setDiceValue(value);
+    setRolling(false);
+  }, []);
 
   const typeOptions = [
     { label: 'Any Game', value: null, emoji: '🎲' },
@@ -54,18 +65,8 @@ export default function RandomGameView() {
   ];
 
   return (
-    <Container maxWidth="sm" sx={{ py: 6, textAlign: 'center' }}>
-      <Stack spacing={4} alignItems="center">
-        {/* Dice animation */}
-        <motion.div
-          animate={rolling ? { rotate: [0, 360, 720, 1080], scale: [1, 1.2, 0.9, 1.1, 1] } : {}}
-          transition={{ duration: 1, ease: 'easeInOut' }}
-        >
-          <Typography sx={{ fontSize: '5rem', lineHeight: 1, cursor: 'pointer' }} onClick={rollDice}>
-            🎲
-          </Typography>
-        </motion.div>
-
+    <Container maxWidth="sm" sx={{ py: 4, textAlign: 'center' }}>
+      <Stack spacing={3} alignItems="center">
         <Box>
           <Typography variant="h3" fontWeight={800} sx={{ mb: 1 }}>
             Roll the Dice
@@ -74,6 +75,17 @@ export default function RandomGameView() {
             Not sure what to play? Let fate decide.
           </Typography>
         </Box>
+
+        {/* 3D Physics Dice */}
+        <Box sx={{ width: '100%', maxWidth: 400 }} onClick={() => !rolling && rollDice()}>
+          <PhysicsDice rolling={rolling} onSettled={handleDiceSettled} />
+        </Box>
+
+        {diceValue && !rolling && (
+          <Typography variant="body2" color="text.secondary">
+            Rolled a {diceValue}!
+          </Typography>
+        )}
 
         {/* Type filter chips */}
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -94,10 +106,10 @@ export default function RandomGameView() {
             variant="contained"
             size="large"
             onClick={rollDice}
-            disabled={loading}
+            disabled={rolling}
             sx={{ px: 6, py: 2, fontSize: '1.2rem', borderRadius: 3 }}
           >
-            {loading ? 'Rolling...' : game ? 'Roll Again' : 'Roll!'}
+            {rolling ? 'Rolling...' : game ? 'Roll Again' : 'Roll!'}
           </Button>
         </motion.div>
 
@@ -105,7 +117,7 @@ export default function RandomGameView() {
         <AnimatePresence mode="wait">
           {game && !rolling && (
             <motion.div
-              key={game.id}
+              key={(game as any).id ?? 'result'}
               initial={{ opacity: 0, y: 30, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -20, scale: 0.95 }}
@@ -119,7 +131,7 @@ export default function RandomGameView() {
                   transition: 'all 200ms',
                   '&:hover': { boxShadow: 4, transform: 'translateY(-2px)' },
                 }}
-                onClick={() => router.push(`/games/${encodeURIComponent(game.id)}`)}
+                onClick={() => router.push(`/games/${encodeURIComponent((game as any).id)}`)}
               >
                 {(game as any).image_url && (
                   <Box
@@ -180,7 +192,7 @@ export default function RandomGameView() {
                     sx={{ mt: 2 }}
                     onClick={(e) => {
                       e.stopPropagation();
-                      router.push(`/games/${encodeURIComponent(game.id)}`);
+                      router.push(`/games/${encodeURIComponent((game as any).id)}`);
                     }}
                   >
                     View Details
