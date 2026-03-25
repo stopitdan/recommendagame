@@ -47,12 +47,12 @@ function createFaceTexture(value: number): THREE.CanvasTexture {
 // Three.js box: +X=right, -X=left, +Y=top, -Y=bottom, +Z=front, -Z=back
 // Our mapping: +X=3, -X=4, +Y=2, -Y=5, +Z=1, -Z=6
 const LAND_EULER: Record<number, [number, number, number]> = {
-  1: [-Math.PI / 2, 0, 0],   // tilt +Z face up
-  2: [0, 0, 0],               // +Y already up
-  3: [0, 0, Math.PI / 2],     // tilt +X face up
-  4: [0, 0, -Math.PI / 2],    // tilt -X face up
-  5: [Math.PI, 0, 0],         // flip to -Y up
-  6: [Math.PI / 2, 0, 0],     // tilt -Z face up
+  1: [-Math.PI / 2, 0, 0],    // +Z (face 1) rotated to point up
+  2: [0, 0, 0],                // +Y (face 2) already up
+  3: [0, 0, -Math.PI / 2],    // +X (face 3) rotated to point up
+  4: [0, 0, Math.PI / 2],     // -X (face 4) rotated to point up
+  5: [Math.PI, 0, 0],         // -Y (face 5) flipped to point up
+  6: [Math.PI / 2, 0, 0],     // -Z (face 6) rotated to point up
 };
 
 // ─── Animated Dice ───────────────────────────────────────────
@@ -66,12 +66,10 @@ function AnimatedDice({ rolling, onSettled }: { rolling: boolean; onSettled: (v:
     active: false,
     startTime: 0,
     duration: 1.8,
-    // Start rotation (random)
     startX: 0, startY: 0, startZ: 0,
-    // End rotation (lands on face)
     endX: 0, endY: 0, endZ: 0,
-    // Bounce
     settled: false,
+    targetFace: 1,  // The face we chose to land on
   });
 
   // Create textures on mount
@@ -116,6 +114,7 @@ function AnimatedDice({ rolling, onSettled }: { rolling: boolean; onSettled: (v:
         endY: ey + spins() * dirY,
         endZ: ez + spins() * dirX * dirY,
         settled: false,
+        targetFace: face,
       };
     }
     lastRolling.current = rolling;
@@ -153,9 +152,8 @@ function AnimatedDice({ rolling, onSettled }: { rolling: boolean; onSettled: (v:
       a.settled = true;
       a.active = false;
 
-      // Determine which face is up from the final rotation
-      const face = getFaceFromEuler(meshRef.current.rotation);
-      onSettled(face);
+      // Report the face we chose to land on
+      onSettled(a.targetFace);
     }
   });
 
@@ -170,29 +168,6 @@ function AnimatedDice({ rolling, onSettled }: { rolling: boolean; onSettled: (v:
       </RoundedBox>
     </mesh>
   );
-}
-
-/** Determine top face from current euler rotation */
-function getFaceFromEuler(rotation: THREE.Euler): number {
-  const quat = new THREE.Quaternion().setFromEuler(rotation);
-  const up = new THREE.Vector3(0, 1, 0);
-
-  const axes = [
-    { dir: new THREE.Vector3(1, 0, 0), face: 3 },
-    { dir: new THREE.Vector3(-1, 0, 0), face: 4 },
-    { dir: new THREE.Vector3(0, 1, 0), face: 2 },
-    { dir: new THREE.Vector3(0, -1, 0), face: 5 },
-    { dir: new THREE.Vector3(0, 0, 1), face: 1 },
-    { dir: new THREE.Vector3(0, 0, -1), face: 6 },
-  ];
-
-  let best = 1;
-  let bestDot = -Infinity;
-  for (const { dir, face } of axes) {
-    const d = dir.clone().applyQuaternion(quat).dot(up);
-    if (d > bestDot) { bestDot = d; best = face; }
-  }
-  return best;
 }
 
 // ─── Main Component ──────────────────────────────────────────
