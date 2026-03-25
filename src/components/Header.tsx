@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography';
 import { createClient } from '@/lib/supabase/server';
 import HeaderNav from './HeaderNav';
 import HeaderAuth from './HeaderAuth';
+import MobileNav from './MobileNav';
 
 export default async function Header() {
   const supabase = await createClient();
@@ -17,18 +18,44 @@ export default async function Header() {
         <Link href="/" style={{ textDecoration: 'none', marginRight: 24 }}>
           <Typography
             variant="h6"
-            sx={{ color: '#FFFFFF', fontWeight: 700, letterSpacing: '-0.02em' }}
+            sx={{
+              color: '#FFFFFF',
+              fontWeight: 800,
+              letterSpacing: '-0.02em',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+            }}
           >
-            Recommend a Game
+            <Box component="span" sx={{ fontSize: '1.3rem' }}>🎲</Box>
+            <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+              Recommend a Game
+            </Box>
+            <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>
+              RAG
+            </Box>
           </Typography>
         </Link>
 
-        <HeaderNav />
+        {/* Desktop nav */}
+        <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+          <HeaderNav />
+        </Box>
 
         <Box sx={{ flex: 1 }} />
 
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+        {/* Desktop auth */}
+        <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1, alignItems: 'center' }}>
           <HeaderAuth
+            isLoggedIn={!!user}
+            email={user?.email ?? ''}
+            displayName={user?.user_metadata?.display_name}
+          />
+        </Box>
+
+        {/* Mobile hamburger menu */}
+        <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
+          <MobileNav
             isLoggedIn={!!user}
             email={user?.email ?? ''}
             displayName={user?.user_metadata?.display_name}
