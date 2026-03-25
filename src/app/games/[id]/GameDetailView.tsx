@@ -13,6 +13,7 @@ import Typography from '@mui/material/Typography';
 import FavoriteButton from '@/components/FavoriteButton';
 import ReviewForm from '@/components/ReviewForm';
 import ReviewList from '@/components/ReviewList';
+import SimilarGames from '@/components/SimilarGames';
 import type { Game } from '@/types/game';
 
 export default function GameDetailView() {
@@ -250,6 +251,13 @@ export default function GameDetailView() {
           Reviews
         </Typography>
         <ReviewList gameId={game.id} refreshKey={reviewRefreshKey} />
+      </Box>
+
+      <Divider sx={{ my: 4 }} />
+
+      {/* Similar games */}
+      <Box sx={{ mb: 4 }}>
+        <SimilarGames gameId={game.id} />
       </Box>
     </Container>
   );
