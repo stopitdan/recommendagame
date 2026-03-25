@@ -82,7 +82,7 @@ export default function RandomGameView() {
         </Box>
 
         {diceValue && !rolling && (
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="h5" fontWeight={700} sx={{ color: 'secondary.main' }}>
             Rolled a {diceValue}!
           </Typography>
         )}
