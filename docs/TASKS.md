@@ -187,7 +187,8 @@ Granular tasks organized by phase. Update status as work progresses.
 
 ### 3b.4 Recommendation Settings (per-user)
 - [x] DB migration: added popularity_mode, min_rating, excluded_sources to user_preferences
-- [ ] Settings page (`/settings`) with UI controls
+- [x] Settings page (`/settings`) with UI controls
+- [x] GET/PUT `/api/settings` API routes
 - [ ] Apply saved settings to search/recommendation API automatically
 
 ### 3b.5 User Reviews & Ratings
@@ -221,11 +222,13 @@ Granular tasks organized by phase. Update status as work progresses.
 - [ ] Time period filter (all time, this month, this week)
 
 ### 3b.8 Landing Page Glow-Up
-- [ ] Animated hero section with staggered text entrance
-- [ ] Feature highlights section (3-4 cards: "Board Games", "Video Games", "Word Games", "Smart Recommendations")
-- [ ] Social proof section (game count, user count, "Top picks" preview)
-- [ ] How it works section (3-step visual: Answer → Discover → Play)
-- [ ] CTA sections throughout
+- [x] Animated hero section with staggered blur-in text entrance + parallax scroll
+- [x] Feature highlights section (4 cards with scroll-triggered stagger + spring hover)
+- [x] Stats section (animated counters: 26k+ games, 3 categories, 150+ genres)
+- [x] How it works section (3-step with scroll-triggered stagger reveal)
+- [x] CTA sections throughout (dual hero CTAs + bottom CTA)
+- [x] motion library (framer-motion successor) for all animations
+- [x] Floating dice decorations with gentle bobbing animation
 
 ---
 
