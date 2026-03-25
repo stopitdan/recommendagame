@@ -7,6 +7,7 @@ import Box from '@mui/material/Box';
 const NAV_ITEMS = [
   { label: 'Find a Game', href: '/questionnaire', icon: '🎯' },
   { label: 'Browse', href: '/browse', icon: '🔍' },
+  { label: 'Random', href: '/random', icon: '🎲' },
   { label: 'Leaderboard', href: '/leaderboard', icon: '🏆' },
 ];
 
