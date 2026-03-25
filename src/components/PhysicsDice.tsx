@@ -122,7 +122,7 @@ const SETTLE_DUR = 0.3;   // Final tiny SLERP to flat face
 const PRESENT_DUR = 0.35; // Grow to highlight result
 
 /** Camera direction — the face we want pointing at the user */
-const TO_CAMERA = new THREE.Vector3(0, 2.8, 3.5).normalize();
+const TO_CAMERA = new THREE.Vector3(0, 1.5, 4).normalize();
 
 function AnimatedD20({
   rolling,
@@ -393,9 +393,9 @@ interface PhysicsDiceProps {
 
 export default function PhysicsDice({ rolling, onSettled }: PhysicsDiceProps) {
   return (
-    <div style={{ width: '100%', height: 320, cursor: 'pointer', borderRadius: 16, overflow: 'hidden' }}>
+    <div style={{ width: '100%', height: 220, cursor: 'pointer', borderRadius: 16, overflow: 'hidden' }}>
       <Canvas
-        camera={{ position: [0, 2.8, 3.5], fov: 40 }}
+        camera={{ position: [0, 1.5, 4], fov: 35, near: 0.1 }}
         style={{ background: 'transparent' }}
         gl={{ alpha: true, antialias: true }}
       >
