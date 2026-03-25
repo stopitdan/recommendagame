@@ -113,16 +113,28 @@ function FaceLabels({ faces }: { faces: FaceData[] }) {
 
 // ─── Animated D20 ────────────────────────────────────────────
 
+type Phase = 'idle' | 'shrink' | 'tumble' | 'settle' | 'present';
+
 interface AnimState {
-  active: boolean;
+  phase: Phase;
   startTime: number;
-  duration: number;
-  /** Consistent tumble velocity — one direction, never changes */
+  /** Tumble config */
+  tumbleDuration: number;
   velX: number;
   velY: number;
   velZ: number;
-  settled: boolean;
+  /** Settle config (smooth SLERP to nearest face) */
+  settleStartQuat: THREE.Quaternion;
+  settleTargetQuat: THREE.Quaternion;
+  /** Result */
+  resultValue: number;
+  resultReported: boolean;
 }
+
+/** Duration of each non-tumble phase */
+const SHRINK_DUR = 0.25;
+const SETTLE_DUR = 0.5;
+const PRESENT_DUR = 0.35;
 
 function AnimatedD20({
   rolling,
@@ -136,55 +148,29 @@ function AnimatedD20({
   const groupRef = useRef<THREE.Group>(null);
 
   const anim = useRef<AnimState>({
-    active: false,
+    phase: 'idle',
     startTime: 0,
-    duration: 2.2,
+    tumbleDuration: 2.0,
     velX: 0, velY: 0, velZ: 0,
-    settled: false,
+    settleStartQuat: new THREE.Quaternion(),
+    settleTargetQuat: new THREE.Quaternion(),
+    resultValue: 1,
+    resultReported: false,
   });
 
+  const scaleRef = useRef(1);
   const lastRolling = useRef(false);
+  const toCamera = useMemo(() => new THREE.Vector3(0, 2.5, 3).normalize(), []);
 
-  /** Find which face's normal is most aligned with the camera direction */
-  function findFacingCamera(): number {
-    if (!groupRef.current) return 1;
-
-    const toCamera = new THREE.Vector3(0, 2.5, 3).normalize();
-    const worldNormal = new THREE.Vector3();
-    let bestDot = -Infinity;
-    let bestFace = 0;
-
-    for (let i = 0; i < faces.length; i++) {
-      // Transform face normal from local to world space
-      worldNormal.copy(faces[i].normal);
-      worldNormal.applyQuaternion(groupRef.current.quaternion);
-
-      const dot = worldNormal.dot(toCamera);
-      if (dot > bestDot) {
-        bestDot = dot;
-        bestFace = i;
-      }
-    }
-
-    return bestFace + 1; // 1-indexed
-  }
-
-  /**
-   * Snap to the nearest face so the die rests perfectly flat.
-   * Finds the face whose normal is closest to the camera direction,
-   * then rotates minimally to align it exactly.
-   */
-  function snapToNearestFace() {
-    if (!groupRef.current) return;
-
-    const toCamera = new THREE.Vector3(0, 2.5, 3).normalize();
+  /** Find nearest face to camera and compute the correction quaternion */
+  function computeNearestFaceLanding(): { value: number; targetQuat: THREE.Quaternion } {
+    const group = groupRef.current!;
     const worldNormal = new THREE.Vector3();
     let bestDot = -Infinity;
     let bestIdx = 0;
 
     for (let i = 0; i < faces.length; i++) {
-      worldNormal.copy(faces[i].normal);
-      worldNormal.applyQuaternion(groupRef.current.quaternion);
+      worldNormal.copy(faces[i].normal).applyQuaternion(group.quaternion);
       const dot = worldNormal.dot(toCamera);
       if (dot > bestDot) {
         bestDot = dot;
@@ -192,14 +178,18 @@ function AnimatedD20({
       }
     }
 
-    // The correction is the rotation from current best-face-world-normal
-    // to the exact camera direction. This is always a TINY rotation
-    // (just a few degrees) since we picked the closest face.
-    worldNormal.copy(faces[bestIdx].normal);
-    worldNormal.applyQuaternion(groupRef.current.quaternion);
-
+    // Compute target: current quat corrected so best face points at camera
+    worldNormal.copy(faces[bestIdx].normal).applyQuaternion(group.quaternion);
     const correction = new THREE.Quaternion().setFromUnitVectors(worldNormal, toCamera);
-    groupRef.current.quaternion.premultiply(correction);
+    const targetQuat = group.quaternion.clone().premultiply(correction);
+
+    return { value: bestIdx + 1, targetQuat };
+  }
+
+  // Transition to a new phase
+  function setPhase(phase: Phase) {
+    anim.current.phase = phase;
+    anim.current.startTime = 0; // Will be set on next frame
   }
 
   useEffect(() => {
@@ -207,57 +197,123 @@ function AnimatedD20({
       const dirX = Math.random() > 0.5 ? 1 : -1;
       const dirY = Math.random() > 0.5 ? 1 : -1;
 
-      anim.current = {
-        active: true,
-        startTime: 0,
-        duration: 1.8 + Math.random() * 0.4,
-        velX: dirX * (8 + Math.random() * 4),
-        velY: dirY * (6 + Math.random() * 3),
-        velZ: dirX * dirY * (2 + Math.random() * 2),
-        settled: false,
-      };
+      anim.current.tumbleDuration = 1.8 + Math.random() * 0.4;
+      anim.current.velX = dirX * (8 + Math.random() * 4);
+      anim.current.velY = dirY * (6 + Math.random() * 3);
+      anim.current.velZ = dirX * dirY * (2 + Math.random() * 2);
+      anim.current.resultReported = false;
+
+      // If already presented (re-roll), shrink first. Otherwise go straight to tumble.
+      if (scaleRef.current > 0.95) {
+        setPhase('shrink');
+      } else {
+        setPhase('tumble');
+      }
     }
     lastRolling.current = rolling;
   }, [rolling]);
 
   useFrame((_, delta) => {
     const a = anim.current;
-    if (!a.active || !groupRef.current) return;
+    const group = groupRef.current;
+    if (!group || a.phase === 'idle') return;
 
+    // Lazy init startTime
     if (a.startTime === 0) a.startTime = performance.now();
-
     const elapsed = (performance.now() - a.startTime) / 1000;
-    const t = Math.min(elapsed / a.duration, 1);
 
-    // ── Pure Euler tumble with quadratic deceleration ──
-    // One direction, gradually slowing. No correction, no SLERP.
-    const decel = (1 - t) * (1 - t);
-    groupRef.current.rotation.x += a.velX * decel * delta;
-    groupRef.current.rotation.y += a.velY * decel * delta;
-    groupRef.current.rotation.z += a.velZ * decel * delta;
+    switch (a.phase) {
+      // ── Shrink before re-roll ──
+      case 'shrink': {
+        const t = Math.min(elapsed / SHRINK_DUR, 1);
+        const ease = t * t; // Ease-in (accelerate into shrink)
+        scaleRef.current = 1 - ease * 0.7; // Shrink to 0.3
+        group.scale.setScalar(scaleRef.current);
 
-    // ── Bounce ──
-    let bounceY = 0;
-    if (t < 0.22) {
-      bounceY = Math.sin((t / 0.22) * Math.PI) * 0.5;
-    } else if (t < 0.42) {
-      bounceY = Math.sin(((t - 0.22) / 0.2) * Math.PI) * 0.15;
-    } else if (t < 0.55) {
-      bounceY = Math.sin(((t - 0.42) / 0.13) * Math.PI) * 0.04;
-    }
-    groupRef.current.position.y = bounceY;
+        if (t >= 1) {
+          scaleRef.current = 0.3;
+          group.scale.setScalar(0.3);
+          setPhase('tumble');
+        }
+        break;
+      }
 
-    // ── Settle: let physics decide the result ──
-    if (t >= 1 && !a.settled) {
-      a.settled = true;
-      a.active = false;
-      groupRef.current.position.y = 0;
+      // ── Main tumble: pure physics ──
+      case 'tumble': {
+        const t = Math.min(elapsed / a.tumbleDuration, 1);
 
-      // Tiny snap to nearest flat face (just a few degrees — invisible)
-      snapToNearestFace();
+        // Scale back up at the start of tumble
+        if (scaleRef.current < 1) {
+          const growT = Math.min(elapsed / 0.3, 1); // 0.3s to grow back
+          const growEase = 1 - Math.pow(1 - growT, 3);
+          scaleRef.current = 0.3 + 0.7 * growEase;
+          group.scale.setScalar(scaleRef.current);
+        }
 
-      // Report whichever face ended up facing the camera
-      onSettled(findFacingCamera());
+        // Euler tumble with quadratic deceleration
+        const decel = (1 - t) * (1 - t);
+        group.rotation.x += a.velX * decel * delta;
+        group.rotation.y += a.velY * decel * delta;
+        group.rotation.z += a.velZ * decel * delta;
+
+        // Bounce
+        let bounceY = 0;
+        if (t < 0.22) {
+          bounceY = Math.sin((t / 0.22) * Math.PI) * 0.5;
+        } else if (t < 0.42) {
+          bounceY = Math.sin(((t - 0.22) / 0.2) * Math.PI) * 0.15;
+        } else if (t < 0.55) {
+          bounceY = Math.sin(((t - 0.42) / 0.13) * Math.PI) * 0.04;
+        }
+        group.position.y = bounceY;
+
+        if (t >= 1) {
+          group.position.y = 0;
+          // Compute where to settle
+          const { value, targetQuat } = computeNearestFaceLanding();
+          a.settleStartQuat.copy(group.quaternion);
+          a.settleTargetQuat.copy(targetQuat);
+          a.resultValue = value;
+          setPhase('settle');
+        }
+        break;
+      }
+
+      // ── Smooth settle to flat face (small rotation) ──
+      case 'settle': {
+        const t = Math.min(elapsed / SETTLE_DUR, 1);
+        // Cubic ease-out for gentle deceleration into flat
+        const ease = 1 - Math.pow(1 - t, 3);
+
+        group.quaternion.slerpQuaternions(a.settleStartQuat, a.settleTargetQuat, ease);
+
+        if (t >= 1) {
+          group.quaternion.copy(a.settleTargetQuat);
+          setPhase('present');
+        }
+        break;
+      }
+
+      // ── Present: grow slightly to highlight the result ──
+      case 'present': {
+        const t = Math.min(elapsed / PRESENT_DUR, 1);
+        // Spring-like overshoot: grows to 1.12 then settles to 1.08
+        const spring = 1 + 0.08 * (1 - Math.pow(1 - t, 3)) + 0.04 * Math.sin(t * Math.PI);
+        scaleRef.current = spring;
+        group.scale.setScalar(spring);
+
+        if (t >= 1) {
+          scaleRef.current = 1.08;
+          group.scale.setScalar(1.08);
+          a.phase = 'idle';
+
+          if (!a.resultReported) {
+            a.resultReported = true;
+            onSettled(a.resultValue);
+          }
+        }
+        break;
+      }
     }
   });
 
