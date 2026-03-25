@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { Metadata } from 'next';
 import BrowseView from './BrowseView';
 
@@ -7,5 +8,9 @@ export const metadata: Metadata = {
 };
 
 export default function BrowsePage() {
-  return <BrowseView />;
+  return (
+    <Suspense>
+      <BrowseView />
+    </Suspense>
+  );
 }

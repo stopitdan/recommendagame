@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { Metadata } from 'next';
 import ResultsView from './ResultsView';
 
@@ -7,5 +8,9 @@ export const metadata: Metadata = {
 };
 
 export default function ResultsPage() {
-  return <ResultsView />;
+  return (
+    <Suspense>
+      <ResultsView />
+    </Suspense>
+  );
 }
