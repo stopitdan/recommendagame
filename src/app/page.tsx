@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
@@ -9,7 +10,7 @@ export default function Home() {
     <Box
       component="main"
       sx={{
-        minHeight: "100vh",
+        minHeight: "calc(100vh - 64px)",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -23,12 +24,14 @@ export default function Home() {
             Recommend a Game
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            A recommendation engine for your next session—players, budget, and
-            what you already own, powered by APIs you wire in later.
+            Tell us what you&apos;re in the mood for — players, complexity, genres,
+            vibe — and we&apos;ll find the perfect game for you.
           </Typography>
-          <Button variant="contained" size="large" disabled>
-            Get started (coming soon)
-          </Button>
+          <Link href="/questionnaire" style={{ textDecoration: 'none' }}>
+            <Button variant="contained" size="large">
+              Find Me a Game
+            </Button>
+          </Link>
         </Stack>
       </Container>
     </Box>

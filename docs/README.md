@@ -11,6 +11,7 @@ This folder contains all planning, tracking, and architectural documentation for
 | [ARCHITECTURE.md](ARCHITECTURE.md) | System architecture and tech decisions |
 | [DATA-SOURCES.md](DATA-SOURCES.md) | API research, endpoints, rate limits, auth |
 | [DECISIONS.md](DECISIONS.md) | Architecture Decision Records (ADRs) |
+| [RECOMMENDATION-ENGINE.md](RECOMMENDATION-ENGINE.md) | How the recommendation engine evolves from filtering to ML |
 | [playbooks/](playbooks/) | Reusable guides for repeatable tasks |
 
 ## Playbooks

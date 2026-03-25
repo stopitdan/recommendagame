@@ -1,0 +1,136 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Container from '@mui/material/Container';
+import LinearProgress from '@mui/material/LinearProgress';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+import type { QuestionnaireState } from '@/types/questionnaire';
+import { INITIAL_STATE } from '@/types/questionnaire';
+import GameTypeStep from '@/components/questionnaire/GameTypeStep';
+import PlayerCountStep from '@/components/questionnaire/PlayerCountStep';
+import TimeStep from '@/components/questionnaire/TimeStep';
+import ComplexityStep from '@/components/questionnaire/ComplexityStep';
+import GenreStep from '@/components/questionnaire/GenreStep';
+import MoodStep from '@/components/questionnaire/MoodStep';
+import FreeTextStep from '@/components/questionnaire/FreeTextStep';
+
+const STEPS = [
+  { key: 'gameType', title: 'What kind of game?' },
+  { key: 'playerCount', title: 'How many players?' },
+  { key: 'timeAvailable', title: 'How much time do you have?' },
+  { key: 'complexity', title: 'How complex?' },
+  { key: 'genres', title: 'Pick genres you like' },
+  { key: 'moods', title: "What's the vibe?" },
+  { key: 'freeText', title: 'Anything else?' },
+] as const;
+
+export default function QuestionnaireFlow() {
+  const router = useRouter();
+  const [step, setStep] = useState(0);
+  const [state, setState] = useState<QuestionnaireState>(INITIAL_STATE);
+
+  const totalSteps = STEPS.length;
+  const progress = ((step + 1) / totalSteps) * 100;
+  const isLast = step === totalSteps - 1;
+
+  function update(partial: Partial<QuestionnaireState>) {
+    setState((prev) => ({ ...prev, ...partial }));
+  }
+
+  function next() {
+    if (isLast) {
+      submit();
+    } else {
+      setStep((s) => s + 1);
+    }
+  }
+
+  function back() {
+    if (step > 0) setStep((s) => s - 1);
+  }
+
+  function submit() {
+    // Build query params from state and navigate to results
+    const params = new URLSearchParams();
+
+    if (state.gameType) params.set('type', state.gameType);
+    params.set('minPlayers', String(state.playerCount.min));
+    params.set('maxPlayers', String(state.playerCount.max));
+    if (state.timeAvailable) params.set('time', state.timeAvailable);
+    params.set('minComplexity', String(state.complexity.min));
+    params.set('maxComplexity', String(state.complexity.max));
+    if (state.genres.length > 0) params.set('genres', state.genres.join(','));
+    if (state.moods.length > 0) params.set('moods', state.moods.join(','));
+    if (state.freeText.trim()) params.set('freeText', state.freeText.trim());
+
+    router.push(`/results?${params.toString()}`);
+  }
+
+  function renderStep() {
+    switch (step) {
+      case 0:
+        return <GameTypeStep value={state.gameType} onChange={(v) => update({ gameType: v })} />;
+      case 1:
+        return <PlayerCountStep value={state.playerCount} onChange={(v) => update({ playerCount: v })} />;
+      case 2:
+        return <TimeStep value={state.timeAvailable} onChange={(v) => update({ timeAvailable: v })} />;
+      case 3:
+        return <ComplexityStep value={state.complexity} onChange={(v) => update({ complexity: v })} />;
+      case 4:
+        return <GenreStep value={state.genres} onChange={(v) => update({ genres: v })} />;
+      case 5:
+        return <MoodStep value={state.moods} onChange={(v) => update({ moods: v })} />;
+      case 6:
+        return <FreeTextStep value={state.freeText} onChange={(v) => update({ freeText: v })} />;
+      default:
+        return null;
+    }
+  }
+
+  return (
+    <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', pt: 2 }}>
+      <Container maxWidth="sm" sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        {/* Progress */}
+        <Box sx={{ mb: 1 }}>
+          <LinearProgress variant="determinate" value={progress} sx={{ borderRadius: 1, height: 6 }} />
+          <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block', textAlign: 'right' }}>
+            {step + 1} of {totalSteps}
+          </Typography>
+        </Box>
+
+        {/* Step Title */}
+        <Typography variant="h4" fontWeight={700} sx={{ mb: 3 }}>
+          {STEPS[step].title}
+        </Typography>
+
+        {/* Step Content */}
+        <Box sx={{ flex: 1 }}>
+          {renderStep()}
+        </Box>
+
+        {/* Navigation */}
+        <Stack direction="row" spacing={2} sx={{ py: 3 }}>
+          <Button
+            variant="text"
+            onClick={back}
+            disabled={step === 0}
+            sx={{ minWidth: 100 }}
+          >
+            Back
+          </Button>
+          <Box sx={{ flex: 1 }} />
+          <Button variant="text" onClick={next} sx={{ minWidth: 100 }}>
+            Skip
+          </Button>
+          <Button variant="contained" onClick={next} sx={{ minWidth: 140 }}>
+            {isLast ? 'Find Games' : 'Next'}
+          </Button>
+        </Stack>
+      </Container>
+    </Box>
+  );
+}

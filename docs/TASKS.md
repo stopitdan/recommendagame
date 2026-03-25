@@ -128,25 +128,31 @@ Granular tasks organized by phase. Update status as work progresses.
 ## Phase 3: Questionnaire & Filter UI
 
 ### 3.1 Questionnaire Flow
-- [ ] Design question sequence and logic
-- [ ] Build multi-step form component
-- [ ] Game type selection (board / video / word / party / any)
-- [ ] Player count input
-- [ ] Time available input
-- [ ] Complexity preference slider
-- [ ] Genre selection (multi-select)
-- [ ] Mood/vibe picker (competitive, cooperative, chill, brain-teaser)
+- [x] Define questionnaire types and constants (`src/types/questionnaire.ts`)
+- [x] Build multi-step wizard component (`src/app/questionnaire/QuestionnaireFlow.tsx`)
+- [x] Progress bar and step navigation (back, next, skip)
+- [x] Step 1: Game type selection — clickable cards (board/video/word/party/surprise me)
+- [x] Step 2: Player count — range slider (1–10+)
+- [x] Step 3: Time available — preset pill chips (quick/short/medium/long/epic)
+- [x] Step 4: Complexity — range slider with labels (chill → brain burner)
+- [x] Step 5: Genre selection — multi-select chip grid (20 genres)
+- [x] Step 6: Mood/vibe — clickable cards, multi-select (competitive/coop/chill/etc.)
+- [x] Step 7: Free text — optional natural language input
+- [x] Submit builds query params and navigates to /results
 
 ### 3.2 Filter Sidebar
-- [ ] Build filter panel component
+- [ ] Build filter panel component (for returning users who skip questionnaire)
 - [ ] Wire filters to search/recommendation API
 - [ ] Persist last-used filters for logged-in users
 
 ### 3.3 Results Page
-- [ ] Game card component (image, title, rating, player count, tags)
-- [ ] Results grid/list layout
-- [ ] "Why we picked this" explanation text
+- [x] GameCard component (image, title, rating, player count, categories, description)
+- [x] Results list layout with loading/empty/error states
+- [x] Fetch from `/api/games/search` based on questionnaire params
+- [x] "Start Over" button to return to questionnaire
+- [ ] "Why we picked this" explanation text (Phase 4 — needs recommendation engine)
 - [ ] Pagination or infinite scroll
+- [ ] Thumbs up/down feedback buttons
 - [ ] Empty state / no results handling
 
 ---
