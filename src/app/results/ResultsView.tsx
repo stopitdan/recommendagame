@@ -10,6 +10,7 @@ import Container from '@mui/material/Container';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import GameCard from '@/components/GameCard';
+import { GameCardSkeletonList } from '@/components/GameCardSkeleton';
 import type { Game } from '@/types/game';
 import type { QuestionnaireState, TimePreset } from '@/types/questionnaire';
 
@@ -143,8 +144,8 @@ export default function ResultsView() {
         </Box>
 
         {loading && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-            <CircularProgress sx={{ color: 'secondary.main' }} />
+          <Box sx={{ py: 2 }}>
+            <GameCardSkeletonList count={5} />
           </Box>
         )}
 
