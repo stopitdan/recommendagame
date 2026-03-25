@@ -192,21 +192,37 @@ function AnimatedD20({
     const toCamera = new THREE.Vector3(0, 2.5, 3).normalize();
     const worldNormal = new THREE.Vector3();
 
-    // One spin axis, one direction, the whole roll
-    const spinAxis = new THREE.Vector3(
+    // Two consistent spin axes — primary (big rotation) + secondary (wobble)
+    // Like a real die: main spin + tumble
+    const primaryAxis = new THREE.Vector3(
       Math.random() - 0.5,
       Math.random() - 0.5,
       Math.random() - 0.5,
     ).normalize();
 
-    const STEPS = 6 + Math.floor(Math.random() * 3); // 6-8 steps
-    const stepAngle = (110 + Math.random() * 30) * (Math.PI / 180);
-    const stepQuat = new THREE.Quaternion().setFromAxisAngle(spinAxis, stepAngle);
+    // Secondary axis: roughly perpendicular to primary for realistic tumble
+    const secondaryAxis = new THREE.Vector3(
+      Math.random() - 0.5,
+      Math.random() - 0.5,
+      Math.random() - 0.5,
+    ).normalize();
+    // Make it more perpendicular by removing the primary component
+    secondaryAxis.addScaledVector(primaryAxis, -secondaryAxis.dot(primaryAxis));
+    secondaryAxis.normalize();
+
+    const STEPS = 7 + Math.floor(Math.random() * 3); // 7-9 steps
+    const primaryAngle = (100 + Math.random() * 40) * (Math.PI / 180);   // ~100-140° per step
+    const secondaryAngle = (30 + Math.random() * 30) * (Math.PI / 180);  // ~30-60° per step (wobble)
+
+    const primaryStep = new THREE.Quaternion().setFromAxisAngle(primaryAxis, primaryAngle);
+    const secondaryStep = new THREE.Quaternion().setFromAxisAngle(secondaryAxis, secondaryAngle);
+    // Combined step: primary spin + secondary wobble (applied together each step)
+    const combinedStep = primaryStep.clone().multiply(secondaryStep);
 
     const waypoints: THREE.Quaternion[] = [start.clone()];
     for (let i = 1; i <= STEPS; i++) {
       const prev = waypoints[waypoints.length - 1];
-      waypoints.push(prev.clone().multiply(stepQuat));
+      waypoints.push(prev.clone().multiply(combinedStep));
     }
 
     // Find which face is closest to camera at the end of the tumble
@@ -223,14 +239,11 @@ function AnimatedD20({
       }
     }
 
-    // Compute the small correction to align the best face exactly
-    // with the camera — this is always <~20° since we picked the closest
+    // Tiny correction (<20°) to align the closest face exactly
     worldNormal.copy(faces[bestIdx].normal).applyQuaternion(endQuat);
     const correction = new THREE.Quaternion().setFromUnitVectors(worldNormal, toCamera);
     const finalQuat = endQuat.clone().premultiply(correction);
 
-    // Add the corrected final as the last waypoint
-    // This tiny correction continues roughly in the spin direction
     waypoints.push(finalQuat);
 
     return { waypoints, value: bestIdx + 1 };
