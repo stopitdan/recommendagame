@@ -58,30 +58,30 @@ export default function GameDetailView() {
     );
   }
 
-  const details: { label: string; value: string }[] = [];
+  const details: { label: string; value: string; emoji: string }[] = [];
   if (game.playerCount) {
     const { min, max, recommended } = game.playerCount;
     const range = min === max ? `${min}` : `${min}–${max}`;
-    details.push({ label: 'Players', value: recommended ? `${range} (best at ${recommended})` : range });
+    details.push({ label: 'Players', value: recommended ? `${range} (best at ${recommended})` : range, emoji: '👥' });
   }
   if (game.playTime) {
     const { min, max, average } = game.playTime;
     if (average) {
-      details.push({ label: 'Play Time', value: `~${average} min` });
+      details.push({ label: 'Play Time', value: `~${average} min`, emoji: '⏱️' });
     } else if (min && max) {
-      details.push({ label: 'Play Time', value: `${min}–${max} min` });
+      details.push({ label: 'Play Time', value: `${min}–${max} min`, emoji: '⏱️' });
     }
   }
   if (game.complexity) {
     const labels = ['', 'Chill', 'Casual', 'Medium', 'Complex', 'Brain Burner'];
     const label = labels[Math.round(game.complexity)] ?? '';
-    details.push({ label: 'Complexity', value: `${game.complexity.toFixed(1)}/5 (${label})` });
+    details.push({ label: 'Complexity', value: `${game.complexity.toFixed(1)}/5 (${label})`, emoji: '🧠' });
   }
   if (game.yearPublished) {
-    details.push({ label: 'Year', value: String(game.yearPublished) });
+    details.push({ label: 'Year', value: String(game.yearPublished), emoji: '📅' });
   }
   if (game.ratingCount) {
-    details.push({ label: 'Ratings', value: game.ratingCount.toLocaleString() });
+    details.push({ label: 'Ratings', value: game.ratingCount.toLocaleString(), emoji: '📊' });
   }
 
   return (
@@ -133,14 +133,27 @@ export default function GameDetailView() {
           </Box>
 
           {/* Details grid */}
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
             {details.map((d) => (
-              <Box key={d.label} sx={{ minWidth: 120 }}>
-                <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>
-                  {d.label}
-                </Typography>
-                <Typography variant="body1" fontWeight={600}>
+              <Box
+                key={d.label}
+                sx={{
+                  minWidth: 110,
+                  p: 1.5,
+                  borderRadius: 2,
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  textAlign: 'center',
+                  transition: 'all 150ms',
+                  '&:hover': { borderColor: 'primary.main', bgcolor: 'rgba(91, 79, 219, 0.04)' },
+                }}
+              >
+                <Typography sx={{ fontSize: '1.2rem', mb: 0.25 }}>{d.emoji}</Typography>
+                <Typography variant="body2" fontWeight={600}>
                   {d.value}
+                </Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                  {d.label}
                 </Typography>
               </Box>
             ))}
