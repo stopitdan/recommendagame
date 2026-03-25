@@ -28,6 +28,7 @@ import type {
   BggPollResult,
   BggLink,
 } from '@/types/bgg';
+import { stripHtml, ensureArray, parseOptionalInt, parseOptionalFloat } from '@/lib/utils/parsing';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -99,9 +100,13 @@ async function fetchBgg(url: string): Promise<string | null> {
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     await throttle();
 
-    const response = await fetch(url, {
-      headers: { 'User-Agent': USER_AGENT },
-    });
+    const headers: Record<string, string> = { 'User-Agent': USER_AGENT };
+    const bggToken = process.env.BGG_API_TOKEN;
+    if (bggToken) {
+      headers['Authorization'] = `Bearer ${bggToken}`;
+    }
+
+    const response = await fetch(url, { headers });
 
     if (response.status === 202) {
       // BGG is still preparing the data — wait and retry
@@ -311,41 +316,8 @@ function parseRecommendedPlayers(poll: BggPoll): number | undefined {
   return bestCount;
 }
 
-/**
- * Strips HTML tags and decodes common HTML entities from BGG descriptions.
- */
-function stripHtml(html: string): string {
-  return html
-    .replace(/<[^>]*>/g, '')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#10;/g, '\n')
-    .replace(/&nbsp;/g, ' ')
-    .trim();
-}
-
-/**
- * Ensures a value is always an array. BGG XML can return a single item
- * or an array depending on result count — this normalizes the inconsistency.
- */
-function ensureArray<T>(value: T | T[] | undefined): T[] {
-  if (value === undefined || value === null) return [];
-  return Array.isArray(value) ? value : [value];
-}
-
-function parseOptionalInt(value: string | undefined): number | undefined {
-  if (value === undefined || value === '') return undefined;
-  const parsed = parseInt(value, 10);
-  return isNaN(parsed) ? undefined : parsed;
-}
-
-function parseOptionalFloat(value: string | undefined): number | undefined {
-  if (value === undefined || value === '') return undefined;
-  const parsed = parseFloat(value);
-  return isNaN(parsed) ? undefined : parsed;
-}
+// stripHtml, ensureArray, parseOptionalInt, parseOptionalFloat
+// imported from @/lib/utils/parsing
 
 // ---------------------------------------------------------------------------
 // Adapter Export

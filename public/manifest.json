@@ -1,0 +1,21 @@
+{
+  "name": "Recommend a Game",
+  "short_name": "RecAGame",
+  "description": "Find your next favorite game. 100,000+ board games, video games, word games, and party games.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FDFAF6",
+  "theme_color": "#5B4FDB",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

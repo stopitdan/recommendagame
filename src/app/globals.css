@@ -5,12 +5,36 @@ html {
 html,
 body {
   max-width: 100vw;
+  background-color: #FDFAF6;
 }
 
 body {
   min-height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 * {
   box-sizing: border-box;
+}
+
+/* Smooth page transitions */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+main, [role="main"] {
+  animation: fadeIn 300ms ease-out;
+}
+
+/* Smooth link/button transitions */
+a, button {
+  transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+
+/* Selection color using Vivid Indigo */
+::selection {
+  background-color: rgba(91, 79, 219, 0.15);
+  color: #1A1A2E;
 }

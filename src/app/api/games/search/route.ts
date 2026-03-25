@@ -6,17 +6,18 @@
  * cache miss and syncs the results for next time.
  *
  * Query params:
- *   q         — Search query (required)
- *   type      — Filter by game type: board, video, word, party, card
- *   source    — Filter by source: bgg, rawg, local
- *   minPlayers — Minimum player count
- *   maxPlayers — Maximum player count
+ *   q             — Search query (required)
+ *   type          — Filter by game type: board, video, word, party, card
+ *   source        — Filter by source: bgg, rawg, local
+ *   minPlayers    — Minimum player count
+ *   maxPlayers    — Maximum player count
  *   minComplexity — Minimum complexity (1-5)
  *   maxComplexity — Maximum complexity (1-5)
- *   limit     — Max results (default: 20, max: 100)
+ *   popularity    — "popular" (default), "any", "hidden-gems"
+ *   limit         — Max results (default: 20, max: 100)
  *
  * Example:
- *   GET /api/games/search?q=catan&type=board&limit=10
+ *   GET /api/games/search?q=strategy&type=board&popularity=popular&limit=10
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -35,6 +36,14 @@ import { syncSearchResults } from '@/lib/sync/game-sync';
 
 const VALID_TYPES: GameType[] = ['board', 'video', 'word', 'party', 'card'];
 const VALID_SOURCES: GameSource[] = ['bgg', 'rawg', 'igdb', 'local'];
+type PopularityMode = 'popular' | 'any' | 'hidden-gems';
+const VALID_POPULARITY: PopularityMode[] = ['popular', 'any', 'hidden-gems'];
+
+/**
+ * Minimum rating count to be considered "popular".
+ * Games below this threshold are filtered out in "popular" mode.
+ */
+const POPULAR_MIN_RATING_COUNT = 50;
 
 function createSearchClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -75,6 +84,14 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  const popularity = (searchParams.get('popularity') as PopularityMode) ?? 'popular';
+  if (!VALID_POPULARITY.includes(popularity)) {
+    return NextResponse.json(
+      { error: `Invalid popularity. Must be one of: ${VALID_POPULARITY.join(', ')}` },
+      { status: 400 },
+    );
+  }
+
   const minPlayers = parseIntParam(searchParams.get('minPlayers'));
   const maxPlayers = parseIntParam(searchParams.get('maxPlayers'));
   const minComplexity = parseFloatParam(searchParams.get('minComplexity'));
@@ -83,20 +100,18 @@ export async function GET(request: NextRequest) {
 
   try {
     // Step 1: Search local DB first (fast, no rate limits)
-    let results = await searchLocalDb(query, limit * 2); // Fetch extra for post-filtering
+    let results = await searchLocalDb(query, limit * 3); // Fetch extra for post-filtering
 
     // Step 2: If local DB has few results, fan out to external adapters
     if (results.length < limit) {
       const externalResults = await searchExternalAdapters(query, limit, sourceFilter);
 
-      // Sync external results to DB for next time (fire and forget)
       if (externalResults.length > 0) {
         syncSearchResults(externalResults).catch((err) =>
           console.error('[Search] Background sync failed:', err),
         );
       }
 
-      // Merge, dedup by ID
       const seenIds = new Set(results.map((g) => g.id));
       for (const game of externalResults) {
         if (!seenIds.has(game.id)) {
@@ -114,10 +129,11 @@ export async function GET(request: NextRequest) {
       maxPlayers,
       minComplexity,
       maxComplexity,
+      popularity,
     });
 
-    // Step 4: Sort by relevance (rating as a proxy, with name match boost)
-    results = sortByRelevance(results, query);
+    // Step 4: Score and sort
+    results = scoreAndSort(results, query, popularity);
 
     // Step 5: Limit
     results = results.slice(0, limit);
@@ -125,6 +141,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       query,
       count: results.length,
+      popularity,
       results,
     });
   } catch (error) {
@@ -160,6 +177,7 @@ async function searchLocalDb(query: string, limit: number): Promise<Game[]> {
     .from('games')
     .select('*')
     .ilike('name', `%${query}%`)
+    .order('rating_count', { ascending: false, nullsFirst: false })
     .limit(limit);
 
   if (ilikeResults && ilikeResults.length > 0) {
@@ -184,12 +202,10 @@ async function searchExternalAdapters(
     { source: 'local' as const, adapter: localAdapter },
   ];
 
-  // Filter to specific source if requested
   const selected = sourceFilter
     ? adapters.filter((a) => a.source === sourceFilter)
     : adapters;
 
-  // Fan out searches in parallel
   const searchPromises = selected.map(async ({ adapter }) => {
     try {
       return await adapter.search(query, { limit });
@@ -214,6 +230,7 @@ interface FilterOptions {
   maxPlayers: number | undefined;
   minComplexity: number | undefined;
   maxComplexity: number | undefined;
+  popularity: PopularityMode;
 }
 
 function applyFilters(games: Game[], filters: FilterOptions): Game[] {
@@ -235,31 +252,77 @@ function applyFilters(games: Game[], filters: FilterOptions): Game[] {
       if (game.complexity > filters.maxComplexity) return false;
     }
 
+    // Popularity filter
+    if (filters.popularity === 'popular') {
+      // Must have a meaningful number of ratings to be considered
+      if ((game.ratingCount ?? 0) < POPULAR_MIN_RATING_COUNT) return false;
+    } else if (filters.popularity === 'hidden-gems') {
+      // Hidden gems: fewer ratings but still decent quality
+      if ((game.ratingCount ?? 0) >= POPULAR_MIN_RATING_COUNT * 10) return false;
+      if ((game.rating ?? 0) < 6.0) return false;
+    }
+    // 'any' = no popularity filtering
+
     return true;
   });
 }
 
 // ---------------------------------------------------------------------------
-// Sorting
+// Scoring & Sorting
 // ---------------------------------------------------------------------------
 
-function sortByRelevance(games: Game[], query: string): Game[] {
+/**
+ * Scores and sorts games by a composite relevance score.
+ *
+ * Score components:
+ * - Name match quality (exact > starts-with > contains)
+ * - Rating quality (higher rating = higher score)
+ * - Popularity signal (more ratings = more trusted)
+ *
+ * In "popular" mode, popularity gets extra weight.
+ * In "hidden-gems" mode, rating quality gets extra weight.
+ */
+function scoreAndSort(games: Game[], query: string, popularity: PopularityMode): Game[] {
   const lowerQuery = query.toLowerCase();
 
-  return [...games].sort((a, b) => {
-    // Exact name match gets highest priority
-    const aExact = a.name.toLowerCase() === lowerQuery ? 1 : 0;
-    const bExact = b.name.toLowerCase() === lowerQuery ? 1 : 0;
-    if (aExact !== bExact) return bExact - aExact;
+  const scored = games.map((game) => {
+    let score = 0;
 
-    // Name starts with query gets second priority
-    const aStarts = a.name.toLowerCase().startsWith(lowerQuery) ? 1 : 0;
-    const bStarts = b.name.toLowerCase().startsWith(lowerQuery) ? 1 : 0;
-    if (aStarts !== bStarts) return bStarts - aStarts;
+    // Name match quality (0-30 points)
+    const lowerName = game.name.toLowerCase();
+    if (lowerName === lowerQuery) {
+      score += 30; // Exact match
+    } else if (lowerName.startsWith(lowerQuery)) {
+      score += 20; // Starts with
+    } else if (lowerName.includes(lowerQuery)) {
+      score += 10; // Contains
+    }
 
-    // Then sort by rating (higher is better)
-    return (b.rating ?? 0) - (a.rating ?? 0);
+    // Rating quality (0-20 points)
+    const rating = game.rating ?? 0;
+    score += (rating / 10) * 20;
+
+    // Popularity signal (0-30 points, log scale)
+    const ratingCount = game.ratingCount ?? 0;
+    const popularityScore = ratingCount > 0
+      ? Math.min(Math.log10(ratingCount) / 5, 1) * 30 // log10(100000)/5 = 1.0
+      : 0;
+
+    if (popularity === 'popular') {
+      score += popularityScore * 1.5; // Boost popularity weight
+    } else if (popularity === 'hidden-gems') {
+      score += popularityScore * 0.3; // Reduce popularity weight
+      score += (rating / 10) * 10;    // Extra rating weight
+    } else {
+      score += popularityScore;
+    }
+
+    return { game, score };
   });
+
+  return scored
+    .sort((a, b) => b.score - a.score)
+    .map((s) => s.game);
 }
 
 // ---------------------------------------------------------------------------

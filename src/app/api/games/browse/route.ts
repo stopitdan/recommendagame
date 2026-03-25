@@ -1,0 +1,105 @@
+/**
+ * GET /api/games/browse — Browse games with server-side filtering
+ *
+ * Unlike /search (which requires a text query), /browse supports pure
+ * filter-based browsing — great for "show me all Strategy games" etc.
+ *
+ * Query params:
+ *   category   — Filter by category (e.g. "Strategy")
+ *   mechanic   — Filter by mechanic (e.g. "Deck Building")
+ *   theme      — Filter by theme (e.g. "Fantasy")
+ *   platform   — Filter by platform (e.g. "PC")
+ *   type       — Filter by game type (board, video, word)
+ *   q          — Optional text search within filtered results
+ *   popularity — "popular" (default), "any", "hidden-gems"
+ *   sort       — "rating" (default), "name", "year", "popularity"
+ *   limit      — Max results (default: 40, max: 100)
+ *   offset     — Pagination offset (default: 0)
+ */
+
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+import type { GameRow } from '@/types/supabase';
+import { rowToGame } from '@/lib/supabase/games';
+
+function createDbClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return null;
+  return createClient(url, key);
+}
+
+export async function GET(request: NextRequest) {
+  const { searchParams } = request.nextUrl;
+  const supabase = createDbClient();
+
+  if (!supabase) {
+    return NextResponse.json({ error: 'Database not configured' }, { status: 500 });
+  }
+
+  const category = searchParams.get('category');
+  const mechanic = searchParams.get('mechanic');
+  const theme = searchParams.get('theme');
+  const platform = searchParams.get('platform');
+  const type = searchParams.get('type');
+  const textQuery = searchParams.get('q');
+  const popularity = searchParams.get('popularity') ?? 'popular';
+  const sort = searchParams.get('sort') ?? 'rating';
+  const limit = Math.min(parseInt(searchParams.get('limit') ?? '40', 10), 100);
+  const offset = parseInt(searchParams.get('offset') ?? '0', 10);
+
+  let query = supabase.from('games').select('*', { count: 'exact' });
+
+  // Array containment filters
+  if (category) query = query.contains('categories', [category]);
+  if (mechanic) query = query.contains('mechanics', [mechanic]);
+  if (theme) query = query.contains('themes', [theme]);
+  if (platform) query = query.contains('platforms', [platform]);
+  if (type) query = query.contains('types', [type]);
+
+  // Text search
+  if (textQuery) {
+    query = query.ilike('name', `%${textQuery}%`);
+  }
+
+  // Popularity filter
+  if (popularity === 'popular') {
+    query = query.gt('rating_count', 50);
+  } else if (popularity === 'hidden-gems') {
+    query = query.lt('rating_count', 500).gt('rating', 6);
+  }
+
+  // Sorting
+  switch (sort) {
+    case 'name':
+      query = query.order('name', { ascending: true });
+      break;
+    case 'year':
+      query = query.order('year_published', { ascending: false, nullsFirst: false });
+      break;
+    case 'popularity':
+      query = query.order('rating_count', { ascending: false, nullsFirst: false });
+      break;
+    case 'rating':
+    default:
+      query = query.order('rating', { ascending: false, nullsFirst: false });
+      break;
+  }
+
+  // Pagination
+  query = query.range(offset, offset + limit - 1);
+
+  const { data, error, count } = await query;
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({
+    games: (data as GameRow[]).map(rowToGame),
+    total: count ?? 0,
+    limit,
+    offset,
+    filters: { category, mechanic, theme, platform, type, q: textQuery, popularity, sort },
+  });
+}

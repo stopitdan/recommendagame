@@ -16,6 +16,7 @@
  */
 
 import type { Game, GameAdapter, SearchOptions } from '@/types/game';
+import { stripHtml, normalizeRating } from '@/lib/utils/parsing';
 import type {
   RawgPaginatedResponse,
   RawgGameListItem,
@@ -146,7 +147,7 @@ function mapListItemToGame(item: RawgGameListItem): Game {
         }
       : undefined,
     complexity: undefined, // RAWG doesn't have a complexity metric
-    rating: normalizeRating(item.rating),
+    rating: normalizeRating(item.rating, 5, 10),
     ratingCount: item.ratings_count,
     categories: item.genres.map((g) => g.name),
     mechanics: [], // RAWG doesn't have a "mechanics" concept
@@ -179,13 +180,7 @@ function mapDetailToGame(item: RawgGameDetail): Game {
 // Field Parsing Helpers
 // ---------------------------------------------------------------------------
 
-/**
- * Normalizes RAWG's 0-5 rating to our 0-10 scale.
- */
-function normalizeRating(rating: number): number | undefined {
-  if (rating <= 0) return undefined;
-  return Math.round(rating * 2 * 10) / 10; // e.g. 4.47 → 8.9
-}
+// normalizeRating, stripHtml imported from @/lib/utils/parsing
 
 /**
  * Extracts platform names from RAWG's nested platform structure.
@@ -214,22 +209,6 @@ function extractThemes(tags: RawgTag[]): string[] {
     .filter((t) => t.language === 'eng')
     .map((t) => t.name)
     .slice(0, 20); // Cap at 20 to avoid noise
-}
-
-/**
- * Strips HTML tags from RAWG descriptions.
- * Used as fallback when description_raw is not available.
- */
-function stripHtml(html: string): string {
-  return html
-    .replace(/<[^>]*>/g, '')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&nbsp;/g, ' ')
-    .trim();
 }
 
 // ---------------------------------------------------------------------------
