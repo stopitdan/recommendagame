@@ -157,28 +157,94 @@ Granular tasks organized by phase. Update status as work progresses.
 
 ---
 
+## Phase 3b: User Features & Smart Recommendations (CURRENT)
+
+### 3b.1 Popularity Bias in Recommendations
+- [x] Add composite scoring to search API (name match + rating + popularity signal)
+- [x] Prefer popular games by default (min 50 rating_count threshold)
+- [x] Add `popularity` query param: "popular" (default), "any", "hidden-gems"
+- [x] Popularity toggle chips on results page
+- [x] "Try including all games" fallback when popular mode finds no results
+- [x] Hidden gems mode: lower popularity weight, higher rating weight, max rating_count cap
+
+### 3b.2 User Favorites / Library
+- [x] `POST /api/favorites` — add a game to favorites
+- [x] `DELETE /api/favorites/[gameId]` — remove a game from favorites
+- [x] `GET /api/favorites` — list user's favorites (with joined game data)
+- [x] Favorites page (`/favorites`) with empty state, auth gate, remove support
+- [x] Heart/favorite button on GameCard (FavoriteButton component)
+- [x] "Favorites" link in header for logged-in users
+- [ ] Favorite toggle on game detail page (needs game detail page first)
+
+### 3b.3 Saved Preference Sets
+- [ ] DB migration: `user_saved_presets` table (name, preferences JSON, user_id)
+- [ ] Save current questionnaire answers as a named preset
+- [ ] Load a preset to pre-fill the questionnaire
+- [ ] Manage presets page (rename, delete)
+- [ ] Quick-access from home page ("Your presets")
+
+### 3b.4 Recommendation Settings (per-user)
+- [ ] DB migration: add recommendation settings to user_preferences
+- [ ] Settings: popularity filter, include/exclude sources, min rating threshold
+- [ ] Settings page (`/settings`)
+- [ ] Apply settings to search/recommendation API
+
+### 3b.5 User Reviews & Ratings
+- [ ] DB migration: `user_reviews` table (user_id, game_id, rating 1-10, review text, created_at)
+- [ ] Review form on game detail page
+- [ ] Display reviews on game detail page
+- [ ] Average user review score shown on GameCard
+- [ ] Reviews factor into recommendation scoring
+- [ ] Higher weight for reviews from users with similar preferences (Phase 4)
+
+### 3b.6 Game Detail Pages
+- [ ] Dynamic route (`/games/[id]`)
+- [ ] Full game info (description, players, time, complexity, categories, mechanics)
+- [ ] Images, external links (BGG/RAWG source page)
+- [ ] Favorite button, review form, existing reviews
+- [ ] Related game recommendations (same categories/mechanics)
+
+### 3b.7 Leaderboard
+- [ ] Leaderboard page (`/leaderboard`)
+- [ ] Top favorited games (aggregate count from user_favorites)
+- [ ] Top rated games (by user reviews, not just source rating)
+- [ ] Filter by game type (board/video/word)
+- [ ] Time period filter (all time, this month, this week)
+
+### 3b.8 Landing Page Glow-Up
+- [ ] Animated hero section with staggered text entrance
+- [ ] Feature highlights section (3-4 cards: "Board Games", "Video Games", "Word Games", "Smart Recommendations")
+- [ ] Social proof section (game count, user count, "Top picks" preview)
+- [ ] How it works section (3-step visual: Answer → Discover → Play)
+- [ ] CTA sections throughout
+
+---
+
 ## Phase 4: Recommendation Engine
 
 ### 4.1 Rule-Based Scoring
 - [ ] Define scoring weights for each preference dimension
-- [ ] Implement scoring function
-- [ ] Rank games by score
-- [ ] Return top N with scores
+- [ ] Implement scoring function (not just filtering — weighted match score)
+- [ ] Popularity factor in scoring (configurable weight)
+- [ ] Rank games by composite score
+- [ ] Return top N with scores and "why we picked this" reasons
 
 ### 4.2 Content-Based Filtering
 - [ ] Build feature vectors from game metadata (genres, mechanics, themes, complexity)
-- [ ] Implement similarity calculation (cosine similarity or similar)
+- [ ] Implement similarity calculation (cosine similarity via pgvector)
 - [ ] "Because you liked X" recommendations
+- [ ] Similar games on game detail page
 
 ### 4.3 Collaborative Filtering
+- [ ] Import BGG Kaggle user_ratings (18.9M rows) for training data
 - [ ] Design user-game interaction matrix
-- [ ] Implement collaborative filtering algorithm (or integrate a library)
+- [ ] Implement collaborative filtering algorithm
+- [ ] Weight reviews from preference-similar users higher
 - [ ] Minimum user threshold before activating
 
 ### 4.4 Feedback Loop
-- [ ] Thumbs up/down UI on recommendation cards
-- [ ] Store feedback in Firestore
-- [ ] Feed ratings back into scoring weights
+- [ ] User reviews feed into preference vector updates
+- [ ] Favorites influence future recommendations
 - [ ] Track recommendation accuracy over time
 
 ### 4.5 Hybrid Engine
@@ -190,31 +256,22 @@ Granular tasks organized by phase. Update status as work progresses.
 
 ## Phase 5: Polish & Production
 
-### 5.1 Game Detail Pages
-- [ ] Dynamic route (`src/app/games/[id]/page.tsx`)
-- [ ] Full game info display
-- [ ] External links (buy, play, BGG/RAWG page)
-- [ ] Related game recommendations
-
-### 5.2 User Features
-- [ ] Favorites / "play later" list
-- [ ] Recommendation history
-- [ ] Preference editing
-
-### 5.3 UX & Design
+### 5.1 UX & Design
 - [ ] Responsive mobile-first layouts
 - [ ] Loading states and skeletons
 - [ ] Error boundaries and fallback UI
 - [ ] Accessibility audit
+- [ ] Pagination / infinite scroll on results
 
-### 5.4 Infrastructure
+### 5.2 Infrastructure
 - [ ] Rate limiting on API routes
 - [ ] Graceful degradation when external APIs are down
 - [ ] Environment-based configuration
 - [ ] Deployment setup (Vercel)
+- [ ] BGG weekly sync cron (once API token is approved)
 
-### 5.5 Analytics
+### 5.3 Analytics
 - [ ] Track recommendation impressions
 - [ ] Track click-through rates
-- [ ] Track feedback rates
+- [ ] Track favorite/review rates
 - [ ] Dashboard or logging for monitoring

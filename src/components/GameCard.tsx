@@ -8,12 +8,16 @@ import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import type { Game } from '@/types/game';
+import FavoriteButton from './FavoriteButton';
 
 export interface GameCardProps {
   game: Game;
+  showFavorite?: boolean;
+  isFavorited?: boolean;
+  onFavoriteToggle?: (gameId: string, favorited: boolean) => void;
 }
 
-export default function GameCard({ game }: GameCardProps) {
+export default function GameCard({ game, showFavorite = true, isFavorited = false, onFavoriteToggle }: GameCardProps) {
   const details: string[] = [];
   if (game.playerCount) {
     const { min, max } = game.playerCount;
@@ -40,21 +44,30 @@ export default function GameCard({ game }: GameCardProps) {
       )}
       <CardContent sx={{ flex: 1 }}>
         <Stack spacing={1}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <Typography variant="h6" fontWeight={600}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1 }}>
+            <Typography variant="h6" fontWeight={600} sx={{ flex: 1 }}>
               {game.name}
             </Typography>
-            {game.rating && (
-              <Chip
-                label={game.rating.toFixed(1)}
-                size="small"
-                sx={{
-                  bgcolor: '#3A4F41',
-                  color: '#FFFFFF',
-                  fontWeight: 600,
-                }}
-              />
-            )}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
+              {game.rating && (
+                <Chip
+                  label={game.rating.toFixed(1)}
+                  size="small"
+                  sx={{
+                    bgcolor: '#3A4F41',
+                    color: '#FFFFFF',
+                    fontWeight: 600,
+                  }}
+                />
+              )}
+              {showFavorite && (
+                <FavoriteButton
+                  gameId={game.id}
+                  initialFavorited={isFavorited}
+                  onToggle={(fav) => onFavoriteToggle?.(game.id, fav)}
+                />
+              )}
+            </Box>
           </Box>
 
           {details.length > 0 && (

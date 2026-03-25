@@ -17,6 +17,14 @@ export default function HeaderAuth({ isLoggedIn, email, displayName }: HeaderAut
   if (isLoggedIn) {
     return (
       <>
+        <Button
+          variant="text"
+          size="small"
+          onClick={() => router.push('/favorites')}
+          sx={{ color: 'rgba(255,255,255,0.8)', '&:hover': { color: '#FFFFFF' } }}
+        >
+          Favorites
+        </Button>
         <Typography variant="body2" sx={{ mr: 1, color: 'rgba(255,255,255,0.7)' }}>
           {displayName || email}
         </Typography>
