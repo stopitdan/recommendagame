@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
+import CircularProgress from '@mui/material/CircularProgress';
 import CardContent from '@mui/material/CardContent';
 import Chip from '@mui/material/Chip';
 import Container from '@mui/material/Container';
@@ -19,7 +20,7 @@ const PhysicsDice = dynamic(() => import('@/components/PhysicsDice'), {
   ssr: false,
   loading: () => (
     <Box sx={{ width: '100%', height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <Typography sx={{ fontSize: '4rem' }}>🎲</Typography>
+      <CircularProgress size={32} sx={{ color: 'primary.main' }} />
     </Box>
   ),
 });
@@ -41,9 +42,10 @@ export default function RandomGameView() {
     try {
       const params = type ? `?type=${type}` : '';
       const res = await fetch(`/api/games/random${params}`);
-      if (!res.ok) return;
-      const data = await res.json();
-      setGame(data.game);
+      if (res.ok) {
+        const data = await res.json();
+        setGame(data.game);
+      }
     } catch {
       // Fetch failed — dice will still settle
     } finally {
