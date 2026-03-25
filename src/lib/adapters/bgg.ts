@@ -99,9 +99,13 @@ async function fetchBgg(url: string): Promise<string | null> {
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     await throttle();
 
-    const response = await fetch(url, {
-      headers: { 'User-Agent': USER_AGENT },
-    });
+    const headers: Record<string, string> = { 'User-Agent': USER_AGENT };
+    const bggToken = process.env.BGG_API_TOKEN;
+    if (bggToken) {
+      headers['Authorization'] = `Bearer ${bggToken}`;
+    }
+
+    const response = await fetch(url, { headers });
 
     if (response.status === 202) {
       // BGG is still preparing the data — wait and retry
