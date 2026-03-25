@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import Box from '@mui/material/Box';
@@ -25,12 +25,62 @@ const PhysicsDice = dynamic(() => import('@/components/PhysicsDice'), {
   ),
 });
 
+/** Fire confetti for a Natural 20! */
+async function triggerNat20Confetti() {
+  const confetti = (await import('canvas-confetti')).default;
+
+  // Big burst from center
+  confetti({
+    particleCount: 150,
+    spread: 100,
+    origin: { y: 0.5 },
+    colors: ['#FFD700', '#5B4FDB', '#FF6D3F', '#00E5A0', '#FF4081'],
+    startVelocity: 45,
+    gravity: 0.8,
+    ticks: 200,
+  });
+
+  // Left cannon
+  setTimeout(() => {
+    confetti({
+      particleCount: 60,
+      angle: 60,
+      spread: 55,
+      origin: { x: 0, y: 0.6 },
+      colors: ['#FFD700', '#5B4FDB', '#FF6D3F'],
+    });
+  }, 150);
+
+  // Right cannon
+  setTimeout(() => {
+    confetti({
+      particleCount: 60,
+      angle: 120,
+      spread: 55,
+      origin: { x: 1, y: 0.6 },
+      colors: ['#FFD700', '#5B4FDB', '#FF6D3F'],
+    });
+  }, 300);
+
+  // Second wave
+  setTimeout(() => {
+    confetti({
+      particleCount: 80,
+      spread: 120,
+      origin: { y: 0.4 },
+      colors: ['#FFD700', '#FF4081', '#00E5A0'],
+      startVelocity: 35,
+    });
+  }, 500);
+}
+
 export default function RandomGameView() {
   const router = useRouter();
   const [game, setGame] = useState<Game | null>(null);
   const [loading, setLoading] = useState(false);
   const [rolling, setRolling] = useState(false);
   const [diceValue, setDiceValue] = useState<number | null>(null);
+  const [isNat20, setIsNat20] = useState(false);
   const [type, setType] = useState<string | null>(null);
 
   async function rollDice() {
@@ -38,6 +88,7 @@ export default function RandomGameView() {
     setRolling(true);
     setLoading(true);
     setDiceValue(null);
+    setIsNat20(false);
 
     try {
       const params = type ? `?type=${type}` : '';
@@ -56,6 +107,11 @@ export default function RandomGameView() {
   const handleDiceSettled = useCallback((value: number) => {
     setDiceValue(value);
     setRolling(false);
+
+    if (value === 20) {
+      setIsNat20(true);
+      triggerNat20Confetti();
+    }
   }, []);
 
   const typeOptions = [
@@ -83,11 +139,47 @@ export default function RandomGameView() {
           <PhysicsDice rolling={rolling} onSettled={handleDiceSettled} />
         </Box>
 
-        {diceValue && !rolling && (
-          <Typography variant="h5" fontWeight={700} sx={{ color: 'secondary.main' }}>
-            Rolled a {diceValue}!
-          </Typography>
-        )}
+        {/* Dice result */}
+        <AnimatePresence mode="wait">
+          {diceValue && !rolling && (
+            <motion.div
+              key={`dice-${diceValue}-${isNat20}`}
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+            >
+              {isNat20 ? (
+                <Box>
+                  <Typography
+                    variant="h3"
+                    fontWeight={900}
+                    sx={{
+                      background: 'linear-gradient(135deg, #FFD700, #FF6D3F, #FF4081, #FFD700)',
+                      backgroundSize: '200% 200%',
+                      animation: 'shimmer 2s ease infinite',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      '@keyframes shimmer': {
+                        '0%': { backgroundPosition: '0% 50%' },
+                        '50%': { backgroundPosition: '100% 50%' },
+                        '100%': { backgroundPosition: '0% 50%' },
+                      },
+                    }}
+                  >
+                    NATURAL 20!
+                  </Typography>
+                  <Typography variant="h5" fontWeight={700} sx={{ color: 'warning.main', mt: 1 }}>
+                    CRITICAL SUCCESS!
+                  </Typography>
+                </Box>
+              ) : (
+                <Typography variant="h5" fontWeight={700} sx={{ color: 'secondary.main' }}>
+                  Rolled a {diceValue}!
+                </Typography>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Type filter chips */}
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -132,6 +224,11 @@ export default function RandomGameView() {
                   cursor: 'pointer',
                   transition: 'all 200ms',
                   '&:hover': { boxShadow: 4, transform: 'translateY(-2px)' },
+                  ...(isNat20 ? {
+                    border: '2px solid',
+                    borderColor: 'warning.main',
+                    boxShadow: '0 0 20px rgba(255, 215, 0, 0.3)',
+                  } : {}),
                 }}
                 onClick={() => router.push(`/games/${encodeURIComponent((game as any).id)}`)}
               >
@@ -144,6 +241,14 @@ export default function RandomGameView() {
                   />
                 )}
                 <CardContent sx={{ p: 3 }}>
+                  {isNat20 && (
+                    <Typography
+                      variant="overline"
+                      sx={{ color: 'warning.main', fontWeight: 700, letterSpacing: 2 }}
+                    >
+                      Legendary Pick
+                    </Typography>
+                  )}
                   <Typography variant="h5" fontWeight={700} sx={{ mb: 1 }}>
                     {(game as any).name}
                   </Typography>

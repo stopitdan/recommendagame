@@ -1,14 +1,18 @@
 'use client';
 
-import { useRef, useEffect, useMemo } from 'react';
+import { useRef, useEffect, useMemo, useCallback } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
 /**
- * 3D D20 with canvas-baked number textures and proper flat landing.
+ * 3D D20 with canvas-baked number textures and natural roll physics.
  *
  * Numbers are rendered via canvas textures on small planes at each
  * face center (lightweight, no font loading, no WebGL crash).
+ *
+ * Roll animation uses a single consistent momentum direction with
+ * cubic ease-out for natural deceleration — like a real dice slowing
+ * on a table. No mid-air direction changes.
  *
  * Landing uses actual icosahedron face normals so the die always
  * settles perfectly flat on a triangular face.
@@ -19,7 +23,6 @@ import * as THREE from 'three';
 interface FaceData {
   center: THREE.Vector3;
   normal: THREE.Vector3;
-  // Euler rotation that puts this face's normal pointing straight up (+Y)
   landingEuler: THREE.Euler;
 }
 
@@ -37,13 +40,10 @@ function computeFaceData(): FaceData[] {
 
     const center = a.clone().add(b).add(c).divideScalar(3);
 
-    // Face normal (cross product of two edges)
     const normal = new THREE.Vector3()
       .crossVectors(b.clone().sub(a), c.clone().sub(a))
       .normalize();
 
-    // To land flat on this face: rotate so this normal points UP
-    // We need the INVERSE rotation — rotate the die so the face normal aligns with +Y
     const quat = new THREE.Quaternion().setFromUnitVectors(normal, up);
     const euler = new THREE.Euler().setFromQuaternion(quat);
 
@@ -57,18 +57,19 @@ function computeFaceData(): FaceData[] {
 // ─── Create number texture via canvas ────────────────────────
 
 function createNumberTexture(num: number): THREE.CanvasTexture {
-  const size = 64;
+  const size = 128;
   const canvas = document.createElement('canvas');
   canvas.width = size;
   canvas.height = size;
   const ctx = canvas.getContext('2d')!;
 
-  // Transparent background
   ctx.clearRect(0, 0, size, size);
 
-  // Draw number
+  // White number with slight shadow for readability
+  ctx.shadowColor = 'rgba(0,0,0,0.4)';
+  ctx.shadowBlur = 3;
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = `bold ${num > 9 ? 28 : 32}px Arial, sans-serif`;
+  ctx.font = `bold ${num > 9 ? 48 : 56}px Arial, sans-serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(String(num), size / 2, size / 2);
@@ -88,16 +89,13 @@ function FaceLabels({ faces }: { faces: FaceData[] }) {
   return (
     <>
       {faces.map((face, i) => {
-        // Position slightly above face surface
         const pos = face.center.clone().multiplyScalar(1.02);
-
-        // Orient the plane to face outward along the face normal
         const quat = new THREE.Quaternion();
         quat.setFromUnitVectors(new THREE.Vector3(0, 0, 1), face.normal);
 
         return (
           <mesh key={i} position={pos} quaternion={quat}>
-            <planeGeometry args={[0.35, 0.35]} />
+            <planeGeometry args={[0.38, 0.38]} />
             <meshBasicMaterial
               map={textures[i]}
               transparent
@@ -126,14 +124,17 @@ function AnimatedD20({
   const anim = useRef({
     active: false,
     startTime: 0,
-    duration: 2.0,
+    duration: 2.2,
+    // Start rotation (captured from current state)
     startX: 0, startY: 0, startZ: 0,
+    // End rotation (landing face euler + whole rotations)
     endX: 0, endY: 0, endZ: 0,
     settled: false,
     targetValue: 1,
   });
 
   const lastRolling = useRef(false);
+
   useEffect(() => {
     if (rolling && !lastRolling.current) {
       const value = Math.floor(Math.random() * 20) + 1;
@@ -144,19 +145,26 @@ function AnimatedD20({
       const sy = group ? group.rotation.y : 0;
       const sz = group ? group.rotation.z : 0;
 
-      // 2-3 full spins + land on the target face's euler
-      const spins = () => (Math.floor(Math.random() * 2) + 2) * Math.PI * 2;
+      // Pick a single momentum direction and stick with it.
+      // This prevents the jarring mid-air direction changes.
       const dirX = Math.random() > 0.5 ? 1 : -1;
       const dirY = Math.random() > 0.5 ? 1 : -1;
+      const dirZ = dirX * dirY; // Derived, not random — keeps rotation coherent
+
+      // Controlled spin amount: 1.5–2.5 full rotations on primary axes,
+      // and less on the Z axis for natural tumble feel.
+      const spinX = (1.5 + Math.random()) * Math.PI * 2 * dirX;
+      const spinY = (1.5 + Math.random()) * Math.PI * 2 * dirY;
+      const spinZ = (0.8 + Math.random() * 0.5) * Math.PI * 2 * dirZ;
 
       anim.current = {
         active: true,
         startTime: 0,
-        duration: 2.0,
+        duration: 2.0 + Math.random() * 0.4, // 2.0–2.4s — consistent pace
         startX: sx, startY: sy, startZ: sz,
-        endX: landing.x + spins() * dirX,
-        endY: landing.y + spins() * dirY,
-        endZ: landing.z + spins() * dirX * dirY,
+        endX: landing.x + spinX,
+        endY: landing.y + spinY,
+        endZ: landing.z + spinZ,
         settled: false,
         targetValue: value,
       };
@@ -172,25 +180,33 @@ function AnimatedD20({
 
     const elapsed = (performance.now() - a.startTime) / 1000;
     const t = Math.min(elapsed / a.duration, 1);
+
+    // Cubic ease-out: fast start, smooth deceleration (like real friction)
     const ease = 1 - Math.pow(1 - t, 3);
 
     groupRef.current.rotation.x = a.startX + (a.endX - a.startX) * ease;
     groupRef.current.rotation.y = a.startY + (a.endY - a.startY) * ease;
     groupRef.current.rotation.z = a.startZ + (a.endZ - a.startZ) * ease;
 
-    // Bounce
-    const bounceT = t < 0.3
-      ? Math.sin(t / 0.3 * Math.PI) * 0.6
-      : t < 0.55
-        ? Math.sin((t - 0.3) / 0.25 * Math.PI) * 0.2
-        : t < 0.75
-          ? Math.sin((t - 0.55) / 0.2 * Math.PI) * 0.06
-          : 0;
-    groupRef.current.position.y = bounceT;
+    // Natural bounce: big initial toss, two smaller bounces, settle to 0
+    let bounceY = 0;
+    if (t < 0.25) {
+      // Initial toss up
+      bounceY = Math.sin((t / 0.25) * Math.PI) * 0.5;
+    } else if (t < 0.45) {
+      // First bounce
+      bounceY = Math.sin(((t - 0.25) / 0.2) * Math.PI) * 0.18;
+    } else if (t < 0.6) {
+      // Second small bounce
+      bounceY = Math.sin(((t - 0.45) / 0.15) * Math.PI) * 0.05;
+    }
+    groupRef.current.position.y = bounceY;
 
     if (t >= 1 && !a.settled) {
       a.settled = true;
       a.active = false;
+      // Snap to exact landing position (remove any float drift)
+      groupRef.current.position.y = 0;
       onSettled(a.targetValue);
     }
   });
@@ -220,7 +236,7 @@ interface PhysicsDiceProps {
 
 export default function PhysicsDice({ rolling, onSettled }: PhysicsDiceProps) {
   return (
-    <div style={{ width: '100%', height: 200, cursor: 'pointer', borderRadius: 16, overflow: 'hidden' }}>
+    <div style={{ width: '100%', height: 220, cursor: 'pointer', borderRadius: 16, overflow: 'hidden' }}>
       <Canvas
         camera={{ position: [0, 2.5, 3], fov: 40 }}
         style={{ background: 'transparent' }}
@@ -229,7 +245,6 @@ export default function PhysicsDice({ rolling, onSettled }: PhysicsDiceProps) {
         <ambientLight intensity={0.6} />
         <directionalLight position={[3, 5, 3]} intensity={1.2} />
         <pointLight position={[-2, 3, -1]} intensity={0.3} color="#FF6D3F" />
-
         <AnimatedD20 rolling={rolling} onSettled={onSettled} />
       </Canvas>
     </div>
