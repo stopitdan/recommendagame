@@ -1,72 +1,79 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useRef } from 'react';
 import Box from '@mui/material/Box';
 
 /**
- * 3D CSS dice that spins and lands on a random face (1-6).
- * Uses CSS 3D transforms for a realistic tumbling effect.
+ * 3D CSS dice that tumbles realistically and lands on a random face.
+ *
+ * Uses a CSS 3D cube with 6 positioned faces. On roll, applies
+ * multiple full rotations across X/Y/Z axes with a final offset
+ * that ensures the target face ends up facing the viewer.
+ *
+ * Key details:
+ * - No backface-visibility:hidden (all faces stay visible during tumble)
+ * - Minimal border-radius so cube edges meet cleanly
+ * - Each face is fully opaque so the cube looks solid
+ * - Uses CSS keyframe animation for the wobble/bounce at the end
  */
 
-const DICE_SIZE = 80;
+const SIZE = 90;
+const HALF = SIZE / 2;
 
-// Each face rotation to show it on top
-const FACE_ROTATIONS: Record<number, string> = {
-  1: 'rotateX(0deg)',
-  2: 'rotateX(-90deg)',
-  3: 'rotateY(90deg)',
-  4: 'rotateY(-90deg)',
-  5: 'rotateX(90deg)',
-  6: 'rotateX(180deg)',
+// Dot positions for each face value
+const DOTS: Record<number, Array<[number, number]>> = {
+  1: [[50, 50]],
+  2: [[28, 28], [72, 72]],
+  3: [[28, 28], [50, 50], [72, 72]],
+  4: [[28, 28], [72, 28], [28, 72], [72, 72]],
+  5: [[28, 28], [72, 28], [50, 50], [28, 72], [72, 72]],
+  6: [[28, 28], [72, 28], [28, 50], [72, 50], [28, 72], [72, 72]],
 };
 
-// Dot positions for each face (as percentage of face size)
-const DOT_LAYOUTS: Record<number, Array<{ top: string; left: string }>> = {
-  1: [{ top: '50%', left: '50%' }],
-  2: [{ top: '25%', left: '25%' }, { top: '75%', left: '75%' }],
-  3: [{ top: '25%', left: '25%' }, { top: '50%', left: '50%' }, { top: '75%', left: '75%' }],
-  4: [{ top: '25%', left: '25%' }, { top: '25%', left: '75%' }, { top: '75%', left: '25%' }, { top: '75%', left: '75%' }],
-  5: [{ top: '25%', left: '25%' }, { top: '25%', left: '75%' }, { top: '50%', left: '50%' }, { top: '75%', left: '25%' }, { top: '75%', left: '75%' }],
-  6: [{ top: '25%', left: '25%' }, { top: '25%', left: '75%' }, { top: '50%', left: '25%' }, { top: '50%', left: '75%' }, { top: '75%', left: '25%' }, { top: '75%', left: '75%' }],
+// To show face N facing the camera, rotate the whole cube by these degrees.
+// These are the FINAL resting rotations (no extra spins added yet).
+const LAND_ON: Record<number, [number, number, number]> = {
+  1: [0, 0, 0],           // front face → already facing camera
+  2: [-90, 0, 0],         // top face → tilt forward
+  3: [0, 90, 0],          // right face → rotate left
+  4: [0, -90, 0],         // left face → rotate right
+  5: [90, 0, 0],          // bottom face → tilt back
+  6: [180, 0, 0],         // back face → flip over
 };
 
-interface Dice3DProps {
-  rolling: boolean;
-  onRoll: () => void;
-  /** Which face to land on (1-6). Random if not specified. */
-  result?: number;
-}
+function Face({ value, transform }: { value: number; transform: string }) {
+  const dotColor = value === 1
+    ? 'linear-gradient(135deg, #FF6D3F, #E85A2E)'
+    : 'linear-gradient(135deg, #1A1A2E, #2D2B55)';
 
-function DiceFace({ number, transform }: { number: number; transform: string }) {
   return (
     <Box
       sx={{
         position: 'absolute',
-        width: DICE_SIZE,
-        height: DICE_SIZE,
-        background: 'linear-gradient(135deg, #FFFFFF 0%, #F0F0F5 100%)',
-        border: '2px solid #E0E0E8',
-        borderRadius: '14px',
-        boxShadow: 'inset 0 0 12px rgba(0,0,0,0.06)',
+        width: SIZE,
+        height: SIZE,
+        background: 'linear-gradient(145deg, #FAFAFA, #E8E8EE)',
+        border: '1.5px solid #D0D0DA',
+        borderRadius: '6px',
         transform,
-        backfaceVisibility: 'hidden',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
       }}
     >
-      {DOT_LAYOUTS[number].map((pos, i) => (
+      {DOTS[value].map(([x, y], i) => (
         <Box
           key={i}
           sx={{
             position: 'absolute',
-            top: pos.top,
-            left: pos.left,
-            transform: 'translate(-50%, -50%)',
-            width: DICE_SIZE * 0.18,
-            height: DICE_SIZE * 0.18,
+            left: `${x}%`,
+            top: `${y}%`,
+            transform: 'translate(-50%,-50%)',
+            width: SIZE * 0.16,
+            height: SIZE * 0.16,
             borderRadius: '50%',
-            background: number === 1
-              ? 'linear-gradient(135deg, #FF6D3F, #E85A2E)'
-              : 'linear-gradient(135deg, #1A1A2E, #2D2B55)',
-            boxShadow: '0 1px 2px rgba(0,0,0,0.2)',
+            background: dotColor,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.25)',
           }}
         />
       ))}
@@ -74,83 +81,93 @@ function DiceFace({ number, transform }: { number: number; transform: string }) 
   );
 }
 
-export default function Dice3D({ rolling, onRoll, result }: Dice3DProps) {
-  const [currentResult, setCurrentResult] = useState(1);
-  const [spinTransform, setSpinTransform] = useState('');
+interface Dice3DProps {
+  rolling: boolean;
+  onRoll: () => void;
+}
 
-  const roll = useCallback(() => {
-    if (rolling) return;
+export default function Dice3D({ rolling, onRoll }: Dice3DProps) {
+  const [rx, setRx] = useState(0);
+  const [ry, setRy] = useState(0);
+  const [rz, setRz] = useState(0);
+  const [animating, setAnimating] = useState(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
-    const face = result ?? (Math.floor(Math.random() * 6) + 1);
+  function handleClick() {
+    if (animating || rolling) return;
 
-    // Create a dramatic multi-axis spin that ends on the target face
-    // Add multiple full rotations for dramatic effect
-    const extraSpinsX = (Math.floor(Math.random() * 3) + 2) * 360;
-    const extraSpinsY = (Math.floor(Math.random() * 3) + 2) * 360;
-    const extraSpinsZ = (Math.floor(Math.random() * 2) + 1) * 360;
+    // Pick a random face 1-6
+    const face = Math.floor(Math.random() * 6) + 1;
+    const [lx, ly, lz] = LAND_ON[face];
 
-    // The final rotation to show the correct face
-    const faceRotation = FACE_ROTATIONS[face];
-    // Parse the target rotation
-    const targetX = faceRotation.includes('rotateX')
-      ? parseInt(faceRotation.match(/rotateX\((-?\d+)deg\)/)?.[1] ?? '0')
-      : 0;
-    const targetY = faceRotation.includes('rotateY')
-      ? parseInt(faceRotation.match(/rotateY\((-?\d+)deg\)/)?.[1] ?? '0')
-      : 0;
+    // Add dramatic spins: 3-5 full rotations per axis, randomised direction
+    const dirX = Math.random() > 0.5 ? 1 : -1;
+    const dirY = Math.random() > 0.5 ? 1 : -1;
+    const dirZ = Math.random() > 0.5 ? 1 : -1;
+    const spinsX = (Math.floor(Math.random() * 3) + 3) * 360 * dirX;
+    const spinsY = (Math.floor(Math.random() * 3) + 3) * 360 * dirY;
+    const spinsZ = (Math.floor(Math.random() * 2) + 1) * 360 * dirZ;
 
-    setSpinTransform(
-      `rotateX(${extraSpinsX + targetX}deg) rotateY(${extraSpinsY + targetY}deg) rotateZ(${extraSpinsZ}deg)`
-    );
+    setRx(spinsX + lx);
+    setRy(spinsY + ly);
+    setRz(spinsZ + lz);
+    setAnimating(true);
 
-    setCurrentResult(face);
+    // Fire the parent's onRoll
     onRoll();
-  }, [rolling, result, onRoll]);
+
+    // Reset animating flag after spin completes
+    clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => setAnimating(false), 1400);
+  }
 
   return (
     <Box
-      onClick={roll}
+      onClick={handleClick}
       sx={{
-        cursor: rolling ? 'default' : 'pointer',
-        perspective: '600px',
-        width: DICE_SIZE + 20,
-        height: DICE_SIZE + 20,
+        cursor: animating ? 'default' : 'pointer',
+        perspective: '800px',
+        perspectiveOrigin: '50% 30%',
+        width: SIZE + 40,
+        height: SIZE + 40,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         mx: 'auto',
-        // Hover effect when not rolling
-        transition: 'transform 200ms ease',
-        '&:hover': rolling ? {} : { transform: 'scale(1.1)' },
-        '&:active': rolling ? {} : { transform: 'scale(0.95)' },
+        userSelect: 'none',
+        '&:hover .dice-cube': animating ? {} : {
+          filter: 'drop-shadow(0 6px 16px rgba(91, 79, 219, 0.35))',
+        },
       }}
     >
       <Box
+        className="dice-cube"
         sx={{
-          width: DICE_SIZE,
-          height: DICE_SIZE,
+          width: SIZE,
+          height: SIZE,
           position: 'relative',
           transformStyle: 'preserve-3d',
-          transform: spinTransform || FACE_ROTATIONS[currentResult],
-          transition: rolling
-            ? 'transform 1.2s cubic-bezier(0.2, 0.8, 0.3, 1)'
+          transform: `rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${rz}deg)`,
+          transition: animating
+            ? 'transform 1.3s cubic-bezier(0.15, 0.8, 0.25, 1)'
             : 'none',
-          // Subtle shadow that moves during spin
-          filter: rolling ? 'drop-shadow(0 8px 20px rgba(91, 79, 219, 0.3))' : 'drop-shadow(0 4px 12px rgba(0,0,0,0.15))',
+          filter: animating
+            ? 'drop-shadow(0 12px 28px rgba(91, 79, 219, 0.4))'
+            : 'drop-shadow(0 4px 10px rgba(0,0,0,0.18))',
         }}
       >
-        {/* Face 1 - Front */}
-        <DiceFace number={1} transform={`translateZ(${DICE_SIZE / 2}px)`} />
-        {/* Face 6 - Back */}
-        <DiceFace number={6} transform={`rotateX(180deg) translateZ(${DICE_SIZE / 2}px)`} />
-        {/* Face 2 - Top */}
-        <DiceFace number={2} transform={`rotateX(90deg) translateZ(${DICE_SIZE / 2}px)`} />
-        {/* Face 5 - Bottom */}
-        <DiceFace number={5} transform={`rotateX(-90deg) translateZ(${DICE_SIZE / 2}px)`} />
-        {/* Face 3 - Left */}
-        <DiceFace number={3} transform={`rotateY(-90deg) translateZ(${DICE_SIZE / 2}px)`} />
-        {/* Face 4 - Right */}
-        <DiceFace number={4} transform={`rotateY(90deg) translateZ(${DICE_SIZE / 2}px)`} />
+        {/* Front  = 1 */}
+        <Face value={1} transform={`translateZ(${HALF}px)`} />
+        {/* Back   = 6 */}
+        <Face value={6} transform={`rotateY(180deg) translateZ(${HALF}px)`} />
+        {/* Top    = 2 */}
+        <Face value={2} transform={`rotateX(90deg) translateZ(${HALF}px)`} />
+        {/* Bottom = 5 */}
+        <Face value={5} transform={`rotateX(-90deg) translateZ(${HALF}px)`} />
+        {/* Right  = 3 */}
+        <Face value={3} transform={`rotateY(90deg) translateZ(${HALF}px)`} />
+        {/* Left   = 4 */}
+        <Face value={4} transform={`rotateY(-90deg) translateZ(${HALF}px)`} />
       </Box>
     </Box>
   );

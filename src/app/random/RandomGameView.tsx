@@ -58,11 +58,7 @@ export default function RandomGameView() {
     <Container maxWidth="sm" sx={{ py: 6, textAlign: 'center' }}>
       <Stack spacing={4} alignItems="center">
         {/* 3D Dice */}
-        <Dice3D
-          rolling={rolling}
-          onRoll={rollDice}
-          result={Math.floor(Math.random() * 6) + 1}
-        />
+        <Dice3D rolling={rolling} onRoll={rollDice} />
 
         <Box>
           <Typography variant="h3" fontWeight={800} sx={{ mb: 1 }}>
