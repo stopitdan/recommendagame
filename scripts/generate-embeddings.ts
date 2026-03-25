@@ -11,7 +11,8 @@
  * Safe to re-run — uses upsert so existing embeddings get updated.
  */
 
-import 'dotenv/config';
+import dotenv from 'dotenv';
+dotenv.config({ path: '.env.local' });
 import { createClient } from '@supabase/supabase-js';
 
 // Import from source (tsx handles TS compilation)
