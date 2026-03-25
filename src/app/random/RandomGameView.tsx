@@ -11,7 +11,6 @@ import Container from '@mui/material/Container';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { motion, AnimatePresence } from 'motion/react';
-import Dice3D from '@/components/Dice3D';
 import type { Game } from '@/types/game';
 
 export default function RandomGameView() {
@@ -33,10 +32,10 @@ export default function RandomGameView() {
       if (!res.ok) return;
       const data = await res.json();
 
-      // Ensure rolling animation plays for minimum time (match 3D dice spin: 1.2s)
+      // Ensure rolling animation plays for minimum time
       const elapsed = Date.now() - start;
-      if (elapsed < 1300) {
-        await new Promise((r) => setTimeout(r, 1300 - elapsed));
+      if (elapsed < 1000) {
+        await new Promise((r) => setTimeout(r, 1000 - elapsed));
       }
 
       setGame(data.game);
@@ -57,8 +56,15 @@ export default function RandomGameView() {
   return (
     <Container maxWidth="sm" sx={{ py: 6, textAlign: 'center' }}>
       <Stack spacing={4} alignItems="center">
-        {/* 3D Dice */}
-        <Dice3D rolling={rolling} onRoll={rollDice} />
+        {/* Dice animation */}
+        <motion.div
+          animate={rolling ? { rotate: [0, 360, 720, 1080], scale: [1, 1.2, 0.9, 1.1, 1] } : {}}
+          transition={{ duration: 1, ease: 'easeInOut' }}
+        >
+          <Typography sx={{ fontSize: '5rem', lineHeight: 1, cursor: 'pointer' }} onClick={rollDice}>
+            🎲
+          </Typography>
+        </motion.div>
 
         <Box>
           <Typography variant="h3" fontWeight={800} sx={{ mb: 1 }}>
