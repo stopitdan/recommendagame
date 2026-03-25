@@ -55,55 +55,77 @@ function triggerScreenShake() {
   }
 }
 
-/** Falling embers/ash for a Natural 1 */
-async function triggerNat1Embers() {
-  const confetti = (await import('canvas-confetti')).default;
-
-  // Screen shake
+/** Blood drip + screen shake for a Natural 1 */
+function triggerNat1Blood() {
   triggerScreenShake();
 
-  // Dark embers falling from top
-  confetti({
-    particleCount: 80,
-    spread: 180,
-    origin: { y: 0, x: 0.5 },
-    colors: ['#8B0000', '#2D0000', '#4A0000', '#1A1A1A', '#333333'],
-    startVelocity: 15,
-    gravity: 2.5,
-    ticks: 150,
-    shapes: ['circle'],
-    scalar: 0.8,
-  });
+  // Brief red flash overlay
+  const flash = document.createElement('div');
+  flash.style.cssText = `
+    position: fixed; inset: 0; z-index: 9998;
+    background: radial-gradient(ellipse at top, rgba(139,0,0,0.4), transparent 70%);
+    pointer-events: none;
+    animation: critfail-flash 0.8s ease-out forwards;
+  `;
 
-  // More embers from left
-  setTimeout(() => {
-    confetti({
-      particleCount: 40,
-      spread: 120,
-      origin: { y: 0, x: 0.3 },
-      colors: ['#8B0000', '#2D0000', '#1A1A1A'],
-      startVelocity: 10,
-      gravity: 2.0,
-      ticks: 120,
-      shapes: ['circle'],
-      scalar: 0.6,
-    });
-  }, 200);
+  // Inject flash keyframes
+  if (!document.getElementById('critfail-flash-style')) {
+    const style = document.createElement('style');
+    style.id = 'critfail-flash-style';
+    style.textContent = `
+      @keyframes critfail-flash {
+        0% { opacity: 1; }
+        100% { opacity: 0; }
+      }
+      @keyframes blood-drip {
+        0% { transform: translateY(-100%) scaleY(0.3); opacity: 0.9; }
+        30% { opacity: 1; }
+        100% { transform: translateY(100vh) scaleY(1); opacity: 0; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
 
-  // More from right
-  setTimeout(() => {
-    confetti({
-      particleCount: 40,
-      spread: 120,
-      origin: { y: 0, x: 0.7 },
-      colors: ['#4A0000', '#1A1A1A', '#333333'],
-      startVelocity: 10,
-      gravity: 2.0,
-      ticks: 120,
-      shapes: ['circle'],
-      scalar: 0.6,
-    });
-  }, 350);
+  document.body.appendChild(flash);
+  setTimeout(() => flash.remove(), 900);
+
+  // Create blood drips — vertical streaks falling from top
+  const container = document.createElement('div');
+  container.style.cssText = `
+    position: fixed; top: 0; left: 0; right: 0; height: 100vh;
+    z-index: 9999; pointer-events: none; overflow: hidden;
+  `;
+
+  const dripCount = 12 + Math.floor(Math.random() * 6);
+  for (let i = 0; i < dripCount; i++) {
+    const drip = document.createElement('div');
+    const left = Math.random() * 100;
+    const width = 3 + Math.random() * 8;
+    const delay = Math.random() * 0.4;
+    const duration = 1.2 + Math.random() * 0.8;
+    const shade = Math.floor(80 + Math.random() * 60); // 80-139 red channel
+
+    drip.style.cssText = `
+      position: absolute;
+      top: 0;
+      left: ${left}%;
+      width: ${width}px;
+      height: ${30 + Math.random() * 60}%;
+      background: linear-gradient(to bottom,
+        rgba(${shade},0,0,0.9) 0%,
+        rgba(${shade},0,0,0.7) 40%,
+        rgba(${shade},0,0,0.3) 80%,
+        transparent 100%
+      );
+      border-radius: 0 0 ${width}px ${width}px;
+      animation: blood-drip ${duration}s ${delay}s ease-in forwards;
+      transform: translateY(-100%);
+    `;
+    container.appendChild(drip);
+  }
+
+  document.body.appendChild(container);
+  setTimeout(() => container.remove(), 2500);
 }
 
 /** Fire confetti for a Natural 20! */
@@ -196,7 +218,7 @@ export default function RandomGameView() {
       triggerNat20Confetti();
     } else if (value === 1) {
       setIsNat1(true);
-      triggerNat1Embers();
+      triggerNat1Blood();
     }
   }, []);
 
