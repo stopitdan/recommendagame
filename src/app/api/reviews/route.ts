@@ -16,15 +16,37 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Missing gameId' }, { status: 400 });
   }
 
-  const { data, error } = await supabase
+  // Query reviews, then separately fetch display names for the users
+  const { data: reviews, error } = await supabase
     .from('user_reviews')
-    .select('*, user_profiles(display_name)')
+    .select('*')
     .eq('game_id', gameId)
     .order('created_at', { ascending: false });
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  // Fetch display names for review authors
+  const userIds = [...new Set((reviews ?? []).map((r: any) => r.user_id))];
+  let profileMap = new Map<string, string>();
+
+  if (userIds.length > 0) {
+    const { data: profiles } = await supabase
+      .from('user_profiles')
+      .select('id, display_name')
+      .in('id', userIds);
+
+    if (profiles) {
+      profileMap = new Map(profiles.map((p: any) => [p.id, p.display_name]));
+    }
+  }
+
+  // Merge display names into reviews
+  const data = (reviews ?? []).map((r: any) => ({
+    ...r,
+    user_profiles: { display_name: profileMap.get(r.user_id) ?? null },
+  }));
 
   return NextResponse.json({ reviews: data });
 }
