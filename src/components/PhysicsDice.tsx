@@ -29,7 +29,9 @@ function computeFaceData(): FaceData[] {
   const geo = new THREE.IcosahedronGeometry(0.85, 0);
   const pos = geo.attributes.position;
   const faces: FaceData[] = [];
-  const up = new THREE.Vector3(0, 1, 0);
+
+  // Camera is at [0, 2.5, 3] — land the rolled face pointing toward the viewer
+  const toCamera = new THREE.Vector3(0, 2.5, 3).normalize();
 
   for (let i = 0; i < pos.count; i += 3) {
     const a = new THREE.Vector3(pos.getX(i), pos.getY(i), pos.getZ(i));
@@ -42,8 +44,8 @@ function computeFaceData(): FaceData[] {
       .crossVectors(b.clone().sub(a), c.clone().sub(a))
       .normalize();
 
-    // To land flat: rotate so this face's normal points UP
-    const landingQuat = new THREE.Quaternion().setFromUnitVectors(normal, up);
+    // Land so this face's normal points toward the camera (facing the user)
+    const landingQuat = new THREE.Quaternion().setFromUnitVectors(normal, toCamera);
 
     faces.push({ center, normal, landingQuat });
   }
