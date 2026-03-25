@@ -4,6 +4,7 @@ import { AppRouterCacheProvider } from "@mui/material-nextjs/v16-appRouter";
 import ThemeRegistry from "@/components/ThemeRegistry";
 import Header from "@/components/Header";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import Footer from "@/components/Footer";
 import "./globals.css";
 
 const roboto = Roboto({
@@ -32,8 +33,11 @@ export default function RootLayout({
           <ThemeRegistry>
             <Header />
             <ErrorBoundary>
-              {children}
+              <main style={{ flex: 1 }}>
+                {children}
+              </main>
             </ErrorBoundary>
+            <Footer />
           </ThemeRegistry>
         </AppRouterCacheProvider>
       </body>
