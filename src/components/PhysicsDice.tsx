@@ -78,6 +78,9 @@ function createNumberTexture(num: number): THREE.CanvasTexture {
   return tex;
 }
 
+// Compute once, shared by both AnimatedD20 and FaceLabels
+const globalFaces = computeFaceData();
+
 // ─── Number labels on faces ──────────────────────────────────
 
 function FaceLabels({ faces }: { faces: FaceData[] }) {
@@ -118,41 +121,89 @@ interface AnimState {
   velX: number;
   velY: number;
   velZ: number;
-  /** Landing quaternion (face toward camera) */
-  landingQuat: THREE.Quaternion;
   settled: boolean;
-  targetValue: number;
 }
 
 function AnimatedD20({
   rolling,
   onSettled,
+  faces,
 }: {
   rolling: boolean;
   onSettled: (value: number) => void;
+  faces: FaceData[];
 }) {
   const groupRef = useRef<THREE.Group>(null);
-  const faces = useMemo(() => computeFaceData(), []);
 
   const anim = useRef<AnimState>({
     active: false,
     startTime: 0,
     duration: 2.2,
     velX: 0, velY: 0, velZ: 0,
-    landingQuat: new THREE.Quaternion(),
     settled: false,
-    targetValue: 1,
   });
 
   const lastRolling = useRef(false);
 
+  /** Find which face's normal is most aligned with the camera direction */
+  function findFacingCamera(): number {
+    if (!groupRef.current) return 1;
+
+    const toCamera = new THREE.Vector3(0, 2.5, 3).normalize();
+    const worldNormal = new THREE.Vector3();
+    let bestDot = -Infinity;
+    let bestFace = 0;
+
+    for (let i = 0; i < faces.length; i++) {
+      // Transform face normal from local to world space
+      worldNormal.copy(faces[i].normal);
+      worldNormal.applyQuaternion(groupRef.current.quaternion);
+
+      const dot = worldNormal.dot(toCamera);
+      if (dot > bestDot) {
+        bestDot = dot;
+        bestFace = i;
+      }
+    }
+
+    return bestFace + 1; // 1-indexed
+  }
+
+  /**
+   * Snap to the nearest face so the die rests perfectly flat.
+   * Finds the face whose normal is closest to the camera direction,
+   * then rotates minimally to align it exactly.
+   */
+  function snapToNearestFace() {
+    if (!groupRef.current) return;
+
+    const toCamera = new THREE.Vector3(0, 2.5, 3).normalize();
+    const worldNormal = new THREE.Vector3();
+    let bestDot = -Infinity;
+    let bestIdx = 0;
+
+    for (let i = 0; i < faces.length; i++) {
+      worldNormal.copy(faces[i].normal);
+      worldNormal.applyQuaternion(groupRef.current.quaternion);
+      const dot = worldNormal.dot(toCamera);
+      if (dot > bestDot) {
+        bestDot = dot;
+        bestIdx = i;
+      }
+    }
+
+    // The correction is the rotation from current best-face-world-normal
+    // to the exact camera direction. This is always a TINY rotation
+    // (just a few degrees) since we picked the closest face.
+    worldNormal.copy(faces[bestIdx].normal);
+    worldNormal.applyQuaternion(groupRef.current.quaternion);
+
+    const correction = new THREE.Quaternion().setFromUnitVectors(worldNormal, toCamera);
+    groupRef.current.quaternion.premultiply(correction);
+  }
+
   useEffect(() => {
     if (rolling && !lastRolling.current) {
-      const value = Math.floor(Math.random() * 20) + 1;
-
-      // One consistent spin direction for the entire roll.
-      // Primary axis gets most energy, secondary gets less, tertiary least.
-      // This mimics a real die with one dominant rotation axis.
       const dirX = Math.random() > 0.5 ? 1 : -1;
       const dirY = Math.random() > 0.5 ? 1 : -1;
 
@@ -160,16 +211,14 @@ function AnimatedD20({
         active: true,
         startTime: 0,
         duration: 1.8 + Math.random() * 0.4,
-        velX: dirX * (8 + Math.random() * 4),     // Primary: 8-12 rad/s
-        velY: dirY * (6 + Math.random() * 3),     // Secondary: 6-9 rad/s
-        velZ: dirX * dirY * (2 + Math.random() * 2), // Tertiary: 2-4 rad/s
-        landingQuat: faces[value - 1].landingQuat.clone(),
+        velX: dirX * (8 + Math.random() * 4),
+        velY: dirY * (6 + Math.random() * 3),
+        velZ: dirX * dirY * (2 + Math.random() * 2),
         settled: false,
-        targetValue: value,
       };
     }
     lastRolling.current = rolling;
-  }, [rolling, faces]);
+  }, [rolling]);
 
   useFrame((_, delta) => {
     const a = anim.current;
@@ -180,28 +229,12 @@ function AnimatedD20({
     const elapsed = (performance.now() - a.startTime) / 1000;
     const t = Math.min(elapsed / a.duration, 1);
 
-    // ── Continuous tumble + gradual blend to landing ──
-    // The Euler tumble runs the ENTIRE time (decelerating).
-    // Starting at 50%, we increasingly blend toward the landing quaternion.
-    // By the time the tumble velocity is near zero, the blend is dominant.
-    // This avoids any visible "snap" or "correction" moment.
-
-    // 1. Always apply Euler tumble (decelerating)
-    const decel = (1 - t) * (1 - t); // Quadratic: full speed → zero
+    // ── Pure Euler tumble with quadratic deceleration ──
+    // One direction, gradually slowing. No correction, no SLERP.
+    const decel = (1 - t) * (1 - t);
     groupRef.current.rotation.x += a.velX * decel * delta;
     groupRef.current.rotation.y += a.velY * decel * delta;
     groupRef.current.rotation.z += a.velZ * decel * delta;
-
-    // 2. Blend toward landing quaternion (starts at 50%, reaches 100% at t=1)
-    const BLEND_START = 0.5;
-    if (t > BLEND_START) {
-      const blendT = (t - BLEND_START) / (1 - BLEND_START); // 0→1
-      // Quintic ease-in: barely noticeable at first, strong at the end
-      const blendStrength = blendT * blendT * blendT * blendT * blendT;
-
-      // SLERP current orientation toward landing by blend amount
-      groupRef.current.quaternion.slerp(a.landingQuat, blendStrength);
-    }
 
     // ── Bounce ──
     let bounceY = 0;
@@ -214,13 +247,17 @@ function AnimatedD20({
     }
     groupRef.current.position.y = bounceY;
 
-    // ── Settle ──
+    // ── Settle: let physics decide the result ──
     if (t >= 1 && !a.settled) {
       a.settled = true;
       a.active = false;
-      groupRef.current.quaternion.copy(a.landingQuat);
       groupRef.current.position.y = 0;
-      onSettled(a.targetValue);
+
+      // Tiny snap to nearest flat face (just a few degrees — invisible)
+      snapToNearestFace();
+
+      // Report whichever face ended up facing the camera
+      onSettled(findFacingCamera());
     }
   });
 
@@ -235,7 +272,7 @@ function AnimatedD20({
           flatShading
         />
       </mesh>
-      <FaceLabels faces={faces} />
+      <FaceLabels faces={globalFaces} />
     </group>
   );
 }
@@ -258,7 +295,7 @@ export default function PhysicsDice({ rolling, onSettled }: PhysicsDiceProps) {
         <ambientLight intensity={0.6} />
         <directionalLight position={[3, 5, 3]} intensity={1.2} />
         <pointLight position={[-2, 3, -1]} intensity={0.3} color="#FF6D3F" />
-        <AnimatedD20 rolling={rolling} onSettled={onSettled} />
+        <AnimatedD20 rolling={rolling} onSettled={onSettled} faces={globalFaces} />
       </Canvas>
     </div>
   );
