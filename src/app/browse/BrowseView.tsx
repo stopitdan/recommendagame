@@ -15,6 +15,7 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import GameCard from '@/components/GameCard';
+import { GameCardSkeletonList } from '@/components/GameCardSkeleton';
 import type { Game } from '@/types/game';
 
 const PAGE_SIZE = 20;
@@ -101,6 +102,32 @@ export default function BrowseView() {
           </Typography>
         </Box>
 
+        {/* Quick type filters */}
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          {[
+            { label: 'All', value: null, emoji: '🎲' },
+            { label: 'Board Games', value: 'board', emoji: '♟️' },
+            { label: 'Video Games', value: 'video', emoji: '🎮' },
+            { label: 'Word Games', value: 'word', emoji: '🔤' },
+            { label: 'Party Games', value: 'party', emoji: '🎉' },
+          ].map((t) => (
+            <Chip
+              key={t.label}
+              label={`${t.emoji} ${t.label}`}
+              onClick={() => {
+                if (t.value) {
+                  router.push(`/browse?type=${t.value}`);
+                } else {
+                  router.push('/browse');
+                }
+              }}
+              color={type === t.value || (!type && !t.value && !activeFilter) ? 'primary' : 'default'}
+              variant={type === t.value || (!type && !t.value && !activeFilter) ? 'filled' : 'outlined'}
+              sx={{ transition: 'all 200ms ease' }}
+            />
+          ))}
+        </Box>
+
         {/* Search + Sort controls */}
         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
           <TextField
@@ -127,11 +154,7 @@ export default function BrowseView() {
         </Box>
 
         {/* Results */}
-        {loading && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-            <CircularProgress sx={{ color: 'secondary.main' }} />
-          </Box>
-        )}
+        {loading && <GameCardSkeletonList count={5} />}
 
         {!loading && games.length === 0 && (
           <Typography variant="body1" color="text.secondary" textAlign="center" sx={{ py: 8 }}>
