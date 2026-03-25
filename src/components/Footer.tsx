@@ -11,6 +11,7 @@ const LINKS = {
     { label: 'Find a Game', href: '/questionnaire' },
     { label: 'Browse Games', href: '/browse' },
     { label: 'Leaderboard', href: '/leaderboard' },
+    { label: 'How It Works', href: '/about' },
   ],
   Account: [
     { label: 'Sign Up', href: '/signup' },
