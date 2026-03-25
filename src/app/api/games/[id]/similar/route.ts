@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { rowToGame } from '@/lib/supabase/games';
 import { gameToVector, normalize, cosineSimilarity } from '@/lib/recommendation/embeddings';
+import { similarGamesCache } from '@/lib/cache';
 import type { GameRow } from '@/types/supabase';
 
 function getSupabase() {
@@ -24,6 +25,13 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
+
+  // Check cache first
+  const cached = similarGamesCache.get(id);
+  if (cached) {
+    return NextResponse.json(cached);
+  }
+
   const supabase = getSupabase();
   if (!supabase) {
     return NextResponse.json({ error: 'Database not configured' }, { status: 500 });
@@ -92,10 +100,12 @@ export async function GET(
         .sort((a, b) => b.sim - a.sim)
         .slice(0, 8);
 
-      return NextResponse.json({
+      const result = {
         similar: scored.map((s) => ({ ...s.game, _similarity: Math.round(s.sim * 1000) / 1000 })),
         method: 'category-fallback',
-      });
+      };
+      similarGamesCache.set(id, result);
+      return NextResponse.json(result);
     }
   }
 
@@ -108,10 +118,9 @@ export async function GET(
 
     if (gameRows) {
       const games = (gameRows as GameRow[]).map((row) => rowToGame(row));
-      return NextResponse.json({
-        similar: games,
-        method: 'pgvector',
-      });
+      const result = { similar: games, method: 'pgvector' };
+      similarGamesCache.set(id, result);
+      return NextResponse.json(result);
     }
   }
 

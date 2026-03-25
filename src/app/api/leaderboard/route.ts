@@ -8,6 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { leaderboardCache } from '@/lib/cache';
 
 function createDbClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -21,13 +22,19 @@ export async function GET(request: NextRequest) {
   const type = searchParams.get('type');
   const limit = Math.min(parseInt(searchParams.get('limit') ?? '25', 10), 100);
 
+  // Check cache first (5 min TTL)
+  const cacheKey = `leaderboard:${type ?? 'all'}:${limit}`;
+  const cached = leaderboardCache.get(cacheKey);
+  if (cached) {
+    return NextResponse.json(cached);
+  }
+
   const supabase = createDbClient();
   if (!supabase) {
     return NextResponse.json({ error: 'Database not configured' }, { status: 500 });
   }
 
-  // For now, rank by a composite of rating + rating_count (popularity-weighted quality)
-  // Once we have enough favorites, we can switch to favorite_count
+  // Rank by a composite of rating + rating_count (popularity-weighted quality)
   let query = supabase
     .from('games')
     .select('*')
@@ -46,8 +53,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({
-    games: data ?? [],
-    type: type ?? 'all',
-  });
+  const response = { games: data ?? [], type: type ?? 'all' };
+  leaderboardCache.set(cacheKey, response);
+
+  return NextResponse.json(response);
 }
