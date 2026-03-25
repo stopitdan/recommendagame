@@ -116,7 +116,7 @@ function FaceLabels({ faces }: { faces: FaceData[] }) {
 type Phase = 'idle' | 'shrink' | 'flight' | 'decel' | 'settle' | 'present';
 
 const SHRINK_DUR = 0.25;
-const FLIGHT_DUR = 0.9;   // Free flight at constant omega
+const FLIGHT_DUR = 1.1;   // Free flight at constant omega
 const DECEL_DUR = 0.8;    // Friction slowing it down
 const SETTLE_DUR = 0.3;   // Final tiny SLERP to flat face
 const PRESENT_DUR = 0.35; // Grow to highlight result
@@ -269,19 +269,28 @@ function AnimatedD20({
         group.quaternion.premultiply(s.deltaQ);
         group.quaternion.normalize();
 
-        // Bounce: 5 bounces, each ~60% the height of the previous
-        // 1111 > 111 > 11 > 1 > 0 pattern
+        // Bouncing ball physics: each bounce has a parabolic arc (gravity)
+        // and takes ~65% as long as the previous (coefficient of restitution)
+        // Heights: 0.55 → 0.30 → 0.16 → 0.08 → 0.03
+        // Durations: 0.35 → 0.23 → 0.15 → 0.10 → 0.06 (total ~0.89)
+        const bounces = [
+          { dur: 0.35, h: 0.55 },
+          { dur: 0.23, h: 0.30 },
+          { dur: 0.15, h: 0.16 },
+          { dur: 0.10, h: 0.08 },
+          { dur: 0.06, h: 0.03 },
+        ];
         let bounceY = 0;
-        if (t < 0.25) {
-          bounceY = Math.sin((t / 0.25) * Math.PI) * 0.50;       // Big toss
-        } else if (t < 0.42) {
-          bounceY = Math.sin(((t - 0.25) / 0.17) * Math.PI) * 0.28;  // ~60% of first
-        } else if (t < 0.55) {
-          bounceY = Math.sin(((t - 0.42) / 0.13) * Math.PI) * 0.15;  // ~55% of second
-        } else if (t < 0.65) {
-          bounceY = Math.sin(((t - 0.55) / 0.10) * Math.PI) * 0.07;  // Small hop
-        } else if (t < 0.72) {
-          bounceY = Math.sin(((t - 0.65) / 0.07) * Math.PI) * 0.025; // Tiny tap
+        let bt = t; // time cursor
+        for (const b of bounces) {
+          if (bt < b.dur) {
+            // Parabolic arc: rises and falls like real gravity
+            // y = 4h * x * (1-x) where x = bt/dur (peaks at x=0.5)
+            const x = bt / b.dur;
+            bounceY = 4 * b.h * x * (1 - x);
+            break;
+          }
+          bt -= b.dur;
         }
         group.position.y = bounceY;
 
