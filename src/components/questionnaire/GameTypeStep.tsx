@@ -30,9 +30,9 @@ export default function GameTypeStep({ value, onChange }: GameTypeStepProps) {
             key={option.label}
             variant={isSelected ? 'elevation' : 'outlined'}
             sx={{
-              borderColor: isSelected ? 'primary.main' : undefined,
+              borderColor: isSelected ? '#B9314F' : undefined,
               borderWidth: isSelected ? 2 : 1,
-              bgcolor: isSelected ? 'primary.50' : undefined,
+              bgcolor: isSelected ? '#F2E0E4' : undefined,
             }}
           >
             <CardActionArea onClick={() => onChange(option.value)} sx={{ p: 1 }}>

@@ -75,7 +75,7 @@ export default function SignupForm() {
 
           <Typography variant="body2" textAlign="center" color="text.secondary">
             Already have an account?{' '}
-            <Link href="/login" style={{ color: 'inherit', fontWeight: 600 }}>
+            <Link href="/login" style={{ color: '#B9314F', fontWeight: 600 }}>
               Log in
             </Link>
           </Typography>

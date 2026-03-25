@@ -48,8 +48,11 @@ export default function GameCard({ game }: GameCardProps) {
               <Chip
                 label={game.rating.toFixed(1)}
                 size="small"
-                color="primary"
-                variant="outlined"
+                sx={{
+                  bgcolor: '#3A4F41',
+                  color: '#FFFFFF',
+                  fontWeight: 600,
+                }}
               />
             )}
           </Box>

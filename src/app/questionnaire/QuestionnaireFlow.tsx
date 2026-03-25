@@ -92,8 +92,8 @@ export default function QuestionnaireFlow() {
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', pt: 2 }}>
-      <Container maxWidth="sm" sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ minHeight: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column' }}>
+      <Container maxWidth="sm" sx={{ flex: 1, display: 'flex', flexDirection: 'column', pt: 3, pb: 12 }}>
         {/* Progress */}
         <Box sx={{ mb: 1 }}>
           <LinearProgress variant="determinate" value={progress} sx={{ borderRadius: 1, height: 6 }} />
@@ -108,29 +108,46 @@ export default function QuestionnaireFlow() {
         </Typography>
 
         {/* Step Content */}
-        <Box sx={{ flex: 1 }}>
+        <Box>
           {renderStep()}
         </Box>
-
-        {/* Navigation */}
-        <Stack direction="row" spacing={2} sx={{ py: 3 }}>
-          <Button
-            variant="text"
-            onClick={back}
-            disabled={step === 0}
-            sx={{ minWidth: 100 }}
-          >
-            Back
-          </Button>
-          <Box sx={{ flex: 1 }} />
-          <Button variant="text" onClick={next} sx={{ minWidth: 100 }}>
-            Skip
-          </Button>
-          <Button variant="contained" onClick={next} sx={{ minWidth: 140 }}>
-            {isLast ? 'Find Games' : 'Next'}
-          </Button>
-        </Stack>
       </Container>
+
+      {/* Sticky Navigation */}
+      <Box
+        sx={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          bgcolor: 'background.paper',
+          borderTop: '1px solid',
+          borderColor: 'divider',
+          py: 2,
+          px: 2,
+          zIndex: 10,
+        }}
+      >
+        <Container maxWidth="sm">
+          <Stack direction="row" spacing={2}>
+            <Button
+              variant="text"
+              onClick={back}
+              disabled={step === 0}
+              sx={{ minWidth: 80 }}
+            >
+              Back
+            </Button>
+            <Box sx={{ flex: 1 }} />
+            <Button variant="text" onClick={next} sx={{ minWidth: 80 }}>
+              Skip
+            </Button>
+            <Button variant="contained" onClick={next} sx={{ minWidth: 140 }}>
+              {isLast ? 'Find Games' : 'Next'}
+            </Button>
+          </Stack>
+        </Container>
+      </Box>
     </Box>
   );
 }

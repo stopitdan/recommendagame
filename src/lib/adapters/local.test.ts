@@ -60,7 +60,7 @@ describe('localAdapter.getById', () => {
 
 describe('localAdapter.getPopular', () => {
   it('returns games sorted by rating descending', async () => {
-    const games = await localAdapter.getPopular(5);
+    const games = await localAdapter.getPopular!(5);
     expect(games.length).toBeLessThanOrEqual(5);
 
     // Verify sorted by rating descending
@@ -70,14 +70,14 @@ describe('localAdapter.getPopular', () => {
   });
 
   it('respects limit', async () => {
-    const games = await localAdapter.getPopular(3);
+    const games = await localAdapter.getPopular!(3);
     expect(games).toHaveLength(3);
   });
 });
 
 describe('local game data integrity', () => {
   it('all games have required fields', async () => {
-    const games = await localAdapter.getPopular(100);
+    const games = await localAdapter.getPopular!(100);
 
     for (const game of games) {
       expect(game.id).toMatch(/^local-/);

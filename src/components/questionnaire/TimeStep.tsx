@@ -23,7 +23,7 @@ export default function TimeStep({ value, onChange }: TimeStepProps) {
             key={key}
             label={`${preset.label} (${preset.description})`}
             onClick={() => onChange(isSelected ? null : key)}
-            color={isSelected ? 'primary' : 'default'}
+            color={isSelected ? 'secondary' : 'default'}
             variant={isSelected ? 'filled' : 'outlined'}
             sx={{ py: 2.5, px: 1, fontSize: '0.95rem' }}
           />

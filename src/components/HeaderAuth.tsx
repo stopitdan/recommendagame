@@ -17,11 +17,16 @@ export default function HeaderAuth({ isLoggedIn, email, displayName }: HeaderAut
   if (isLoggedIn) {
     return (
       <>
-        <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+        <Typography variant="body2" sx={{ mr: 1, color: 'rgba(255,255,255,0.7)' }}>
           {displayName || email}
         </Typography>
         <form action={logout}>
-          <Button type="submit" variant="text" size="small">
+          <Button
+            type="submit"
+            variant="text"
+            size="small"
+            sx={{ color: 'rgba(255,255,255,0.8)', '&:hover': { color: '#FFFFFF' } }}
+          >
             Log Out
           </Button>
         </form>
@@ -31,10 +36,22 @@ export default function HeaderAuth({ isLoggedIn, email, displayName }: HeaderAut
 
   return (
     <>
-      <Button variant="text" onClick={() => router.push('/login')}>
+      <Button
+        variant="text"
+        onClick={() => router.push('/login')}
+        sx={{ color: 'rgba(255,255,255,0.8)', '&:hover': { color: '#FFFFFF' } }}
+      >
         Log In
       </Button>
-      <Button variant="contained" size="small" onClick={() => router.push('/signup')}>
+      <Button
+        variant="contained"
+        size="small"
+        onClick={() => router.push('/signup')}
+        sx={{
+          bgcolor: '#B9314F',
+          '&:hover': { bgcolor: '#9A2840' },
+        }}
+      >
         Sign Up
       </Button>
     </>

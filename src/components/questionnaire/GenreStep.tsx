@@ -32,7 +32,7 @@ export default function GenreStep({ value, onChange }: GenreStepProps) {
               key={genre}
               label={genre}
               onClick={() => toggle(genre)}
-              color={isSelected ? 'primary' : 'default'}
+              color={isSelected ? 'secondary' : 'default'}
               variant={isSelected ? 'filled' : 'outlined'}
             />
           );

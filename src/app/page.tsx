@@ -15,20 +15,55 @@ export default function Home() {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        py: 4,
+        py: 8,
+        background: "linear-gradient(180deg, #FAF7F5 0%, #DEC3BE 100%)",
       }}
     >
       <Container maxWidth="sm">
-        <Stack spacing={3} alignItems="center" textAlign="center">
-          <Typography variant="h3" component="h1" fontWeight={700}>
-            Recommend a Game
+        <Stack spacing={4} alignItems="center" textAlign="center">
+          <Typography
+            variant="h2"
+            component="h1"
+            sx={{
+              fontWeight: 800,
+              color: "#3A4F41",
+              letterSpacing: "-0.03em",
+              lineHeight: 1.1,
+            }}
+          >
+            Find your next
+            <br />
+            favorite game
           </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Tell us what you&apos;re in the mood for — players, complexity, genres,
-            vibe — and we&apos;ll find the perfect game for you.
+          <Typography
+            variant="h6"
+            sx={{
+              color: "text.secondary",
+              fontWeight: 400,
+              maxWidth: 420,
+              lineHeight: 1.5,
+            }}
+          >
+            Tell us what you&apos;re in the mood for and we&apos;ll recommend
+            the perfect board game, video game, or word game.
           </Typography>
-          <Link href="/questionnaire" style={{ textDecoration: 'none' }}>
-            <Button variant="contained" size="large">
+          <Link href="/questionnaire" style={{ textDecoration: "none" }}>
+            <Button
+              variant="contained"
+              size="large"
+              sx={{
+                px: 5,
+                py: 1.5,
+                fontSize: "1.1rem",
+                borderRadius: 2,
+                boxShadow: "0 4px 14px rgba(185, 49, 79, 0.3)",
+                "&:hover": {
+                  boxShadow: "0 6px 20px rgba(185, 49, 79, 0.4)",
+                  transform: "translateY(-1px)",
+                },
+                transition: "all 200ms ease",
+              }}
+            >
               Find Me a Game
             </Button>
           </Link>

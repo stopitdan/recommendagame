@@ -11,12 +11,12 @@ export default async function Header() {
   const { data: { user } } = await supabase.auth.getUser();
 
   return (
-    <AppBar position="static" color="default" elevation={1}>
-      <Toolbar>
+    <AppBar position="static" elevation={0} sx={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+      <Toolbar sx={{ maxWidth: 'lg', mx: 'auto', width: '100%' }}>
         <Link href="/" style={{ textDecoration: 'none', flexGrow: 1 }}>
           <Typography
             variant="h6"
-            sx={{ color: 'primary.main', fontWeight: 700 }}
+            sx={{ color: '#FFFFFF', fontWeight: 700, letterSpacing: '-0.02em' }}
           >
             Recommend a Game
           </Typography>
