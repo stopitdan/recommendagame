@@ -140,8 +140,11 @@ function AnimatedD20({
     omega: new THREE.Vector3(),
     // Current omega magnitude (decays during decel phase)
     speed: 0,
-    // Normalized omega direction (never changes)
+    // Spin axis (drifts slowly via precession)
     axis: new THREE.Vector3(0, 1, 0),
+    // Precession: axis around which the spin axis slowly rotates
+    precessionAxis: new THREE.Vector3(1, 0, 0),
+    precessionRate: 0, // rad/s — how fast the spin axis drifts
     // Reusable quaternion for incremental rotation
     deltaQ: new THREE.Quaternion(),
     // Settle targets
@@ -195,6 +198,21 @@ function AnimatedD20({
       state.current.omega.copy(omega);
       state.current.speed = omega.length();
       state.current.axis.copy(omega).normalize();
+
+      // Precession: the spin axis slowly rotates around a perpendicular axis.
+      // This makes the tumble direction evolve smoothly — like a top wobbling.
+      // Rate is gentle (0.8-1.5 rad/s) so it drifts gradually, never reverses.
+      const precAxis = new THREE.Vector3(
+        Math.random() - 0.5,
+        Math.random() - 0.5,
+        Math.random() - 0.5,
+      ).normalize();
+      // Make it perpendicular to the spin axis
+      precAxis.addScaledVector(state.current.axis, -precAxis.dot(state.current.axis));
+      precAxis.normalize();
+
+      state.current.precessionAxis.copy(precAxis);
+      state.current.precessionRate = 0.8 + Math.random() * 0.7; // 0.8-1.5 rad/s
       state.current.resultReported = false;
 
       if (scaleRef.current > 0.95) {
@@ -239,9 +257,13 @@ function AnimatedD20({
           group.scale.setScalar(scaleRef.current);
         }
 
+        // Precess the spin axis: slowly rotate it around the precession axis.
+        // This makes the tumble direction evolve smoothly over time.
+        const precAngle = s.precessionRate * dt;
+        const precQ = new THREE.Quaternion().setFromAxisAngle(s.precessionAxis, precAngle);
+        s.axis.applyQuaternion(precQ).normalize();
+
         // Integrate rotation: q(t+dt) = deltaQ * q(t)
-        // deltaQ = Quaternion(axis, |omega| * dt)
-        // This is exact for constant omega (spherical top)
         const theta = s.speed * dt;
         s.deltaQ.setFromAxisAngle(s.axis, theta);
         group.quaternion.premultiply(s.deltaQ);
@@ -271,11 +293,15 @@ function AnimatedD20({
       case 'decel': {
         const t = Math.min(elapsed / DECEL_DUR, 1);
 
-        // Exponential decay of speed (same axis, just slower)
-        // At t=0: full speed. At t=1: ~5% of original speed.
+        // Exponential decay of speed (same axis direction, just slower)
         const decayedSpeed = s.speed * Math.exp(-3.0 * t);
 
-        // Same integration, just with shrinking speed
+        // Precession continues but also decays (less drift as die slows)
+        const precAngle = s.precessionRate * Math.exp(-2.0 * t) * dt;
+        const precQ = new THREE.Quaternion().setFromAxisAngle(s.precessionAxis, precAngle);
+        s.axis.applyQuaternion(precQ).normalize();
+
+        // Integrate rotation with decaying speed
         const theta = decayedSpeed * dt;
         s.deltaQ.setFromAxisAngle(s.axis, theta);
         group.quaternion.premultiply(s.deltaQ);
