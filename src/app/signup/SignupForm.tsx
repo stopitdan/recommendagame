@@ -10,7 +10,9 @@ import CardContent from '@mui/material/CardContent';
 import Container from '@mui/material/Container';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
+import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
+import GoogleSignInButton from '@/components/GoogleSignInButton';
 import { signup, type AuthState } from '@/app/actions/auth';
 
 export default function SignupForm() {
@@ -44,6 +46,12 @@ export default function SignupForm() {
           <Card variant="outlined" sx={{ width: '100%' }}>
             <CardContent sx={{ p: 3 }}>
               {state?.error && <Alert severity="error" sx={{ mb: 2 }}>{state.error}</Alert>}
+
+              <GoogleSignInButton />
+
+              <Divider sx={{ my: 2.5 }}>
+                <Typography variant="body2" color="text.secondary">or</Typography>
+              </Divider>
 
               <form action={action}>
                 <Stack spacing={2.5}>

@@ -62,6 +62,11 @@ export async function signup(
     });
   }
 
+  // If email confirmation is enabled, the user won't have a session yet
+  if (data.user && !data.session) {
+    redirect('/signup/confirm');
+  }
+
   redirect('/');
 }
 
