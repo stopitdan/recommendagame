@@ -97,21 +97,24 @@ Granular tasks organized by phase. Update status as work progresses.
 ## Phase 2: Auth & User Profiles
 
 ### 2.1 Supabase Auth Setup
-- [ ] Configure Supabase Auth providers (email/password, Google)
-- [ ] Set up Next.js middleware for session refresh
-- [ ] Configure environment variables in deployment
+- [x] Configure Supabase Auth (email/password enabled by default)
+- [x] Set up Next.js proxy for session refresh (`src/proxy.ts` — Next.js 16 renamed middleware → proxy)
+- [x] Configure environment variables in `.env.local`
+- [ ] Configure Google OAuth provider (later)
+- [ ] Disable email confirmation for dev (manual step in Supabase dashboard)
 
 ### 2.2 Auth Integration
-- [ ] Build auth context/hook for client components
-- [ ] Create login page (`src/app/login/page.tsx`)
-- [ ] Create signup page (`src/app/signup/page.tsx`)
-- [ ] Add auth state to layout/header
-- [ ] Server-side auth verification via `supabase.auth.getUser()`
+- [x] Create server actions for signup, login, logout (`src/app/actions/auth.ts`)
+- [x] Create login page (`src/app/login/page.tsx` + `LoginForm.tsx`)
+- [x] Create signup page (`src/app/signup/page.tsx` + `SignupForm.tsx`)
+- [x] Add Header with auth state to root layout (`src/components/Header.tsx`)
+- [x] HeaderAuth client component for login/logout buttons (`src/components/HeaderAuth.tsx`)
+- [x] Server-side auth verification via `supabase.auth.getUser()`
 
 ### 2.3 User Profiles
 - [x] Define user profile schema (in migration)
 - [x] Define user preferences schema (in migration)
-- [ ] Create user profile on signup (Supabase trigger or app logic)
+- [x] Create user profile + preferences rows on signup (in auth server action)
 - [ ] Build profile preferences page
 - [ ] Store game feedback (thumbs up/down)
 
