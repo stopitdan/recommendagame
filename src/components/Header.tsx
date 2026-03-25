@@ -9,8 +9,14 @@ import HeaderAuth from './HeaderAuth';
 import MobileNav from './MobileNav';
 
 export default async function Header() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  let user = null;
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
+  } catch {
+    // Supabase not configured or auth failed — continue without user
+  }
 
   return (
     <AppBar position="static" elevation={0} sx={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
