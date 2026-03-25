@@ -120,10 +120,14 @@ interface AnimState {
   startTime: number;
   /** Roll duration */
   rollDuration: number;
-  /** Start and end quaternions — single SLERP, guaranteed flat landing */
-  startQuat: THREE.Quaternion;
-  landingQuat: THREE.Quaternion;
-  /** Wobble parameters (decaying sinusoidal noise over the SLERP) */
+  /**
+   * Waypoints: a chain of quaternions the die SLERPs through.
+   * Each segment is a <180° rotation so SLERP takes the intended path.
+   * The last waypoint is the exact landing quaternion.
+   * This forces the die through 2-3 full visual rotations.
+   */
+  waypoints: THREE.Quaternion[];
+  /** Wobble parameters (decaying sinusoidal noise) */
   wobbleAxis1: THREE.Vector3;
   wobbleAxis2: THREE.Vector3;
   wobbleFreq1: number;
@@ -151,8 +155,7 @@ function AnimatedD20({
     phase: 'idle',
     startTime: 0,
     rollDuration: 2.0,
-    startQuat: new THREE.Quaternion(),
-    landingQuat: new THREE.Quaternion(),
+    waypoints: [],
     wobbleAxis1: new THREE.Vector3(1, 0, 0),
     wobbleAxis2: new THREE.Vector3(0, 0, 1),
     wobbleFreq1: 12,
@@ -171,44 +174,56 @@ function AnimatedD20({
     anim.current.startTime = 0;
   }
 
+  /**
+   * Build a chain of quaternion waypoints from start to landing.
+   * Each step is a ~120° rotation on a random axis, so SLERP takes
+   * the "right" (intended) path through each segment. The die
+   * visually rotates through 2-3 full tumbles before landing.
+   */
+  function buildWaypoints(start: THREE.Quaternion, landing: THREE.Quaternion): THREE.Quaternion[] {
+    const STEPS = 6 + Math.floor(Math.random() * 3); // 6-8 waypoints = 2-3 full rotations
+    const waypoints: THREE.Quaternion[] = [start.clone()];
+
+    // Generate random intermediate orientations
+    for (let i = 1; i < STEPS; i++) {
+      const axis = new THREE.Vector3(
+        Math.random() - 0.5,
+        Math.random() - 0.5,
+        Math.random() - 0.5,
+      ).normalize();
+      // Each step rotates 100-140° — under 180° so SLERP goes the right way
+      const angle = (100 + Math.random() * 40) * (Math.PI / 180);
+      const stepQuat = new THREE.Quaternion().setFromAxisAngle(axis, angle);
+      const prev = waypoints[waypoints.length - 1];
+      waypoints.push(prev.clone().multiply(stepQuat));
+    }
+
+    // Final waypoint is the exact landing
+    waypoints.push(landing.clone());
+
+    return waypoints;
+  }
+
   useEffect(() => {
     if (rolling && !lastRolling.current) {
-      // Pick a random face (1-20)
       const value = Math.floor(Math.random() * 20) + 1;
 
-      // Capture current orientation
       const startQ = groupRef.current
         ? groupRef.current.quaternion.clone()
         : new THREE.Quaternion();
 
-      // Landing quaternion: this face's normal points at camera
       const landingQ = faces[value - 1].landingQuat.clone();
+      const waypoints = buildWaypoints(startQ, landingQ);
 
-      // To make it look like multiple full rotations, we compose
-      // extra full spins INTO the landing quaternion. The SLERP
-      // will take the "short" path to this pre-spun target, but
-      // since the target itself encodes extra rotations, the path
-      // naturally goes through many orientations.
-      const spinAxis = new THREE.Vector3(
-        0.5 + Math.random() * 0.5,
-        0.3 + Math.random() * 0.5,
-        0.2 + Math.random() * 0.3,
-      ).normalize();
-      const extraSpins = (3 + Math.floor(Math.random() * 3)) * Math.PI * 2; // 3-5 full rotations
-      const spinQuat = new THREE.Quaternion().setFromAxisAngle(spinAxis, extraSpins);
-      landingQ.premultiply(spinQuat);
-
-      // Random wobble axes (perpendicular-ish to add chaos)
       const w1 = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize();
       const w2 = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize();
 
-      anim.current.rollDuration = 1.8 + Math.random() * 0.4;
-      anim.current.startQuat.copy(startQ);
-      anim.current.landingQuat.copy(landingQ);
+      anim.current.rollDuration = 2.0 + Math.random() * 0.5;
+      anim.current.waypoints = waypoints;
       anim.current.wobbleAxis1.copy(w1);
       anim.current.wobbleAxis2.copy(w2);
-      anim.current.wobbleFreq1 = 10 + Math.random() * 6;  // 10-16 Hz
-      anim.current.wobbleFreq2 = 7 + Math.random() * 5;   // 7-12 Hz
+      anim.current.wobbleFreq1 = 10 + Math.random() * 6;
+      anim.current.wobbleFreq2 = 7 + Math.random() * 5;
       anim.current.resultValue = value;
       anim.current.resultReported = false;
 
@@ -244,9 +259,11 @@ function AnimatedD20({
         break;
       }
 
-      // ── Single-motion roll: SLERP + decaying wobble ──
+      // ── Roll: walk through waypoint chain with decaying wobble ──
       case 'roll': {
         const t = Math.min(elapsed / a.rollDuration, 1);
+        const wp = a.waypoints;
+        const numSegments = wp.length - 1;
 
         // Scale back up
         if (scaleRef.current < 1) {
@@ -255,16 +272,21 @@ function AnimatedD20({
           group.scale.setScalar(scaleRef.current);
         }
 
-        // Core rotation: SLERP from start to landing (includes extra spins)
-        // Ease: fast start, smooth deceleration
-        const ease = 1 - Math.pow(1 - t, 3); // Cubic ease-out
-        tempQuat.current.slerpQuaternions(a.startQuat, a.landingQuat, ease);
+        // Ease: fast start (lots of tumble), smooth deceleration
+        const ease = 1 - Math.pow(1 - t, 3);
 
-        // Decaying wobble: high-frequency oscillation that fades to zero
-        // This makes the SLERP path look chaotic/tumbling
-        const wobbleStrength = Math.pow(1 - t, 3) * 0.4; // Strong at start, zero at end
+        // Map eased progress to waypoint chain
+        const chainPos = ease * numSegments;
+        const segIdx = Math.min(Math.floor(chainPos), numSegments - 1);
+        const segT = chainPos - segIdx;
+
+        // SLERP within the current segment
+        tempQuat.current.slerpQuaternions(wp[segIdx], wp[segIdx + 1], segT);
+
+        // Decaying wobble for extra chaos (fades to zero)
+        const wobbleStrength = Math.pow(1 - t, 3) * 0.25;
         const w1Angle = Math.sin(elapsed * a.wobbleFreq1) * wobbleStrength;
-        const w2Angle = Math.sin(elapsed * a.wobbleFreq2 * 1.3) * wobbleStrength * 0.7;
+        const w2Angle = Math.sin(elapsed * a.wobbleFreq2 * 1.3) * wobbleStrength * 0.6;
 
         wobbleQuat.current.setFromAxisAngle(a.wobbleAxis1, w1Angle);
         tempQuat.current.multiply(wobbleQuat.current);
@@ -285,8 +307,8 @@ function AnimatedD20({
         group.position.y = bounceY;
 
         if (t >= 1) {
-          // Exactly at landing — no correction needed
-          group.quaternion.copy(a.landingQuat);
+          // Snap to exact landing (last waypoint)
+          group.quaternion.copy(wp[wp.length - 1]);
           group.position.y = 0;
           scaleRef.current = 1;
           group.scale.setScalar(1);
