@@ -22,6 +22,7 @@ import ComplexityStep from '@/components/questionnaire/ComplexityStep';
 import GenreStep from '@/components/questionnaire/GenreStep';
 import MoodStep from '@/components/questionnaire/MoodStep';
 import FreeTextStep from '@/components/questionnaire/FreeTextStep';
+import { motion, AnimatePresence } from 'motion/react';
 
 const STEPS = [
   { key: 'gameType', title: 'What kind of game?' },
@@ -122,15 +123,23 @@ export default function QuestionnaireFlow() {
           </Typography>
         </Box>
 
-        {/* Step Title */}
-        <Typography variant="h4" fontWeight={700} sx={{ mb: 3 }}>
-          {STEPS[step].title}
-        </Typography>
-
-        {/* Step Content */}
-        <Box>
-          {renderStep()}
-        </Box>
+        {/* Step Title + Content with slide animation */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={step}
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -30 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <Typography variant="h4" fontWeight={700} sx={{ mb: 3 }}>
+              {STEPS[step].title}
+            </Typography>
+            <Box>
+              {renderStep()}
+            </Box>
+          </motion.div>
+        </AnimatePresence>
       </Container>
 
       {/* Sticky Navigation */}
