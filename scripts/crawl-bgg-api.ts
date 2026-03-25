@@ -31,7 +31,7 @@ import { createClient } from '@supabase/supabase-js';
 
 const BGG_BASE_URL = 'https://boardgamegeek.com/xmlapi2';
 const BATCH_SIZE = 20;        // Max IDs per /thing request
-const THROTTLE_MS = 6000;     // 6 seconds between requests (safe margin)
+const THROTTLE_MS = 5500;     // 5.5s between requests (API limit is ~5s, safe margin)
 const MAX_RETRIES = 5;
 const BASE_BACKOFF_MS = 30000; // 30 seconds initial backoff
 const PROGRESS_INTERVAL = 5; // Log every N batches (100 games)
@@ -204,11 +204,16 @@ interface GameRow {
   designers: string[];
   artists: string[];
   family: string | null;
+  is_expansion: boolean;
+  parent_game_id: string | null;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function parseItem(item: any): GameRow | null {
-  if (!item || item['@_type'] !== 'boardgame') return null;
+  if (!item) return null;
+  const itemType = item['@_type'];
+  if (itemType !== 'boardgame' && itemType !== 'boardgameexpansion') return null;
+  const isExpansion = itemType === 'boardgameexpansion';
 
   const bggId = item['@_id'];
   const names = ensureArray(item.name);
@@ -314,6 +319,17 @@ function parseItem(item: any): GameRow | null {
   // First family name (for game series grouping)
   const familyName = families.length > 0 ? families[0] : null;
 
+  // If this is an expansion, find the parent base game ID
+  let parentGameId: string | null = null;
+  if (isExpansion) {
+    const parentLink = links.find((l: any) =>
+      l['@_type'] === 'boardgameexpansion' && l['@_inbound'] === 'true'
+    );
+    if (parentLink) {
+      parentGameId = `bgg-${parentLink['@_id']}`;
+    }
+  }
+
   return {
     id: `bgg-${bggId}`,
     source: 'bgg',
@@ -321,7 +337,7 @@ function parseItem(item: any): GameRow | null {
     name,
     description,
     year_published: optInt(item.yearpublished?.['@_value']),
-    types: ['board'],
+    types: isExpansion ? ['board', 'expansion'] : ['board'],
     min_players: optInt(item.minplayers?.['@_value']),
     max_players: optInt(item.maxplayers?.['@_value']),
     recommended_players: recommendedPlayerCount,
@@ -360,6 +376,8 @@ function parseItem(item: any): GameRow | null {
     designers,
     artists,
     family: familyName,
+    is_expansion: isExpansion,
+    parent_game_id: parentGameId,
   };
 }
 
@@ -402,7 +420,7 @@ async function main() {
 
     const batchEnd = Math.min(id + BATCH_SIZE - 1, END_ID);
     const ids = Array.from({ length: batchEnd - id + 1 }, (_, i) => String(id + i));
-    const url = `${BGG_BASE_URL}/thing?id=${ids.join(',')}&stats=1&type=boardgame`;
+    const url = `${BGG_BASE_URL}/thing?id=${ids.join(',')}&stats=1&type=boardgame,boardgameexpansion`;
 
     // Throttle
     await sleep(THROTTLE_MS);
@@ -436,6 +454,14 @@ async function main() {
         games.push(game);
       } else {
         totalSkipped++;
+        const itemType = item?.['@_type'] ?? 'unknown';
+        const itemId = item?.['@_id'] ?? '?';
+        if (itemType !== 'boardgame') {
+          // Only log non-boardgame skips at debug level (expansions, accessories, etc.)
+          if (totalSkipped % 50 === 0) {
+            console.log(`${timestamp()} Skipped ${totalSkipped} total (latest: ID ${itemId}, type=${itemType})`);
+          }
+        }
       }
     }
 
