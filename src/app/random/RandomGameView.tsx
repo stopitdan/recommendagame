@@ -25,6 +25,87 @@ const PhysicsDice = dynamic(() => import('@/components/PhysicsDice'), {
   ),
 });
 
+/** Screen shake via CSS animation on the body */
+function triggerScreenShake() {
+  const el = document.body;
+  el.style.animation = 'none';
+  // Force reflow
+  void el.offsetHeight;
+  el.style.animation = 'critfail-shake 0.6s ease-out';
+  setTimeout(() => { el.style.animation = 'none'; }, 700);
+
+  // Inject the keyframes if not already present
+  if (!document.getElementById('critfail-shake-style')) {
+    const style = document.createElement('style');
+    style.id = 'critfail-shake-style';
+    style.textContent = `
+      @keyframes critfail-shake {
+        0%, 100% { transform: translateX(0); }
+        10% { transform: translateX(-8px) rotate(-1deg); }
+        20% { transform: translateX(8px) rotate(1deg); }
+        30% { transform: translateX(-6px) rotate(-0.5deg); }
+        40% { transform: translateX(6px) rotate(0.5deg); }
+        50% { transform: translateX(-4px); }
+        60% { transform: translateX(4px); }
+        70% { transform: translateX(-2px); }
+        80% { transform: translateX(2px); }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+}
+
+/** Falling embers/ash for a Natural 1 */
+async function triggerNat1Embers() {
+  const confetti = (await import('canvas-confetti')).default;
+
+  // Screen shake
+  triggerScreenShake();
+
+  // Dark embers falling from top
+  confetti({
+    particleCount: 80,
+    spread: 180,
+    origin: { y: 0, x: 0.5 },
+    colors: ['#8B0000', '#2D0000', '#4A0000', '#1A1A1A', '#333333'],
+    startVelocity: 15,
+    gravity: 2.5,
+    ticks: 150,
+    shapes: ['circle'],
+    scalar: 0.8,
+  });
+
+  // More embers from left
+  setTimeout(() => {
+    confetti({
+      particleCount: 40,
+      spread: 120,
+      origin: { y: 0, x: 0.3 },
+      colors: ['#8B0000', '#2D0000', '#1A1A1A'],
+      startVelocity: 10,
+      gravity: 2.0,
+      ticks: 120,
+      shapes: ['circle'],
+      scalar: 0.6,
+    });
+  }, 200);
+
+  // More from right
+  setTimeout(() => {
+    confetti({
+      particleCount: 40,
+      spread: 120,
+      origin: { y: 0, x: 0.7 },
+      colors: ['#4A0000', '#1A1A1A', '#333333'],
+      startVelocity: 10,
+      gravity: 2.0,
+      ticks: 120,
+      shapes: ['circle'],
+      scalar: 0.6,
+    });
+  }, 350);
+}
+
 /** Fire confetti for a Natural 20! */
 async function triggerNat20Confetti() {
   const confetti = (await import('canvas-confetti')).default;
@@ -81,6 +162,7 @@ export default function RandomGameView() {
   const [rolling, setRolling] = useState(false);
   const [diceValue, setDiceValue] = useState<number | null>(null);
   const [isNat20, setIsNat20] = useState(false);
+  const [isNat1, setIsNat1] = useState(false);
   const [type, setType] = useState<string | null>(null);
 
   async function rollDice() {
@@ -89,6 +171,7 @@ export default function RandomGameView() {
     setLoading(true);
     setDiceValue(null);
     setIsNat20(false);
+    setIsNat1(false);
 
     try {
       const params = type ? `?type=${type}` : '';
@@ -111,6 +194,9 @@ export default function RandomGameView() {
     if (value === 20) {
       setIsNat20(true);
       triggerNat20Confetti();
+    } else if (value === 1) {
+      setIsNat1(true);
+      triggerNat1Embers();
     }
   }, []);
 
@@ -143,7 +229,7 @@ export default function RandomGameView() {
         <AnimatePresence mode="wait">
           {diceValue && !rolling && (
             <motion.div
-              key={`dice-${diceValue}-${isNat20}`}
+              key={`dice-${diceValue}-${isNat20}-${isNat1}`}
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ type: 'spring', stiffness: 400, damping: 15 }}
@@ -170,6 +256,30 @@ export default function RandomGameView() {
                   </Typography>
                   <Typography variant="h5" fontWeight={700} sx={{ color: 'warning.main', mt: 1 }}>
                     CRITICAL SUCCESS!
+                  </Typography>
+                </Box>
+              ) : isNat1 ? (
+                <Box>
+                  <motion.div
+                    animate={{ x: [0, -3, 3, -2, 2, 0] }}
+                    transition={{ duration: 0.5, ease: 'easeOut' }}
+                  >
+                    <Typography
+                      variant="h3"
+                      fontWeight={900}
+                      sx={{
+                        color: '#8B0000',
+                        textShadow: '0 0 20px rgba(139,0,0,0.4), 0 0 40px rgba(139,0,0,0.2)',
+                      }}
+                    >
+                      NATURAL 1...
+                    </Typography>
+                  </motion.div>
+                  <Typography variant="h5" fontWeight={700} sx={{ color: 'error.main', mt: 1 }}>
+                    CRITICAL FAILURE!
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, fontStyle: 'italic' }}>
+                    The dice gods have forsaken you. Roll again?
                   </Typography>
                 </Box>
               ) : (
@@ -228,6 +338,10 @@ export default function RandomGameView() {
                     border: '2px solid',
                     borderColor: 'warning.main',
                     boxShadow: '0 0 20px rgba(255, 215, 0, 0.3)',
+                  } : isNat1 ? {
+                    border: '2px solid',
+                    borderColor: 'error.main',
+                    boxShadow: '0 0 20px rgba(139, 0, 0, 0.3)',
                   } : {}),
                 }}
                 onClick={() => router.push(`/games/${encodeURIComponent((game as any).id)}`)}
@@ -247,6 +361,14 @@ export default function RandomGameView() {
                       sx={{ color: 'warning.main', fontWeight: 700, letterSpacing: 2 }}
                     >
                       Legendary Pick
+                    </Typography>
+                  )}
+                  {isNat1 && (
+                    <Typography
+                      variant="overline"
+                      sx={{ color: 'error.main', fontWeight: 700, letterSpacing: 2 }}
+                    >
+                      Cursed Pick
                     </Typography>
                   )}
                   <Typography variant="h5" fontWeight={700} sx={{ mb: 1 }}>
