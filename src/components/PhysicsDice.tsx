@@ -120,9 +120,6 @@ interface AnimState {
   velZ: number;
   /** Landing quaternion (face toward camera) */
   landingQuat: THREE.Quaternion;
-  /** Quaternion captured late in the tumble for final correction */
-  lateQuat: THREE.Quaternion;
-  lateCaptured: boolean;
   settled: boolean;
   targetValue: number;
 }
@@ -143,14 +140,11 @@ function AnimatedD20({
     duration: 2.2,
     velX: 0, velY: 0, velZ: 0,
     landingQuat: new THREE.Quaternion(),
-    lateQuat: new THREE.Quaternion(),
-    lateCaptured: false,
     settled: false,
     targetValue: 1,
   });
 
   const lastRolling = useRef(false);
-  const tempQuat = useRef(new THREE.Quaternion());
 
   useEffect(() => {
     if (rolling && !lastRolling.current) {
@@ -170,8 +164,6 @@ function AnimatedD20({
         velY: dirY * (6 + Math.random() * 3),     // Secondary: 6-9 rad/s
         velZ: dirX * dirY * (2 + Math.random() * 2), // Tertiary: 2-4 rad/s
         landingQuat: faces[value - 1].landingQuat.clone(),
-        lateQuat: new THREE.Quaternion(),
-        lateCaptured: false,
         settled: false,
         targetValue: value,
       };
@@ -188,31 +180,27 @@ function AnimatedD20({
     const elapsed = (performance.now() - a.startTime) / 1000;
     const t = Math.min(elapsed / a.duration, 1);
 
-    // Late transition: at 88% the die is barely spinning,
-    // so the SLERP correction is tiny and invisible.
-    const SNAP_START = 0.88;
+    // ── Continuous tumble + gradual blend to landing ──
+    // The Euler tumble runs the ENTIRE time (decelerating).
+    // Starting at 50%, we increasingly blend toward the landing quaternion.
+    // By the time the tumble velocity is near zero, the blend is dominant.
+    // This avoids any visible "snap" or "correction" moment.
 
-    if (t < SNAP_START) {
-      // ── Euler tumble: starts at full speed, decelerates like friction ──
-      const phase = t / SNAP_START; // 0→1 over tumble phase
-      const decel = (1 - phase) * (1 - phase); // Quadratic: fast→slow
+    // 1. Always apply Euler tumble (decelerating)
+    const decel = (1 - t) * (1 - t); // Quadratic: full speed → zero
+    groupRef.current.rotation.x += a.velX * decel * delta;
+    groupRef.current.rotation.y += a.velY * decel * delta;
+    groupRef.current.rotation.z += a.velZ * decel * delta;
 
-      groupRef.current.rotation.x += a.velX * decel * delta;
-      groupRef.current.rotation.y += a.velY * decel * delta;
-      groupRef.current.rotation.z += a.velZ * decel * delta;
-    } else {
-      // ── Final 12%: tiny SLERP to exact landing ──
-      if (!a.lateCaptured) {
-        a.lateCaptured = true;
-        a.lateQuat.copy(groupRef.current.quaternion);
-      }
+    // 2. Blend toward landing quaternion (starts at 50%, reaches 100% at t=1)
+    const BLEND_START = 0.5;
+    if (t > BLEND_START) {
+      const blendT = (t - BLEND_START) / (1 - BLEND_START); // 0→1
+      // Quintic ease-in: barely noticeable at first, strong at the end
+      const blendStrength = blendT * blendT * blendT * blendT * blendT;
 
-      const snapT = (t - SNAP_START) / (1 - SNAP_START);
-      // Quadratic ease-out for gentle final settle
-      const ease = 1 - (1 - snapT) * (1 - snapT);
-
-      tempQuat.current.slerpQuaternions(a.lateQuat, a.landingQuat, ease);
-      groupRef.current.quaternion.copy(tempQuat.current);
+      // SLERP current orientation toward landing by blend amount
+      groupRef.current.quaternion.slerp(a.landingQuat, blendStrength);
     }
 
     // ── Bounce ──
