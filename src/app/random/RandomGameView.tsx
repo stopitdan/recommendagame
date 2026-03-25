@@ -31,8 +31,8 @@ function triggerScreenShake() {
   el.style.animation = 'none';
   // Force reflow
   void el.offsetHeight;
-  el.style.animation = 'critfail-shake 0.6s ease-out';
-  setTimeout(() => { el.style.animation = 'none'; }, 700);
+  el.style.animation = 'critfail-shake 1.2s ease-out';
+  setTimeout(() => { el.style.animation = 'none'; }, 1300);
 
   // Inject the keyframes if not already present
   if (!document.getElementById('critfail-shake-style')) {
@@ -65,7 +65,7 @@ function triggerNat1Blood() {
     position: fixed; inset: 0; z-index: 9998;
     background: radial-gradient(ellipse at top, rgba(139,0,0,0.4), transparent 70%);
     pointer-events: none;
-    animation: critfail-flash 0.8s ease-out forwards;
+    animation: critfail-flash 2s ease-out forwards;
   `;
 
   // Inject flash keyframes
@@ -78,16 +78,21 @@ function triggerNat1Blood() {
         100% { opacity: 0; }
       }
       @keyframes blood-drip {
-        0% { transform: translateY(-100%) scaleY(0.3); opacity: 0.9; }
+        0% { transform: translateY(-100%) scaleY(0.3); }
         30% { opacity: 1; }
-        100% { transform: translateY(100vh) scaleY(1); opacity: 0; }
+        100% { transform: translateY(100vh) scaleY(1); }
+      }
+      @keyframes blood-fade {
+        0% { opacity: 1; }
+        60% { opacity: 0.8; }
+        100% { opacity: 0; }
       }
     `;
     document.head.appendChild(style);
   }
 
   document.body.appendChild(flash);
-  setTimeout(() => flash.remove(), 900);
+  setTimeout(() => flash.remove(), 2100);
 
   // Create blood drips — vertical streaks falling from top
   const container = document.createElement('div');
@@ -96,36 +101,38 @@ function triggerNat1Blood() {
     z-index: 9999; pointer-events: none; overflow: hidden;
   `;
 
-  const dripCount = 12 + Math.floor(Math.random() * 6);
+  const dripCount = 35 + Math.floor(Math.random() * 15);
   for (let i = 0; i < dripCount; i++) {
     const drip = document.createElement('div');
     const left = Math.random() * 100;
-    const width = 3 + Math.random() * 8;
-    const delay = Math.random() * 0.4;
-    const duration = 1.2 + Math.random() * 0.8;
-    const shade = Math.floor(80 + Math.random() * 60); // 80-139 red channel
+    const width = 4 + Math.random() * 18; // 4-22px, some really thick
+    const delay = Math.random() * 0.5;
+    const duration = 3.0 + Math.random() * 2.5; // 3.0-5.5s — slow oozing drips
+    const shade = Math.floor(80 + Math.random() * 60);
+    const height = 20 + Math.random() * 50;
 
     drip.style.cssText = `
       position: absolute;
       top: 0;
       left: ${left}%;
       width: ${width}px;
-      height: ${30 + Math.random() * 60}%;
+      height: ${height}%;
       background: linear-gradient(to bottom,
-        rgba(${shade},0,0,0.9) 0%,
-        rgba(${shade},0,0,0.7) 40%,
-        rgba(${shade},0,0,0.3) 80%,
-        transparent 100%
+        transparent 0%,
+        rgba(${shade},0,0,0.3) 15%,
+        rgba(${shade},0,0,0.7) 60%,
+        rgba(${shade},0,0,0.95) 100%
       );
-      border-radius: 0 0 ${width}px ${width}px;
-      animation: blood-drip ${duration}s ${delay}s ease-in forwards;
+      border-radius: ${width}px;
+      animation: blood-drip ${duration}s ${delay}s ease-in forwards,
+                 blood-fade ${1.0 + Math.random() * 1.5}s ${delay + duration * 0.5 + Math.random() * 0.5}s ease-out forwards;
       transform: translateY(-100%);
     `;
     container.appendChild(drip);
   }
 
   document.body.appendChild(container);
-  setTimeout(() => container.remove(), 2500);
+  setTimeout(() => container.remove(), 9000);
 }
 
 /** Fire confetti for a Natural 20! */
