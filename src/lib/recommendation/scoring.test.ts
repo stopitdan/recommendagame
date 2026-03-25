@@ -120,12 +120,30 @@ describe('scoreGame — type match', () => {
 // ─── Player Count ────────────────────────────────────────────
 
 describe('scoreGame — player count', () => {
-  it('scores high when game range overlaps user range', () => {
+  it('scores high when game range tightly fits user range', () => {
+    // 2-4 game for a 2-4 request = perfect tight fit
     const result = scoreGame(
-      makeGame({ playerCount: { min: 2, max: 5 } }),
-      makePrefs({ playerCount: { min: 3, max: 4 } }),
+      makeGame({ playerCount: { min: 2, max: 4 } }),
+      makePrefs({ playerCount: { min: 2, max: 4 } }),
     );
-    expect(result.breakdown.playerCountFit).toBeGreaterThan(0.7);
+    expect(result.breakdown.playerCountFit).toBeGreaterThan(0.8);
+  });
+
+  it('scores higher for tight-fit games than broad-range games', () => {
+    const prefs = makePrefs({ playerCount: { min: 1, max: 2 } });
+
+    // 1-2 player game = tight fit for 1-2 request
+    const tightFit = scoreGame(
+      makeGame({ playerCount: { min: 1, max: 2 } }),
+      prefs,
+    );
+    // 2-8 player game = technically supports 2, but way too broad
+    const broadFit = scoreGame(
+      makeGame({ playerCount: { min: 2, max: 8 } }),
+      prefs,
+    );
+
+    expect(tightFit.breakdown.playerCountFit).toBeGreaterThan(broadFit.breakdown.playerCountFit);
   });
 
   it('scores higher with recommended player count in range', () => {
@@ -140,20 +158,73 @@ describe('scoreGame — player count', () => {
     expect(withRec.breakdown.playerCountFit).toBeGreaterThanOrEqual(withoutRec.breakdown.playerCountFit);
   });
 
-  it('penalizes when no overlap (1 off)', () => {
+  it('returns 0.0 when no overlap at all', () => {
     const result = scoreGame(
       makeGame({ playerCount: { min: 5, max: 6 } }),
       makePrefs({ playerCount: { min: 2, max: 3 } }),
     );
-    expect(result.breakdown.playerCountFit).toBeLessThan(0.5);
+    expect(result.breakdown.playerCountFit).toBe(0.0);
   });
 
-  it('returns 0.5 when player count is unknown', () => {
+  it('returns 0.3 when player count is unknown', () => {
     const result = scoreGame(
       makeGame({ playerCount: undefined }),
       makePrefs({ playerCount: { min: 2, max: 4 } }),
     );
-    expect(result.breakdown.playerCountFit).toBe(0.5);
+    expect(result.breakdown.playerCountFit).toBe(0.3);
+  });
+
+  it('gives bonus when game range fits entirely within user range', () => {
+    // User wants 1-4, game is 2-3 (fits entirely within)
+    const fitsInside = scoreGame(
+      makeGame({ playerCount: { min: 2, max: 3 } }),
+      makePrefs({ playerCount: { min: 1, max: 4 } }),
+    );
+    // User wants 1-4, game is 1-8 (extends far beyond)
+    const extendsBeyond = scoreGame(
+      makeGame({ playerCount: { min: 1, max: 8 } }),
+      makePrefs({ playerCount: { min: 1, max: 4 } }),
+    );
+    expect(fitsInside.breakdown.playerCountFit).toBeGreaterThan(extendsBeyond.breakdown.playerCountFit);
+  });
+
+  // ─── Critical regression test: user's exact reported issue ─────
+  it('ranks 1-2 player games above 1-4/1-5 player games when user wants 1-2', () => {
+    const prefs = makePrefs({
+      gameType: null,
+      playerCount: { min: 1, max: 2 },
+      timeAvailable: null,
+      complexity: { min: 1, max: 5 },
+      genres: [],
+      moods: [],
+      freeText: '',
+    });
+
+    const twoPlayerGame = makeGame({
+      id: 'tight-2p',
+      playerCount: { min: 1, max: 2 },
+      rating: 7.0,
+      ratingCount: 1000,
+    });
+    const fourPlayerGame = makeGame({
+      id: 'broad-4p',
+      playerCount: { min: 1, max: 4 },
+      rating: 7.0,
+      ratingCount: 1000,
+    });
+    const fivePlayerGame = makeGame({
+      id: 'broad-5p',
+      playerCount: { min: 1, max: 5 },
+      rating: 7.0,
+      ratingCount: 1000,
+    });
+
+    const results = scoreGames([fivePlayerGame, fourPlayerGame, twoPlayerGame], prefs);
+
+    // The 1-2 player game MUST rank first
+    expect(results[0].game.id).toBe('tight-2p');
+    // And it must score meaningfully higher, not just barely
+    expect(results[0].score - results[1].score).toBeGreaterThan(0.02);
   });
 });
 
@@ -492,5 +563,102 @@ describe('composite score', () => {
       }),
     );
     expect(result.score).toBeLessThan(0.25);
+  });
+});
+
+// ─── Recommendation Quality Scenarios ────────────────────────
+// These test real-world scenarios users might encounter.
+
+describe('recommendation quality', () => {
+  it('user picks 1-2 players only: all top results must be playable by 1-2 people', () => {
+    const prefs = makePrefs({
+      gameType: null,
+      playerCount: { min: 1, max: 2 },
+      timeAvailable: null,
+      complexity: { min: 1, max: 5 },
+      genres: [],
+      moods: [],
+      freeText: '',
+    });
+
+    // Mix of games: some 1-2, some broader, some incompatible
+    const games = [
+      makeGame({ id: 'chess', playerCount: { min: 2, max: 2 }, rating: 8.0, ratingCount: 5000, categories: ['Abstract'] }),
+      makeGame({ id: 'patchwork', playerCount: { min: 2, max: 2 }, rating: 7.8, ratingCount: 3000, categories: ['Puzzle'] }),
+      makeGame({ id: '7wonders-duel', playerCount: { min: 2, max: 2, recommended: 2 }, rating: 8.2, ratingCount: 8000, categories: ['Strategy'] }),
+      makeGame({ id: 'catan', playerCount: { min: 3, max: 4 }, rating: 7.5, ratingCount: 90000, categories: ['Strategy'] }),
+      makeGame({ id: 'codenames', playerCount: { min: 2, max: 8 }, rating: 7.7, ratingCount: 60000, categories: ['Party'] }),
+      makeGame({ id: 'pandemic', playerCount: { min: 2, max: 4 }, rating: 7.6, ratingCount: 40000, categories: ['Cooperative Game'] }),
+      makeGame({ id: 'one-night', playerCount: { min: 3, max: 10 }, rating: 7.2, ratingCount: 20000, categories: ['Party'] }),
+    ];
+
+    const results = scoreGames(games, prefs);
+
+    // Top 3 results must all be games that support 1-2 players
+    const top3 = results.slice(0, 3);
+    for (const { game } of top3) {
+      expect(game.playerCount!.min).toBeLessThanOrEqual(2);
+      // Game must actually be playable with 2 or fewer
+      expect(game.playerCount!.min).toBeLessThanOrEqual(prefs.playerCount.max);
+    }
+
+    // Games that require 3+ players (catan, one-night) must NOT be in top 3
+    const top3Ids = top3.map((r) => r.game.id);
+    expect(top3Ids).not.toContain('catan');
+    expect(top3Ids).not.toContain('one-night');
+
+    // Dedicated 2-player games should outrank broad-range party games
+    const duelScore = results.find((r) => r.game.id === '7wonders-duel')!.score;
+    const codenamesScore = results.find((r) => r.game.id === 'codenames')!.score;
+    expect(duelScore).toBeGreaterThan(codenamesScore);
+  });
+
+  it('user picks 4-6 players + strategy: strategy games for that count win', () => {
+    const prefs = makePrefs({
+      gameType: 'board',
+      playerCount: { min: 4, max: 6 },
+      timeAvailable: 'long',
+      complexity: { min: 3, max: 5 },
+      genres: ['Strategy'],
+      moods: ['competitive'],
+    });
+
+    const games = [
+      makeGame({ id: 'twilight', types: ['board'], playerCount: { min: 3, max: 6 }, complexity: 4.5, rating: 8.7, ratingCount: 20000, categories: ['Strategy'], playTime: { min: 180, max: 480, average: 300 } }),
+      makeGame({ id: 'party-game', types: ['board'], playerCount: { min: 4, max: 10 }, complexity: 1.2, rating: 7.5, ratingCount: 30000, categories: ['Party'], playTime: { min: 15, max: 30, average: 20 } }),
+      makeGame({ id: 'solo-puzzle', types: ['board'], playerCount: { min: 1, max: 1 }, complexity: 3.5, rating: 7.8, ratingCount: 5000, categories: ['Puzzle'], playTime: { min: 60, max: 90, average: 75 } }),
+    ];
+
+    const results = scoreGames(games, prefs);
+
+    // Twilight Imperium should win — right type, player count, complexity, genre, time
+    expect(results[0].game.id).toBe('twilight');
+    // Solo puzzle can't be played with 4-6, should score worst on player count
+    const soloScore = results.find((r) => r.game.id === 'solo-puzzle')!;
+    expect(soloScore.breakdown.playerCountFit).toBe(0.0);
+  });
+
+  it('user skips all questions: should still return reasonable results sorted by quality', () => {
+    const prefs = makePrefs({
+      gameType: null,
+      playerCount: { min: 1, max: 8 },
+      timeAvailable: null,
+      complexity: { min: 1, max: 5 },
+      genres: [],
+      moods: [],
+      freeText: '',
+    });
+
+    const games = [
+      makeGame({ id: 'great', rating: 9.0, ratingCount: 50000 }),
+      makeGame({ id: 'good', rating: 7.5, ratingCount: 10000 }),
+      makeGame({ id: 'bad', rating: 3.0, ratingCount: 100 }),
+    ];
+
+    const results = scoreGames(games, prefs);
+
+    // With no preferences, quality/popularity should dominate
+    expect(results[0].game.id).toBe('great');
+    expect(results[results.length - 1].game.id).toBe('bad');
   });
 });

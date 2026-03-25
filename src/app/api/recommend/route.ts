@@ -173,10 +173,11 @@ async function fetchCandidates(
   }
 
   if (prefs.playerCount) {
-    const looseMin = Math.max(1, prefs.playerCount.min - 1);
-    const looseMax = prefs.playerCount.max + 2;
-    query = query.gte('max_players', looseMin);
-    query = query.lte('min_players', looseMax);
+    // Hard constraint: game must be playable within the user's range.
+    // min_players must be <= user's max (otherwise game needs more people than they have)
+    // max_players must be >= user's min (otherwise game can't accommodate their group)
+    query = query.lte('min_players', prefs.playerCount.max);
+    query = query.gte('max_players', prefs.playerCount.min);
   }
 
   if (prefs.timeAvailable && TIME_PRESETS[prefs.timeAvailable]) {

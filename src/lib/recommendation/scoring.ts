@@ -145,47 +145,63 @@ function scoreTypeMatch(game: Game, preferredType: string | null): number {
 }
 
 /**
- * Player count fit: 1.0 if the game's range overlaps perfectly with
- * the user's range. Partial credit for near-misses.
+ * Player count fit: rewards games designed for the user's player count.
+ *
+ * Key insight: a "2-player game" (min=1, max=2) is much better for a
+ * user who wants 1-2 players than a "party game" (min=2, max=10) that
+ * technically supports 2. The scoring reflects this by measuring how
+ * tightly the game's range matches the user's range.
+ *
+ * Score breakdown:
+ *   1.0  — Game range is exactly the user's range, or recommended count matches
+ *   0.8+ — Game range is a tight fit (e.g. 1-3 game for 1-2 request)
+ *   0.5  — Game supports the range but is much broader (e.g. 2-8 for 1-2)
+ *   0.0  — No overlap at all (hard fail, shouldn't reach scoring due to DB filter)
  */
 function scorePlayerCount(
   game: Game,
   playerRange: { min: number; max: number },
 ): number {
-  if (!game.playerCount) return 0.5; // Unknown = neutral
+  if (!game.playerCount) return 0.3; // Unknown = penalize slightly
 
   const gameMin = game.playerCount.min;
   const gameMax = game.playerCount.max;
   const userMin = playerRange.min;
   const userMax = playerRange.max;
 
-  // Perfect overlap: game supports at least part of user's range
+  // No overlap at all — hard 0
+  if (gameMin > userMax || gameMax < userMin) return 0.0;
+
+  // Game supports the user's range. Now score by HOW WELL it fits.
+  const userRange = userMax - userMin + 1;
+  const gameRange = gameMax - gameMin + 1;
+
+  // Tight fit ratio: how close is the game's range to the user's range?
+  // A 1-2 game for a 1-2 request = ratio 1.0 (perfect)
+  // A 2-8 game for a 1-2 request = ratio 0.29 (too broad)
+  const tightness = Math.min(userRange / gameRange, 1.0);
+
+  // Coverage: what fraction of the user's range does the game cover?
   const overlapMin = Math.max(gameMin, userMin);
   const overlapMax = Math.min(gameMax, userMax);
+  const coverage = (overlapMax - overlapMin + 1) / userRange;
 
-  if (overlapMin <= overlapMax) {
-    // There is overlap — score based on how much
-    const userRange = userMax - userMin + 1;
-    const overlapRange = overlapMax - overlapMin + 1;
-    const overlapRatio = overlapRange / userRange;
+  // Base score from tightness and coverage
+  let score = 0.3 + tightness * 0.4 + coverage * 0.2;
 
-    // Bonus if the game's recommended player count is in user's range
-    const recBonus = game.playerCount.recommended &&
+  // Bonus: recommended player count is in user's range
+  if (game.playerCount.recommended &&
       game.playerCount.recommended >= userMin &&
-      game.playerCount.recommended <= userMax
-      ? 0.15
-      : 0;
-
-    return Math.min(0.6 + overlapRatio * 0.4 + recBonus, 1.0);
+      game.playerCount.recommended <= userMax) {
+    score += 0.15;
   }
 
-  // No overlap — penalize based on distance
-  const distance = overlapMin > overlapMax
-    ? Math.min(Math.abs(gameMin - userMax), Math.abs(gameMax - userMin))
-    : 0;
+  // Bonus: game's range fits entirely within user's range (perfect match)
+  if (gameMin >= userMin && gameMax <= userMax) {
+    score += 0.1;
+  }
 
-  // 1 player off = 0.3, 2 off = 0.15, 3+ off = 0
-  return Math.max(0, 0.3 - (distance - 1) * 0.15);
+  return Math.min(score, 1.0);
 }
 
 /**
