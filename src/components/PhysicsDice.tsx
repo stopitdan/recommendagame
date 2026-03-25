@@ -175,48 +175,74 @@ function AnimatedD20({
   }
 
   /**
-   * Build waypoints by rotating on ONE consistent axis (like real momentum).
-   * We spin the die N×120° around a single random axis, then the final
-   * waypoint is the exact landing quaternion. The last segment may change
-   * direction slightly (the die "settling"), but all the tumble segments
-   * spin the same way — consistent momentum.
+   * Build waypoints by spinning on ONE axis the entire time.
+   * Instead of pre-picking a face then forcing the die there,
+   * we spin on a random axis and find which face the spin
+   * naturally ends closest to. The result is truly determined
+   * by the "physics" of the spin.
+   *
+   * Steps:
+   * 1. Pick a random spin axis and step angle
+   * 2. Generate N waypoints (2-3 full rotations)
+   * 3. From the final tumble orientation, find which face is
+   *    closest to the camera and do a TINY final correction
+   *    (same spin direction, just a few more degrees)
    */
-  function buildWaypoints(start: THREE.Quaternion, landing: THREE.Quaternion): THREE.Quaternion[] {
-    // One consistent spin axis for the entire roll
+  function buildWaypoints(start: THREE.Quaternion): { waypoints: THREE.Quaternion[]; value: number } {
+    const toCamera = new THREE.Vector3(0, 2.5, 3).normalize();
+    const worldNormal = new THREE.Vector3();
+
+    // One spin axis, one direction, the whole roll
     const spinAxis = new THREE.Vector3(
       Math.random() - 0.5,
       Math.random() - 0.5,
       Math.random() - 0.5,
     ).normalize();
 
-    // 6-8 intermediate steps, each ~120° on the same axis = 2-3 full rotations
-    const STEPS = 6 + Math.floor(Math.random() * 3);
-    const stepAngle = (110 + Math.random() * 30) * (Math.PI / 180); // 110-140° per step
-
-    const waypoints: THREE.Quaternion[] = [start.clone()];
+    const STEPS = 6 + Math.floor(Math.random() * 3); // 6-8 steps
+    const stepAngle = (110 + Math.random() * 30) * (Math.PI / 180);
     const stepQuat = new THREE.Quaternion().setFromAxisAngle(spinAxis, stepAngle);
 
+    const waypoints: THREE.Quaternion[] = [start.clone()];
     for (let i = 1; i <= STEPS; i++) {
       const prev = waypoints[waypoints.length - 1];
       waypoints.push(prev.clone().multiply(stepQuat));
     }
 
-    // Final waypoint: exact landing (this last segment is the "settle")
-    waypoints.push(landing.clone());
+    // Find which face is closest to camera at the end of the tumble
+    const endQuat = waypoints[waypoints.length - 1];
+    let bestDot = -Infinity;
+    let bestIdx = 0;
 
-    return waypoints;
+    for (let i = 0; i < faces.length; i++) {
+      worldNormal.copy(faces[i].normal).applyQuaternion(endQuat);
+      const dot = worldNormal.dot(toCamera);
+      if (dot > bestDot) {
+        bestDot = dot;
+        bestIdx = i;
+      }
+    }
+
+    // Compute the small correction to align the best face exactly
+    // with the camera — this is always <~20° since we picked the closest
+    worldNormal.copy(faces[bestIdx].normal).applyQuaternion(endQuat);
+    const correction = new THREE.Quaternion().setFromUnitVectors(worldNormal, toCamera);
+    const finalQuat = endQuat.clone().premultiply(correction);
+
+    // Add the corrected final as the last waypoint
+    // This tiny correction continues roughly in the spin direction
+    waypoints.push(finalQuat);
+
+    return { waypoints, value: bestIdx + 1 };
   }
 
   useEffect(() => {
     if (rolling && !lastRolling.current) {
-      const value = Math.floor(Math.random() * 20) + 1;
-
       const startQ = groupRef.current
         ? groupRef.current.quaternion.clone()
         : new THREE.Quaternion();
 
-      const landingQ = faces[value - 1].landingQuat.clone();
-      const waypoints = buildWaypoints(startQ, landingQ);
+      const { waypoints, value } = buildWaypoints(startQ);
 
       const w1 = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize();
       const w2 = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize();
