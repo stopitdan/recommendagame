@@ -58,6 +58,12 @@ function computeFaceData(): FaceData[] {
 // Compute once, shared by all components
 const globalFaces = computeFaceData();
 
+// Pre-compute the quaternion that makes face 20 point at the camera
+const INITIAL_QUAT = new THREE.Quaternion().setFromUnitVectors(
+  globalFaces[19].normal, // face 20 is index 19
+  new THREE.Vector3(0, -0.2, 7).normalize(),
+);
+
 // ─── Create number texture via canvas ────────────────────────
 
 function createNumberTexture(num: number): THREE.CanvasTexture {
@@ -132,6 +138,13 @@ function AnimatedD20({
   onSettled: (value: number) => void;
 }) {
   const groupRef = useRef<THREE.Group>(null);
+
+  // Set initial orientation to show face 20 on mount
+  useEffect(() => {
+    if (groupRef.current) {
+      groupRef.current.quaternion.copy(INITIAL_QUAT);
+    }
+  }, []);
 
   const state = useRef({
     phase: 'idle' as Phase,
