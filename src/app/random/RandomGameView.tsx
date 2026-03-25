@@ -238,7 +238,7 @@ export default function RandomGameView() {
   ];
 
   return (
-    <Container maxWidth="sm" sx={{ py: 4, textAlign: 'center' }}>
+    <Container maxWidth="sm" sx={{ py: 4, textAlign: 'center', minHeight: '100vh' }}>
       <Stack spacing={3} alignItems="center">
         <Box>
           <Typography variant="h3" fontWeight={800} sx={{ mb: 1 }}>
