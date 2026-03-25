@@ -210,19 +210,25 @@ function AnimatedD20({
     secondaryAxis.addScaledVector(primaryAxis, -secondaryAxis.dot(primaryAxis));
     secondaryAxis.normalize();
 
-    const STEPS = 7 + Math.floor(Math.random() * 3); // 7-9 steps
-    const primaryAngle = (100 + Math.random() * 40) * (Math.PI / 180);   // ~100-140° per step
-    const secondaryAngle = (30 + Math.random() * 30) * (Math.PI / 180);  // ~30-60° per step (wobble)
+    const STEPS = 10 + Math.floor(Math.random() * 4); // 10-13 steps for more rotation
+    const primaryAngle = (80 + Math.random() * 40) * (Math.PI / 180);    // ~80-120° per step
+    const secondaryAngle = (40 + Math.random() * 40) * (Math.PI / 180);  // ~40-80° per step
 
     const primaryStep = new THREE.Quaternion().setFromAxisAngle(primaryAxis, primaryAngle);
     const secondaryStep = new THREE.Quaternion().setFromAxisAngle(secondaryAxis, secondaryAngle);
-    // Combined step: primary spin + secondary wobble (applied together each step)
-    const combinedStep = primaryStep.clone().multiply(secondaryStep);
 
+    // Alternate primary and secondary rotations so both axes are
+    // visually distinct. This prevents them collapsing into one axis.
     const waypoints: THREE.Quaternion[] = [start.clone()];
     for (let i = 1; i <= STEPS; i++) {
       const prev = waypoints[waypoints.length - 1];
-      waypoints.push(prev.clone().multiply(combinedStep));
+      if (i % 2 === 1) {
+        // Primary rotation step
+        waypoints.push(prev.clone().multiply(primaryStep));
+      } else {
+        // Secondary rotation step (different axis — visible tumble)
+        waypoints.push(prev.clone().multiply(secondaryStep));
+      }
     }
 
     // Find which face is closest to camera at the end of the tumble
@@ -314,8 +320,9 @@ function AnimatedD20({
           group.scale.setScalar(scaleRef.current);
         }
 
-        // Ease: fast start (lots of tumble), smooth deceleration
-        const ease = 1 - Math.pow(1 - t, 3);
+        // Ease: fast start, gradual smooth deceleration (not abrupt)
+        // Quadratic ease-out: decelerates linearly, feels natural
+        const ease = t * (2 - t);
 
         // Map eased progress to waypoint chain
         const chainPos = ease * numSegments;
