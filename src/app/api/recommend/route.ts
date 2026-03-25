@@ -32,7 +32,7 @@ import { MemoryCache } from '@/lib/cache';
 
 // ─── Config ──────────────────────────────────────────────────
 
-const CANDIDATE_POOL_SIZE = 200;
+const CANDIDATE_POOL_SIZE = 300;
 const DEFAULT_RESULT_LIMIT = 20;
 const MAX_RESULT_LIMIT = 50;
 const SIMILARITY_CANDIDATES = 100;
@@ -97,12 +97,12 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    // Step 1: Fetch candidates (single DB query, optimized)
-    const candidates = await fetchCandidates(supabase, body, popularity);
+    // Step 1: Fetch candidates with soft filters (only player count is hard)
+    let candidates = await fetchCandidates(supabase, body, popularity);
 
-    if (candidates.length === 0) {
-      const empty = { results: [], count: 0, totalCandidates: 0, engine: 'rule-based-v1', popularity };
-      return NextResponse.json(empty);
+    // Fallback: if too few results, retry with minimal filters
+    if (candidates.length < 10) {
+      candidates = await fetchCandidatesFallback(supabase, popularity);
     }
 
     // Step 2: Rule-based scoring (fast, in-memory)
@@ -153,67 +153,59 @@ export async function POST(request: NextRequest) {
 
 // ─── Candidate Fetching ──────────────────────────────────────
 
+/** Column list for game queries */
+const GAME_COLUMNS = 'id,source,source_id,name,description,year_published,types,min_players,max_players,recommended_players,min_play_time,max_play_time,avg_play_time,complexity,rating,rating_count,categories,mechanics,themes,platforms,thumbnail_url,image_url,source_url';
+
+/**
+ * Fetch candidates with MINIMAL hard constraints.
+ *
+ * Philosophy: the DB query casts a WIDE net. Only filters that make
+ * a game physically unplayable (wrong player count) are hard constraints.
+ * Everything else (type, time, complexity, genre) is handled by the
+ * scoring engine, which ranks by relevance instead of excluding.
+ *
+ * This ensures users ALWAYS get results, even with unusual combinations.
+ */
 async function fetchCandidates(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabase: any,
   prefs: QuestionnaireState,
   popularity: PopularityMode,
 ) {
-  // Select only the columns we need (skip large text fields for speed)
   let query = supabase
     .from('games')
-    .select('id,source,source_id,name,description,year_published,types,min_players,max_players,recommended_players,min_play_time,max_play_time,avg_play_time,complexity,rating,rating_count,categories,mechanics,themes,platforms,thumbnail_url,image_url,source_url')
+    .select(GAME_COLUMNS)
     .not('rating', 'is', null);
 
-  if (prefs.gameTypes.length === 1) {
-    // Single type: exact filter
-    query = query.contains('types', [prefs.gameTypes[0]]);
-  } else if (prefs.gameTypes.length > 1) {
-    // Multiple types: use OR — overlaps with any selected type
-    query = query.or(prefs.gameTypes.map((t) => `types.cs.{${t}}`).join(','));
-  }
-
-  // Quality floor
+  // ── Quality floor (always applied) ──
   if (popularity === 'popular') {
-    query = query.gte('rating_count', 100);
-    query = query.gte('rating', 5.0);
+    query = query.gte('rating_count', 50);
+    query = query.gte('rating', 4.5);
   } else if (popularity === 'hidden-gems') {
     query = query.lt('rating_count', 5000);
-    query = query.gte('rating_count', 20);
-    query = query.gte('rating', 6.0);
-  } else {
     query = query.gte('rating_count', 10);
-    query = query.gte('rating', 4.0);
+    query = query.gte('rating', 5.5);
+  } else {
+    query = query.gte('rating_count', 5);
   }
 
-  // Player count: hard constraint
+  // ── Player count: HARD constraint ──
+  // You physically can't play a 4-min game with 2 people
   if (prefs.playerCount) {
     query = query.lte('min_players', prefs.playerCount.max);
     query = query.gte('max_players', prefs.playerCount.min);
   }
 
-  // Time filter: compute union range across all selected presets
-  if (prefs.timePresets.length > 0) {
-    const validPresets = prefs.timePresets.filter((tp) => TIME_PRESETS[tp]);
-    if (validPresets.length > 0) {
-      const unionMin = Math.min(...validPresets.map((tp) => TIME_PRESETS[tp].minMinutes));
-      const unionMax = Math.max(...validPresets.map((tp) => TIME_PRESETS[tp].maxMinutes));
-      const looseMin = Math.max(0, unionMin - Math.floor(unionMin * 0.5));
-      const looseMax = unionMax < 999
-        ? unionMax + Math.floor(unionMax * 0.5)
-        : 9999;
-      query = query.gte('avg_play_time', looseMin);
-      query = query.lte('avg_play_time', looseMax);
-    }
+  // ── Game type: soft filter at DB level (helps narrow pool) ──
+  // Applied as a filter but NOT a dealbreaker — fallback removes this
+  if (prefs.gameTypes.length === 1) {
+    query = query.contains('types', [prefs.gameTypes[0]]);
+  } else if (prefs.gameTypes.length > 1) {
+    query = query.or(prefs.gameTypes.map((t: string) => `types.cs.{${t}}`).join(','));
   }
 
-  // Complexity filter
-  if (prefs.complexity && (prefs.complexity.min > 1 || prefs.complexity.max < 5)) {
-    const looseMin = Math.max(0, prefs.complexity.min - 1);
-    const looseMax = Math.min(6, prefs.complexity.max + 1);
-    query = query.gte('complexity', looseMin);
-    query = query.lte('complexity', looseMax);
-  }
+  // Time, complexity, genres are NOT filtered at DB level.
+  // The scoring engine handles them as weighted preferences.
 
   query = query
     .order('rating', { ascending: false })
@@ -223,6 +215,42 @@ async function fetchCandidates(
 
   if (error) {
     console.error('[Recommend] DB query error:', error);
+    return [];
+  }
+
+  return ((data ?? []) as GameRow[]).map(rowToGame);
+}
+
+/**
+ * Last-resort fallback: fetch top-rated games with NO preference filters.
+ * Only applies quality floor. Guarantees we always return something.
+ * The scoring engine will still rank these by relevance to preferences.
+ */
+async function fetchCandidatesFallback(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+  popularity: PopularityMode,
+) {
+  let query = supabase
+    .from('games')
+    .select(GAME_COLUMNS)
+    .not('rating', 'is', null);
+
+  // Minimal quality floor
+  if (popularity === 'popular') {
+    query = query.gte('rating_count', 20);
+  } else {
+    query = query.gte('rating_count', 3);
+  }
+
+  query = query
+    .order('rating', { ascending: false })
+    .limit(CANDIDATE_POOL_SIZE);
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error('[Recommend] Fallback query error:', error);
     return [];
   }
 
