@@ -23,9 +23,11 @@ vi.stubEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'test-anon-key');
 
 import { GET } from './route';
 import { NextRequest } from 'next/server';
+import { leaderboardCache } from '@/lib/cache';
 
 beforeEach(() => {
   vi.clearAllMocks();
+  leaderboardCache.clear();
 
   // Build the chain: from().select().not().gt().order().limit()
   // The chain also supports .contains() for type filtering, which can appear after .gt()
