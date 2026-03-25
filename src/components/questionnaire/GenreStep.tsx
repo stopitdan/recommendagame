@@ -5,6 +5,29 @@ import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
 import { GENRE_OPTIONS } from '@/types/questionnaire';
 
+const GENRE_EMOJIS: Record<string, string> = {
+  Strategy: '♟️',
+  RPG: '⚔️',
+  Puzzle: '🧩',
+  Action: '💥',
+  Adventure: '🗺️',
+  Horror: '👻',
+  'Sci-Fi': '🚀',
+  Fantasy: '🧙',
+  Trivia: '❓',
+  'Word Game': '🔤',
+  'Deck Building': '🃏',
+  Simulation: '🏗️',
+  Sports: '⚽',
+  Racing: '🏎️',
+  Fighting: '🥊',
+  Platformer: '🍄',
+  Shooter: '🎯',
+  Survival: '🏕️',
+  Mystery: '🔍',
+  Family: '👨‍👩‍👧‍👦',
+};
+
 export interface GenreStepProps {
   value: string[];
   onChange: (value: string[]) => void;
@@ -27,13 +50,20 @@ export default function GenreStep({ value, onChange }: GenreStepProps) {
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
         {GENRE_OPTIONS.map((genre) => {
           const isSelected = value.includes(genre);
+          const emoji = GENRE_EMOJIS[genre] ?? '🎮';
           return (
             <Chip
               key={genre}
-              label={genre}
+              label={`${emoji} ${genre}`}
               onClick={() => toggle(genre)}
               color={isSelected ? 'secondary' : 'default'}
               variant={isSelected ? 'filled' : 'outlined'}
+              sx={{
+                fontSize: '0.9rem',
+                py: 0.5,
+                transition: 'all 200ms ease',
+                transform: isSelected ? 'scale(1.05)' : 'scale(1)',
+              }}
             />
           );
         })}

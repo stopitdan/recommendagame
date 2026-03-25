@@ -7,12 +7,12 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import type { GameType } from '@/types/game';
 
-const OPTIONS: { value: GameType | null; label: string; description: string }[] = [
-  { value: 'board', label: 'Board Game', description: 'Tabletop, cards, dice' },
-  { value: 'video', label: 'Video Game', description: 'PC, console, mobile' },
-  { value: 'word', label: 'Word Game', description: 'Wordle, Scrabble, puzzles' },
-  { value: 'party', label: 'Party Game', description: 'Groups, laughs, chaos' },
-  { value: null, label: 'Surprise Me', description: 'Show me anything good' },
+const OPTIONS: { value: GameType | null; label: string; description: string; emoji: string }[] = [
+  { value: 'board', label: 'Board Game', description: 'Tabletop, cards, dice', emoji: '♟️' },
+  { value: 'video', label: 'Video Game', description: 'PC, console, mobile', emoji: '🎮' },
+  { value: 'word', label: 'Word Game', description: 'Wordle, Scrabble, puzzles', emoji: '🔤' },
+  { value: 'party', label: 'Party Game', description: 'Groups, laughs, no equipment', emoji: '🎉' },
+  { value: null, label: 'Surprise Me', description: 'Show me anything good', emoji: '🎲' },
 ];
 
 export interface GameTypeStepProps {
@@ -30,13 +30,19 @@ export default function GameTypeStep({ value, onChange }: GameTypeStepProps) {
             key={option.label}
             variant={isSelected ? 'elevation' : 'outlined'}
             sx={{
-              borderColor: isSelected ? 'secondary.main' : undefined,
+              borderColor: isSelected ? 'primary.main' : undefined,
               borderWidth: isSelected ? 2 : 1,
-              bgcolor: isSelected ? 'secondary.light' : undefined,
+              bgcolor: isSelected ? 'rgba(91, 79, 219, 0.06)' : undefined,
+              transition: 'all 200ms ease',
+              transform: isSelected ? 'scale(1.02)' : 'scale(1)',
+              boxShadow: isSelected ? '0 4px 16px rgba(91, 79, 219, 0.2)' : undefined,
             }}
           >
             <CardActionArea onClick={() => onChange(option.value)} sx={{ p: 1 }}>
               <CardContent sx={{ textAlign: 'center', py: 2 }}>
+                <Typography sx={{ fontSize: '2rem', mb: 1, lineHeight: 1 }}>
+                  {option.emoji}
+                </Typography>
                 <Typography variant="h6" fontWeight={600}>
                   {option.label}
                 </Typography>
