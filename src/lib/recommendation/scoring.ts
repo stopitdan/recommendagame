@@ -39,6 +39,7 @@ export interface ScoreBreakdown {
   complexityFit: number;
   genreMatch: number;
   moodAlignment: number;
+  freeTextMatch: number;
   qualitySignal: number;
   popularitySignal: number;
 }
@@ -51,6 +52,7 @@ export interface ScoringWeights {
   complexityFit: number;
   genreMatch: number;
   moodAlignment: number;
+  freeTextMatch: number;
   qualitySignal: number;
   popularitySignal: number;
 }
@@ -58,27 +60,28 @@ export interface ScoringWeights {
 // ─── Default Weights ─────────────────────────────────────────
 
 export const DEFAULT_WEIGHTS: ScoringWeights = {
-  typeMatch: 0.20,       // Most important — wrong type = wrong game
-  playerCountFit: 0.18,  // Critical — can't play a 5p game with 2 people
-  timeFit: 0.12,         // Important — but flexible (people will play longer if it's good)
-  complexityFit: 0.10,   // Nice to have — less strict than hard constraints
-  genreMatch: 0.15,      // Strong signal — genres drive taste
-  moodAlignment: 0.10,   // Soft signal — vibes matter but are imprecise
-  qualitySignal: 0.08,   // Tiebreaker — prefer well-rated games
-  popularitySignal: 0.07, // Tiebreaker — prefer community-validated games
+  typeMatch: 0.18,       // Most important — wrong type = wrong game
+  playerCountFit: 0.17,  // Critical — can't play a 5p game with 2 people
+  timeFit: 0.11,         // Important — but flexible
+  complexityFit: 0.09,   // Nice to have
+  genreMatch: 0.14,      // Strong signal — genres drive taste
+  moodAlignment: 0.09,   // Soft signal — vibes
+  freeTextMatch: 0.08,   // Keyword matching from free text input
+  qualitySignal: 0.07,   // Tiebreaker
+  popularitySignal: 0.07, // Tiebreaker
 };
 
 export const HIDDEN_GEMS_WEIGHTS: ScoringWeights = {
   ...DEFAULT_WEIGHTS,
-  qualitySignal: 0.12,
+  qualitySignal: 0.11,
   popularitySignal: 0.02,
-  genreMatch: 0.16,
+  genreMatch: 0.15,
 };
 
 export const POPULAR_WEIGHTS: ScoringWeights = {
   ...DEFAULT_WEIGHTS,
-  popularitySignal: 0.12,
-  qualitySignal: 0.10,
+  popularitySignal: 0.11,
+  qualitySignal: 0.09,
   moodAlignment: 0.06,
 };
 
@@ -113,6 +116,7 @@ export function scoreGame(
     complexityFit: scoreComplexity(game, prefs.complexity),
     genreMatch: scoreGenreMatch(game, prefs.genres),
     moodAlignment: scoreMoodAlignment(game, prefs.moods),
+    freeTextMatch: scoreFreeText(game, prefs.freeText),
     qualitySignal: scoreQuality(game),
     popularitySignal: scorePopularity(game),
   };
@@ -125,6 +129,7 @@ export function scoreGame(
     breakdown.complexityFit * weights.complexityFit +
     breakdown.genreMatch * weights.genreMatch +
     breakdown.moodAlignment * weights.moodAlignment +
+    breakdown.freeTextMatch * weights.freeTextMatch +
     breakdown.qualitySignal * weights.qualitySignal +
     breakdown.popularitySignal * weights.popularitySignal;
 
@@ -360,6 +365,132 @@ function scoreMoodAlignment(game: Game, moods: string[]): number {
 }
 
 /**
+ * Free text keyword matching.
+ *
+ * Extracts meaningful keywords from the user's free text input and matches
+ * them against the game's name, description, categories, mechanics, and themes.
+ *
+ * "I like roguelike games" → extracts ["roguelike"] → matches games with
+ * "roguelike" in their categories, mechanics, themes, name, or description.
+ *
+ * Scoring:
+ *   - 0.5 if no free text provided (neutral)
+ *   - 0.0 if text provided but zero keyword matches
+ *   - 0.4-1.0 based on number and quality of matches
+ *   - Name matches weighted higher than description matches
+ */
+function scoreFreeText(game: Game, freeText: string): number {
+  if (!freeText || freeText.trim().length === 0) return 0.5;
+
+  const keywords = extractKeywords(freeText);
+  if (keywords.length === 0) return 0.5;
+
+  // Build a searchable index of the game's text content
+  const gameName = game.name.toLowerCase();
+  const gameDesc = (game.description ?? '').toLowerCase();
+  const gameTags = [
+    ...game.categories,
+    ...game.mechanics,
+    ...game.themes,
+  ].map((t) => t.toLowerCase());
+  const allTagsStr = gameTags.join(' ');
+
+  let totalScore = 0;
+  let matchCount = 0;
+
+  for (const keyword of keywords) {
+    // Name match (strongest signal)
+    if (gameName.includes(keyword)) {
+      totalScore += 1.0;
+      matchCount++;
+      continue;
+    }
+
+    // Category/mechanic/theme match (strong signal)
+    if (gameTags.some((tag) => tag.includes(keyword) || keyword.includes(tag))) {
+      totalScore += 0.9;
+      matchCount++;
+      continue;
+    }
+
+    // Tags contain the keyword as a substring
+    if (allTagsStr.includes(keyword)) {
+      totalScore += 0.7;
+      matchCount++;
+      continue;
+    }
+
+    // Description match (weaker but still relevant)
+    if (gameDesc.includes(keyword)) {
+      totalScore += 0.4;
+      matchCount++;
+    }
+  }
+
+  if (matchCount === 0) return 0.0;
+
+  // Average match quality, capped at 1.0
+  const avgQuality = totalScore / keywords.length;
+  // Bonus for more matches (diminishing returns)
+  const coverageBonus = Math.min(matchCount / keywords.length, 1.0) * 0.2;
+
+  return Math.min(avgQuality + coverageBonus, 1.0);
+}
+
+/** Stop words to filter out of free text */
+const STOP_WORDS = new Set([
+  'i', 'me', 'my', 'we', 'our', 'you', 'your', 'a', 'an', 'the',
+  'is', 'am', 'are', 'was', 'were', 'be', 'been', 'being',
+  'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would',
+  'could', 'should', 'may', 'might', 'can', 'shall',
+  'and', 'or', 'but', 'if', 'so', 'for', 'of', 'to', 'in',
+  'on', 'at', 'by', 'with', 'from', 'as', 'into', 'about',
+  'like', 'want', 'need', 'looking', 'something', 'game', 'games',
+  'play', 'playing', 'really', 'very', 'just', 'some', 'that',
+  'this', 'it', 'its', 'not', 'no', 'also', 'too', 'more',
+  'than', 'much', 'many', 'think', 'prefer', 'enjoy',
+]);
+
+/**
+ * Extracts meaningful keywords from free text input.
+ * Filters out stop words and keeps terms >= 3 chars.
+ * Also handles multi-word game-related terms.
+ */
+function extractKeywords(text: string): string[] {
+  const lower = text.toLowerCase();
+
+  // Check for known multi-word terms first
+  const multiWordTerms: string[] = [];
+  const KNOWN_PHRASES = [
+    'deck building', 'deck builder', 'worker placement', 'area control',
+    'roll and write', 'push your luck', 'engine building', 'tile placement',
+    'hand management', 'set collection', 'trick taking', 'social deduction',
+    'hidden role', 'resource management', 'card drafting', 'dungeon crawler',
+    'dungeon crawl', 'real time', 'role playing', 'tower defense',
+    'open world', 'first person', 'third person', 'turn based',
+    'point and click', 'side scroller', 'beat em up', 'hack and slash',
+    'battle royale', 'city builder', 'grand strategy', 'four x', '4x',
+  ];
+
+  for (const phrase of KNOWN_PHRASES) {
+    if (lower.includes(phrase)) {
+      multiWordTerms.push(phrase);
+    }
+  }
+
+  // Extract single words, filter stop words
+  const words = lower
+    .replace(/[^a-z0-9\s-]/g, ' ')
+    .split(/\s+/)
+    .filter((w) => w.length >= 3 && !STOP_WORDS.has(w));
+
+  // Deduplicate
+  const all = [...new Set([...multiWordTerms, ...words])];
+
+  return all;
+}
+
+/**
  * Quality signal: normalized 0-10 rating to 0-1.
  */
 function scoreQuality(game: Game): number {
@@ -435,6 +566,19 @@ function generateReasons(
     });
     if (matchedGenres.length > 0) {
       reasons.push(`Matches your taste for ${matchedGenres.slice(0, 2).join(' and ')}`);
+    }
+  }
+
+  // Free text match
+  if (breakdown.freeTextMatch >= 0.5 && prefs.freeText && prefs.freeText.trim()) {
+    const keywords = extractKeywords(prefs.freeText);
+    const gameTags = [...game.categories, ...game.mechanics, ...game.themes].map((t) => t.toLowerCase());
+    const matched = keywords.filter((kw) =>
+      game.name.toLowerCase().includes(kw) ||
+      gameTags.some((tag) => tag.includes(kw) || kw.includes(tag))
+    );
+    if (matched.length > 0) {
+      reasons.push(`Matches "${matched.slice(0, 2).join('", "')}" from your description`);
     }
   }
 

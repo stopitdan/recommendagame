@@ -100,6 +100,17 @@ export async function POST(request: NextRequest) {
     // Step 1: Fetch candidates with soft filters (only player count is hard)
     let candidates = await fetchCandidates(supabase, body, popularity);
 
+    // Step 1b: If user provided free text, supplement with text search results
+    // This ensures niche keywords like "roguelike" find relevant games even
+    // if they're not in the top 300 by rating
+    if (body.freeText && body.freeText.trim().length >= 3) {
+      const textResults = await fetchTextSearchCandidates(supabase, body.freeText);
+      // Merge without duplicates
+      const existingIds = new Set(candidates.map((g) => g.id));
+      const newGames = textResults.filter((g) => !existingIds.has(g.id));
+      candidates = [...candidates, ...newGames];
+    }
+
     // Fallback: if too few results, retry with minimal filters
     if (candidates.length < 10) {
       candidates = await fetchCandidatesFallback(supabase, popularity);
@@ -217,6 +228,29 @@ async function fetchCandidates(
     console.error('[Recommend] DB query error:', error);
     return [];
   }
+
+  return ((data ?? []) as GameRow[]).map(rowToGame);
+}
+
+/**
+ * Supplemental text search: finds games matching free text keywords
+ * in name, categories, mechanics, or themes. Returns up to 50 results.
+ */
+async function fetchTextSearchCandidates(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+  freeText: string,
+) {
+  // Use Postgres full-text search on game name
+  const { data, error } = await supabase
+    .from('games')
+    .select(GAME_COLUMNS)
+    .not('rating', 'is', null)
+    .textSearch('name', freeText.trim(), { type: 'websearch' })
+    .order('rating', { ascending: false })
+    .limit(50);
+
+  if (error || !data) return [];
 
   return ((data ?? []) as GameRow[]).map(rowToGame);
 }
