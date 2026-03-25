@@ -1,4 +1,4 @@
-data/
-scripts/
+/data/
+/scripts/
 *.csv
 *.log
