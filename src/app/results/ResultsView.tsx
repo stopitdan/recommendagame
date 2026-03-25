@@ -30,6 +30,7 @@ export default function ResultsView() {
   const [popularity, setPopularity] = useState<PopularityMode>('popular');
   const [engine, setEngine] = useState<string>('');
   const [totalCandidates, setTotalCandidates] = useState(0);
+  const [shareCopied, setShareCopied] = useState(false);
 
   /**
    * Reconstructs the QuestionnaireState from URL search params
@@ -101,9 +102,24 @@ export default function ResultsView() {
               </Typography>
             )}
           </Box>
-          <Button variant="outlined" onClick={() => router.push('/questionnaire')}>
-            Start Over
-          </Button>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => {
+                const url = window.location.href;
+                navigator.clipboard.writeText(url).then(() => {
+                  setShareCopied(true);
+                  setTimeout(() => setShareCopied(false), 2000);
+                });
+              }}
+            >
+              {shareCopied ? 'Link Copied!' : 'Share Results'}
+            </Button>
+            <Button variant="outlined" onClick={() => router.push('/questionnaire')}>
+              Start Over
+            </Button>
+          </Box>
         </Box>
 
         {/* Popularity toggle */}
