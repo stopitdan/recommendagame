@@ -177,7 +177,7 @@ export default function PhysicsDice({ rolling, onSettled }: PhysicsDiceProps) {
   return (
     <div style={{ width: '100%', height: 220, cursor: 'pointer', borderRadius: 16, overflow: 'hidden' }}>
       <Canvas
-        shadows
+        shadows={{ type: THREE.PCFShadowMap }}
         camera={{ position: [0, 2.5, 3], fov: 40 }}
         style={{ background: 'transparent' }}
         gl={{ alpha: true }}
