@@ -113,27 +113,27 @@ function FaceLabels({ faces }: { faces: FaceData[] }) {
 
 // ─── Animated D20 ────────────────────────────────────────────
 
-type Phase = 'idle' | 'shrink' | 'tumble' | 'settle' | 'present';
+type Phase = 'idle' | 'shrink' | 'roll' | 'present';
 
 interface AnimState {
   phase: Phase;
   startTime: number;
-  /** Tumble config */
-  tumbleDuration: number;
-  velX: number;
-  velY: number;
-  velZ: number;
-  /** Settle config (smooth SLERP to nearest face) */
-  settleStartQuat: THREE.Quaternion;
-  settleTargetQuat: THREE.Quaternion;
+  /** Roll duration */
+  rollDuration: number;
+  /** Start and end quaternions — single SLERP, guaranteed flat landing */
+  startQuat: THREE.Quaternion;
+  landingQuat: THREE.Quaternion;
+  /** Wobble parameters (decaying sinusoidal noise over the SLERP) */
+  wobbleAxis1: THREE.Vector3;
+  wobbleAxis2: THREE.Vector3;
+  wobbleFreq1: number;
+  wobbleFreq2: number;
   /** Result */
   resultValue: number;
   resultReported: boolean;
 }
 
-/** Duration of each non-tumble phase */
 const SHRINK_DUR = 0.25;
-const SETTLE_DUR = 0.15; // Just a tiny wobble to flat — barely visible
 const PRESENT_DUR = 0.35;
 
 function AnimatedD20({
@@ -150,75 +150,82 @@ function AnimatedD20({
   const anim = useRef<AnimState>({
     phase: 'idle',
     startTime: 0,
-    tumbleDuration: 2.0,
-    velX: 0, velY: 0, velZ: 0,
-    settleStartQuat: new THREE.Quaternion(),
-    settleTargetQuat: new THREE.Quaternion(),
+    rollDuration: 2.0,
+    startQuat: new THREE.Quaternion(),
+    landingQuat: new THREE.Quaternion(),
+    wobbleAxis1: new THREE.Vector3(1, 0, 0),
+    wobbleAxis2: new THREE.Vector3(0, 0, 1),
+    wobbleFreq1: 12,
+    wobbleFreq2: 9,
     resultValue: 1,
     resultReported: false,
   });
 
   const scaleRef = useRef(1);
   const lastRolling = useRef(false);
-  const toCamera = useMemo(() => new THREE.Vector3(0, 2.5, 3).normalize(), []);
+  const tempQuat = useRef(new THREE.Quaternion());
+  const wobbleQuat = useRef(new THREE.Quaternion());
 
-  /** Find nearest face to camera and compute the correction quaternion */
-  function computeNearestFaceLanding(): { value: number; targetQuat: THREE.Quaternion } {
-    const group = groupRef.current!;
-    const worldNormal = new THREE.Vector3();
-    let bestDot = -Infinity;
-    let bestIdx = 0;
-
-    for (let i = 0; i < faces.length; i++) {
-      worldNormal.copy(faces[i].normal).applyQuaternion(group.quaternion);
-      const dot = worldNormal.dot(toCamera);
-      if (dot > bestDot) {
-        bestDot = dot;
-        bestIdx = i;
-      }
-    }
-
-    // Compute target: current quat corrected so best face points at camera
-    worldNormal.copy(faces[bestIdx].normal).applyQuaternion(group.quaternion);
-    const correction = new THREE.Quaternion().setFromUnitVectors(worldNormal, toCamera);
-    const targetQuat = group.quaternion.clone().premultiply(correction);
-
-    return { value: bestIdx + 1, targetQuat };
-  }
-
-  // Transition to a new phase
   function setPhase(phase: Phase) {
     anim.current.phase = phase;
-    anim.current.startTime = 0; // Will be set on next frame
+    anim.current.startTime = 0;
   }
 
   useEffect(() => {
     if (rolling && !lastRolling.current) {
-      const dirX = Math.random() > 0.5 ? 1 : -1;
-      const dirY = Math.random() > 0.5 ? 1 : -1;
+      // Pick a random face (1-20)
+      const value = Math.floor(Math.random() * 20) + 1;
 
-      anim.current.tumbleDuration = 1.8 + Math.random() * 0.4;
-      anim.current.velX = dirX * (8 + Math.random() * 4);
-      anim.current.velY = dirY * (6 + Math.random() * 3);
-      anim.current.velZ = dirX * dirY * (2 + Math.random() * 2);
+      // Capture current orientation
+      const startQ = groupRef.current
+        ? groupRef.current.quaternion.clone()
+        : new THREE.Quaternion();
+
+      // Landing quaternion: this face's normal points at camera
+      const landingQ = faces[value - 1].landingQuat.clone();
+
+      // To make it look like multiple full rotations, we compose
+      // extra full spins INTO the landing quaternion. The SLERP
+      // will take the "short" path to this pre-spun target, but
+      // since the target itself encodes extra rotations, the path
+      // naturally goes through many orientations.
+      const spinAxis = new THREE.Vector3(
+        0.5 + Math.random() * 0.5,
+        0.3 + Math.random() * 0.5,
+        0.2 + Math.random() * 0.3,
+      ).normalize();
+      const extraSpins = (3 + Math.floor(Math.random() * 3)) * Math.PI * 2; // 3-5 full rotations
+      const spinQuat = new THREE.Quaternion().setFromAxisAngle(spinAxis, extraSpins);
+      landingQ.premultiply(spinQuat);
+
+      // Random wobble axes (perpendicular-ish to add chaos)
+      const w1 = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize();
+      const w2 = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize();
+
+      anim.current.rollDuration = 1.8 + Math.random() * 0.4;
+      anim.current.startQuat.copy(startQ);
+      anim.current.landingQuat.copy(landingQ);
+      anim.current.wobbleAxis1.copy(w1);
+      anim.current.wobbleAxis2.copy(w2);
+      anim.current.wobbleFreq1 = 10 + Math.random() * 6;  // 10-16 Hz
+      anim.current.wobbleFreq2 = 7 + Math.random() * 5;   // 7-12 Hz
+      anim.current.resultValue = value;
       anim.current.resultReported = false;
 
-      // If already presented (re-roll), shrink first. Otherwise go straight to tumble.
       if (scaleRef.current > 0.95) {
         setPhase('shrink');
       } else {
-        setPhase('tumble');
+        setPhase('roll');
       }
     }
     lastRolling.current = rolling;
-  }, [rolling]);
+  }, [rolling, faces]);
 
-  useFrame((_, delta) => {
+  useFrame(() => {
     const a = anim.current;
     const group = groupRef.current;
     if (!group || a.phase === 'idle') return;
 
-    // Lazy init startTime
     if (a.startTime === 0) a.startTime = performance.now();
     const elapsed = (performance.now() - a.startTime) / 1000;
 
@@ -226,35 +233,45 @@ function AnimatedD20({
       // ── Shrink before re-roll ──
       case 'shrink': {
         const t = Math.min(elapsed / SHRINK_DUR, 1);
-        const ease = t * t; // Ease-in (accelerate into shrink)
-        scaleRef.current = 1 - ease * 0.7; // Shrink to 0.3
+        scaleRef.current = 1.08 - t * 0.78; // 1.08 → 0.3
         group.scale.setScalar(scaleRef.current);
 
         if (t >= 1) {
           scaleRef.current = 0.3;
           group.scale.setScalar(0.3);
-          setPhase('tumble');
+          setPhase('roll');
         }
         break;
       }
 
-      // ── Main tumble: pure physics ──
-      case 'tumble': {
-        const t = Math.min(elapsed / a.tumbleDuration, 1);
+      // ── Single-motion roll: SLERP + decaying wobble ──
+      case 'roll': {
+        const t = Math.min(elapsed / a.rollDuration, 1);
 
-        // Scale back up at the start of tumble
+        // Scale back up
         if (scaleRef.current < 1) {
-          const growT = Math.min(elapsed / 0.3, 1); // 0.3s to grow back
-          const growEase = 1 - Math.pow(1 - growT, 3);
-          scaleRef.current = 0.3 + 0.7 * growEase;
+          const growT = Math.min(elapsed / 0.3, 1);
+          scaleRef.current = 0.3 + 0.7 * (1 - Math.pow(1 - growT, 3));
           group.scale.setScalar(scaleRef.current);
         }
 
-        // Euler tumble with quadratic deceleration
-        const decel = (1 - t) * (1 - t);
-        group.rotation.x += a.velX * decel * delta;
-        group.rotation.y += a.velY * decel * delta;
-        group.rotation.z += a.velZ * decel * delta;
+        // Core rotation: SLERP from start to landing (includes extra spins)
+        // Ease: fast start, smooth deceleration
+        const ease = 1 - Math.pow(1 - t, 3); // Cubic ease-out
+        tempQuat.current.slerpQuaternions(a.startQuat, a.landingQuat, ease);
+
+        // Decaying wobble: high-frequency oscillation that fades to zero
+        // This makes the SLERP path look chaotic/tumbling
+        const wobbleStrength = Math.pow(1 - t, 3) * 0.4; // Strong at start, zero at end
+        const w1Angle = Math.sin(elapsed * a.wobbleFreq1) * wobbleStrength;
+        const w2Angle = Math.sin(elapsed * a.wobbleFreq2 * 1.3) * wobbleStrength * 0.7;
+
+        wobbleQuat.current.setFromAxisAngle(a.wobbleAxis1, w1Angle);
+        tempQuat.current.multiply(wobbleQuat.current);
+        wobbleQuat.current.setFromAxisAngle(a.wobbleAxis2, w2Angle);
+        tempQuat.current.multiply(wobbleQuat.current);
+
+        group.quaternion.copy(tempQuat.current);
 
         // Bounce
         let bounceY = 0;
@@ -268,27 +285,11 @@ function AnimatedD20({
         group.position.y = bounceY;
 
         if (t >= 1) {
+          // Exactly at landing — no correction needed
+          group.quaternion.copy(a.landingQuat);
           group.position.y = 0;
-          // Compute where to settle
-          const { value, targetQuat } = computeNearestFaceLanding();
-          a.settleStartQuat.copy(group.quaternion);
-          a.settleTargetQuat.copy(targetQuat);
-          a.resultValue = value;
-          setPhase('settle');
-        }
-        break;
-      }
-
-      // ── Smooth settle to flat face (small rotation) ──
-      case 'settle': {
-        const t = Math.min(elapsed / SETTLE_DUR, 1);
-        // Cubic ease-out for gentle deceleration into flat
-        const ease = 1 - Math.pow(1 - t, 3);
-
-        group.quaternion.slerpQuaternions(a.settleStartQuat, a.settleTargetQuat, ease);
-
-        if (t >= 1) {
-          group.quaternion.copy(a.settleTargetQuat);
+          scaleRef.current = 1;
+          group.scale.setScalar(1);
           setPhase('present');
         }
         break;
@@ -297,7 +298,6 @@ function AnimatedD20({
       // ── Present: grow slightly to highlight the result ──
       case 'present': {
         const t = Math.min(elapsed / PRESENT_DUR, 1);
-        // Spring-like overshoot: grows to 1.12 then settles to 1.08
         const spring = 1 + 0.08 * (1 - Math.pow(1 - t, 3)) + 0.04 * Math.sin(t * Math.PI);
         scaleRef.current = spring;
         group.scale.setScalar(spring);
