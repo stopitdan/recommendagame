@@ -274,11 +274,11 @@ function AnimatedD20({
         // Heights: 0.55 → 0.30 → 0.16 → 0.08 → 0.03
         // Durations: 0.35 → 0.23 → 0.15 → 0.10 → 0.06 (total ~0.89)
         const bounces = [
-          { dur: 0.40, h: 1.1 },
-          { dur: 0.30, h: 0.55 },
-          { dur: 0.20, h: 0.24 },
-          { dur: 0.12, h: 0.10 },
-          { dur: 0.07, h: 0.03 },
+          { dur: 0.38, h: 0.65 },
+          { dur: 0.28, h: 0.32 },
+          { dur: 0.18, h: 0.14 },
+          { dur: 0.11, h: 0.06 },
+          { dur: 0.06, h: 0.02 },
         ];
         let bounceY = 0;
         let bt = t; // time cursor
