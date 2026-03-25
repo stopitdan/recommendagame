@@ -11,6 +11,8 @@ import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import FavoriteButton from '@/components/FavoriteButton';
+import ReviewForm from '@/components/ReviewForm';
+import ReviewList from '@/components/ReviewList';
 import type { Game } from '@/types/game';
 
 export default function GameDetailView() {
@@ -18,6 +20,7 @@ export default function GameDetailView() {
   const router = useRouter();
   const [game, setGame] = useState<Game | null>(null);
   const [loading, setLoading] = useState(true);
+  const [reviewRefreshKey, setReviewRefreshKey] = useState(0);
 
   useEffect(() => {
     async function fetchGame() {
@@ -231,6 +234,23 @@ export default function GameDetailView() {
           </Box>
         </Box>
       )}
+
+      <Divider sx={{ my: 4 }} />
+
+      {/* Reviews */}
+      <Box sx={{ mb: 4 }}>
+        <ReviewForm
+          gameId={game.id}
+          onSubmit={() => setReviewRefreshKey((k) => k + 1)}
+        />
+      </Box>
+
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
+          Reviews
+        </Typography>
+        <ReviewList gameId={game.id} refreshKey={reviewRefreshKey} />
+      </Box>
     </Container>
   );
 }

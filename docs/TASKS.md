@@ -177,24 +177,27 @@ Granular tasks organized by phase. Update status as work progresses.
 - [ ] Favorite toggle on game detail page (needs game detail page first)
 
 ### 3b.3 Saved Preference Sets
-- [ ] DB migration: `user_saved_presets` table (name, preferences JSON, user_id)
-- [ ] Save current questionnaire answers as a named preset
-- [ ] Load a preset to pre-fill the questionnaire
-- [ ] Manage presets page (rename, delete)
+- [x] DB migration: `user_saved_presets` table with JSONB preferences, RLS policies
+- [x] API routes: GET/POST `/api/presets`, PUT/DELETE `/api/presets/[id]`
+- [x] "Save Preset" dialog on questionnaire last step
+- [x] Presets page (`/presets`) — list, use, delete presets
+- [x] Preset description summary (type, players, time, genres)
+- [ ] Load a preset to pre-fill the questionnaire steps (edit mode)
 - [ ] Quick-access from home page ("Your presets")
 
 ### 3b.4 Recommendation Settings (per-user)
-- [ ] DB migration: add recommendation settings to user_preferences
-- [ ] Settings: popularity filter, include/exclude sources, min rating threshold
-- [ ] Settings page (`/settings`)
-- [ ] Apply settings to search/recommendation API
+- [x] DB migration: added popularity_mode, min_rating, excluded_sources to user_preferences
+- [ ] Settings page (`/settings`) with UI controls
+- [ ] Apply saved settings to search/recommendation API automatically
 
 ### 3b.5 User Reviews & Ratings
-- [ ] DB migration: `user_reviews` table (user_id, game_id, rating 1-10, review text, created_at)
-- [ ] Review form on game detail page
-- [ ] Display reviews on game detail page
+- [x] DB migration: `user_reviews` table (1-10 rating, review text, RLS, aggregate function)
+- [x] API routes: GET `/api/reviews?gameId=xxx`, POST `/api/reviews`
+- [x] ReviewForm component with star rating + optional text
+- [x] ReviewList component showing reviews with author, rating, date
+- [x] Reviews section on game detail page (form + list with refresh)
 - [ ] Average user review score shown on GameCard
-- [ ] Reviews factor into recommendation scoring
+- [ ] Reviews factor into recommendation scoring (Phase 4)
 - [ ] Higher weight for reviews from users with similar preferences (Phase 4)
 
 ### 3b.6 Game Detail Pages

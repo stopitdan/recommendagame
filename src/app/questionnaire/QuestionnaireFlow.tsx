@@ -5,8 +5,13 @@ import { useRouter } from 'next/navigation';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
 import LinearProgress from '@mui/material/LinearProgress';
 import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import type { QuestionnaireState } from '@/types/questionnaire';
 import { INITIAL_STATE } from '@/types/questionnaire';
@@ -32,6 +37,8 @@ export default function QuestionnaireFlow() {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [state, setState] = useState<QuestionnaireState>(INITIAL_STATE);
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [presetName, setPresetName] = useState('');
 
   const totalSteps = STEPS.length;
   const progress = ((step + 1) / totalSteps) * 100;
@@ -51,6 +58,19 @@ export default function QuestionnaireFlow() {
 
   function back() {
     if (step > 0) setStep((s) => s - 1);
+  }
+
+  async function savePreset() {
+    if (!presetName.trim()) return;
+    try {
+      await fetch('/api/presets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: presetName.trim(), preferences: state }),
+      });
+    } catch { /* silently fail if not logged in */ }
+    setSaveDialogOpen(false);
+    setPresetName('');
   }
 
   function submit() {
@@ -139,8 +159,17 @@ export default function QuestionnaireFlow() {
               Back
             </Button>
             <Box sx={{ flex: 1 }} />
+            {isLast && (
+              <Button
+                variant="text"
+                onClick={() => setSaveDialogOpen(true)}
+                sx={{ minWidth: 80 }}
+              >
+                Save Preset
+              </Button>
+            )}
             <Button variant="text" onClick={next} sx={{ minWidth: 80 }}>
-              Skip
+              {isLast ? '' : 'Skip'}
             </Button>
             <Button variant="contained" onClick={next} sx={{ minWidth: 140 }}>
               {isLast ? 'Find Games' : 'Next'}
@@ -148,6 +177,28 @@ export default function QuestionnaireFlow() {
           </Stack>
         </Container>
       </Box>
+
+      {/* Save Preset Dialog */}
+      <Dialog open={saveDialogOpen} onClose={() => setSaveDialogOpen(false)} maxWidth="xs" fullWidth>
+        <DialogTitle>Save Preferences as Preset</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            fullWidth
+            label="Preset Name"
+            placeholder='e.g. "Family Game Night" or "Solo Strategy"'
+            value={presetName}
+            onChange={(e) => setPresetName(e.target.value)}
+            sx={{ mt: 1 }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setSaveDialogOpen(false)}>Cancel</Button>
+          <Button variant="contained" onClick={savePreset} disabled={!presetName.trim()}>
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
