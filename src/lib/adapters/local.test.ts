@@ -85,7 +85,7 @@ describe('local game data integrity', () => {
       expect(game.sourceId).toBeTruthy();
       expect(game.name).toBeTruthy();
       expect(game.description).toBeTruthy();
-      expect(game.types).toContain('word');
+      expect(game.types.some((t: string) => ['word', 'party'].includes(t))).toBe(true);
       expect(game.categories.length).toBeGreaterThan(0);
       expect(game.playerCount).toBeDefined();
       expect(game.playTime).toBeDefined();

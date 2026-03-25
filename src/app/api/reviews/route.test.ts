@@ -5,11 +5,20 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const mockGetUser = vi.fn();
-const mockSelect = vi.fn();
-const mockEq = vi.fn();
-const mockOrder = vi.fn();
-const mockUpsert = vi.fn();
 const mockFrom = vi.fn();
+
+// Separate chains for different tables
+const reviewsChain = {
+  select: vi.fn(),
+  eq: vi.fn(),
+  order: vi.fn(),
+  upsert: vi.fn(),
+};
+
+const profilesChain = {
+  select: vi.fn(),
+  in: vi.fn(),
+};
 
 vi.mock('@/lib/supabase/server', () => ({
   createClient: () => Promise.resolve({
@@ -23,10 +32,26 @@ import { NextRequest } from 'next/server';
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mockOrder.mockResolvedValue({ data: [], error: null });
-  mockEq.mockReturnValue({ order: mockOrder });
-  mockSelect.mockReturnValue({ eq: mockEq });
-  mockFrom.mockReturnValue({ select: mockSelect, upsert: mockUpsert });
+
+  // Default: reviews chain
+  reviewsChain.order.mockResolvedValue({ data: [], error: null });
+  reviewsChain.eq.mockReturnValue({ order: reviewsChain.order });
+  reviewsChain.select.mockReturnValue({ eq: reviewsChain.eq });
+  reviewsChain.upsert.mockReturnValue({
+    select: vi.fn().mockReturnValue({
+      single: vi.fn().mockResolvedValue({ data: { id: 1 }, error: null }),
+    }),
+  });
+
+  // Default: profiles chain
+  profilesChain.in.mockResolvedValue({ data: [], error: null });
+  profilesChain.select.mockReturnValue({ in: profilesChain.in });
+
+  // Route from() to the right chain based on table name
+  mockFrom.mockImplementation((table: string) => {
+    if (table === 'user_profiles') return profilesChain;
+    return reviewsChain;
+  });
 });
 
 describe('GET /api/reviews', () => {
@@ -37,8 +62,12 @@ describe('GET /api/reviews', () => {
   });
 
   it('returns reviews for a game', async () => {
-    mockOrder.mockResolvedValue({
-      data: [{ id: 1, rating: 8, review_text: 'Great game!', created_at: '2024-01-01' }],
+    reviewsChain.order.mockResolvedValue({
+      data: [{ id: 1, user_id: 'u1', rating: 8, review_text: 'Great game!', created_at: '2024-01-01' }],
+      error: null,
+    });
+    profilesChain.in.mockResolvedValue({
+      data: [{ id: 'u1', display_name: 'Alice' }],
       error: null,
     });
 
@@ -48,6 +77,7 @@ describe('GET /api/reviews', () => {
 
     expect(response.status).toBe(200);
     expect(data.reviews).toHaveLength(1);
+    expect(data.reviews[0].user_profiles.display_name).toBe('Alice');
   });
 });
 
