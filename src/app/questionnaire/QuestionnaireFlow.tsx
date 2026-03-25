@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -15,6 +15,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import type { QuestionnaireState } from '@/types/questionnaire';
 import { INITIAL_STATE } from '@/types/questionnaire';
+import { saveGuestPreferences, getGuestPreferences } from '@/lib/guest';
 import GameTypeStep from '@/components/questionnaire/GameTypeStep';
 import PlayerCountStep from '@/components/questionnaire/PlayerCountStep';
 import TimeStep from '@/components/questionnaire/TimeStep';
@@ -40,6 +41,14 @@ export default function QuestionnaireFlow() {
   const [state, setState] = useState<QuestionnaireState>(INITIAL_STATE);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [presetName, setPresetName] = useState('');
+
+  // Load guest preferences from localStorage on mount
+  useEffect(() => {
+    const saved = getGuestPreferences();
+    if (saved) {
+      setState((prev) => ({ ...prev, ...saved }));
+    }
+  }, []);
 
   const totalSteps = STEPS.length;
   const progress = ((step + 1) / totalSteps) * 100;
@@ -75,6 +84,9 @@ export default function QuestionnaireFlow() {
   }
 
   function submit() {
+    // Save preferences to localStorage for guest users
+    saveGuestPreferences(state as unknown as Record<string, unknown>);
+
     // Build query params from state and navigate to results
     const params = new URLSearchParams();
 

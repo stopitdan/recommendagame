@@ -53,8 +53,8 @@ const PHASES: Phase[] = [
       { title: 'User Reviews & Ratings', description: '1-10 rating + text review per game. Reviews are publicly readable, own-write.', status: 'done', tags: ['Feature'] },
       { title: 'Favorites / Game Library', description: 'Bookmark games to a personal library with one-click add/remove.', status: 'done', tags: ['Feature'] },
       { title: 'Recommendation Settings', description: 'Popularity mode (popular/any/hidden gems), minimum rating, source toggles.', status: 'done', tags: ['Feature'] },
-      { title: 'Google OAuth', description: 'One-click Google login for frictionless signup.', status: 'planned', tags: ['Auth'] },
-      { title: 'Guest Mode', description: 'LocalStorage preferences for non-logged-in users, prompt to create account after N recommendations.', status: 'planned', tags: ['Feature'] },
+      { title: 'Google OAuth', description: 'One-click Google login via Supabase + Google Cloud OAuth 2.0. PKCE flow with cookie-based code verifier for SSR compatibility.', status: 'done', tags: ['Auth'] },
+      { title: 'Guest Mode', description: 'LocalStorage preferences auto-saved on questionnaire submit, restored on next visit. Signup prompt after 3 recommendations. Guest favorites (limited to 5).', status: 'done', tags: ['Feature'] },
     ],
   },
   {

@@ -17,9 +17,11 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import GameCard from '@/components/GameCard';
 import { GameCardSkeletonList } from '@/components/GameCardSkeleton';
+import SignupPrompt from '@/components/SignupPrompt';
 import type { Game } from '@/types/game';
 import type { QuestionnaireState, TimePreset } from '@/types/questionnaire';
 import type { GameType } from '@/types/game';
+import { incrementRecommendCount } from '@/lib/guest';
 
 type PopularityMode = 'popular' | 'any' | 'hidden-gems';
 
@@ -83,6 +85,11 @@ export default function ResultsView() {
       setGames(data.results ?? []);
       setEngine(data.engine ?? '');
       setTotalCandidates(data.totalCandidates ?? 0);
+
+      // Track recommendation count for guest signup prompt
+      if (data.results?.length > 0) {
+        incrementRecommendCount();
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
@@ -297,6 +304,9 @@ export default function ResultsView() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Signup prompt for guest users after N recommendations */}
+      <SignupPrompt />
     </Container>
   );
 }
