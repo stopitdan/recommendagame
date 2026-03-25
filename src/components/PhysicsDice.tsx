@@ -175,30 +175,33 @@ function AnimatedD20({
   }
 
   /**
-   * Build a chain of quaternion waypoints from start to landing.
-   * Each step is a ~120° rotation on a random axis, so SLERP takes
-   * the "right" (intended) path through each segment. The die
-   * visually rotates through 2-3 full tumbles before landing.
+   * Build waypoints by rotating on ONE consistent axis (like real momentum).
+   * We spin the die N×120° around a single random axis, then the final
+   * waypoint is the exact landing quaternion. The last segment may change
+   * direction slightly (the die "settling"), but all the tumble segments
+   * spin the same way — consistent momentum.
    */
   function buildWaypoints(start: THREE.Quaternion, landing: THREE.Quaternion): THREE.Quaternion[] {
-    const STEPS = 6 + Math.floor(Math.random() * 3); // 6-8 waypoints = 2-3 full rotations
-    const waypoints: THREE.Quaternion[] = [start.clone()];
+    // One consistent spin axis for the entire roll
+    const spinAxis = new THREE.Vector3(
+      Math.random() - 0.5,
+      Math.random() - 0.5,
+      Math.random() - 0.5,
+    ).normalize();
 
-    // Generate random intermediate orientations
-    for (let i = 1; i < STEPS; i++) {
-      const axis = new THREE.Vector3(
-        Math.random() - 0.5,
-        Math.random() - 0.5,
-        Math.random() - 0.5,
-      ).normalize();
-      // Each step rotates 100-140° — under 180° so SLERP goes the right way
-      const angle = (100 + Math.random() * 40) * (Math.PI / 180);
-      const stepQuat = new THREE.Quaternion().setFromAxisAngle(axis, angle);
+    // 6-8 intermediate steps, each ~120° on the same axis = 2-3 full rotations
+    const STEPS = 6 + Math.floor(Math.random() * 3);
+    const stepAngle = (110 + Math.random() * 30) * (Math.PI / 180); // 110-140° per step
+
+    const waypoints: THREE.Quaternion[] = [start.clone()];
+    const stepQuat = new THREE.Quaternion().setFromAxisAngle(spinAxis, stepAngle);
+
+    for (let i = 1; i <= STEPS; i++) {
       const prev = waypoints[waypoints.length - 1];
       waypoints.push(prev.clone().multiply(stepQuat));
     }
 
-    // Final waypoint is the exact landing
+    // Final waypoint: exact landing (this last segment is the "settle")
     waypoints.push(landing.clone());
 
     return waypoints;
