@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Button from '@mui/material/Button';
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@/lib/supabase/client';
 
 /**
  * Initiates Google OAuth sign-in via Supabase.
@@ -14,10 +14,7 @@ export default function GoogleSignInButton() {
   async function handleGoogleSignIn() {
     setLoading(true);
 
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    );
+    const supabase = createClient();
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
