@@ -166,9 +166,9 @@ function AnimatedD20({
         active: true,
         startTime: 0,
         duration: 1.8 + Math.random() * 0.4,
-        velX: dirX * (5 + Math.random() * 3),     // Primary: 5-8 rad/s
-        velY: dirY * (4 + Math.random() * 2.5),   // Secondary: 4-6.5 rad/s
-        velZ: dirX * dirY * (1.5 + Math.random()), // Tertiary: 1.5-2.5 rad/s
+        velX: dirX * (8 + Math.random() * 4),     // Primary: 8-12 rad/s
+        velY: dirY * (6 + Math.random() * 3),     // Secondary: 6-9 rad/s
+        velZ: dirX * dirY * (2 + Math.random() * 2), // Tertiary: 2-4 rad/s
         landingQuat: faces[value - 1].landingQuat.clone(),
         lateQuat: new THREE.Quaternion(),
         lateCaptured: false,
@@ -193,9 +193,9 @@ function AnimatedD20({
     const SNAP_START = 0.88;
 
     if (t < SNAP_START) {
-      // ── Euler tumble with cubic deceleration ──
-      // Velocity decreases continuously: fast at start, crawling by 88%
-      const decel = Math.pow(1 - (t / SNAP_START), 3);
+      // ── Euler tumble: starts at full speed, decelerates like friction ──
+      const phase = t / SNAP_START; // 0→1 over tumble phase
+      const decel = (1 - phase) * (1 - phase); // Quadratic: fast→slow
 
       groupRef.current.rotation.x += a.velX * decel * delta;
       groupRef.current.rotation.y += a.velY * decel * delta;
