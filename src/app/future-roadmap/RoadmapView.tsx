@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Divider from '@mui/material/Divider';
@@ -143,13 +143,18 @@ const STATUS_CONFIG: Record<Status, { label: string; color: string; bgColor: str
 
 // ─── Components ──────────────────────────────────────────────
 
-function StatusBadge({ status }: { status: Status }) {
+/** Cycle order when clicking the status badge */
+const STATUS_CYCLE: Status[] = ['future', 'planned', 'in-progress', 'done'];
+
+function StatusBadge({ status, onClick }: { status: Status; onClick?: () => void }) {
   const config = STATUS_CONFIG[status];
   return (
     <Chip
       label={config.label}
       size="small"
+      onClick={onClick}
       sx={{
+        cursor: onClick ? 'pointer' : 'default',
         fontWeight: 700,
         fontSize: '0.7rem',
         height: 22,
@@ -161,8 +166,14 @@ function StatusBadge({ status }: { status: Status }) {
   );
 }
 
-function RoadmapCard({ item, index }: { item: RoadmapItem; index: number }) {
+function RoadmapCard({ item, index, onStatusChange }: { item: RoadmapItem; index: number; onStatusChange: (title: string, newStatus: Status) => void }) {
   const config = STATUS_CONFIG[item.status];
+
+  function cycleStatus() {
+    const currentIdx = STATUS_CYCLE.indexOf(item.status);
+    const nextStatus = STATUS_CYCLE[(currentIdx + 1) % STATUS_CYCLE.length];
+    onStatusChange(item.title, nextStatus);
+  }
 
   return (
     <motion.div
@@ -186,7 +197,7 @@ function RoadmapCard({ item, index }: { item: RoadmapItem; index: number }) {
           <Typography variant="subtitle2" fontWeight={700} sx={{ flex: 1 }}>
             {item.status === 'done' ? '✓ ' : ''}{item.title}
           </Typography>
-          <StatusBadge status={item.status} />
+          <StatusBadge status={item.status} onClick={cycleStatus} />
         </Box>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 1, lineHeight: 1.5 }}>
           {item.description}
@@ -207,7 +218,7 @@ function RoadmapCard({ item, index }: { item: RoadmapItem; index: number }) {
   );
 }
 
-function PhaseSection({ phase, phaseIndex }: { phase: Phase; phaseIndex: number }) {
+function PhaseSection({ phase, phaseIndex, onStatusChange }: { phase: Phase; phaseIndex: number; onStatusChange: (title: string, newStatus: Status) => void }) {
   const doneCount = phase.items.filter((i) => i.status === 'done').length;
   const totalCount = phase.items.length;
   const progress = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
@@ -254,7 +265,7 @@ function PhaseSection({ phase, phaseIndex }: { phase: Phase; phaseIndex: number 
 
         <Stack spacing={1.5}>
           {phase.items.map((item, i) => (
-            <RoadmapCard key={item.title} item={item} index={i} />
+            <RoadmapCard key={item.title} item={item} index={i} onStatusChange={onStatusChange} />
           ))}
         </Stack>
       </Box>
@@ -266,14 +277,73 @@ function PhaseSection({ phase, phaseIndex }: { phase: Phase; phaseIndex: number 
 
 type StatusFilter = 'all' | Status;
 
+/** Key for localStorage status overrides */
+const OVERRIDES_KEY = 'rag_roadmap_overrides';
+
+function loadOverrides(): Record<string, Status> {
+  if (typeof window === 'undefined') return {};
+  try {
+    const raw = localStorage.getItem(OVERRIDES_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveOverrides(overrides: Record<string, Status>): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(OVERRIDES_KEY, JSON.stringify(overrides));
+  // Also persist to server file so Claude can read it
+  fetch('/api/roadmap-overrides', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(overrides),
+  }).catch(() => {}); // Best-effort, don't block UI
+}
+
+/** Apply overrides to phases data */
+function applyOverrides(phases: Phase[], overrides: Record<string, Status>): Phase[] {
+  if (Object.keys(overrides).length === 0) return phases;
+  return phases.map((phase) => ({
+    ...phase,
+    items: phase.items.map((item) => ({
+      ...item,
+      status: overrides[item.title] ?? item.status,
+    })),
+  }));
+}
+
 export default function RoadmapView() {
   const [filter, setFilter] = useState<StatusFilter>('all');
+  const [overrides, setOverrides] = useState<Record<string, Status>>({});
 
-  const totalItems = PHASES.reduce((sum, p) => sum + p.items.length, 0);
-  const doneItems = PHASES.reduce((sum, p) => sum + p.items.filter((i) => i.status === 'done').length, 0);
-  const inProgressItems = PHASES.reduce((sum, p) => sum + p.items.filter((i) => i.status === 'in-progress').length, 0);
-  const plannedItems = PHASES.reduce((sum, p) => sum + p.items.filter((i) => i.status === 'planned').length, 0);
-  const futureItems = PHASES.reduce((sum, p) => sum + p.items.filter((i) => i.status === 'future').length, 0);
+  // Load overrides from localStorage on mount
+  useEffect(() => {
+    setOverrides(loadOverrides());
+  }, []);
+
+  function handleStatusChange(title: string, newStatus: Status) {
+    const updated = { ...overrides };
+    // Find the original status from PHASES
+    const original = PHASES.flatMap((p) => p.items).find((i) => i.title === title);
+    if (original && original.status === newStatus) {
+      // Status matches original — remove the override
+      delete updated[title];
+    } else {
+      updated[title] = newStatus;
+    }
+    setOverrides(updated);
+    saveOverrides(updated);
+  }
+
+  // Apply overrides to get effective phases
+  const effectivePhases = applyOverrides(PHASES, overrides);
+
+  const totalItems = effectivePhases.reduce((sum, p) => sum + p.items.length, 0);
+  const doneItems = effectivePhases.reduce((sum, p) => sum + p.items.filter((i) => i.status === 'done').length, 0);
+  const inProgressItems = effectivePhases.reduce((sum, p) => sum + p.items.filter((i) => i.status === 'in-progress').length, 0);
+  const plannedItems = effectivePhases.reduce((sum, p) => sum + p.items.filter((i) => i.status === 'planned').length, 0);
+  const futureItems = effectivePhases.reduce((sum, p) => sum + p.items.filter((i) => i.status === 'future').length, 0);
 
   const filterButtons: { key: StatusFilter; label: string; value: number; color: string }[] = [
     { key: 'all', label: 'All Tasks', value: totalItems, color: 'text.primary' },
@@ -285,8 +355,8 @@ export default function RoadmapView() {
 
   // Filter phases — only show phases that have matching items
   const filteredPhases = filter === 'all'
-    ? PHASES
-    : PHASES.map((phase) => ({
+    ? effectivePhases
+    : effectivePhases.map((phase) => ({
         ...phase,
         items: phase.items.filter((item) => item.status === filter),
       })).filter((phase) => phase.items.length > 0);
@@ -343,8 +413,23 @@ export default function RoadmapView() {
       <Divider sx={{ mb: 4 }} />
 
       {filteredPhases.map((phase, i) => (
-        <PhaseSection key={phase.name} phase={phase} phaseIndex={i} />
+        <PhaseSection key={phase.name} phase={phase} phaseIndex={i} onStatusChange={handleStatusChange} />
       ))}
+
+      {Object.keys(overrides).length > 0 && (
+        <Box sx={{ mt: 2, mb: 4, textAlign: 'center' }}>
+          <Chip
+            label={`${Object.keys(overrides).length} status override${Object.keys(overrides).length > 1 ? 's' : ''} — click to reset all`}
+            onDelete={() => {
+              setOverrides({});
+              saveOverrides({});
+            }}
+            color="warning"
+            size="small"
+            variant="outlined"
+          />
+        </Box>
+      )}
 
       <Divider sx={{ my: 4 }} />
       <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ fontStyle: 'italic' }}>
