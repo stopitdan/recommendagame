@@ -48,10 +48,10 @@ export default function FavoriteButton({ gameId, initialFavorited = false, onTog
         disabled={loading}
         size="small"
         sx={{
-          color: favorited ? '#B9314F' : '#E1DEE3',
+          color: favorited ? 'secondary.main' : 'divider',
           transition: 'all 200ms ease',
           '&:hover': {
-            color: '#B9314F',
+            color: 'secondary.main',
             transform: 'scale(1.15)',
           },
         }}

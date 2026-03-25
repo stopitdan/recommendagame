@@ -198,17 +198,23 @@ Granular tasks organized by phase. Update status as work progresses.
 - [ ] Higher weight for reviews from users with similar preferences (Phase 4)
 
 ### 3b.6 Game Detail Pages
-- [ ] Dynamic route (`/games/[id]`)
-- [ ] Full game info (description, players, time, complexity, categories, mechanics)
-- [ ] Images, external links (BGG/RAWG source page)
-- [ ] Favorite button, review form, existing reviews
-- [ ] Related game recommendations (same categories/mechanics)
+- [x] API route `GET /api/games/[id]` — fetch single game
+- [x] Dynamic route (`/games/[id]`) with full game info page
+- [x] Image, name, rating badge, types, year, players, time, complexity
+- [x] Categories, mechanics, themes, platforms as chip groups
+- [x] External link to source (BGG/RAWG)
+- [x] Favorite button
+- [x] Back navigation
+- [x] Clickable game names on GameCard navigate to detail page
+- [ ] Review form + existing reviews (needs 3b.5)
+- [ ] Related game recommendations (Phase 4)
 
 ### 3b.7 Leaderboard
-- [ ] Leaderboard page (`/leaderboard`)
-- [ ] Top favorited games (aggregate count from user_favorites)
-- [ ] Top rated games (by user reviews, not just source rating)
-- [ ] Filter by game type (board/video/word)
+- [x] API route `GET /api/leaderboard` — top games by rating (min 100 ratings)
+- [x] Leaderboard page (`/leaderboard`) with ranked game list
+- [x] Type filter chips (All / Board / Video / Word)
+- [x] Top 3 highlighted in Rosewood
+- [ ] Sort by user favorites count (once more users)
 - [ ] Time period filter (all time, this month, this week)
 
 ### 3b.8 Landing Page Glow-Up

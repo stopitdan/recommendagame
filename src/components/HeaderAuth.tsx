@@ -56,8 +56,8 @@ export default function HeaderAuth({ isLoggedIn, email, displayName }: HeaderAut
         size="small"
         onClick={() => router.push('/signup')}
         sx={{
-          bgcolor: '#B9314F',
-          '&:hover': { bgcolor: '#9A2840' },
+          bgcolor: 'secondary.main',
+          '&:hover': { bgcolor: 'secondary.dark' },
         }}
       >
         Sign Up

@@ -113,7 +113,7 @@ export default function ResultsView() {
 
         {loading && (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-            <CircularProgress sx={{ color: '#B9314F' }} />
+            <CircularProgress sx={{ color: 'secondary.main' }} />
           </Box>
         )}
 

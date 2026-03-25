@@ -68,7 +68,7 @@ export default function LoginForm() {
 
           <Typography variant="body2" textAlign="center" color="text.secondary">
             Don&apos;t have an account?{' '}
-            <Link href="/signup" style={{ color: '#B9314F', fontWeight: 600 }}>
+            <Link href="/signup" style={{ color: 'secondary.main', fontWeight: 600 }}>
               Sign up
             </Link>
           </Typography>

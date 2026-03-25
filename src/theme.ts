@@ -33,7 +33,7 @@ const theme = createTheme({
     secondary: {
       main: "#B9314F",     // Rosewood
       dark: "#9A2840",
-      light: "#D45A73",
+      light: "#F2E0E4",    // Rosewood tint (selected card backgrounds)
       contrastText: "#FFFFFF",
     },
     background: {

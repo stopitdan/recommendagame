@@ -30,9 +30,9 @@ export default function MoodStep({ value, onChange }: MoodStepProps) {
             key={mood.id}
             variant={isSelected ? 'elevation' : 'outlined'}
             sx={{
-              borderColor: isSelected ? '#B9314F' : undefined,
+              borderColor: isSelected ? 'secondary.main' : undefined,
               borderWidth: isSelected ? 2 : 1,
-              bgcolor: isSelected ? '#F2E0E4' : undefined,
+              bgcolor: isSelected ? 'secondary.light' : undefined,
             }}
           >
             <CardActionArea onClick={() => toggle(mood.id)} sx={{ p: 1 }}>

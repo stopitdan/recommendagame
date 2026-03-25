@@ -16,7 +16,7 @@ export default function Home() {
         alignItems: "center",
         justifyContent: "center",
         py: 8,
-        background: "linear-gradient(180deg, #FAF7F5 0%, #DEC3BE 100%)",
+        background: (theme) => `linear-gradient(180deg, ${theme.palette.background.default} 0%, ${theme.palette.info.light} 100%)`,
       }}
     >
       <Container maxWidth="sm">
@@ -26,7 +26,7 @@ export default function Home() {
             component="h1"
             sx={{
               fontWeight: 800,
-              color: "#3A4F41",
+              color: "primary.main",
               letterSpacing: "-0.03em",
               lineHeight: 1.1,
             }}
@@ -56,9 +56,9 @@ export default function Home() {
                 py: 1.5,
                 fontSize: "1.1rem",
                 borderRadius: 2,
-                boxShadow: "0 4px 14px rgba(185, 49, 79, 0.3)",
+                boxShadow: (theme) => `0 4px 14px ${theme.palette.secondary.main}4D`,
                 "&:hover": {
-                  boxShadow: "0 6px 20px rgba(185, 49, 79, 0.4)",
+                  boxShadow: (theme) => `0 6px 20px ${theme.palette.secondary.main}66`,
                   transform: "translateY(-1px)",
                 },
                 transition: "all 200ms ease",

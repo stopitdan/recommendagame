@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -18,6 +19,7 @@ export interface GameCardProps {
 }
 
 export default function GameCard({ game, showFavorite = true, isFavorited = false, onFavoriteToggle }: GameCardProps) {
+  const router = useRouter();
   const details: string[] = [];
   if (game.playerCount) {
     const { min, max } = game.playerCount;
@@ -45,7 +47,17 @@ export default function GameCard({ game, showFavorite = true, isFavorited = fals
       <CardContent sx={{ flex: 1 }}>
         <Stack spacing={1}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1 }}>
-            <Typography variant="h6" fontWeight={600} sx={{ flex: 1 }}>
+            <Typography
+              variant="h6"
+              fontWeight={600}
+              sx={{
+                flex: 1,
+                cursor: 'pointer',
+                '&:hover': { color: 'secondary.main' },
+                transition: 'color 150ms ease',
+              }}
+              onClick={() => router.push(`/games/${encodeURIComponent(game.id)}`)}
+            >
               {game.name}
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
@@ -54,7 +66,7 @@ export default function GameCard({ game, showFavorite = true, isFavorited = fals
                   label={game.rating.toFixed(1)}
                   size="small"
                   sx={{
-                    bgcolor: '#3A4F41',
+                    bgcolor: 'primary.main',
                     color: '#FFFFFF',
                     fontWeight: 600,
                   }}
