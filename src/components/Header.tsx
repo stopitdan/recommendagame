@@ -4,6 +4,7 @@ import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { createClient } from '@/lib/supabase/server';
+import HeaderNav from './HeaderNav';
 import HeaderAuth from './HeaderAuth';
 
 export default async function Header() {
@@ -13,7 +14,7 @@ export default async function Header() {
   return (
     <AppBar position="static" elevation={0} sx={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
       <Toolbar sx={{ maxWidth: 'lg', mx: 'auto', width: '100%' }}>
-        <Link href="/" style={{ textDecoration: 'none', flexGrow: 1 }}>
+        <Link href="/" style={{ textDecoration: 'none', marginRight: 24 }}>
           <Typography
             variant="h6"
             sx={{ color: '#FFFFFF', fontWeight: 700, letterSpacing: '-0.02em' }}
@@ -21,6 +22,10 @@ export default async function Header() {
             Recommend a Game
           </Typography>
         </Link>
+
+        <HeaderNav />
+
+        <Box sx={{ flex: 1 }} />
 
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
           <HeaderAuth

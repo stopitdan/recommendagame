@@ -187,7 +187,7 @@ export default function GameDetailView() {
               </Typography>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                 {game.categories.map((c) => (
-                  <Chip key={c} label={c} size="small" />
+                  <Chip key={c} label={c} size="small" clickable onClick={() => router.push(`/browse?category=${encodeURIComponent(c)}`)} />
                 ))}
               </Box>
             </Box>
@@ -199,7 +199,7 @@ export default function GameDetailView() {
               </Typography>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                 {game.mechanics.map((m) => (
-                  <Chip key={m} label={m} size="small" variant="outlined" />
+                  <Chip key={m} label={m} size="small" variant="outlined" clickable onClick={() => router.push(`/browse?mechanic=${encodeURIComponent(m)}`)} />
                 ))}
               </Box>
             </Box>
@@ -215,7 +215,7 @@ export default function GameDetailView() {
           </Typography>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
             {game.themes.map((t) => (
-              <Chip key={t} label={t} size="small" variant="outlined" />
+              <Chip key={t} label={t} size="small" variant="outlined" clickable onClick={() => router.push(`/browse?theme=${encodeURIComponent(t)}`)} />
             ))}
           </Box>
         </Box>
@@ -229,7 +229,7 @@ export default function GameDetailView() {
           </Typography>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
             {game.platforms.map((p) => (
-              <Chip key={p} label={p} size="small" />
+              <Chip key={p} label={p} size="small" clickable onClick={() => router.push(`/browse?platform=${encodeURIComponent(p)}`)} />
             ))}
           </Box>
         </Box>
