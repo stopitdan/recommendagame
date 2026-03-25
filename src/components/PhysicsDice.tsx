@@ -133,7 +133,7 @@ interface AnimState {
 
 /** Duration of each non-tumble phase */
 const SHRINK_DUR = 0.25;
-const SETTLE_DUR = 0.5;
+const SETTLE_DUR = 0.15; // Just a tiny wobble to flat — barely visible
 const PRESENT_DUR = 0.35;
 
 function AnimatedD20({
