@@ -16,66 +16,109 @@ Granular tasks organized by phase. Update status as work progresses.
 - [x] Create `.env.example` with placeholder keys for all APIs
 
 ### 1.2 BoardGameGeek Adapter
-- [ ] Install XML parser (`fast-xml-parser`)
-- [ ] Build BGG API client (`src/lib/adapters/bgg.ts`)
-- [ ] Implement search endpoint
-- [ ] Implement game detail fetching
-- [ ] Map BGG XML response to unified `Game` schema
-- [ ] Handle rate limiting (5s between requests)
+- [x] Install XML parser (`fast-xml-parser`)
+- [x] Define BGG-specific XML response types (`src/types/bgg.ts`)
+- [x] Build BGG API client (`src/lib/adapters/bgg.ts`)
+- [x] Implement search (two-step: /search for IDs → /thing for details)
+- [x] Implement game detail fetching (single + batched)
+- [x] Implement hot/popular list fetching
+- [x] Map BGG XML response to unified `Game` schema
+- [x] Handle rate limiting (5s throttle between requests)
+- [x] Handle 202 "not ready" retries with backoff
+- [x] Parse suggested_numplayers poll for recommended player count
+- [x] Strip HTML from descriptions
 - [ ] Write tests
+- [ ] Smoke test against live BGG API
 
 ### 1.3 RAWG Adapter (Video Games)
-- [ ] Sign up for RAWG API key
-- [ ] Build RAWG API client (`src/lib/adapters/rawg.ts`)
-- [ ] Implement search endpoint
-- [ ] Implement game detail fetching
-- [ ] Map RAWG JSON response to unified `Game` schema
+- [x] Sign up for RAWG API key
+- [x] Define RAWG-specific response types (`src/types/rawg.ts`)
+- [x] Build RAWG API client (`src/lib/adapters/rawg.ts`)
+- [x] Implement search (single-step — list endpoint returns rich data)
+- [x] Implement game detail fetching (adds description, developers, publishers)
+- [x] Implement popular/top-rated game fetching
+- [x] Map RAWG JSON response to unified `Game` schema
+- [x] Normalize rating from 0-5 → 0-10 scale
+- [x] Convert playtime from hours → minutes
+- [x] Extract platforms via parent_platforms for clean grouping
+- [x] Extract themes from English-language tags
 - [ ] Write tests
+- [ ] Smoke test against live RAWG API
 
 ### 1.4 Word Game Data
-- [ ] Research whether to use a curated local dataset or an API
-- [ ] Build word game adapter or seed script
-- [ ] Map to unified `Game` schema
+- [x] Research data sources — no word game API exists; BGG covers physical word games (700+), digital needs curation
+- [x] Create curated local dataset (`src/data/word-games.json`) — 20 digital word games (Wordle, Connections, Spelling Bee, etc.)
+- [x] Build local adapter (`src/lib/adapters/local.ts`) implementing `GameAdapter` interface
+- [x] Map local JSON entries to unified `Game` schema
+- [x] Register local adapter in sync route
+- [ ] Add more word games to the dataset as discovered
 
-### 1.5 Caching Layer
-- [ ] Choose caching strategy (Redis, SQLite, or in-memory for dev)
-- [ ] Implement cache wrapper for API calls
-- [ ] Add TTL-based expiration
-- [ ] Consider pre-fetching popular/hot games on a schedule
+### 1.5 Supabase Database Setup
+- [x] Install Supabase client packages (`@supabase/supabase-js`, `@supabase/ssr`)
+- [x] Create database migration (`supabase/migrations/001_initial_schema.sql`)
+- [x] Define games table with full metadata columns
+- [x] Define game_embeddings table with pgvector (768 dimensions)
+- [x] Define user_profiles, user_preferences, user_game_feedback, user_favorites tables
+- [x] Set up Row Level Security policies
+- [x] Create RPC functions (match_games, search_games_by_name)
+- [x] Create Supabase browser client (`src/lib/supabase/client.ts`)
+- [x] Create Supabase server client (`src/lib/supabase/server.ts`)
+- [x] Create Game ↔ DB row conversion helpers (`src/lib/supabase/games.ts`)
+- [x] Define TypeScript types for all tables (`src/types/supabase.ts`)
+- [x] Update `.env.example` with Supabase vars
+- [ ] Create Supabase project and run migration
+- [ ] Verify schema in Supabase dashboard
 
-### 1.6 Unified Search Service
-- [ ] Create `/api/games/search` route
-- [ ] Fan out queries to all adapters
-- [ ] Merge and deduplicate results
-- [ ] Return normalized, ranked results
+### 1.6 Caching / Local DB Mirror
+- [x] Build game sync service (`src/lib/sync/game-sync.ts`)
+- [x] Upsert logic to avoid duplicate imports (`onConflict: 'source,source_id'`)
+- [x] Batch processing with configurable batch size
+- [x] Individual retry on batch failure (isolates which games fail)
+- [x] `syncPopularFromAdapter()` — sync trending games from one source
+- [x] `syncPopularFromAll()` — sync trending games from all sources
+- [x] `syncSearchResults()` — cache search results as users search
+- [x] `syncSingleGame()` — fetch and store a single game by ID
+- [x] Create API route `POST /api/sync` with auth token protection
+- [ ] Consider cron job for incremental sync (Vercel Cron or external)
+
+### 1.7 Unified Search Service
+- [x] Create `GET /api/games/search` route (`src/app/api/games/search/route.ts`)
+- [x] Query Supabase (local DB) first via full-text search RPC
+- [x] ILIKE fallback for partial matches when FTS returns nothing
+- [x] Fan out to external adapters (BGG, RAWG, local) on cache miss
+- [x] Background sync of external results to DB (fire and forget)
+- [x] Deduplicate merged results by game ID
+- [x] Filter by type, source, player count, complexity
+- [x] Sort by relevance (exact match → starts with → rating)
+- [x] Query params: `q`, `type`, `source`, `minPlayers`, `maxPlayers`, `minComplexity`, `maxComplexity`, `limit`
 
 ---
 
 ## Phase 2: Auth & User Profiles
 
-### 2.1 Firebase Setup
-- [ ] Create Firebase project
-- [ ] Install Firebase SDK (`firebase`, `firebase-admin`)
-- [ ] Configure environment variables
-- [ ] Set up Firebase Auth providers (email/password, Google)
+### 2.1 Supabase Auth Setup
+- [ ] Configure Supabase Auth providers (email/password, Google)
+- [ ] Set up Next.js middleware for session refresh
+- [ ] Configure environment variables in deployment
 
 ### 2.2 Auth Integration
-- [ ] Build auth context provider (`src/contexts/AuthContext.tsx`)
+- [ ] Build auth context/hook for client components
 - [ ] Create login page (`src/app/login/page.tsx`)
 - [ ] Create signup page (`src/app/signup/page.tsx`)
 - [ ] Add auth state to layout/header
-- [ ] Implement server-side token verification for API routes
+- [ ] Server-side auth verification via `supabase.auth.getUser()`
 
 ### 2.3 User Profiles
-- [ ] Define Firestore user profile schema
-- [ ] Create user profile on signup
+- [x] Define user profile schema (in migration)
+- [x] Define user preferences schema (in migration)
+- [ ] Create user profile on signup (Supabase trigger or app logic)
 - [ ] Build profile preferences page
-- [ ] Store game history (recommended, liked, disliked)
+- [ ] Store game feedback (thumbs up/down)
 
 ### 2.4 Guest Mode
 - [ ] Implement localStorage-based preference storage
 - [ ] Prompt to create account after N recommendations
-- [ ] Migrate localStorage data to Firestore on signup
+- [ ] Migrate localStorage data to Supabase on signup
 
 ---
 

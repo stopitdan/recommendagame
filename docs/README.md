@@ -25,6 +25,7 @@ Step-by-step guides so we do things consistently every time:
 | [NEW-COMPONENT.md](playbooks/NEW-COMPONENT.md) | Creating a new reusable UI component |
 | [API-ROUTE.md](playbooks/API-ROUTE.md) | Adding a new Next.js API route |
 | [TESTING.md](playbooks/TESTING.md) | Writing and running tests |
+| [SUPABASE.md](playbooks/SUPABASE.md) | Database queries, migrations, client usage |
 
 ## Status Legend (used in TASKS.md)
 
