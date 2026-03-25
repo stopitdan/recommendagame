@@ -100,6 +100,11 @@ export default function HeaderAuth({ isLoggedIn, email, displayName }: HeaderAut
 
           <Divider />
 
+          <MenuItem onClick={() => router.push('/profile')}>
+            <ListItemIcon sx={{ fontSize: '1.1rem', minWidth: 32 }}>👤</ListItemIcon>
+            <ListItemText>My Profile</ListItemText>
+          </MenuItem>
+
           <MenuItem onClick={() => router.push('/favorites')}>
             <ListItemIcon sx={{ fontSize: '1.1rem', minWidth: 32 }}>❤️</ListItemIcon>
             <ListItemText>Favorites</ListItemText>
