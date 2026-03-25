@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Divider from '@mui/material/Divider';
@@ -263,10 +264,32 @@ function PhaseSection({ phase, phaseIndex }: { phase: Phase; phaseIndex: number 
 
 // ─── Main View ───────────────────────────────────────────────
 
+type StatusFilter = 'all' | Status;
+
 export default function RoadmapView() {
+  const [filter, setFilter] = useState<StatusFilter>('all');
+
   const totalItems = PHASES.reduce((sum, p) => sum + p.items.length, 0);
   const doneItems = PHASES.reduce((sum, p) => sum + p.items.filter((i) => i.status === 'done').length, 0);
   const inProgressItems = PHASES.reduce((sum, p) => sum + p.items.filter((i) => i.status === 'in-progress').length, 0);
+  const plannedItems = PHASES.reduce((sum, p) => sum + p.items.filter((i) => i.status === 'planned').length, 0);
+  const futureItems = PHASES.reduce((sum, p) => sum + p.items.filter((i) => i.status === 'future').length, 0);
+
+  const filterButtons: { key: StatusFilter; label: string; value: number; color: string }[] = [
+    { key: 'all', label: 'All Tasks', value: totalItems, color: 'text.primary' },
+    { key: 'done', label: 'Completed', value: doneItems, color: '#00C853' },
+    { key: 'in-progress', label: 'In Progress', value: inProgressItems, color: '#FF9100' },
+    { key: 'planned', label: 'Planned', value: plannedItems, color: '#448AFF' },
+    { key: 'future', label: 'Future', value: futureItems, color: '#B388FF' },
+  ];
+
+  // Filter phases — only show phases that have matching items
+  const filteredPhases = filter === 'all'
+    ? PHASES
+    : PHASES.map((phase) => ({
+        ...phase,
+        items: phase.items.filter((item) => item.status === filter),
+      })).filter((phase) => phase.items.length > 0);
 
   return (
     <Box>
@@ -277,28 +300,49 @@ export default function RoadmapView() {
         The full plan for Recommend a Game — what&apos;s done, what&apos;s in progress, and what&apos;s coming.
       </Typography>
 
-      {/* Summary stats */}
-      <Box sx={{ display: 'flex', gap: 3, mb: 4, flexWrap: 'wrap' }}>
-        {[
-          { label: 'Total Tasks', value: totalItems, color: 'text.primary' },
-          { label: 'Completed', value: doneItems, color: '#00C853' },
-          { label: 'In Progress', value: inProgressItems, color: '#FF9100' },
-          { label: 'Remaining', value: totalItems - doneItems - inProgressItems, color: '#448AFF' },
-        ].map((stat) => (
-          <Box key={stat.label} sx={{ textAlign: 'center' }}>
-            <Typography variant="h4" fontWeight={900} sx={{ color: stat.color }}>
-              {stat.value}
+      {/* Clickable filter stats */}
+      <Box sx={{ display: 'flex', gap: 2, mb: 4, flexWrap: 'wrap' }}>
+        {filterButtons.map((btn) => (
+          <Box
+            key={btn.key}
+            onClick={() => setFilter(filter === btn.key ? 'all' : btn.key)}
+            sx={{
+              textAlign: 'center',
+              cursor: 'pointer',
+              px: 2,
+              py: 1.5,
+              borderRadius: 2,
+              border: '2px solid',
+              borderColor: filter === btn.key ? btn.color : 'transparent',
+              bgcolor: filter === btn.key ? `${btn.color}10` : 'transparent',
+              transition: 'all 200ms',
+              '&:hover': {
+                bgcolor: `${btn.color}08`,
+                transform: 'translateY(-2px)',
+              },
+            }}
+          >
+            <Typography variant="h4" fontWeight={900} sx={{ color: btn.color }}>
+              {btn.value}
             </Typography>
             <Typography variant="caption" color="text.secondary" fontWeight={600}>
-              {stat.label}
+              {btn.label}
             </Typography>
           </Box>
         ))}
       </Box>
 
+      {filter !== 'all' && (
+        <Chip
+          label={`Showing: ${filterButtons.find((b) => b.key === filter)?.label} — click again to clear`}
+          onDelete={() => setFilter('all')}
+          sx={{ mb: 3 }}
+        />
+      )}
+
       <Divider sx={{ mb: 4 }} />
 
-      {PHASES.map((phase, i) => (
+      {filteredPhases.map((phase, i) => (
         <PhaseSection key={phase.name} phase={phase} phaseIndex={i} />
       ))}
 
