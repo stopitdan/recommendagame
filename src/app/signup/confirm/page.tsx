@@ -2,7 +2,6 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
 import Link from 'next/link';
 
 export const metadata = {
@@ -33,14 +32,21 @@ export default function ConfirmEmailPage() {
           <Typography variant="body2" color="text.secondary">
             Didn&apos;t receive it? Check your spam folder or try signing up again.
           </Typography>
-          <Button
-            component={Link}
+          <Link
             href="/login"
-            variant="outlined"
-            sx={{ mt: 2 }}
+            style={{
+              marginTop: 16,
+              padding: '8px 24px',
+              border: '1px solid rgba(91, 79, 219, 0.5)',
+              borderRadius: 8,
+              color: '#5B4FDB',
+              textDecoration: 'none',
+              fontWeight: 600,
+              fontSize: '0.9rem',
+            }}
           >
             Back to Login
-          </Button>
+          </Link>
         </Stack>
       </Container>
     </Box>
