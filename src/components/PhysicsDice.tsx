@@ -1,21 +1,19 @@
 'use client';
 
-import { useRef, useEffect, useMemo, useCallback } from 'react';
+import { useRef, useEffect, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
 /**
- * 3D D20 with canvas-baked number textures and natural roll physics.
+ * 3D D20 with canvas-baked number textures and guaranteed flat landing.
  *
- * Numbers are rendered via canvas textures on small planes at each
- * face center (lightweight, no font loading, no WebGL crash).
+ * Uses quaternion SLERP for the final landing — not Euler angles —
+ * so the die always settles perfectly flat on a triangular face
+ * with the correct number pointing straight up.
  *
- * Roll animation uses a single consistent momentum direction with
- * cubic ease-out for natural deceleration — like a real dice slowing
- * on a table. No mid-air direction changes.
- *
- * Landing uses actual icosahedron face normals so the die always
- * settles perfectly flat on a triangular face.
+ * Two-phase animation:
+ *   Phase 1 (0–70%): Chaotic tumble with consistent momentum
+ *   Phase 2 (70–100%): Smooth SLERP to the exact landing quaternion
  */
 
 // ─── Compute face data from icosahedron geometry ─────────────
@@ -23,12 +21,12 @@ import * as THREE from 'three';
 interface FaceData {
   center: THREE.Vector3;
   normal: THREE.Vector3;
-  landingEuler: THREE.Euler;
+  /** Quaternion that rotates this face's normal to point straight up (+Y) */
+  landingQuat: THREE.Quaternion;
 }
 
 function computeFaceData(): FaceData[] {
   const geo = new THREE.IcosahedronGeometry(0.85, 0);
-  geo.computeVertexNormals();
   const pos = geo.attributes.position;
   const faces: FaceData[] = [];
   const up = new THREE.Vector3(0, 1, 0);
@@ -44,10 +42,10 @@ function computeFaceData(): FaceData[] {
       .crossVectors(b.clone().sub(a), c.clone().sub(a))
       .normalize();
 
-    const quat = new THREE.Quaternion().setFromUnitVectors(normal, up);
-    const euler = new THREE.Euler().setFromQuaternion(quat);
+    // To land flat: rotate so this face's normal points UP
+    const landingQuat = new THREE.Quaternion().setFromUnitVectors(normal, up);
 
-    faces.push({ center, normal, landingEuler: euler });
+    faces.push({ center, normal, landingQuat });
   }
 
   geo.dispose();
@@ -65,9 +63,8 @@ function createNumberTexture(num: number): THREE.CanvasTexture {
 
   ctx.clearRect(0, 0, size, size);
 
-  // White number with slight shadow for readability
-  ctx.shadowColor = 'rgba(0,0,0,0.4)';
-  ctx.shadowBlur = 3;
+  ctx.shadowColor = 'rgba(0,0,0,0.5)';
+  ctx.shadowBlur = 4;
   ctx.fillStyle = '#FFFFFF';
   ctx.font = `bold ${num > 9 ? 48 : 56}px Arial, sans-serif`;
   ctx.textAlign = 'center';
@@ -111,6 +108,23 @@ function FaceLabels({ faces }: { faces: FaceData[] }) {
 
 // ─── Animated D20 ────────────────────────────────────────────
 
+interface AnimState {
+  active: boolean;
+  startTime: number;
+  duration: number;
+  /** Euler-based tumble velocity (radians/sec) — consistent direction */
+  tumbleVelX: number;
+  tumbleVelY: number;
+  tumbleVelZ: number;
+  /** The exact quaternion for flat landing */
+  landingQuat: THREE.Quaternion;
+  /** Quaternion captured at the phase transition point (70%) */
+  transitionQuat: THREE.Quaternion;
+  transitionCaptured: boolean;
+  settled: boolean;
+  targetValue: number;
+}
+
 function AnimatedD20({
   rolling,
   onSettled,
@@ -121,50 +135,42 @@ function AnimatedD20({
   const groupRef = useRef<THREE.Group>(null);
   const faces = useMemo(() => computeFaceData(), []);
 
-  const anim = useRef({
+  const anim = useRef<AnimState>({
     active: false,
     startTime: 0,
     duration: 2.2,
-    // Start rotation (captured from current state)
-    startX: 0, startY: 0, startZ: 0,
-    // End rotation (landing face euler + whole rotations)
-    endX: 0, endY: 0, endZ: 0,
+    tumbleVelX: 0,
+    tumbleVelY: 0,
+    tumbleVelZ: 0,
+    landingQuat: new THREE.Quaternion(),
+    transitionQuat: new THREE.Quaternion(),
+    transitionCaptured: false,
     settled: false,
     targetValue: 1,
   });
 
   const lastRolling = useRef(false);
+  const tempQuat = useRef(new THREE.Quaternion());
 
   useEffect(() => {
     if (rolling && !lastRolling.current) {
       const value = Math.floor(Math.random() * 20) + 1;
-      const landing = faces[value - 1].landingEuler;
 
-      const group = groupRef.current;
-      const sx = group ? group.rotation.x : 0;
-      const sy = group ? group.rotation.y : 0;
-      const sz = group ? group.rotation.z : 0;
-
-      // Pick a single momentum direction and stick with it.
-      // This prevents the jarring mid-air direction changes.
-      const dirX = Math.random() > 0.5 ? 1 : -1;
-      const dirY = Math.random() > 0.5 ? 1 : -1;
-      const dirZ = dirX * dirY; // Derived, not random — keeps rotation coherent
-
-      // Controlled spin amount: 1.5–2.5 full rotations on primary axes,
-      // and less on the Z axis for natural tumble feel.
-      const spinX = (1.5 + Math.random()) * Math.PI * 2 * dirX;
-      const spinY = (1.5 + Math.random()) * Math.PI * 2 * dirY;
-      const spinZ = (0.8 + Math.random() * 0.5) * Math.PI * 2 * dirZ;
+      // Pick a consistent tumble direction
+      const speed = 6 + Math.random() * 3; // 6-9 rad/sec — brisk but not insane
+      const dirX = (Math.random() > 0.5 ? 1 : -1);
+      const dirY = (Math.random() > 0.5 ? 1 : -1);
 
       anim.current = {
         active: true,
         startTime: 0,
-        duration: 2.0 + Math.random() * 0.4, // 2.0–2.4s — consistent pace
-        startX: sx, startY: sy, startZ: sz,
-        endX: landing.x + spinX,
-        endY: landing.y + spinY,
-        endZ: landing.z + spinZ,
+        duration: 2.0 + Math.random() * 0.4,
+        tumbleVelX: speed * dirX * (0.7 + Math.random() * 0.6),
+        tumbleVelY: speed * dirY * (0.7 + Math.random() * 0.6),
+        tumbleVelZ: speed * dirX * dirY * (0.3 + Math.random() * 0.3),
+        landingQuat: faces[value - 1].landingQuat.clone(),
+        transitionQuat: new THREE.Quaternion(),
+        transitionCaptured: false,
         settled: false,
         targetValue: value,
       };
@@ -172,7 +178,7 @@ function AnimatedD20({
     lastRolling.current = rolling;
   }, [rolling, faces]);
 
-  useFrame(() => {
+  useFrame((_, delta) => {
     const a = anim.current;
     if (!a.active || !groupRef.current) return;
 
@@ -181,31 +187,55 @@ function AnimatedD20({
     const elapsed = (performance.now() - a.startTime) / 1000;
     const t = Math.min(elapsed / a.duration, 1);
 
-    // Cubic ease-out: fast start, smooth deceleration (like real friction)
-    const ease = 1 - Math.pow(1 - t, 3);
+    const TRANSITION_POINT = 0.65;
 
-    groupRef.current.rotation.x = a.startX + (a.endX - a.startX) * ease;
-    groupRef.current.rotation.y = a.startY + (a.endY - a.startY) * ease;
-    groupRef.current.rotation.z = a.startZ + (a.endZ - a.startZ) * ease;
+    if (t < TRANSITION_POINT) {
+      // ── Phase 1: Tumble with decelerating euler rotation ──
+      // Deceleration curve: starts fast, gradually slows
+      const phaseT = t / TRANSITION_POINT;
+      const decel = 1 - phaseT * phaseT; // Quadratic deceleration
 
-    // Natural bounce: big initial toss, two smaller bounces, settle to 0
+      const dx = a.tumbleVelX * decel * delta;
+      const dy = a.tumbleVelY * decel * delta;
+      const dz = a.tumbleVelZ * decel * delta;
+
+      groupRef.current.rotation.x += dx;
+      groupRef.current.rotation.y += dy;
+      groupRef.current.rotation.z += dz;
+    } else {
+      // ── Phase 2: SLERP to exact landing quaternion ──
+      // Capture the current quaternion at the transition point
+      if (!a.transitionCaptured) {
+        a.transitionCaptured = true;
+        a.transitionQuat.copy(groupRef.current.quaternion);
+      }
+
+      // Smooth interpolation from wherever we are to the exact landing
+      const settleT = (t - TRANSITION_POINT) / (1 - TRANSITION_POINT);
+      // Quintic ease-out for very smooth deceleration into final position
+      const ease = 1 - Math.pow(1 - settleT, 5);
+
+      tempQuat.current.slerpQuaternions(a.transitionQuat, a.landingQuat, ease);
+      groupRef.current.quaternion.copy(tempQuat.current);
+    }
+
+    // ── Bounce (Y position) ──
     let bounceY = 0;
-    if (t < 0.25) {
-      // Initial toss up
-      bounceY = Math.sin((t / 0.25) * Math.PI) * 0.5;
-    } else if (t < 0.45) {
-      // First bounce
-      bounceY = Math.sin(((t - 0.25) / 0.2) * Math.PI) * 0.18;
-    } else if (t < 0.6) {
-      // Second small bounce
-      bounceY = Math.sin(((t - 0.45) / 0.15) * Math.PI) * 0.05;
+    if (t < 0.2) {
+      bounceY = Math.sin((t / 0.2) * Math.PI) * 0.5;
+    } else if (t < 0.38) {
+      bounceY = Math.sin(((t - 0.2) / 0.18) * Math.PI) * 0.15;
+    } else if (t < 0.5) {
+      bounceY = Math.sin(((t - 0.38) / 0.12) * Math.PI) * 0.04;
     }
     groupRef.current.position.y = bounceY;
 
+    // ── Settle ──
     if (t >= 1 && !a.settled) {
       a.settled = true;
       a.active = false;
-      // Snap to exact landing position (remove any float drift)
+      // Snap to exact landing (remove any float imprecision)
+      groupRef.current.quaternion.copy(a.landingQuat);
       groupRef.current.position.y = 0;
       onSettled(a.targetValue);
     }
