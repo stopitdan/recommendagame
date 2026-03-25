@@ -14,7 +14,7 @@
  */
 
 import type { Game, GameAdapter, GameType, SearchOptions } from '@/types/game';
-import wordGamesData from '@/data/word-games.json';
+import wordGamesData from '../../data/word-games.json';
 
 // ---------------------------------------------------------------------------
 // Types for the raw JSON data
