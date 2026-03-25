@@ -11,8 +11,9 @@ System architecture and technical decisions for Recommend a Game.
 | Framework | Next.js 16 (App Router) | Server components, API routes, SSR |
 | UI | React 19 + MUI 7 | Material Design component library |
 | Language | TypeScript 5 | Strict mode enabled |
-| Auth | Firebase Auth (planned) | Email/password + Google OAuth |
-| Database | Firestore (planned) | User profiles, preferences, feedback |
+| Auth | Supabase Auth | Email/password + Google OAuth (replaces Firebase Auth plan) |
+| Database | Supabase (PostgreSQL + pgvector) | Games, user profiles, preferences, vector similarity search |
+| Vector Search | pgvector extension | Cosine similarity for recommendation engine |
 | Caching | TBD | Redis, SQLite, or in-memory |
 | Deployment | TBD (likely Vercel) | |
 
@@ -49,7 +50,8 @@ System architecture and technical decisions for Recommend a Game.
 │  └────────────────────────────────────────────┘  │
 │                                                  │
 │  ┌────────────────────────────────────────────┐  │
-│  │  Firebase Auth  │  Firestore (user data)   │  │
+│  │      Supabase (Postgres + pgvector)        │  │
+│  │  Auth │ Games DB │ User Data │ Vectors     │  │
 │  └────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────┘
          │              │                │
@@ -91,10 +93,10 @@ src/
 │   │   ├── scoring.ts
 │   │   ├── content-based.ts
 │   │   └── collaborative.ts
-│   └── firebase/           # Firebase config & helpers
-│       ├── config.ts
-│       ├── auth.ts
-│       └── firestore.ts
+│   └── supabase/           # Supabase config & helpers
+│       ├── client.ts       # Browser client
+│       ├── server.ts       # Server-side client
+│       └── middleware.ts   # Auth token refresh
 ├── contexts/               # React contexts
 │   └── AuthContext.tsx
 ├── types/                  # TypeScript type definitions

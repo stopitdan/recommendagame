@@ -12,3 +12,4 @@ Reusable guides for repeatable tasks. Each playbook documents the best-practice 
 | [NEW-COMPONENT.md](NEW-COMPONENT.md) | Creating a new reusable UI component |
 | [API-ROUTE.md](API-ROUTE.md) | Adding a new Next.js API route |
 | [TESTING.md](TESTING.md) | Writing and running tests |
+| [SUPABASE.md](SUPABASE.md) | Database queries, migrations, client usage |
