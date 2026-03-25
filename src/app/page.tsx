@@ -176,19 +176,19 @@ const FEATURES = [
     emoji: "🎮",
     title: "Video Games",
     description:
-      "Thousands of titles across every platform. From indie gems to AAA blockbusters.",
+      "80,000+ titles across every platform. From indie gems to AAA blockbusters.",
   },
   {
-    emoji: "🔤",
-    title: "Word Games",
+    emoji: "🎉",
+    title: "Party & Word Games",
     description:
-      "Wordle, Connections, Spelling Bee, and more. Curated picks for word lovers.",
+      "Charades, 20 Questions, Wordle, and more. No-equipment games for any group size.",
   },
   {
-    emoji: "✨",
-    title: "Smart Picks",
+    emoji: "🧠",
+    title: "Smart Engine",
     description:
-      "Our engine learns what you love. The more you use it, the smarter it gets.",
+      "4-layer recommendation engine that learns your taste. The more you use it, the better it gets.",
   },
 ];
 
@@ -575,9 +575,9 @@ export default function Home() {
           <StaggerGroup stagger={0.15}>
             <Grid container spacing={4} justifyContent="center">
               {[
-                { value: 26000, suffix: "+", label: "Games in our database" },
-                { value: 3, suffix: "", label: "Game categories" },
-                { value: 150, suffix: "+", label: "Genres & mechanics" },
+                { value: 100000, suffix: "+", label: "Games in our database" },
+                { value: 4, suffix: "", label: "Game categories" },
+                { value: 200, suffix: "+", label: "Genres & mechanics" },
               ].map((stat) => (
                 <Grid size={{ xs: 12, sm: 4 }} key={stat.label}>
                   <motion.div variants={staggerChild}>
