@@ -11,58 +11,66 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import GameCard from '@/components/GameCard';
 import type { Game } from '@/types/game';
+import type { QuestionnaireState, TimePreset } from '@/types/questionnaire';
 
 type PopularityMode = 'popular' | 'any' | 'hidden-gems';
+
+/** Game with recommendation metadata attached by the engine */
+interface RecommendedGame extends Game {
+  _score?: number;
+  _reasons?: string[];
+}
 
 export default function ResultsView() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [games, setGames] = useState<Game[]>([]);
+  const [games, setGames] = useState<RecommendedGame[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [popularity, setPopularity] = useState<PopularityMode>('popular');
+  const [engine, setEngine] = useState<string>('');
+  const [totalCandidates, setTotalCandidates] = useState(0);
 
+  /**
+   * Reconstructs the QuestionnaireState from URL search params
+   * and calls the recommendation engine.
+   */
   const fetchResults = useCallback(async (popularityOverride?: PopularityMode) => {
     setLoading(true);
     setError(null);
 
     try {
-      const apiParams = new URLSearchParams();
+      // Reconstruct preferences from URL params
+      const preferences: QuestionnaireState & { popularity: string; limit: number } = {
+        gameType: searchParams.get('type') as QuestionnaireState['gameType'],
+        playerCount: {
+          min: parseInt(searchParams.get('minPlayers') ?? '1', 10),
+          max: parseInt(searchParams.get('maxPlayers') ?? '8', 10),
+        },
+        timeAvailable: (searchParams.get('time') as TimePreset) ?? null,
+        complexity: {
+          min: parseFloat(searchParams.get('minComplexity') ?? '1'),
+          max: parseFloat(searchParams.get('maxComplexity') ?? '5'),
+        },
+        genres: searchParams.get('genres')?.split(',').filter(Boolean) ?? [],
+        moods: searchParams.get('moods')?.split(',').filter(Boolean) ?? [],
+        freeText: searchParams.get('freeText') ?? '',
+        popularity: popularityOverride ?? popularity,
+        limit: 20,
+      };
 
-      const genres = searchParams.get('genres');
-      const type = searchParams.get('type');
-      const freeText = searchParams.get('freeText');
+      const response = await fetch('/api/recommend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(preferences),
+      });
 
-      if (freeText) {
-        apiParams.set('q', freeText);
-      } else if (genres) {
-        apiParams.set('q', genres.split(',')[0]);
-      } else if (type) {
-        apiParams.set('q', type === 'board' ? 'board game' : type === 'video' ? 'video game' : type);
-      } else {
-        apiParams.set('q', 'game');
-      }
-
-      if (type) apiParams.set('type', type);
-
-      const minPlayers = searchParams.get('minPlayers');
-      const maxPlayers = searchParams.get('maxPlayers');
-      if (minPlayers) apiParams.set('minPlayers', minPlayers);
-      if (maxPlayers) apiParams.set('maxPlayers', maxPlayers);
-
-      const minComplexity = searchParams.get('minComplexity');
-      const maxComplexity = searchParams.get('maxComplexity');
-      if (minComplexity) apiParams.set('minComplexity', minComplexity);
-      if (maxComplexity) apiParams.set('maxComplexity', maxComplexity);
-
-      apiParams.set('popularity', popularityOverride ?? popularity);
-      apiParams.set('limit', '20');
-
-      const response = await fetch(`/api/games/search?${apiParams.toString()}`);
-      if (!response.ok) throw new Error('Search failed');
+      if (!response.ok) throw new Error('Recommendation failed');
 
       const data = await response.json();
       setGames(data.results ?? []);
+      setEngine(data.engine ?? '');
+      setTotalCandidates(data.totalCandidates ?? 0);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
@@ -83,9 +91,16 @@ export default function ResultsView() {
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Stack spacing={3}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
-          <Typography variant="h4" fontWeight={700}>
-            Your Recommendations
-          </Typography>
+          <Box>
+            <Typography variant="h4" fontWeight={700}>
+              Your Recommendations
+            </Typography>
+            {engine && totalCandidates > 0 && (
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                Scored {totalCandidates} games to find your best matches
+              </Typography>
+            )}
+          </Box>
           <Button variant="outlined" onClick={() => router.push('/questionnaire')}>
             Start Over
           </Button>
@@ -142,7 +157,30 @@ export default function ResultsView() {
         )}
 
         {!loading && games.map((game) => (
-          <GameCard key={game.id} game={game} />
+          <Box key={game.id}>
+            <GameCard game={game} />
+            {/* "Why we picked this" reasons */}
+            {game._reasons && game._reasons.length > 0 && (
+              <Box sx={{ px: 2, pb: 1, mt: -0.5 }}>
+                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                  {game._reasons.map((reason, i) => (
+                    <Chip
+                      key={i}
+                      label={reason}
+                      size="small"
+                      variant="outlined"
+                      sx={{
+                        borderColor: 'info.main',
+                        color: 'text.secondary',
+                        fontSize: '0.75rem',
+                        height: 24,
+                      }}
+                    />
+                  ))}
+                </Stack>
+              </Box>
+            )}
+          </Box>
         ))}
       </Stack>
     </Container>
