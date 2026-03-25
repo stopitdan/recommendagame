@@ -18,6 +18,7 @@ import {
   useTransform,
   useSpring,
 } from "motion/react";
+import QuickCollections from "@/components/QuickCollections";
 
 /* ─── reusable scroll-triggered section ─── */
 function Section({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
@@ -477,6 +478,13 @@ export default function Home() {
             </Grid>
           </StaggerGroup>
         </Container>
+      </Box>
+
+      {/* ═══════════ QUICK PICKS ═══════════ */}
+      <Box sx={{ py: { xs: 4, md: 6 }, bgcolor: "background.default" }}>
+        <Section>
+          <QuickCollections />
+        </Section>
       </Box>
 
       {/* ═══════════ HOW IT WORKS ═══════════ */}
