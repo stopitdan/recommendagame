@@ -114,15 +114,16 @@ interface AnimState {
   active: boolean;
   startTime: number;
   duration: number;
-  /** Euler-based tumble velocity (radians/sec) — consistent direction */
-  tumbleVelX: number;
-  tumbleVelY: number;
-  tumbleVelZ: number;
-  /** The exact quaternion for flat landing */
+  /** Starting quaternion (captured when roll begins) */
+  startQuat: THREE.Quaternion;
+  /** The exact quaternion for flat landing with face toward camera */
   landingQuat: THREE.Quaternion;
-  /** Quaternion captured at the phase transition point (70%) */
-  transitionQuat: THREE.Quaternion;
-  transitionCaptured: boolean;
+  /**
+   * Intermediate "overshoot" quaternion — we SLERP through this midpoint
+   * so the path feels like a chaotic tumble rather than a direct rotation.
+   * Computed by applying random full rotations to the start orientation.
+   */
+  midQuat: THREE.Quaternion;
   settled: boolean;
   targetValue: number;
 }
@@ -141,38 +142,56 @@ function AnimatedD20({
     active: false,
     startTime: 0,
     duration: 2.2,
-    tumbleVelX: 0,
-    tumbleVelY: 0,
-    tumbleVelZ: 0,
+    startQuat: new THREE.Quaternion(),
     landingQuat: new THREE.Quaternion(),
-    transitionQuat: new THREE.Quaternion(),
-    transitionCaptured: false,
+    midQuat: new THREE.Quaternion(),
     settled: false,
     targetValue: 1,
   });
 
   const lastRolling = useRef(false);
   const tempQuat = useRef(new THREE.Quaternion());
+  const tempQuat2 = useRef(new THREE.Quaternion());
 
   useEffect(() => {
     if (rolling && !lastRolling.current) {
       const value = Math.floor(Math.random() * 20) + 1;
 
-      // Pick a consistent tumble direction
-      const speed = 6 + Math.random() * 3; // 6-9 rad/sec — brisk but not insane
-      const dirX = (Math.random() > 0.5 ? 1 : -1);
-      const dirY = (Math.random() > 0.5 ? 1 : -1);
+      // Capture current orientation as start
+      const startQ = groupRef.current
+        ? groupRef.current.quaternion.clone()
+        : new THREE.Quaternion();
+
+      // Create a chaotic midpoint: apply 2-3 random full axis rotations
+      // This makes the SLERP path go through wild orientations
+      const midQ = startQ.clone();
+      const randomAxis1 = new THREE.Vector3(
+        Math.random() - 0.5,
+        Math.random() - 0.5,
+        Math.random() - 0.5,
+      ).normalize();
+      const randomAxis2 = new THREE.Vector3(
+        Math.random() - 0.5,
+        Math.random() - 0.5,
+        Math.random() - 0.5,
+      ).normalize();
+      const spin1 = new THREE.Quaternion().setFromAxisAngle(
+        randomAxis1,
+        (2 + Math.random() * 2) * Math.PI, // 2-4 half rotations
+      );
+      const spin2 = new THREE.Quaternion().setFromAxisAngle(
+        randomAxis2,
+        (1.5 + Math.random() * 1.5) * Math.PI,
+      );
+      midQ.premultiply(spin1).premultiply(spin2);
 
       anim.current = {
         active: true,
         startTime: 0,
-        duration: 2.0 + Math.random() * 0.4,
-        tumbleVelX: speed * dirX * (0.7 + Math.random() * 0.6),
-        tumbleVelY: speed * dirY * (0.7 + Math.random() * 0.6),
-        tumbleVelZ: speed * dirX * dirY * (0.3 + Math.random() * 0.3),
+        duration: 1.8 + Math.random() * 0.4, // 1.8-2.2s
+        startQuat: startQ,
         landingQuat: faces[value - 1].landingQuat.clone(),
-        transitionQuat: new THREE.Quaternion(),
-        transitionCaptured: false,
+        midQuat: midQ,
         settled: false,
         targetValue: value,
       };
@@ -180,7 +199,7 @@ function AnimatedD20({
     lastRolling.current = rolling;
   }, [rolling, faces]);
 
-  useFrame((_, delta) => {
+  useFrame(() => {
     const a = anim.current;
     if (!a.active || !groupRef.current) return;
 
@@ -189,46 +208,32 @@ function AnimatedD20({
     const elapsed = (performance.now() - a.startTime) / 1000;
     const t = Math.min(elapsed / a.duration, 1);
 
-    const TRANSITION_POINT = 0.65;
+    // ── Single continuous rotation ──
+    // SLERP through two segments: start→mid (tumble) then mid→landing (settle)
+    // Use a cubic ease-in-out so it accelerates, peaks, then decelerates
+    const ease = t < 0.5
+      ? 4 * t * t * t                                    // ease-in (accelerate)
+      : 1 - Math.pow(-2 * t + 2, 3) / 2;                // ease-out (decelerate)
 
-    if (t < TRANSITION_POINT) {
-      // ── Phase 1: Tumble with decelerating euler rotation ──
-      // Deceleration curve: starts fast, gradually slows
-      const phaseT = t / TRANSITION_POINT;
-      const decel = 1 - phaseT * phaseT; // Quadratic deceleration
-
-      const dx = a.tumbleVelX * decel * delta;
-      const dy = a.tumbleVelY * decel * delta;
-      const dz = a.tumbleVelZ * decel * delta;
-
-      groupRef.current.rotation.x += dx;
-      groupRef.current.rotation.y += dy;
-      groupRef.current.rotation.z += dz;
+    if (ease < 0.5) {
+      // First half: SLERP from start to midpoint
+      const segT = ease * 2; // 0→1 over first half
+      tempQuat.current.slerpQuaternions(a.startQuat, a.midQuat, segT);
     } else {
-      // ── Phase 2: SLERP to exact landing quaternion ──
-      // Capture the current quaternion at the transition point
-      if (!a.transitionCaptured) {
-        a.transitionCaptured = true;
-        a.transitionQuat.copy(groupRef.current.quaternion);
-      }
-
-      // Smooth interpolation from wherever we are to the exact landing
-      const settleT = (t - TRANSITION_POINT) / (1 - TRANSITION_POINT);
-      // Quintic ease-out for very smooth deceleration into final position
-      const ease = 1 - Math.pow(1 - settleT, 5);
-
-      tempQuat.current.slerpQuaternions(a.transitionQuat, a.landingQuat, ease);
-      groupRef.current.quaternion.copy(tempQuat.current);
+      // Second half: SLERP from midpoint to landing
+      const segT = (ease - 0.5) * 2; // 0→1 over second half
+      tempQuat.current.slerpQuaternions(a.midQuat, a.landingQuat, segT);
     }
+    groupRef.current.quaternion.copy(tempQuat.current);
 
     // ── Bounce (Y position) ──
     let bounceY = 0;
-    if (t < 0.2) {
-      bounceY = Math.sin((t / 0.2) * Math.PI) * 0.5;
-    } else if (t < 0.38) {
-      bounceY = Math.sin(((t - 0.2) / 0.18) * Math.PI) * 0.15;
-    } else if (t < 0.5) {
-      bounceY = Math.sin(((t - 0.38) / 0.12) * Math.PI) * 0.04;
+    if (t < 0.22) {
+      bounceY = Math.sin((t / 0.22) * Math.PI) * 0.5;
+    } else if (t < 0.42) {
+      bounceY = Math.sin(((t - 0.22) / 0.2) * Math.PI) * 0.15;
+    } else if (t < 0.55) {
+      bounceY = Math.sin(((t - 0.42) / 0.13) * Math.PI) * 0.04;
     }
     groupRef.current.position.y = bounceY;
 
@@ -236,7 +241,6 @@ function AnimatedD20({
     if (t >= 1 && !a.settled) {
       a.settled = true;
       a.active = false;
-      // Snap to exact landing (remove any float imprecision)
       groupRef.current.quaternion.copy(a.landingQuat);
       groupRef.current.position.y = 0;
       onSettled(a.targetValue);
