@@ -34,8 +34,33 @@ export default function GameCard({ game, showFavorite = true, isFavorited = fals
     details.push(`Complexity: ${game.complexity.toFixed(1)}/5`);
   }
 
+  function handleCardClick(e: React.MouseEvent) {
+    // Don't navigate if user clicked on an interactive element inside the card
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('a') || target.closest('[role="button"]')) {
+      return;
+    }
+    router.push(`/games/${encodeURIComponent(game.id)}`);
+  }
+
   return (
-    <Card variant="outlined" sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' } }}>
+    <Card
+      variant="outlined"
+      onClick={handleCardClick}
+      sx={{
+        display: 'flex',
+        flexDirection: { xs: 'column', sm: 'row' },
+        cursor: 'pointer',
+        transition: 'box-shadow 150ms ease, transform 150ms ease',
+        '&:hover': {
+          boxShadow: 4,
+          transform: 'translateY(-2px)',
+        },
+        '&:active': {
+          transform: 'translateY(0)',
+        },
+      }}
+    >
       {game.imageUrl && (
         <CardMedia
           component="img"
@@ -52,11 +77,9 @@ export default function GameCard({ game, showFavorite = true, isFavorited = fals
               fontWeight={600}
               sx={{
                 flex: 1,
-                cursor: 'pointer',
                 '&:hover': { color: 'secondary.main' },
                 transition: 'color 150ms ease',
               }}
-              onClick={() => router.push(`/games/${encodeURIComponent(game.id)}`)}
             >
               {game.name}
             </Typography>

@@ -165,11 +165,20 @@ async function fetchCandidates(
     query = query.contains('types', [prefs.gameType]);
   }
 
+  // Quality floor: filter out obscure/unplayable games that would clutter results.
+  // Users can still find these via browse/search, but recommendations should
+  // surface games people can actually buy/play and have community validation.
   if (popularity === 'popular') {
-    query = query.gt('rating_count', 20);
+    query = query.gte('rating_count', 100);  // Meaningful community validation
+    query = query.gte('rating', 5.0);        // Not actively disliked
   } else if (popularity === 'hidden-gems') {
-    query = query.lt('rating_count', 2000);
-    query = query.gte('rating', 5.5);
+    query = query.lt('rating_count', 5000);  // Not mainstream
+    query = query.gte('rating_count', 20);   // But at least some people played it
+    query = query.gte('rating', 6.0);        // Actually good
+  } else {
+    // "any" mode: still apply a minimal floor so we don't show total junk
+    query = query.gte('rating_count', 10);
+    query = query.gte('rating', 4.0);
   }
 
   if (prefs.playerCount) {
