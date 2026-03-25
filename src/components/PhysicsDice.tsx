@@ -116,7 +116,7 @@ function FaceLabels({ faces }: { faces: FaceData[] }) {
 type Phase = 'idle' | 'shrink' | 'flight' | 'decel' | 'settle' | 'present';
 
 const SHRINK_DUR = 0.25;
-const FLIGHT_DUR = 1.1;   // Free flight at constant omega
+const FLIGHT_DUR = 1.3;   // Free flight at constant omega
 const DECEL_DUR = 0.8;    // Friction slowing it down
 const SETTLE_DUR = 0.3;   // Final tiny SLERP to flat face
 const PRESENT_DUR = 0.35; // Grow to highlight result
@@ -274,11 +274,11 @@ function AnimatedD20({
         // Heights: 0.55 → 0.30 → 0.16 → 0.08 → 0.03
         // Durations: 0.35 → 0.23 → 0.15 → 0.10 → 0.06 (total ~0.89)
         const bounces = [
-          { dur: 0.35, h: 0.55 },
-          { dur: 0.23, h: 0.30 },
-          { dur: 0.15, h: 0.16 },
-          { dur: 0.10, h: 0.08 },
-          { dur: 0.06, h: 0.03 },
+          { dur: 0.40, h: 1.4 },
+          { dur: 0.30, h: 0.7 },
+          { dur: 0.20, h: 0.30 },
+          { dur: 0.12, h: 0.12 },
+          { dur: 0.07, h: 0.04 },
         ];
         let bounceY = 0;
         let bt = t; // time cursor
