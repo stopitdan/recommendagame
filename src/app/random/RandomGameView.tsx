@@ -313,7 +313,7 @@ export default function RandomGameView() {
                 </Box>
               ) : (
                 <Typography variant="h5" fontWeight={700} sx={{ color: 'secondary.main' }}>
-                  Rolled a {diceValue}!
+                  Rolled {diceValue === 8 || diceValue === 11 || diceValue === 18 ? 'an' : 'a'} {diceValue}!
                 </Typography>
               )}
             </motion.div>
