@@ -85,9 +85,9 @@ let testCounter = 0;
 function uniquePrefs(overrides: Record<string, unknown> = {}) {
   testCounter++;
   return {
-    gameType: 'board',
+    gameTypes: ['board'],
     playerCount: { min: 2, max: 4 },
-    timeAvailable: 'medium',
+    timePresets: ['medium'],
     complexity: { min: 2, max: 4 },
     genres: ['Strategy'],
     moods: ['competitive'],

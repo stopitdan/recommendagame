@@ -152,9 +152,9 @@ export function preferencesToVector(prefs: QuestionnaireState): number[] {
     }
   }
 
-  // Game type
-  if (prefs.gameType) {
-    const idx = KNOWN_TYPES.indexOf(prefs.gameType);
+  // Game types — set all selected types
+  for (const gameType of prefs.gameTypes) {
+    const idx = KNOWN_TYPES.indexOf(gameType);
     if (idx >= 0) vec[TYPE_OFFSET + idx] = 1;
   }
 
@@ -170,10 +170,12 @@ export function preferencesToVector(prefs: QuestionnaireState): number[] {
   vec[NUMERIC_OFFSET + 2] = Math.min(prefs.playerCount.min / 10, 1);
   vec[NUMERIC_OFFSET + 3] = Math.min(prefs.playerCount.max / 20, 1);
 
-  // Play time from preset
-  if (prefs.timeAvailable && TIME_PRESETS[prefs.timeAvailable]) {
-    const preset = TIME_PRESETS[prefs.timeAvailable];
-    const avgTime = (preset.minMinutes + preset.maxMinutes) / 2;
+  // Play time from presets — use midpoint of union range
+  const validPresets = prefs.timePresets.filter((tp) => TIME_PRESETS[tp]);
+  if (validPresets.length > 0) {
+    const unionMin = Math.min(...validPresets.map((tp) => TIME_PRESETS[tp].minMinutes));
+    const unionMax = Math.max(...validPresets.map((tp) => TIME_PRESETS[tp].maxMinutes));
+    const avgTime = (unionMin + unionMax) / 2;
     vec[NUMERIC_OFFSET + 4] = Math.min(Math.log10(avgTime + 1) / 3, 1);
   } else {
     vec[NUMERIC_OFFSET + 4] = 0.5; // Neutral

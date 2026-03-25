@@ -17,7 +17,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import type { GameRow } from '@/types/supabase';
-import type { QuestionnaireState, TimePreset } from '@/types/questionnaire';
+import type { QuestionnaireState } from '@/types/questionnaire';
 import { TIME_PRESETS } from '@/types/questionnaire';
 import { rowToGame } from '@/lib/supabase/games';
 import {
@@ -50,12 +50,12 @@ const recommendCache = new MemoryCache<unknown>(120, 50);
 /** Generate a cache key from preferences */
 function cacheKey(prefs: QuestionnaireState, popularity: string): string {
   return JSON.stringify({
-    t: prefs.gameType,
+    t: [...prefs.gameTypes].sort(),
     pc: prefs.playerCount,
-    ta: prefs.timeAvailable,
+    ta: [...prefs.timePresets].sort(),
     cx: prefs.complexity,
-    g: prefs.genres.sort(),
-    m: prefs.moods.sort(),
+    g: [...prefs.genres].sort(),
+    m: [...prefs.moods].sort(),
     ft: prefs.freeText,
     p: popularity,
   });
@@ -165,8 +165,12 @@ async function fetchCandidates(
     .select('id,source,source_id,name,description,year_published,types,min_players,max_players,recommended_players,min_play_time,max_play_time,avg_play_time,complexity,rating,rating_count,categories,mechanics,themes,platforms,thumbnail_url,image_url,source_url')
     .not('rating', 'is', null);
 
-  if (prefs.gameType) {
-    query = query.contains('types', [prefs.gameType]);
+  if (prefs.gameTypes.length === 1) {
+    // Single type: exact filter
+    query = query.contains('types', [prefs.gameTypes[0]]);
+  } else if (prefs.gameTypes.length > 1) {
+    // Multiple types: use OR — overlaps with any selected type
+    query = query.or(prefs.gameTypes.map((t) => `types.cs.{${t}}`).join(','));
   }
 
   // Quality floor
@@ -188,15 +192,19 @@ async function fetchCandidates(
     query = query.gte('max_players', prefs.playerCount.min);
   }
 
-  // Time filter
-  if (prefs.timeAvailable && TIME_PRESETS[prefs.timeAvailable]) {
-    const preset = TIME_PRESETS[prefs.timeAvailable];
-    const looseMin = Math.max(0, preset.minMinutes - Math.floor(preset.minMinutes * 0.5));
-    const looseMax = preset.maxMinutes < 999
-      ? preset.maxMinutes + Math.floor(preset.maxMinutes * 0.5)
-      : 9999;
-    query = query.gte('avg_play_time', looseMin);
-    query = query.lte('avg_play_time', looseMax);
+  // Time filter: compute union range across all selected presets
+  if (prefs.timePresets.length > 0) {
+    const validPresets = prefs.timePresets.filter((tp) => TIME_PRESETS[tp]);
+    if (validPresets.length > 0) {
+      const unionMin = Math.min(...validPresets.map((tp) => TIME_PRESETS[tp].minMinutes));
+      const unionMax = Math.max(...validPresets.map((tp) => TIME_PRESETS[tp].maxMinutes));
+      const looseMin = Math.max(0, unionMin - Math.floor(unionMin * 0.5));
+      const looseMax = unionMax < 999
+        ? unionMax + Math.floor(unionMax * 0.5)
+        : 9999;
+      query = query.gte('avg_play_time', looseMin);
+      query = query.lte('avg_play_time', looseMax);
+    }
   }
 
   // Complexity filter

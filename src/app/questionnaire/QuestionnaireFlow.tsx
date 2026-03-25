@@ -25,9 +25,9 @@ import FreeTextStep from '@/components/questionnaire/FreeTextStep';
 import { motion, AnimatePresence } from 'motion/react';
 
 const STEPS = [
-  { key: 'gameType', title: 'What kind of game?' },
+  { key: 'gameTypes', title: 'What kind of game?' },
   { key: 'playerCount', title: 'How many players?' },
-  { key: 'timeAvailable', title: 'How much time do you have?' },
+  { key: 'timePresets', title: 'How much time do you have?' },
   { key: 'complexity', title: 'How complex?' },
   { key: 'genres', title: 'Pick genres you like' },
   { key: 'moods', title: "What's the vibe?" },
@@ -78,10 +78,10 @@ export default function QuestionnaireFlow() {
     // Build query params from state and navigate to results
     const params = new URLSearchParams();
 
-    if (state.gameType) params.set('type', state.gameType);
+    if (state.gameTypes.length > 0) params.set('types', state.gameTypes.join(','));
     params.set('minPlayers', String(state.playerCount.min));
     params.set('maxPlayers', String(state.playerCount.max));
-    if (state.timeAvailable) params.set('time', state.timeAvailable);
+    if (state.timePresets.length > 0) params.set('time', state.timePresets.join(','));
     params.set('minComplexity', String(state.complexity.min));
     params.set('maxComplexity', String(state.complexity.max));
     if (state.genres.length > 0) params.set('genres', state.genres.join(','));
@@ -94,11 +94,11 @@ export default function QuestionnaireFlow() {
   function renderStep() {
     switch (step) {
       case 0:
-        return <GameTypeStep value={state.gameType} onChange={(v) => update({ gameType: v })} />;
+        return <GameTypeStep value={state.gameTypes} onChange={(v) => update({ gameTypes: v })} />;
       case 1:
         return <PlayerCountStep value={state.playerCount} onChange={(v) => update({ playerCount: v })} />;
       case 2:
-        return <TimeStep value={state.timeAvailable} onChange={(v) => update({ timeAvailable: v })} />;
+        return <TimeStep value={state.timePresets} onChange={(v) => update({ timePresets: v })} />;
       case 3:
         return <ComplexityStep value={state.complexity} onChange={(v) => update({ complexity: v })} />;
       case 4:

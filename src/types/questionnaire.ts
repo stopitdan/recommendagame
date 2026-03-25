@@ -8,14 +8,14 @@
 import type { GameType } from './game';
 
 export interface QuestionnaireState {
-  /** Step 1: What type of game? null = "Surprise Me" / any */
-  gameType: GameType | null;
+  /** Step 1: What types of game? Empty = any type */
+  gameTypes: GameType[];
 
   /** Step 2: Player count range */
   playerCount: PlayerCountRange;
 
-  /** Step 3: How much time available */
-  timeAvailable: TimePreset | null;
+  /** Step 3: How much time available. Multiple = flexible */
+  timePresets: TimePreset[];
 
   /** Step 4: Complexity preference range (1-5) */
   complexity: ComplexityRange;
@@ -67,9 +67,9 @@ export const MOOD_OPTIONS = [
 ] as const;
 
 export const INITIAL_STATE: QuestionnaireState = {
-  gameType: null,
+  gameTypes: [],
   playerCount: { min: 1, max: 8 },
-  timeAvailable: null,
+  timePresets: [],
   complexity: { min: 1, max: 5 },
   genres: [],
   moods: [],

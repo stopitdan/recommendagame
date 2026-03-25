@@ -16,15 +16,32 @@ const OPTIONS: { value: GameType | null; label: string; description: string; emo
 ];
 
 export interface GameTypeStepProps {
-  value: GameType | null;
-  onChange: (value: GameType | null) => void;
+  value: GameType[];
+  onChange: (value: GameType[]) => void;
 }
 
 export default function GameTypeStep({ value, onChange }: GameTypeStepProps) {
+  function handleClick(optionValue: GameType | null) {
+    // "Surprise Me" clears all selections
+    if (optionValue === null) {
+      onChange([]);
+      return;
+    }
+
+    // Toggle the selected type in/out of the array
+    if (value.includes(optionValue)) {
+      onChange(value.filter((t) => t !== optionValue));
+    } else {
+      onChange([...value, optionValue]);
+    }
+  }
+
   return (
     <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 2 }}>
       {OPTIONS.map((option) => {
-        const isSelected = value === option.value;
+        const isSelected = option.value === null
+          ? value.length === 0
+          : value.includes(option.value);
         return (
           <Card
             key={option.label}
@@ -38,7 +55,7 @@ export default function GameTypeStep({ value, onChange }: GameTypeStepProps) {
               boxShadow: isSelected ? '0 4px 16px rgba(91, 79, 219, 0.2)' : undefined,
             }}
           >
-            <CardActionArea onClick={() => onChange(option.value)} sx={{ p: 1 }}>
+            <CardActionArea onClick={() => handleClick(option.value)} sx={{ p: 1 }}>
               <CardContent sx={{ textAlign: 'center', py: 2 }}>
                 <Typography sx={{ fontSize: '2rem', mb: 1, lineHeight: 1 }}>
                   {option.emoji}

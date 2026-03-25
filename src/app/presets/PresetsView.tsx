@@ -52,10 +52,10 @@ export default function PresetsView() {
   function usePreset(preset: Preset) {
     const p = preset.preferences;
     const params = new URLSearchParams();
-    if (p.gameType) params.set('type', p.gameType);
+    if (p.gameTypes?.length > 0) params.set('types', p.gameTypes.join(','));
     params.set('minPlayers', String(p.playerCount.min));
     params.set('maxPlayers', String(p.playerCount.max));
-    if (p.timeAvailable) params.set('time', p.timeAvailable);
+    if (p.timePresets?.length > 0) params.set('time', p.timePresets.join(','));
     params.set('minComplexity', String(p.complexity.min));
     params.set('maxComplexity', String(p.complexity.max));
     if (p.genres.length > 0) params.set('genres', p.genres.join(','));
@@ -71,9 +71,9 @@ export default function PresetsView() {
 
   function describePreset(p: QuestionnaireState): string {
     const parts: string[] = [];
-    if (p.gameType) parts.push(p.gameType);
+    if (p.gameTypes?.length > 0) parts.push(p.gameTypes.join(', '));
     parts.push(`${p.playerCount.min}-${p.playerCount.max} players`);
-    if (p.timeAvailable) parts.push(p.timeAvailable);
+    if (p.timePresets?.length > 0) parts.push(p.timePresets.join(', '));
     if (p.genres.length > 0) parts.push(p.genres.slice(0, 3).join(', '));
     return parts.join(' · ');
   }

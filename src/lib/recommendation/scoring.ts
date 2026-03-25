@@ -107,9 +107,9 @@ export function scoreGame(
   weights: ScoringWeights = DEFAULT_WEIGHTS,
 ): ScoredGame {
   const breakdown: ScoreBreakdown = {
-    typeMatch: scoreTypeMatch(game, prefs.gameType),
+    typeMatch: scoreTypeMatch(game, prefs.gameTypes),
     playerCountFit: scorePlayerCount(game, prefs.playerCount),
-    timeFit: scoreTimeFit(game, prefs.timeAvailable),
+    timeFit: scoreTimeFit(game, prefs.timePresets),
     complexityFit: scoreComplexity(game, prefs.complexity),
     genreMatch: scoreGenreMatch(game, prefs.genres),
     moodAlignment: scoreMoodAlignment(game, prefs.moods),
@@ -136,12 +136,12 @@ export function scoreGame(
 // ─── Dimension Scorers (each returns 0-1) ────────────────────
 
 /**
- * Type match: 1.0 if exact match, 0.5 if user didn't specify,
- * 0.0 if wrong type.
+ * Type match: 1.0 if game matches any of the preferred types,
+ * 0.5 if user didn't specify (empty array), 0.0 if no types match.
  */
-function scoreTypeMatch(game: Game, preferredType: string | null): number {
-  if (!preferredType) return 0.5; // No preference = neutral
-  return game.types.includes(preferredType as Game['types'][number]) ? 1.0 : 0.0;
+function scoreTypeMatch(game: Game, preferredTypes: string[]): number {
+  if (preferredTypes.length === 0) return 0.5; // No preference = neutral
+  return preferredTypes.some((t) => game.types.includes(t as Game['types'][number])) ? 1.0 : 0.0;
 }
 
 /**
@@ -205,27 +205,32 @@ function scorePlayerCount(
 }
 
 /**
- * Time fit: 1.0 if game time falls within the user's preset range.
- * Partial credit for close misses.
+ * Time fit: 1.0 if game time falls within the union of all selected
+ * preset ranges. Partial credit for close misses.
+ * If multiple presets are selected, the union range spans min of all mins
+ * to max of all maxes.
  */
-function scoreTimeFit(game: Game, timePreset: TimePreset | null): number {
-  if (!timePreset) return 0.5; // No preference
+function scoreTimeFit(game: Game, timePresets: TimePreset[]): number {
+  if (timePresets.length === 0) return 0.5; // No preference
   if (!game.playTime) return 0.4; // Unknown play time
 
-  const preset = TIME_PRESETS[timePreset];
   const gameTime = game.playTime.average ?? game.playTime.min;
   if (!gameTime || gameTime === 0) return 0.4;
 
-  // Within range = perfect
-  if (gameTime >= preset.minMinutes && gameTime <= preset.maxMinutes) {
+  // Compute union range across all selected presets
+  const unionMin = Math.min(...timePresets.map((tp) => TIME_PRESETS[tp].minMinutes));
+  const unionMax = Math.max(...timePresets.map((tp) => TIME_PRESETS[tp].maxMinutes));
+
+  // Within union range = perfect
+  if (gameTime >= unionMin && gameTime <= unionMax) {
     return 1.0;
   }
 
-  // How far outside the range?
-  const distanceMin = Math.abs(gameTime - preset.minMinutes);
-  const distanceMax = Math.abs(gameTime - preset.maxMinutes);
+  // How far outside the union range?
+  const distanceMin = Math.abs(gameTime - unionMin);
+  const distanceMax = Math.abs(gameTime - unionMax);
   const distance = Math.min(distanceMin, distanceMax);
-  const rangeSize = preset.maxMinutes - preset.minMinutes;
+  const rangeSize = unionMax - unionMin;
 
   // Graceful falloff: half the range away = 0.5 score
   return Math.max(0, 1.0 - (distance / Math.max(rangeSize, 15)) * 0.8);
@@ -386,8 +391,9 @@ function generateReasons(
   const reasons: string[] = [];
 
   // Type match
-  if (breakdown.typeMatch >= 0.8 && prefs.gameType) {
-    reasons.push(`It's a ${prefs.gameType} game, just what you asked for`);
+  if (breakdown.typeMatch >= 0.8 && prefs.gameTypes.length > 0) {
+    const matchedType = prefs.gameTypes.find((t) => game.types.includes(t as Game['types'][number]));
+    if (matchedType) reasons.push(`It's a ${matchedType} game, just what you asked for`);
   }
 
   // Player count
@@ -403,7 +409,7 @@ function generateReasons(
   }
 
   // Time fit
-  if (breakdown.timeFit >= 0.8 && game.playTime && prefs.timeAvailable) {
+  if (breakdown.timeFit >= 0.8 && game.playTime && prefs.timePresets.length > 0) {
     const avg = game.playTime.average ?? game.playTime.min;
     if (avg) {
       if (avg < 30) reasons.push(`Quick to play (~${avg} min)`);

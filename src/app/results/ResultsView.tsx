@@ -19,6 +19,7 @@ import GameCard from '@/components/GameCard';
 import { GameCardSkeletonList } from '@/components/GameCardSkeleton';
 import type { Game } from '@/types/game';
 import type { QuestionnaireState, TimePreset } from '@/types/questionnaire';
+import type { GameType } from '@/types/game';
 
 type PopularityMode = 'popular' | 'any' | 'hidden-gems';
 
@@ -53,12 +54,12 @@ export default function ResultsView() {
     try {
       // Reconstruct preferences from URL params
       const preferences: QuestionnaireState & { popularity: string; limit: number } = {
-        gameType: searchParams.get('type') as QuestionnaireState['gameType'],
+        gameTypes: (searchParams.get('types')?.split(',').filter(Boolean) ?? []) as GameType[],
         playerCount: {
           min: parseInt(searchParams.get('minPlayers') ?? '1', 10),
           max: parseInt(searchParams.get('maxPlayers') ?? '8', 10),
         },
-        timeAvailable: (searchParams.get('time') as TimePreset) ?? null,
+        timePresets: (searchParams.get('time')?.split(',').filter(Boolean) ?? []) as TimePreset[],
         complexity: {
           min: parseFloat(searchParams.get('minComplexity') ?? '1'),
           max: parseFloat(searchParams.get('maxComplexity') ?? '5'),
@@ -98,12 +99,12 @@ export default function ResultsView() {
     setSaveStatus('saving');
 
     const preferences = {
-      gameType: searchParams.get('type'),
+      gameTypes: (searchParams.get('types')?.split(',').filter(Boolean) ?? []) as GameType[],
       playerCount: {
         min: parseInt(searchParams.get('minPlayers') ?? '1', 10),
         max: parseInt(searchParams.get('maxPlayers') ?? '8', 10),
       },
-      timeAvailable: searchParams.get('time'),
+      timePresets: (searchParams.get('time')?.split(',').filter(Boolean) ?? []) as TimePreset[],
       complexity: {
         min: parseFloat(searchParams.get('minComplexity') ?? '1'),
         max: parseFloat(searchParams.get('maxComplexity') ?? '5'),

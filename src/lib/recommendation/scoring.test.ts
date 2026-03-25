@@ -44,9 +44,9 @@ function makeGame(overrides: Partial<Game> = {}): Game {
 /** Creates default questionnaire preferences, overridable */
 function makePrefs(overrides: Partial<QuestionnaireState> = {}): QuestionnaireState {
   return {
-    gameType: 'board',
+    gameTypes: ['board'],
     playerCount: { min: 2, max: 4 },
-    timeAvailable: 'medium',
+    timePresets: ['medium'],
     complexity: { min: 2, max: 4 },
     genres: ['Strategy'],
     moods: ['competitive'],
@@ -95,7 +95,7 @@ describe('scoreGame — type match', () => {
   it('scores 1.0 when game type matches preference', () => {
     const result = scoreGame(
       makeGame({ types: ['board'] }),
-      makePrefs({ gameType: 'board' }),
+      makePrefs({ gameTypes: ['board'] }),
     );
     expect(result.breakdown.typeMatch).toBe(1.0);
   });
@@ -103,7 +103,7 @@ describe('scoreGame — type match', () => {
   it('scores 0.0 when game type does not match', () => {
     const result = scoreGame(
       makeGame({ types: ['video'] }),
-      makePrefs({ gameType: 'board' }),
+      makePrefs({ gameTypes: ['board'] }),
     );
     expect(result.breakdown.typeMatch).toBe(0.0);
   });
@@ -111,7 +111,7 @@ describe('scoreGame — type match', () => {
   it('scores 0.5 when user has no type preference', () => {
     const result = scoreGame(
       makeGame({ types: ['board'] }),
-      makePrefs({ gameType: null }),
+      makePrefs({ gameTypes: [] }),
     );
     expect(result.breakdown.typeMatch).toBe(0.5);
   });
@@ -191,9 +191,9 @@ describe('scoreGame — player count', () => {
   // ─── Critical regression test: user's exact reported issue ─────
   it('ranks 1-2 player games above 1-4/1-5 player games when user wants 1-2', () => {
     const prefs = makePrefs({
-      gameType: null,
+      gameTypes: [],
       playerCount: { min: 1, max: 2 },
-      timeAvailable: null,
+      timePresets: [],
       complexity: { min: 1, max: 5 },
       genres: [],
       moods: [],
@@ -235,7 +235,7 @@ describe('scoreGame — time fit', () => {
     // 'medium' = 30-60 min
     const result = scoreGame(
       makeGame({ playTime: { min: 30, max: 60, average: 45 } }),
-      makePrefs({ timeAvailable: 'medium' }),
+      makePrefs({ timePresets: ['medium'] }),
     );
     expect(result.breakdown.timeFit).toBe(1.0);
   });
@@ -244,7 +244,7 @@ describe('scoreGame — time fit', () => {
     // 'quick' = 0-15 min, game is 120 min
     const result = scoreGame(
       makeGame({ playTime: { min: 90, max: 150, average: 120 } }),
-      makePrefs({ timeAvailable: 'quick' }),
+      makePrefs({ timePresets: ['quick'] }),
     );
     expect(result.breakdown.timeFit).toBeLessThan(0.5);
   });
@@ -252,7 +252,7 @@ describe('scoreGame — time fit', () => {
   it('scores 0.5 when user has no time preference', () => {
     const result = scoreGame(
       makeGame({ playTime: { min: 60, max: 120, average: 90 } }),
-      makePrefs({ timeAvailable: null }),
+      makePrefs({ timePresets: [] }),
     );
     expect(result.breakdown.timeFit).toBe(0.5);
   });
@@ -260,7 +260,7 @@ describe('scoreGame — time fit', () => {
   it('scores 0.4 when play time is unknown', () => {
     const result = scoreGame(
       makeGame({ playTime: undefined }),
-      makePrefs({ timeAvailable: 'medium' }),
+      makePrefs({ timePresets: ['medium'] }),
     );
     expect(result.breakdown.timeFit).toBe(0.4);
   });
@@ -474,9 +474,9 @@ describe('reason generation', () => {
         ratingCount: 50000,
       }),
       makePrefs({
-        gameType: 'board',
+        gameTypes: ['board'],
         playerCount: { min: 2, max: 4 },
-        timeAvailable: 'medium',
+        timePresets: ['medium'],
         complexity: { min: 2, max: 4 },
         genres: ['Strategy'],
         moods: ['cooperative'],
@@ -488,7 +488,7 @@ describe('reason generation', () => {
   it('includes type match reason for matching type', () => {
     const result = scoreGame(
       makeGame({ types: ['board'] }),
-      makePrefs({ gameType: 'board' }),
+      makePrefs({ gameTypes: ['board'] }),
     );
     expect(result.reasons.some((r) => r.includes('board'))).toBe(true);
   });
@@ -505,7 +505,7 @@ describe('reason generation', () => {
         playTime: undefined,
         complexity: undefined,
       }),
-      makePrefs({ gameType: 'video', genres: [], moods: [] }),
+      makePrefs({ gameTypes: ['video'], genres: [], moods: [] }),
     );
     // With minimal dimension matches, the quality signal reason should surface
     expect(result.reasons.some((r) => r.includes('9.2') || r.includes('Highly rated') || r.includes('ated'))).toBe(true);
@@ -529,9 +529,9 @@ describe('composite score', () => {
         ratingCount: 100000,
       }),
       makePrefs({
-        gameType: 'board',
+        gameTypes: ['board'],
         playerCount: { min: 2, max: 4 },
-        timeAvailable: 'medium',
+        timePresets: ['medium'],
         complexity: { min: 2, max: 4 },
         genres: ['Strategy'],
         moods: ['competitive'],
@@ -554,9 +554,9 @@ describe('composite score', () => {
         ratingCount: 5,
       }),
       makePrefs({
-        gameType: 'board',
+        gameTypes: ['board'],
         playerCount: { min: 4, max: 8 },
-        timeAvailable: 'quick',
+        timePresets: ['quick'],
         complexity: { min: 1, max: 2 },
         genres: ['Horror', 'Puzzle'],
         moods: ['cooperative'],
@@ -572,9 +572,9 @@ describe('composite score', () => {
 describe('recommendation quality', () => {
   it('user picks 1-2 players only: all top results must be playable by 1-2 people', () => {
     const prefs = makePrefs({
-      gameType: null,
+      gameTypes: [],
       playerCount: { min: 1, max: 2 },
-      timeAvailable: null,
+      timePresets: [],
       complexity: { min: 1, max: 5 },
       genres: [],
       moods: [],
@@ -615,9 +615,9 @@ describe('recommendation quality', () => {
 
   it('user picks 4-6 players + strategy: strategy games for that count win', () => {
     const prefs = makePrefs({
-      gameType: 'board',
+      gameTypes: ['board'],
       playerCount: { min: 4, max: 6 },
-      timeAvailable: 'long',
+      timePresets: ['long'],
       complexity: { min: 3, max: 5 },
       genres: ['Strategy'],
       moods: ['competitive'],
@@ -640,9 +640,9 @@ describe('recommendation quality', () => {
 
   it('user skips all questions: should still return reasonable results sorted by quality', () => {
     const prefs = makePrefs({
-      gameType: null,
+      gameTypes: [],
       playerCount: { min: 1, max: 8 },
-      timeAvailable: null,
+      timePresets: [],
       complexity: { min: 1, max: 5 },
       genres: [],
       moods: [],

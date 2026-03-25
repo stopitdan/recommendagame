@@ -11,8 +11,8 @@ import {
 } from './questionnaire';
 
 describe('INITIAL_STATE', () => {
-  it('has null gameType (surprise me default)', () => {
-    expect(INITIAL_STATE.gameType).toBeNull();
+  it('has empty gameTypes (surprise me default)', () => {
+    expect(INITIAL_STATE.gameTypes).toEqual([]);
   });
 
   it('has full player count range', () => {
@@ -27,7 +27,7 @@ describe('INITIAL_STATE', () => {
     expect(INITIAL_STATE.genres).toEqual([]);
     expect(INITIAL_STATE.moods).toEqual([]);
     expect(INITIAL_STATE.freeText).toBe('');
-    expect(INITIAL_STATE.timeAvailable).toBeNull();
+    expect(INITIAL_STATE.timePresets).toEqual([]);
   });
 });
 

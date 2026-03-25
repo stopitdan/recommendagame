@@ -42,9 +42,9 @@ function makeGame(overrides: Partial<Game> = {}): Game {
 
 function makePrefs(overrides: Partial<QuestionnaireState> = {}): QuestionnaireState {
   return {
-    gameType: 'board',
+    gameTypes: ['board'],
     playerCount: { min: 2, max: 4 },
-    timeAvailable: 'medium',
+    timePresets: ['medium'],
     complexity: { min: 2, max: 4 },
     genres: ['Strategy'],
     moods: ['competitive'],

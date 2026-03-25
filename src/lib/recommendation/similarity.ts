@@ -52,7 +52,8 @@ export async function findSimilarToPreferences(
   const {
     limit = 20,
     similarityThreshold = 0.3,
-    gameTypeFilter = prefs.gameType,
+    // Use the first selected game type as a filter (if any); empty = no filter
+    gameTypeFilter = prefs.gameTypes.length === 1 ? prefs.gameTypes[0] : null,
   } = options;
 
   const supabase = getSupabase();
