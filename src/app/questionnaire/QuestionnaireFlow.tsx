@@ -44,7 +44,7 @@ const STEPS = [
 const VALID_GAME_TYPES = new Set(['board', 'video', 'word', 'party', 'card']);
 const VALID_TIME_PRESETS = new Set(['quick', 'short', 'medium', 'long', 'epic']);
 const VALID_GENRES = new Set(GENRE_OPTIONS);
-const VALID_MOODS = new Set(MOOD_OPTIONS.map((m) => m.id));
+const VALID_MOODS: Set<string> = new Set(MOOD_OPTIONS.map((m) => m.id));
 
 export default function QuestionnaireFlow() {
   const router = useRouter();

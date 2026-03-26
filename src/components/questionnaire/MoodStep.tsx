@@ -20,7 +20,7 @@ export interface MoodStepProps {
   value: string[];
   onChange: (value: string[]) => void;
   /** Filtered mood options based on previous questionnaire answers */
-  filteredMoods?: typeof MOOD_OPTIONS;
+  filteredMoods?: readonly { readonly id: string; readonly label: string; readonly description: string }[];
   /** Optional description overrides */
   descriptionOverrides?: Record<string, string>;
 }
