@@ -51,9 +51,12 @@ const GENRE_EMOJIS: Record<string, string> = {
 export interface GenreStepProps {
   value: string[];
   onChange: (value: string[]) => void;
+  /** Filtered genre options based on previous questionnaire answers */
+  filteredGenres?: readonly string[];
 }
 
-export default function GenreStep({ value, onChange }: GenreStepProps) {
+export default function GenreStep({ value, onChange, filteredGenres }: GenreStepProps) {
+  const genres = filteredGenres ?? GENRE_OPTIONS;
   function toggle(genre: string) {
     if (value.includes(genre)) {
       onChange(value.filter((g) => g !== genre));
@@ -68,7 +71,7 @@ export default function GenreStep({ value, onChange }: GenreStepProps) {
         Select all that interest you (or skip for any)
       </Typography>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-        {GENRE_OPTIONS.map((genre) => {
+        {genres.map((genre) => {
           const isSelected = value.includes(genre);
           const emoji = GENRE_EMOJIS[genre] ?? '🎮';
           return (

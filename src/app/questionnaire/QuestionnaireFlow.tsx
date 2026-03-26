@@ -27,6 +27,7 @@ import ComplexityStep from '@/components/questionnaire/ComplexityStep';
 import GenreStep from '@/components/questionnaire/GenreStep';
 import MoodStep from '@/components/questionnaire/MoodStep';
 import FreeTextStep from '@/components/questionnaire/FreeTextStep';
+import { getFilteredMoods, getFilteredGenres, getMoodDescription } from '@/lib/questionnaire-context';
 import { motion, AnimatePresence } from 'motion/react';
 
 // Free text is now FIRST — LLM parses it to pre-fill subsequent steps
@@ -216,9 +217,16 @@ export default function QuestionnaireFlow() {
       case 4:
         return <ComplexityStep value={state.complexity} onChange={(v) => update({ complexity: v })} />;
       case 5:
-        return <GenreStep value={state.genres} onChange={(v) => update({ genres: v })} />;
-      case 6:
-        return <MoodStep value={state.moods} onChange={(v) => update({ moods: v })} />;
+        return <GenreStep value={state.genres} onChange={(v) => update({ genres: v })} filteredGenres={getFilteredGenres(state)} />;
+      case 6: {
+        const filteredMoods = getFilteredMoods(state);
+        const descOverrides: Record<string, string> = {};
+        for (const m of filteredMoods) {
+          const custom = getMoodDescription(m.id, state);
+          if (custom !== m.description) descOverrides[m.id] = custom;
+        }
+        return <MoodStep value={state.moods} onChange={(v) => update({ moods: v })} filteredMoods={filteredMoods} descriptionOverrides={descOverrides} />;
+      }
       default:
         return null;
     }

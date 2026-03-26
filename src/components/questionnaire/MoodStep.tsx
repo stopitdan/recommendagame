@@ -19,9 +19,15 @@ const MOOD_EMOJIS: Record<string, string> = {
 export interface MoodStepProps {
   value: string[];
   onChange: (value: string[]) => void;
+  /** Filtered mood options based on previous questionnaire answers */
+  filteredMoods?: typeof MOOD_OPTIONS;
+  /** Optional description overrides */
+  descriptionOverrides?: Record<string, string>;
 }
 
-export default function MoodStep({ value, onChange }: MoodStepProps) {
+export default function MoodStep({ value, onChange, filteredMoods, descriptionOverrides }: MoodStepProps) {
+  const moods = filteredMoods ?? MOOD_OPTIONS;
+
   function toggle(moodId: string) {
     if (value.includes(moodId)) {
       onChange(value.filter((m) => m !== moodId));
@@ -32,8 +38,9 @@ export default function MoodStep({ value, onChange }: MoodStepProps) {
 
   return (
     <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 2 }}>
-      {MOOD_OPTIONS.map((mood) => {
+      {moods.map((mood) => {
         const isSelected = value.includes(mood.id);
+        const description = descriptionOverrides?.[mood.id] ?? mood.description;
         return (
           <Card
             key={mood.id}
@@ -56,7 +63,7 @@ export default function MoodStep({ value, onChange }: MoodStepProps) {
                   {mood.label}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {mood.description}
+                  {description}
                 </Typography>
               </CardContent>
             </CardActionArea>
