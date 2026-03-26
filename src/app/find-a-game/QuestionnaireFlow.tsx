@@ -226,11 +226,19 @@ export default function QuestionnaireFlow() {
   async function savePreset() {
     if (!presetName.trim()) return;
     try {
-      await fetch('/api/presets', {
+      const res = await fetch('/api/presets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: presetName.trim(), preferences: state }),
       });
+      if (res.ok) {
+        // Check preset count for achievements
+        fetch('/api/presets').then((r) => r.json()).then((data) => {
+          const count = data.presets?.length ?? 0;
+          if (count >= 3) unlock('game_group');
+          if (count >= 5) unlock('organized');
+        }).catch(() => {});
+      }
     } catch { /* silently fail if not logged in */ }
     setSaveDialogOpen(false);
     setPresetName('');
@@ -239,6 +247,26 @@ export default function QuestionnaireFlow() {
   function submit() {
     saveGuestPreferences(state as unknown as Record<string, unknown>);
     unlock('first_search');
+
+    // Wordsmith: long free text prompt
+    if (state.freeText.trim().length > 100) unlock('wordsmith');
+
+    // Genre hopper: 5+ game types searched (tracked via localStorage)
+    if (state.gameTypes.length > 0) {
+      const searched = JSON.parse(localStorage.getItem('rag_searched_types') ?? '[]');
+      const updated = [...new Set([...searched, ...state.gameTypes])];
+      localStorage.setItem('rag_searched_types', JSON.stringify(updated));
+      if (updated.length >= 5) unlock('genre_hopper');
+    }
+
+    // Easter eggs in free text
+    const lower = state.freeText.toLowerCase();
+    if (lower.includes('42') || lower.includes('meaning of life') || lower.includes('answer to life')) {
+      unlock('forty_two');
+    }
+    if (lower.includes('never gonna give you up') || lower.includes('rick roll') || lower.includes('rickroll')) {
+      unlock('rick_rolled');
+    }
 
     // Count active filters for picky_player achievement
     const filterCount = [

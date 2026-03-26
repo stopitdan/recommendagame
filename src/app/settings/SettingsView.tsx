@@ -32,7 +32,10 @@ const SOURCE_OPTIONS = [
   { value: 'local', label: 'Word Games' },
 ];
 
+import { useAchievements } from '@/components/AchievementToast';
+
 export default function SettingsView() {
+  const { unlock } = useAchievements();
   const router = useRouter();
   const [settings, setSettings] = useState<Settings>({
     popularityMode: 'popular',
@@ -87,6 +90,7 @@ export default function SettingsView() {
       });
       if (!res.ok) throw new Error('Failed to save');
       setSaved(true);
+      unlock('customizer');
     } catch {
       setError('Failed to save settings');
     } finally {

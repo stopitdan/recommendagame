@@ -227,12 +227,23 @@ export default function RandomGameView() {
 
   const { unlock } = useAchievements();
 
+  // Dice achievement tracking
+  const rollHistory = useRef<number[]>([]);
+  const rollTimestamps = useRef<number[]>([]);
+  const totalRolls = useRef(0);
+
   const handleDiceSettled = useCallback((value: number) => {
     setDiceValue(value);
     setRolling(false);
 
     unlock('first_roll');
+    totalRolls.current++;
 
+    // Track roll history for streak achievements
+    rollHistory.current.push(value);
+    rollTimestamps.current.push(Date.now());
+
+    // Natural 20 / Natural 1
     if (value === 20) {
       setIsNat20(true);
       triggerNat20Confetti();
@@ -241,6 +252,33 @@ export default function RandomGameView() {
       setIsNat1(true);
       triggerNat1Blood();
       unlock('natural_1');
+    }
+
+    // Lucky Streak: 15+ three times in a row
+    const h = rollHistory.current;
+    if (h.length >= 3) {
+      const last3 = h.slice(-3);
+      if (last3.every((v) => v >= 15)) unlock('lucky_streak');
+    }
+
+    // Snake Eyes: 1 twice in a row
+    if (h.length >= 2 && h[h.length - 1] === 1 && h[h.length - 2] === 1) {
+      unlock('snake_eyes');
+    }
+
+    // Double Down: same number twice in a row
+    if (h.length >= 2 && h[h.length - 1] === h[h.length - 2]) {
+      unlock('double_down');
+    }
+
+    // Century Club: 100 total rolls
+    if (totalRolls.current >= 100) unlock('century_club');
+
+    // Speed Demon: 5 rolls within 60 seconds
+    const ts = rollTimestamps.current;
+    if (ts.length >= 5) {
+      const last5 = ts.slice(-5);
+      if (last5[4] - last5[0] < 60000) unlock('speed_demon');
     }
   }, [unlock]);
 

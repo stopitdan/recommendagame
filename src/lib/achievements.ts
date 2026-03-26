@@ -107,6 +107,216 @@ export const ACHIEVEMENTS: Achievement[] = [
     description: 'Shared a game night invite',
     rarity: 'uncommon',
   },
+
+  // ── Dice Rolling ──
+  {
+    id: 'lucky_streak',
+    name: 'Lucky Streak',
+    emoji: '🔥',
+    description: 'Rolled 15+ three times in a row',
+    rarity: 'rare',
+  },
+  {
+    id: 'snake_eyes',
+    name: 'Snake Eyes',
+    emoji: '🐍',
+    description: 'Rolled a 1 twice in a row',
+    rarity: 'uncommon',
+  },
+  {
+    id: 'double_down',
+    name: 'Double Down',
+    emoji: '🎰',
+    description: 'Rolled the same number twice in a row',
+    rarity: 'uncommon',
+  },
+  {
+    id: 'century_club',
+    name: 'Century Club',
+    emoji: '💯',
+    description: 'Rolled the d20 100 times total',
+    rarity: 'rare',
+  },
+  {
+    id: 'speed_demon',
+    name: 'Speed Demon',
+    emoji: '⚡',
+    description: 'Rolled 5 times within 60 seconds',
+    rarity: 'uncommon',
+  },
+
+  // ── Discovery & Search ──
+  {
+    id: 'genre_hopper',
+    name: 'Genre Hopper',
+    emoji: '🦘',
+    description: 'Searched for 5 different game types',
+    rarity: 'uncommon',
+  },
+  {
+    id: 'time_traveler',
+    name: 'Time Traveler',
+    emoji: '⏰',
+    description: 'Found a game published before 1980',
+    rarity: 'rare',
+  },
+  {
+    id: 'retro_gamer',
+    name: 'Retro Gamer',
+    emoji: '👾',
+    description: 'Browsed a game from before 1990',
+    rarity: 'uncommon',
+  },
+  {
+    id: 'cutting_edge',
+    name: 'Cutting Edge',
+    emoji: '🔪',
+    description: 'Found a game published this year',
+    rarity: 'uncommon',
+  },
+  {
+    id: 'deep_diver',
+    name: 'Deep Diver',
+    emoji: '🤿',
+    description: 'Used "Hidden Gems" mode',
+    rarity: 'common',
+  },
+  {
+    id: 'wordsmith',
+    name: 'Wordsmith',
+    emoji: '📝',
+    description: 'Wrote a free text prompt over 100 characters',
+    rarity: 'uncommon',
+  },
+
+  // ── Social & Community ──
+  {
+    id: 'social_butterfly',
+    name: 'Social Butterfly',
+    emoji: '🦋',
+    description: 'Shared 5 game night invites',
+    rarity: 'rare',
+  },
+  {
+    id: 'game_group',
+    name: 'Game Group',
+    emoji: '👥',
+    description: 'Created 3 named presets',
+    rarity: 'uncommon',
+  },
+  {
+    id: 'loyal_fan',
+    name: 'Loyal Fan',
+    emoji: '🏠',
+    description: 'Visited the app 7 days in a row',
+    rarity: 'rare',
+  },
+
+  // ── Reviews & Ratings ──
+  {
+    id: 'harsh_critic',
+    name: 'Harsh Critic',
+    emoji: '😤',
+    description: 'Gave a game a 1/10 rating',
+    rarity: 'uncommon',
+  },
+  {
+    id: 'fanboy',
+    name: 'Fanboy/Fangirl',
+    emoji: '🥰',
+    description: 'Gave a game a 10/10 rating',
+    rarity: 'uncommon',
+  },
+  {
+    id: 'essay_writer',
+    name: 'Essay Writer',
+    emoji: '📄',
+    description: 'Wrote a review over 500 characters',
+    rarity: 'rare',
+  },
+  {
+    id: 'contrarian',
+    name: 'Contrarian',
+    emoji: '🤔',
+    description: 'Rated a game 3+ points different from its average',
+    rarity: 'rare',
+  },
+
+  // ── Profile & Settings ──
+  {
+    id: 'organized',
+    name: 'Organized',
+    emoji: '📋',
+    description: 'Saved 5 named presets',
+    rarity: 'uncommon',
+  },
+  {
+    id: 'customizer',
+    name: 'Customizer',
+    emoji: '⚙️',
+    description: 'Changed recommendation settings',
+    rarity: 'common',
+  },
+
+  // ── Easter Eggs ──
+  {
+    id: 'forty_two',
+    name: '42',
+    emoji: '🌌',
+    description: 'Found the answer to life, the universe, and everything',
+    rarity: 'legendary',
+  },
+  {
+    id: 'konami_code',
+    name: 'Konami Code',
+    emoji: '🎮',
+    description: '↑↑↓↓←→←→BA',
+    rarity: 'legendary',
+  },
+  {
+    id: 'rick_rolled',
+    name: 'Rick Rolled',
+    emoji: '🎵',
+    description: 'Never gonna give you up',
+    rarity: 'legendary',
+  },
+  {
+    id: 'secret_menu',
+    name: 'Secret Menu',
+    emoji: '🔐',
+    description: 'Found the hidden roadmap page',
+    rarity: 'rare',
+  },
+
+  // ── Milestones ──
+  {
+    id: 'founding_member',
+    name: 'Founding Member',
+    emoji: '🏅',
+    description: 'Created an account in the first month of launch',
+    rarity: 'legendary',
+  },
+  {
+    id: 'veteran',
+    name: 'Veteran',
+    emoji: '🎖️',
+    description: 'Account is 30+ days old',
+    rarity: 'rare',
+  },
+  {
+    id: 'power_user',
+    name: 'Power User',
+    emoji: '💪',
+    description: 'Used 10+ different features in one session',
+    rarity: 'rare',
+  },
+  {
+    id: 'completionist_plus',
+    name: 'Completionist+',
+    emoji: '🌟',
+    description: 'Unlocked every other achievement',
+    rarity: 'legendary',
+  },
 ];
 
 export const ACHIEVEMENT_MAP = new Map(ACHIEVEMENTS.map((a) => [a.id, a]));

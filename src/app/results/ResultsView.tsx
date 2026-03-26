@@ -26,6 +26,7 @@ import type { Game } from '@/types/game';
 import type { QuestionnaireState, TimePreset } from '@/types/questionnaire';
 import type { GameType } from '@/types/game';
 import { incrementRecommendCount } from '@/lib/guest';
+import { useAchievements } from '@/components/AchievementToast';
 import { CATEGORY_OPTIONS, MECHANIC_OPTIONS, THEME_OPTIONS, PLATFORM_OPTIONS } from '@/lib/filter-options';
 
 type PopularityMode = 'popular' | 'any' | 'hidden-gems';
@@ -50,6 +51,7 @@ export default function ResultsView() {
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [presetName, setPresetName] = useState('');
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const { unlock } = useAchievements();
   const [freeText, setFreeText] = useState(searchParams.get('freeText') ?? '');
   const [isReparsing, setIsReparsing] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -148,7 +150,18 @@ export default function ResultsView() {
       // Track recommendation count for guest signup prompt
       if (data.results?.length > 0) {
         incrementRecommendCount();
+
+        // Discovery achievements
+        const currentYear = new Date().getFullYear();
+        for (const g of data.results) {
+          if (g.yearPublished && g.yearPublished < 1980) unlock('time_traveler');
+          if (g.yearPublished && g.yearPublished < 1990) unlock('retro_gamer');
+          if (g.yearPublished && g.yearPublished >= currentYear) unlock('cutting_edge');
+        }
       }
+
+      // Hidden gems mode
+      if ((popularityOverride ?? popularity) === 'hidden-gems') unlock('deep_diver');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {

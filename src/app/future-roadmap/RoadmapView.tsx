@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useAchievements } from '@/components/AchievementToast';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Divider from '@mui/material/Divider';
@@ -353,10 +354,13 @@ function applyOverrides(phases: Phase[], overrides: Record<string, Status>): Pha
 export default function RoadmapView() {
   const [filter, setFilter] = useState<StatusFilter>('all');
   const [overrides, setOverrides] = useState<Record<string, Status>>({});
+  const { unlock } = useAchievements();
 
-  // Load overrides from localStorage on mount
+  // Load overrides from localStorage on mount + secret menu achievement
   useEffect(() => {
     setOverrides(loadOverrides());
+    unlock('secret_menu');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function handleStatusChange(title: string, newStatus: Status) {

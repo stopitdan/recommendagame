@@ -11,6 +11,10 @@ export default function ShareInviteButton({ gameId, gameName }: { gameId: string
 
   function share() {
     unlock('shared_invite');
+    // Track share count for social_butterfly
+    const count = parseInt(localStorage.getItem('rag_share_count') ?? '0', 10) + 1;
+    localStorage.setItem('rag_share_count', String(count));
+    if (count >= 5) unlock('social_butterfly');
     const url = `${window.location.origin}/invite?game=${encodeURIComponent(gameId)}&host=${encodeURIComponent('A friend')}`;
 
     if (navigator.share) {

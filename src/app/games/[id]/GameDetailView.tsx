@@ -259,6 +259,7 @@ export default function GameDetailView() {
       <Box sx={{ mb: 4 }}>
         <ReviewForm
           gameId={game.id}
+          gameAvgRating={game.rating ?? undefined}
           onSubmit={() => setReviewRefreshKey((k) => k + 1)}
         />
       </Box>

@@ -12,10 +12,11 @@ import { useAchievements } from './AchievementToast';
 
 export interface ReviewFormProps {
   gameId: string;
+  gameAvgRating?: number;
   onSubmit?: () => void;
 }
 
-export default function ReviewForm({ gameId, onSubmit }: ReviewFormProps) {
+export default function ReviewForm({ gameId, gameAvgRating, onSubmit }: ReviewFormProps) {
   const [rating, setRating] = useState<number | null>(null);
   const [reviewText, setReviewText] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -54,6 +55,19 @@ export default function ReviewForm({ gameId, onSubmit }: ReviewFormProps) {
 
       setSuccess(true);
       unlock('first_review');
+
+      // Rating-based achievements
+      if (rating === 1) unlock('harsh_critic');
+      if (rating === 10) unlock('fanboy');
+
+      // Essay writer: review over 500 chars
+      if (reviewText.trim().length > 500) unlock('essay_writer');
+
+      // Contrarian: 3+ points different from average
+      if (rating && gameAvgRating && Math.abs(rating - gameAvgRating) >= 3) {
+        unlock('contrarian');
+      }
+
       // Check if they've hit 10 reviews
       fetch('/api/reviews?count=true').then((r) => r.json()).then((data) => {
         if (data.count >= 10) unlock('ten_reviews');
