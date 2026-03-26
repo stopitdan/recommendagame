@@ -136,8 +136,9 @@ export default function BrowseView() {
   const [offset, setOffset] = useState(0);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  // Initialize filters from URL params
-  const [filters, setFilters] = useState<Filters>(() => ({
+  // `filters` = what's being edited in the panel (not yet applied)
+  // `appliedFilters` = what was last fetched (triggers API calls)
+  const initialFilters: Filters = {
     ...DEFAULT_FILTERS,
     type: searchParams.get('type'),
     category: searchParams.get('category'),
@@ -145,37 +146,52 @@ export default function BrowseView() {
     theme: searchParams.get('theme'),
     platform: searchParams.get('platform'),
     q: searchParams.get('q') ?? '',
-  }));
+  };
+
+  const [filters, setFilters] = useState<Filters>(initialFilters);
+  const [appliedFilters, setAppliedFilters] = useState<Filters>(initialFilters);
 
   function updateFilter(partial: Partial<Filters>) {
     setFilters((prev) => ({ ...prev, ...partial }));
   }
 
+  /** Apply the current filters and fetch results */
+  function applyFilters() {
+    setAppliedFilters({ ...filters });
+  }
+
+  /** Update a filter AND apply immediately (for controls outside the panel) */
+  function updateAndApply(partial: Partial<Filters>) {
+    const updated = { ...filters, ...partial };
+    setFilters(updated);
+    setAppliedFilters(updated);
+  }
+
   const fetchGames = useCallback(async (newOffset: number = 0) => {
     setLoading(true);
     try {
+      const f = appliedFilters;
       const params = new URLSearchParams();
-      if (filters.category) params.set('category', filters.category);
-      if (filters.mechanic) params.set('mechanic', filters.mechanic);
-      if (filters.theme) params.set('theme', filters.theme);
-      if (filters.platform) params.set('platform', filters.platform);
-      if (filters.type) params.set('type', filters.type);
-      if (filters.q.trim()) params.set('q', filters.q.trim());
-      params.set('sort', filters.sort);
-      params.set('popularity', filters.popularity);
+      if (f.category) params.set('category', f.category);
+      if (f.mechanic) params.set('mechanic', f.mechanic);
+      if (f.theme) params.set('theme', f.theme);
+      if (f.platform) params.set('platform', f.platform);
+      if (f.type) params.set('type', f.type);
+      if (f.q.trim()) params.set('q', f.q.trim());
+      params.set('sort', f.sort);
+      params.set('popularity', f.popularity);
       params.set('limit', String(PAGE_SIZE));
       params.set('offset', String(newOffset));
 
-      // Numeric range filters — only send if different from defaults
-      if (filters.playerCount[0] > 1) params.set('minPlayers', String(filters.playerCount[0]));
-      if (filters.playerCount[1] < 10) params.set('maxPlayers', String(filters.playerCount[1]));
-      if (filters.playTime[0] > 0) params.set('minTime', String(filters.playTime[0]));
-      if (filters.playTime[1] < 300) params.set('maxTime', String(filters.playTime[1]));
-      if (filters.complexity[0] > 1) params.set('minComplexity', String(filters.complexity[0]));
-      if (filters.complexity[1] < 5) params.set('maxComplexity', String(filters.complexity[1]));
-      if (filters.minRating > 0) params.set('minRating', String(filters.minRating));
-      if (filters.yearRange[0] > 1950) params.set('yearFrom', String(filters.yearRange[0]));
-      if (filters.yearRange[1] < 2026) params.set('yearTo', String(filters.yearRange[1]));
+      if (f.playerCount[0] > 1) params.set('minPlayers', String(f.playerCount[0]));
+      if (f.playerCount[1] < 10) params.set('maxPlayers', String(f.playerCount[1]));
+      if (f.playTime[0] > 0) params.set('minTime', String(f.playTime[0]));
+      if (f.playTime[1] < 300) params.set('maxTime', String(f.playTime[1]));
+      if (f.complexity[0] > 1) params.set('minComplexity', String(f.complexity[0]));
+      if (f.complexity[1] < 5) params.set('maxComplexity', String(f.complexity[1]));
+      if (f.minRating > 0) params.set('minRating', String(f.minRating));
+      if (f.yearRange[0] > 1950) params.set('yearFrom', String(f.yearRange[0]));
+      if (f.yearRange[1] < 2026) params.set('yearTo', String(f.yearRange[1]));
 
       const res = await fetch(`/api/games/browse?${params.toString()}`);
       if (!res.ok) return;
@@ -187,7 +203,7 @@ export default function BrowseView() {
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, [appliedFilters]);
 
   useEffect(() => {
     fetchGames(0);
@@ -195,25 +211,27 @@ export default function BrowseView() {
 
   function clearAllFilters() {
     setFilters(DEFAULT_FILTERS);
+    setAppliedFilters(DEFAULT_FILTERS);
     router.push('/browse');
   }
 
-  const hasActiveFilters = filters.type || filters.category || filters.mechanic ||
-    filters.theme || filters.platform || filters.q.trim() ||
-    filters.playerCount[0] > 1 || filters.playerCount[1] < 10 ||
-    filters.playTime[0] > 0 || filters.playTime[1] < 300 ||
-    filters.complexity[0] > 1 || filters.complexity[1] < 5 ||
-    filters.minRating > 0 ||
-    filters.yearRange[0] > 1950 || filters.yearRange[1] < 2026;
+  const af = appliedFilters; // shorthand for active filter checks
+  const hasActiveFilters = af.type || af.category || af.mechanic ||
+    af.theme || af.platform || af.q.trim() ||
+    af.playerCount[0] > 1 || af.playerCount[1] < 10 ||
+    af.playTime[0] > 0 || af.playTime[1] < 300 ||
+    af.complexity[0] > 1 || af.complexity[1] < 5 ||
+    af.minRating > 0 ||
+    af.yearRange[0] > 1950 || af.yearRange[1] < 2026;
 
   const activeFilterCount = [
-    filters.type, filters.category, filters.mechanic, filters.theme, filters.platform,
-    filters.q.trim() || null,
-    filters.playerCount[0] > 1 || filters.playerCount[1] < 10 ? 'players' : null,
-    filters.playTime[0] > 0 || filters.playTime[1] < 300 ? 'time' : null,
-    filters.complexity[0] > 1 || filters.complexity[1] < 5 ? 'complexity' : null,
-    filters.minRating > 0 ? 'rating' : null,
-    filters.yearRange[0] > 1950 || filters.yearRange[1] < 2026 ? 'year' : null,
+    af.type, af.category, af.mechanic, af.theme, af.platform,
+    af.q.trim() || null,
+    af.playerCount[0] > 1 || af.playerCount[1] < 10 ? 'players' : null,
+    af.playTime[0] > 0 || af.playTime[1] < 300 ? 'time' : null,
+    af.complexity[0] > 1 || af.complexity[1] < 5 ? 'complexity' : null,
+    af.minRating > 0 ? 'rating' : null,
+    af.yearRange[0] > 1950 || af.yearRange[1] < 2026 ? 'year' : null,
   ].filter(Boolean).length;
 
   const hasMore = offset + PAGE_SIZE < total;
@@ -243,9 +261,9 @@ export default function BrowseView() {
             <Chip
               key={t.label}
               label={`${t.emoji} ${t.label}`}
-              onClick={() => updateFilter({ type: t.value })}
-              color={filters.type === t.value || (!filters.type && !t.value) ? 'primary' : 'default'}
-              variant={filters.type === t.value || (!filters.type && !t.value) ? 'filled' : 'outlined'}
+              onClick={() => updateAndApply({ type: t.value })}
+              color={af.type === t.value || (!af.type && !t.value) ? 'primary' : 'default'}
+              variant={af.type === t.value || (!af.type && !t.value) ? 'filled' : 'outlined'}
               sx={{ transition: 'all 200ms ease' }}
             />
           ))}
@@ -258,7 +276,7 @@ export default function BrowseView() {
             placeholder="Search games..."
             value={filters.q}
             onChange={(e) => updateFilter({ q: e.target.value })}
-            onKeyDown={(e) => e.key === 'Enter' && fetchGames(0)}
+            onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
             sx={{ flex: 1, minWidth: 200 }}
           />
           <FormControl size="small" sx={{ minWidth: 150 }}>
@@ -266,7 +284,7 @@ export default function BrowseView() {
             <Select
               value={filters.sort}
               label="Sort by"
-              onChange={(e) => updateFilter({ sort: e.target.value })}
+              onChange={(e) => updateAndApply({ sort: e.target.value })}
             >
               <MenuItem value="rating">Rating</MenuItem>
               <MenuItem value="popularity">Most Popular</MenuItem>
@@ -277,7 +295,13 @@ export default function BrowseView() {
           <Button
             variant={filtersOpen ? 'contained' : 'outlined'}
             size="medium"
-            onClick={() => setFiltersOpen(!filtersOpen)}
+            onClick={() => {
+              if (filtersOpen) {
+                // Closing the panel — apply any pending filter changes
+                applyFilters();
+              }
+              setFiltersOpen(!filtersOpen);
+            }}
             sx={{ minWidth: 120 }}
           >
             Filters {activeFilterCount > 0 ? `(${activeFilterCount})` : ''}
@@ -464,7 +488,7 @@ export default function BrowseView() {
                 <Button variant="text" onClick={clearAllFilters} disabled={!hasActiveFilters}>
                   Clear all filters
                 </Button>
-                <Button variant="contained" onClick={() => fetchGames(0)}>
+                <Button variant="contained" onClick={() => { applyFilters(); setFiltersOpen(false); }}>
                   Apply Filters
                 </Button>
               </Box>
@@ -475,51 +499,51 @@ export default function BrowseView() {
         {/* Active filter chips */}
         {hasActiveFilters && (
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-            {filters.category && (
-              <Chip label={`Category: ${filters.category}`} onDelete={() => updateFilter({ category: null })} size="small" color="secondary" />
+            {af.category && (
+              <Chip label={`Category: ${af.category}`} onDelete={() => updateAndApply({ category: null })} size="small" color="secondary" />
             )}
-            {filters.mechanic && (
-              <Chip label={`Mechanic: ${filters.mechanic}`} onDelete={() => updateFilter({ mechanic: null })} size="small" color="secondary" />
+            {af.mechanic && (
+              <Chip label={`Mechanic: ${af.mechanic}`} onDelete={() => updateAndApply({ mechanic: null })} size="small" color="secondary" />
             )}
-            {filters.theme && (
-              <Chip label={`Theme: ${filters.theme}`} onDelete={() => updateFilter({ theme: null })} size="small" color="secondary" />
+            {af.theme && (
+              <Chip label={`Theme: ${af.theme}`} onDelete={() => updateAndApply({ theme: null })} size="small" color="secondary" />
             )}
-            {(filters.playerCount[0] > 1 || filters.playerCount[1] < 10) && (
+            {(af.playerCount[0] > 1 || af.playerCount[1] < 10) && (
               <Chip
-                label={`${filters.playerCount[0]}–${filters.playerCount[1]}${filters.playerCount[1] >= 10 ? '+' : ''} players`}
-                onDelete={() => updateFilter({ playerCount: [1, 10] })}
+                label={`${af.playerCount[0]}–${af.playerCount[1]}${af.playerCount[1] >= 10 ? '+' : ''} players`}
+                onDelete={() => updateAndApply({ playerCount: [1, 10] })}
                 size="small"
                 variant="outlined"
               />
             )}
-            {(filters.playTime[0] > 0 || filters.playTime[1] < 300) && (
+            {(af.playTime[0] > 0 || af.playTime[1] < 300) && (
               <Chip
-                label={`${filters.playTime[0]}–${filters.playTime[1]}${filters.playTime[1] >= 300 ? '+' : ''} min`}
-                onDelete={() => updateFilter({ playTime: [0, 300] })}
+                label={`${af.playTime[0]}–${af.playTime[1]}${af.playTime[1] >= 300 ? '+' : ''} min`}
+                onDelete={() => updateAndApply({ playTime: [0, 300] })}
                 size="small"
                 variant="outlined"
               />
             )}
-            {(filters.complexity[0] > 1 || filters.complexity[1] < 5) && (
+            {(af.complexity[0] > 1 || af.complexity[1] < 5) && (
               <Chip
-                label={`Complexity ${filters.complexity[0]}–${filters.complexity[1]}`}
-                onDelete={() => updateFilter({ complexity: [1, 5] })}
+                label={`Complexity ${af.complexity[0]}–${af.complexity[1]}`}
+                onDelete={() => updateAndApply({ complexity: [1, 5] })}
                 size="small"
                 variant="outlined"
               />
             )}
-            {filters.minRating > 0 && (
+            {af.minRating > 0 && (
               <Chip
-                label={`Rating ${filters.minRating}+`}
-                onDelete={() => updateFilter({ minRating: 0 })}
+                label={`Rating ${af.minRating}+`}
+                onDelete={() => updateAndApply({ minRating: 0 })}
                 size="small"
                 variant="outlined"
               />
             )}
-            {(filters.yearRange[0] > 1950 || filters.yearRange[1] < 2026) && (
+            {(af.yearRange[0] > 1950 || af.yearRange[1] < 2026) && (
               <Chip
-                label={`${filters.yearRange[0]}–${filters.yearRange[1]}`}
-                onDelete={() => updateFilter({ yearRange: [1950, 2026] })}
+                label={`${af.yearRange[0]}–${af.yearRange[1]}`}
+                onDelete={() => updateAndApply({ yearRange: [1950, 2026] })}
                 size="small"
                 variant="outlined"
               />
