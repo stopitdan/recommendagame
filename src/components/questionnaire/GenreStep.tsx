@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography';
 import { GENRE_OPTIONS } from '@/types/questionnaire';
 
 const GENRE_EMOJIS: Record<string, string> = {
+  // Classic
   Strategy: '♟️',
   RPG: '⚔️',
   Puzzle: '🧩',
@@ -14,18 +15,37 @@ const GENRE_EMOJIS: Record<string, string> = {
   Horror: '👻',
   'Sci-Fi': '🚀',
   Fantasy: '🧙',
-  Trivia: '❓',
-  'Word Game': '🔤',
-  'Deck Building': '🃏',
-  Simulation: '🏗️',
-  Sports: '⚽',
-  Racing: '🏎️',
-  Fighting: '🥊',
-  Platformer: '🍄',
-  Shooter: '🎯',
-  Survival: '🏕️',
   Mystery: '🔍',
   Family: '👨‍👩‍👧‍👦',
+  Trivia: '❓',
+  'Word Game': '🔤',
+  // Modern
+  Roguelike: '💀',
+  Roguelite: '🔄',
+  'Deck Building': '🃏',
+  Metroidvania: '🦇',
+  Platformer: '🍄',
+  'Open World': '🌍',
+  Sandbox: '🏖️',
+  Shooter: '🎯',
+  Fighting: '🥊',
+  Racing: '🏎️',
+  Sports: '⚽',
+  Survival: '🏕️',
+  Simulation: '🏗️',
+  'City Builder': '🏙️',
+  // Board game specific
+  'Worker Placement': '👷',
+  'Social Deduction': '🕵️',
+  Party: '🎉',
+  Cooperative: '🤝',
+  Campaign: '📜',
+  Legacy: '📦',
+  // Vibes
+  Cozy: '☕',
+  Indie: '🎨',
+  Retro: '👾',
+  Narrative: '📖',
 };
 
 export interface GenreStepProps {

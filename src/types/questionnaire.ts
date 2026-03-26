@@ -55,10 +55,19 @@ export const TIME_PRESETS: Record<TimePreset, { label: string; description: stri
 };
 
 export const GENRE_OPTIONS = [
+  // Classic genres
   'Strategy', 'RPG', 'Puzzle', 'Action', 'Adventure', 'Horror',
-  'Sci-Fi', 'Fantasy', 'Trivia', 'Word Game', 'Deck Building',
-  'Simulation', 'Sports', 'Racing', 'Fighting', 'Platformer',
-  'Shooter', 'Survival', 'Mystery', 'Family',
+  'Sci-Fi', 'Fantasy', 'Mystery', 'Family', 'Trivia', 'Word Game',
+  // Modern gaming terms
+  'Roguelike', 'Roguelite', 'Deck Building', 'Metroidvania',
+  'Platformer', 'Open World', 'Sandbox',
+  'Shooter', 'Fighting', 'Racing', 'Sports',
+  'Survival', 'Simulation', 'City Builder',
+  // Board game specific
+  'Worker Placement', 'Social Deduction', 'Party',
+  'Cooperative', 'Campaign', 'Legacy',
+  // Vibes / themes
+  'Cozy', 'Indie', 'Retro', 'Narrative',
 ] as const;
 
 export const MOOD_OPTIONS = [
