@@ -7,11 +7,13 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
+import Collapse from '@mui/material/Collapse';
 import Container from '@mui/material/Container';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
+import Slider from '@mui/material/Slider';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
@@ -47,6 +49,18 @@ export default function ResultsView() {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [freeText, setFreeText] = useState(searchParams.get('freeText') ?? '');
   const [isReparsing, setIsReparsing] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [filterText, setFilterText] = useState('');
+  const [filterPlayers, setFilterPlayers] = useState<[number, number]>([
+    parseInt(searchParams.get('minPlayers') ?? '1', 10),
+    parseInt(searchParams.get('maxPlayers') ?? '10', 10),
+  ]);
+  const [filterTime, setFilterTime] = useState<[number, number]>([0, 300]);
+  const [filterComplexity, setFilterComplexity] = useState<[number, number]>([
+    parseFloat(searchParams.get('minComplexity') ?? '1'),
+    parseFloat(searchParams.get('maxComplexity') ?? '5'),
+  ]);
+  const [filterMinRating, setFilterMinRating] = useState(0);
 
   /**
    * Reconstructs the QuestionnaireState from URL search params
@@ -200,6 +214,55 @@ export default function ResultsView() {
     fetchResults(mode);
   }
 
+  // Client-side filtering of already-scored results
+  const filteredGames = games.filter((game) => {
+    // Text filter on name
+    if (filterText.trim()) {
+      const lower = filterText.toLowerCase();
+      if (!game.name.toLowerCase().includes(lower)) return false;
+    }
+
+    // Player count
+    if (filterPlayers[0] > 1 || filterPlayers[1] < 10) {
+      if (!game.playerCount) return false;
+      if (game.playerCount.max < filterPlayers[0]) return false;
+      if (game.playerCount.min > filterPlayers[1]) return false;
+    }
+
+    // Play time
+    if (filterTime[0] > 0 || filterTime[1] < 300) {
+      const avg = game.playTime?.average ?? game.playTime?.max ?? 0;
+      if (avg < filterTime[0] || avg > filterTime[1]) return false;
+    }
+
+    // Complexity
+    if (filterComplexity[0] > 1 || filterComplexity[1] < 5) {
+      if (game.complexity == null) return true; // Don't exclude unknown complexity
+      if (game.complexity < filterComplexity[0] || game.complexity > filterComplexity[1]) return false;
+    }
+
+    // Rating
+    if (filterMinRating > 0) {
+      if ((game.rating ?? 0) < filterMinRating) return false;
+    }
+
+    return true;
+  });
+
+  const hasActiveResultFilters = filterText.trim() ||
+    filterPlayers[0] > 1 || filterPlayers[1] < 10 ||
+    filterTime[0] > 0 || filterTime[1] < 300 ||
+    filterComplexity[0] > 1 || filterComplexity[1] < 5 ||
+    filterMinRating > 0;
+
+  function clearResultFilters() {
+    setFilterText('');
+    setFilterPlayers([1, 10]);
+    setFilterTime([0, 300]);
+    setFilterComplexity([1, 5]);
+    setFilterMinRating(0);
+  }
+
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Stack spacing={3}>
@@ -273,9 +336,9 @@ export default function ResultsView() {
           </Box>
         )}
 
-        {/* Popularity toggle */}
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-          <Typography variant="body2" color="text.secondary" sx={{ alignSelf: 'center', mr: 1 }}>
+        {/* Filter + Popularity controls */}
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mr: 0.5 }}>
             Show:
           </Typography>
           {([
@@ -291,7 +354,96 @@ export default function ResultsView() {
               variant={popularity === mode ? 'filled' : 'outlined'}
             />
           ))}
+          <Box sx={{ flex: 1 }} />
+          <Button
+            variant={filtersOpen ? 'contained' : 'outlined'}
+            size="small"
+            onClick={() => setFiltersOpen(!filtersOpen)}
+          >
+            Refine {hasActiveResultFilters ? `(${[
+              filterText.trim() ? 1 : 0,
+              filterPlayers[0] > 1 || filterPlayers[1] < 10 ? 1 : 0,
+              filterTime[0] > 0 || filterTime[1] < 300 ? 1 : 0,
+              filterComplexity[0] > 1 || filterComplexity[1] < 5 ? 1 : 0,
+              filterMinRating > 0 ? 1 : 0,
+            ].reduce((a, b) => a + b, 0)})` : ''}
+          </Button>
         </Box>
+
+        {/* Refine filters panel */}
+        <Collapse in={filtersOpen}>
+          <Box sx={{ p: 2.5, borderRadius: 2, border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
+            <Stack spacing={2.5}>
+              <TextField
+                size="small"
+                fullWidth
+                placeholder="Filter by name..."
+                value={filterText}
+                onChange={(e) => setFilterText(e.target.value)}
+              />
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 3 }}>
+                <Box sx={{ px: 1 }}>
+                  <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                    Players: {filterPlayers[0]}–{filterPlayers[1] >= 10 ? '10+' : filterPlayers[1]}
+                  </Typography>
+                  <Slider
+                    value={filterPlayers}
+                    onChange={(_, v) => setFilterPlayers(v as [number, number])}
+                    min={1} max={10} step={1}
+                    valueLabelDisplay="auto"
+                    marks={[{ value: 1, label: '1' }, { value: 4, label: '4' }, { value: 10, label: '10+' }]}
+                  />
+                </Box>
+                <Box sx={{ px: 1 }}>
+                  <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                    Play Time: {filterTime[0]}–{filterTime[1] >= 300 ? '300+' : filterTime[1]} min
+                  </Typography>
+                  <Slider
+                    value={filterTime}
+                    onChange={(_, v) => setFilterTime(v as [number, number])}
+                    min={0} max={300} step={15}
+                    valueLabelDisplay="auto"
+                    marks={[{ value: 0, label: '0' }, { value: 60, label: '1h' }, { value: 120, label: '2h' }, { value: 300, label: '5h+' }]}
+                  />
+                </Box>
+              </Box>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 3 }}>
+                <Box sx={{ px: 1 }}>
+                  <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                    Complexity: {filterComplexity[0]}–{filterComplexity[1]}
+                  </Typography>
+                  <Slider
+                    value={filterComplexity}
+                    onChange={(_, v) => setFilterComplexity(v as [number, number])}
+                    min={1} max={5} step={0.5}
+                    valueLabelDisplay="auto"
+                    marks={[{ value: 1, label: 'Light' }, { value: 5, label: 'Expert' }]}
+                  />
+                </Box>
+                <Box sx={{ px: 1 }}>
+                  <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                    Min Rating: {filterMinRating > 0 ? `${filterMinRating}+` : 'Any'}
+                  </Typography>
+                  <Slider
+                    value={filterMinRating}
+                    onChange={(_, v) => setFilterMinRating(v as number)}
+                    min={0} max={9} step={0.5}
+                    valueLabelDisplay="auto"
+                    marks={[{ value: 0, label: 'Any' }, { value: 9, label: '9+' }]}
+                  />
+                </Box>
+              </Box>
+              {hasActiveResultFilters && (
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Typography variant="body2" color="text.secondary">
+                    Showing {filteredGames.length} of {games.length} results
+                  </Typography>
+                  <Button size="small" onClick={clearResultFilters}>Clear filters</Button>
+                </Box>
+              )}
+            </Stack>
+          </Box>
+        </Collapse>
 
         {loading && (
           <Box sx={{ py: 2 }}>
@@ -323,7 +475,7 @@ export default function ResultsView() {
           </Box>
         )}
 
-        {!loading && games.map((game) => (
+        {!loading && filteredGames.map((game) => (
           <Box key={game.id}>
             <GameCard game={game} />
             {/* "Why we picked this" reasons */}
