@@ -100,7 +100,7 @@ export default function ResultsView() {
         moods: searchParams.get('moods')?.split(',').filter(Boolean) ?? [],
         llmParsed,
         popularity: popularityOverride ?? popularity,
-        limit: 20,
+        limit: 40,
       };
 
       const response = await fetch('/api/recommend', {

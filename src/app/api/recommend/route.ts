@@ -33,8 +33,8 @@ import { MemoryCache } from '@/lib/cache';
 // ─── Config ──────────────────────────────────────────────────
 
 const CANDIDATE_POOL_SIZE = 300;
-const DEFAULT_RESULT_LIMIT = 20;
-const MAX_RESULT_LIMIT = 50;
+const DEFAULT_RESULT_LIMIT = 40;
+const MAX_RESULT_LIMIT = 100;
 const SIMILARITY_CANDIDATES = 100;
 
 const RULE_WEIGHT = 0.6;
