@@ -16,6 +16,7 @@ import type { QuestionnaireState } from '@/types/questionnaire';
 import type { Game } from '@/types/game';
 import { rowToGame } from '@/lib/supabase/games';
 import { preferencesToVector, enrichedPreferencesToVector, cosineSimilarity, gameToVector, normalize } from './embeddings';
+import { preferencesToText, embedText } from './semantic-embeddings';
 
 // ─── Types ───────────────────────────────────────────────────
 
@@ -122,27 +123,52 @@ export async function fetchVectorCandidates(
   options: {
     limit?: number;
     columns?: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    supabaseClient?: any;
   } = {},
 ): Promise<Game[]> {
-  const { limit = 250, columns } = options;
+  const { limit = 250, columns, supabaseClient } = options;
 
-  const supabase = getSupabase();
+  const supabase = supabaseClient ?? getSupabase();
   if (!supabase) return [];
 
-  // Build vector enriched with LLM-parsed data for better matches
-  const queryVector = enrichedPreferencesToVector(prefs, prefs.llmParsed);
+  // Try semantic search first (OpenAI embeddings — much better quality)
+  let matches: { game_id: string; similarity: number }[] | null = null;
+  const queryText = preferencesToText(prefs);
+  const semanticVector = await embedText(queryText);
 
-  // Use match_games RPC — returns game_id + similarity score
-  const { data: matches, error: rpcError } = await supabase.rpc('match_games', {
-    query_embedding: `[${queryVector.join(',')}]`,
-    match_count: limit,
-    similarity_threshold: 0.15, // Low threshold — let the scoring engine decide
-  });
-
-  if (rpcError || !matches || matches.length === 0) {
-    if (rpcError) console.error('[Vector] RPC error:', rpcError);
-    return [];
+  if (semanticVector) {
+    const { data, error } = await supabase.rpc('match_games_semantic', {
+      query_embedding: `[${semanticVector.join(',')}]`,
+      match_count: limit,
+      similarity_threshold: 0.15,
+    });
+    if (!error && data && data.length > 0) {
+      matches = data;
+      console.log(`[Vector] Semantic search: ${data.length} results`);
+    } else if (error) {
+      // Semantic RPC might not exist yet (migration not run) — fall back silently
+      console.log('[Vector] Semantic RPC unavailable, falling back to hash-based');
+    }
   }
+
+  // Fallback: hash-based vector search
+  if (!matches) {
+    const queryVector = enrichedPreferencesToVector(prefs, prefs.llmParsed);
+    const { data, error: rpcError } = await supabase.rpc('match_games', {
+      query_embedding: `[${queryVector.join(',')}]`,
+      match_count: limit,
+      similarity_threshold: 0.15,
+    });
+    if (rpcError) {
+      console.error('[Vector] Hash-based RPC error:', rpcError);
+    } else if (data && data.length > 0) {
+      matches = data;
+      console.log(`[Vector] Hash-based search: ${data.length} results`);
+    }
+  }
+
+  if (!matches || matches.length === 0) return [];
 
   // Fetch full game data for matched IDs
   const gameIds = matches.map((m: { game_id: string }) => m.game_id);

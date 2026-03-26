@@ -31,6 +31,7 @@ import { MemoryCache } from '@/lib/cache';
 import { redisCache } from '@/lib/redis';
 import { diversityRerank } from '@/lib/recommendation/diversity';
 import { buildRejectionProfile, computeRejectionPenalty } from '@/lib/recommendation/rejection';
+import { getPopularFallback } from '@/lib/recommendation/popularity-cache';
 
 // ─── Config ──────────────────────────────────────────────────
 
@@ -115,6 +116,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(redisCached);
   }
 
+  const startTime = Date.now();
+
   try {
     // Step 1: Hybrid candidate fetching
     // Two parallel sources: vector similarity + rating-based.
@@ -126,27 +129,32 @@ export async function POST(request: NextRequest) {
       maxTime: body.maxTime,
     };
 
-    const [ratingCandidates, vectorCandidates, textCandidates] = await Promise.all([
+    // Collect tags from LLM parsing + user genres for tag-based search
+    const allTags = collectSearchTags(body);
+
+    const [ratingCandidates, vectorCandidates, textCandidates, tagCandidates] = await Promise.all([
       fetchCandidates(supabase, body, popularity, extra),
-      fetchVectorCandidates(body, { limit: VECTOR_POOL_SIZE, columns: GAME_COLUMNS }),
+      fetchVectorCandidates(body, { limit: VECTOR_POOL_SIZE, columns: GAME_COLUMNS, supabaseClient: supabase }),
       body.freeText && body.freeText.trim().length >= 3
         ? fetchTextSearchCandidates(supabase, body.freeText)
         : Promise.resolve([]),
+      allTags.length > 0
+        ? fetchTagCandidates(supabase, allTags)
+        : Promise.resolve([]),
     ]);
 
-    // Deduplicate: rating-based first, then merge in vector + text matches
+    // Deduplicate: rating-based first, then merge in vector + text + tag matches
     const seen = new Set<string>();
     let candidates = [...ratingCandidates];
     for (const g of candidates) seen.add(g.id);
 
-    for (const g of vectorCandidates) {
-      if (!seen.has(g.id)) { candidates.push(g); seen.add(g.id); }
-    }
-    for (const g of textCandidates) {
-      if (!seen.has(g.id)) { candidates.push(g); seen.add(g.id); }
+    for (const source of [vectorCandidates, tagCandidates, textCandidates]) {
+      for (const g of source) {
+        if (!seen.has(g.id)) { candidates.push(g); seen.add(g.id); }
+      }
     }
 
-    console.log(`[Recommend] Hybrid pool: ${ratingCandidates.length} rating + ${vectorCandidates.length} vector + ${textCandidates.length} text = ${candidates.length} unique`);
+    console.log(`[Recommend] Hybrid pool: ${ratingCandidates.length} rating + ${vectorCandidates.length} vector + ${tagCandidates.length} tag + ${textCandidates.length} text = ${candidates.length} unique`);
 
     // Progressive fallbacks (only if hybrid produced nothing)
     if (candidates.length === 0) {
@@ -162,6 +170,27 @@ export async function POST(request: NextRequest) {
     if (candidates.length === 0) {
       console.log('[Recommend] Nuclear fallback — dropping quality floor');
       candidates = await fetchCandidatesNuclear(supabase);
+    }
+
+    // Popularity cache fallback (from Redis — instant, no DB query)
+    if (candidates.length === 0) {
+      console.log('[Recommend] Trying pre-computed popularity cache...');
+      const popular = await getPopularFallback(body);
+      if (popular.length > 0) {
+        candidates = popular;
+      }
+    }
+
+    // EMERGENCY: If still 0 after ALL fallbacks, grab literally anything
+    if (candidates.length === 0) {
+      console.error('[Recommend] EMERGENCY: All fallbacks returned 0 candidates. Serving raw top games.');
+      const { data: emergency } = await supabase
+        .from('games')
+        .select(GAME_COLUMNS)
+        .limit(50);
+      if (emergency && emergency.length > 0) {
+        candidates = (emergency as GameRow[]).map(rowToGame);
+      }
     }
 
     // Step 1c: If LLM parsed "similarTo" game names, resolve them and
@@ -211,6 +240,9 @@ export async function POST(request: NextRequest) {
     // Step 6: Take top N
     const topResults = diversified.slice(0, limit);
 
+    const latencyMs = Date.now() - startTime;
+    console.log(`[Recommend] Done in ${latencyMs}ms: ${candidates.length} candidates → ${topResults.length} results (${engineVersion})`);
+
     const response = {
       results: topResults.map(({ game, score, reasons, breakdown }) => ({
         ...game,
@@ -222,6 +254,7 @@ export async function POST(request: NextRequest) {
       totalCandidates: candidates.length,
       engine: engineVersion,
       popularity,
+      latencyMs,
     };
 
     // Cache responses with results in both layers
@@ -328,18 +361,126 @@ async function fetchTextSearchCandidates(
   supabase: any,
   freeText: string,
 ) {
-  // Use Postgres full-text search on game name
+  // Two parallel searches: game name (exact) + description keywords (fuzzy)
+  const trimmed = freeText.trim();
+
+  const [nameResults, descResults] = await Promise.all([
+    // Full-text search on game name
+    supabase
+      .from('games')
+      .select(GAME_COLUMNS)
+      .textSearch('name', trimmed, { type: 'websearch' })
+      .order('rating', { ascending: false, nullsFirst: false })
+      .limit(30),
+    // Description keyword search (top 2 meaningful words)
+    fetchDescriptionMatches(supabase, trimmed),
+  ]);
+
+  const results: GameRow[] = [];
+  const seen = new Set<string>();
+
+  for (const row of (nameResults.data ?? []) as GameRow[]) {
+    if (!seen.has(row.id)) { results.push(row); seen.add(row.id); }
+  }
+  for (const row of descResults) {
+    if (!seen.has(row.id)) { results.push(row); seen.add(row.id); }
+  }
+
+  return results.map(rowToGame);
+}
+
+/**
+ * Searches game descriptions for the top 2-3 meaningful keywords
+ * from the user's free text. Uses ilike (no special index needed).
+ */
+async function fetchDescriptionMatches(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+  freeText: string,
+): Promise<GameRow[]> {
+  // Extract the 2 longest non-stop-word keywords
+  const stopWords = new Set(['i', 'a', 'an', 'the', 'for', 'and', 'or', 'but', 'to', 'of', 'in', 'on', 'my', 'me', 'we', 'with', 'some', 'want', 'like', 'game', 'games', 'something', 'looking', 'that', 'not', 'too', 'very', 'just', 'really']);
+  const words = freeText.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/)
+    .filter((w) => w.length >= 4 && !stopWords.has(w))
+    .sort((a, b) => b.length - a.length)
+    .slice(0, 2);
+
+  if (words.length === 0) return [];
+
+  // Search description for each keyword
+  let query = supabase
+    .from('games')
+    .select(GAME_COLUMNS);
+
+  for (const word of words) {
+    query = query.ilike('description', `%${word}%`);
+  }
+
+  const { data, error } = await query
+    .order('rating', { ascending: false, nullsFirst: false })
+    .limit(30);
+
+  if (error || !data) return [];
+  return data as GameRow[];
+}
+
+/**
+ * Tag-based candidate retrieval: finds games whose categories,
+ * mechanics, or themes match LLM-extracted tags.
+ *
+ * This is the key fix for "roguelike deck builder" — instead of hoping
+ * the vector search finds it, we directly query for games tagged with
+ * "Deck Building" or "Roguelike" using the existing GIN indexes.
+ */
+async function fetchTagCandidates(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+  tags: string[],
+): Promise<ReturnType<typeof rowToGame>[]> {
+  if (tags.length === 0) return [];
+
+  // Build OR conditions for each tag across categories, mechanics, and themes
+  const conditions = tags
+    .slice(0, 8) // Limit to avoid huge queries
+    .flatMap((tag) => [
+      `categories.cs.{${tag}}`,
+      `mechanics.cs.{${tag}}`,
+      `themes.cs.{${tag}}`,
+    ]);
+
   const { data, error } = await supabase
     .from('games')
     .select(GAME_COLUMNS)
-    .not('rating', 'is', null)
-    .textSearch('name', freeText.trim(), { type: 'websearch' })
-    .order('rating', { ascending: false })
-    .limit(50);
+    .or(conditions.join(','))
+    .order('rating', { ascending: false, nullsFirst: false })
+    .limit(100);
 
-  if (error || !data) return [];
+  if (error) {
+    console.error('[Recommend] Tag search error:', error);
+    return [];
+  }
 
   return ((data ?? []) as GameRow[]).map(rowToGame);
+}
+
+/**
+ * Collects all meaningful tags from user preferences and LLM parsing.
+ * Used to drive tag-based candidate retrieval.
+ */
+function collectSearchTags(prefs: QuestionnaireState): string[] {
+  const tags = new Set<string>();
+
+  // From user's genre selections
+  for (const g of prefs.genres) tags.add(g);
+
+  // From LLM-parsed data
+  if (prefs.llmParsed) {
+    for (const g of prefs.llmParsed.genres) tags.add(g);
+    for (const m of prefs.llmParsed.mechanics) tags.add(m);
+    // Keywords are too vague for exact tag matching — skip them
+  }
+
+  return [...tags];
 }
 
 /**
@@ -355,14 +496,13 @@ async function fetchCandidatesNoType(
 ) {
   let query = supabase
     .from('games')
-    .select(GAME_COLUMNS)
-    .not('rating', 'is', null);
+    .select(GAME_COLUMNS);
 
-  // Quality floor
+  // Soft quality floor (no hard NOT NULL filter — let unrated games through)
   if (popularity === 'popular') {
-    query = query.gte('rating_count', 30);
+    query = query.gte('rating_count', 10);
   } else {
-    query = query.gte('rating_count', 3);
+    query = query.gte('rating_count', 1);
   }
 
   // Player count only (no type filter)
@@ -371,15 +511,15 @@ async function fetchCandidatesNoType(
     query = query.gte('max_players', prefs.playerCount.min);
   }
 
-  query = query.order('rating', { ascending: false }).limit(RATING_POOL_SIZE);
+  query = query.order('rating', { ascending: false, nullsFirst: false }).limit(RATING_POOL_SIZE);
   const { data, error } = await query;
   if (error) return [];
   return ((data ?? []) as GameRow[]).map(rowToGame);
 }
 
 /**
- * Fallback 2: No preference filters at all, just quality floor.
- * Returns the top-rated games regardless of type, player count, etc.
+ * Fallback 2: No preference filters at all, just games with some ratings.
+ * Rated games first, unrated games still included.
  */
 async function fetchCandidatesFallback(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -388,24 +528,22 @@ async function fetchCandidatesFallback(
 ) {
   let query = supabase
     .from('games')
-    .select(GAME_COLUMNS)
-    .not('rating', 'is', null);
+    .select(GAME_COLUMNS);
 
+  // Minimal quality floor
   if (popularity === 'popular') {
-    query = query.gte('rating_count', 20);
-  } else {
-    query = query.gte('rating_count', 3);
+    query = query.gte('rating_count', 5);
   }
 
-  query = query.order('rating', { ascending: false }).limit(RATING_POOL_SIZE);
+  query = query.order('rating', { ascending: false, nullsFirst: false }).limit(RATING_POOL_SIZE);
   const { data, error } = await query;
   if (error) return [];
   return ((data ?? []) as GameRow[]).map(rowToGame);
 }
 
 /**
- * Fallback 3: Nuclear option. No filters at all — just grab games.
- * This should literally never return 0 unless the DB is empty.
+ * Fallback 3: Nuclear option. ZERO filters. Just grab games by popularity.
+ * This should NEVER return 0 unless the DB is literally empty.
  */
 async function fetchCandidatesNuclear(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -414,7 +552,7 @@ async function fetchCandidatesNuclear(
   const { data, error } = await supabase
     .from('games')
     .select(GAME_COLUMNS)
-    .order('rating_count', { ascending: false })
+    .order('rating_count', { ascending: false, nullsFirst: false })
     .limit(RATING_POOL_SIZE);
 
   if (error) return [];
