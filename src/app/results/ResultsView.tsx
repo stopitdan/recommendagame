@@ -52,6 +52,7 @@ export default function ResultsView() {
   const [freeText, setFreeText] = useState(searchParams.get('freeText') ?? '');
   const [isReparsing, setIsReparsing] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [nameFilter, setNameFilter] = useState('');
 
   // Refine filters — editing state (not applied until user clicks Apply or closes panel)
   const [filterPlayers, setFilterPlayers] = useState<[number, number]>([
@@ -528,6 +529,20 @@ export default function ResultsView() {
           </Box>
         </Collapse>
 
+        {/* Client-side name filter — search within loaded results */}
+        {!loading && games.length > 0 && (
+          <TextField
+            size="small"
+            fullWidth
+            placeholder="Search within results..."
+            value={nameFilter}
+            onChange={(e) => setNameFilter(e.target.value)}
+            sx={{
+              '& .MuiOutlinedInput-root': { borderRadius: 2 },
+            }}
+          />
+        )}
+
         {loading && (
           <Box sx={{ py: 2 }}>
             <GameCardSkeletonList count={5} />
@@ -558,7 +573,9 @@ export default function ResultsView() {
           </Box>
         )}
 
-        {!loading && games.map((game) => (
+        {!loading && games
+          .filter((game) => !nameFilter.trim() || game.name.toLowerCase().includes(nameFilter.toLowerCase()))
+          .map((game) => (
           <Box key={game.id}>
             <GameCard game={game} />
             {/* "Why we picked this" reasons */}
