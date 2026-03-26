@@ -32,6 +32,8 @@ interface Filters {
   mechanic: string | null;
   theme: string | null;
   platform: string | null;
+  designer: string | null;
+  publisher: string | null;
   q: string;
   sort: string;
   popularity: string;
@@ -48,6 +50,8 @@ const DEFAULT_FILTERS: Filters = {
   mechanic: null,
   theme: null,
   platform: null,
+  designer: null,
+  publisher: null,
   q: '',
   sort: 'rating',
   popularity: 'popular',
@@ -116,6 +120,12 @@ const THEME_OPTIONS = [
   'Theme: Zombies', 'Theme: Post-Apocalyptic', 'Theme: Cyberpunk',
 ].sort();
 
+const PLATFORM_OPTIONS = [
+  'Android', 'iOS', 'Linux', 'macOS', 'Nintendo Switch',
+  'PC', 'PlayStation 4', 'PlayStation 5', 'Web',
+  'Xbox One', 'Xbox Series S/X',
+].sort();
+
 const COMPLEXITY_LABELS: Record<number, string> = {
   1: 'Light',
   2: 'Easy',
@@ -145,6 +155,8 @@ export default function BrowseView() {
     mechanic: searchParams.get('mechanic'),
     theme: searchParams.get('theme'),
     platform: searchParams.get('platform'),
+    designer: searchParams.get('designer'),
+    publisher: searchParams.get('publisher'),
     q: searchParams.get('q') ?? '',
   };
 
@@ -176,6 +188,8 @@ export default function BrowseView() {
       if (f.mechanic) params.set('mechanic', f.mechanic);
       if (f.theme) params.set('theme', f.theme);
       if (f.platform) params.set('platform', f.platform);
+      if (f.designer) params.set('designer', f.designer);
+      if (f.publisher) params.set('publisher', f.publisher);
       if (f.type) params.set('type', f.type);
       if (f.q.trim()) params.set('q', f.q.trim());
       params.set('sort', f.sort);
@@ -217,7 +231,7 @@ export default function BrowseView() {
 
   const af = appliedFilters; // shorthand for active filter checks
   const hasActiveFilters = af.type || af.category || af.mechanic ||
-    af.theme || af.platform || af.q.trim() ||
+    af.theme || af.platform || af.designer || af.publisher || af.q.trim() ||
     af.playerCount[0] > 1 || af.playerCount[1] < 10 ||
     af.playTime[0] > 0 || af.playTime[1] < 300 ||
     af.complexity[0] > 1 || af.complexity[1] < 5 ||
@@ -225,7 +239,7 @@ export default function BrowseView() {
     af.yearRange[0] > 1950 || af.yearRange[1] < 2026;
 
   const activeFilterCount = [
-    af.type, af.category, af.mechanic, af.theme, af.platform,
+    af.type, af.category, af.mechanic, af.theme, af.platform, af.designer, af.publisher,
     af.q.trim() || null,
     af.playerCount[0] > 1 || af.playerCount[1] < 10 ? 'players' : null,
     af.playTime[0] > 0 || af.playTime[1] < 300 ? 'time' : null,
@@ -459,7 +473,44 @@ export default function BrowseView() {
                 />
               </Box>
 
-              {/* Row 5: Popularity mode */}
+              {/* Row 5: Platform + Designer + Publisher */}
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr 1fr' }, gap: 3 }}>
+                <Autocomplete
+                  value={filters.platform}
+                  onChange={(_, v) => updateFilter({ platform: v })}
+                  options={PLATFORM_OPTIONS}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Platform" size="small" placeholder="Type to search..." />
+                  )}
+                  freeSolo={false}
+                  clearOnBlur
+                  size="small"
+                />
+                <Autocomplete
+                  value={filters.designer}
+                  onChange={(_, v) => updateFilter({ designer: v })}
+                  options={[]}
+                  freeSolo
+                  renderInput={(params) => (
+                    <TextField {...params} label="Designer" size="small" placeholder="e.g. Reiner Knizia" />
+                  )}
+                  clearOnBlur
+                  size="small"
+                />
+                <Autocomplete
+                  value={filters.publisher}
+                  onChange={(_, v) => updateFilter({ publisher: v })}
+                  options={[]}
+                  freeSolo
+                  renderInput={(params) => (
+                    <TextField {...params} label="Publisher" size="small" placeholder="e.g. Fantasy Flight" />
+                  )}
+                  clearOnBlur
+                  size="small"
+                />
+              </Box>
+
+              {/* Row 6: Popularity mode */}
               <Box>
                 <Typography variant="subtitle2" fontWeight={600} gutterBottom>
                   Show
@@ -507,6 +558,15 @@ export default function BrowseView() {
             )}
             {af.theme && (
               <Chip label={`Theme: ${af.theme}`} onDelete={() => updateAndApply({ theme: null })} size="small" color="secondary" />
+            )}
+            {af.platform && (
+              <Chip label={`Platform: ${af.platform}`} onDelete={() => updateAndApply({ platform: null })} size="small" color="secondary" />
+            )}
+            {af.designer && (
+              <Chip label={`Designer: ${af.designer}`} onDelete={() => updateAndApply({ designer: null })} size="small" color="secondary" />
+            )}
+            {af.publisher && (
+              <Chip label={`Publisher: ${af.publisher}`} onDelete={() => updateAndApply({ publisher: null })} size="small" color="secondary" />
             )}
             {(af.playerCount[0] > 1 || af.playerCount[1] < 10) && (
               <Chip

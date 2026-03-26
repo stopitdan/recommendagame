@@ -41,6 +41,8 @@ export async function GET(request: NextRequest) {
   const mechanic = searchParams.get('mechanic');
   const theme = searchParams.get('theme');
   const platform = searchParams.get('platform');
+  const designer = searchParams.get('designer');
+  const publisher = searchParams.get('publisher');
   const type = searchParams.get('type');
   const textQuery = searchParams.get('q');
   const popularity = searchParams.get('popularity') ?? 'popular';
@@ -60,7 +62,8 @@ export async function GET(request: NextRequest) {
   const yearTo = searchParams.get('yearTo');
 
   // Only request exact count when filters are applied (full table count is slow on free tier)
-  const hasFilters = category || mechanic || theme || platform || type || textQuery ||
+  const hasFilters = category || mechanic || theme || platform || designer || publisher ||
+    type || textQuery ||
     minPlayers || maxPlayers || minTime || maxTime || minComplexity || maxComplexity ||
     minRating || yearFrom || yearTo;
 
@@ -76,6 +79,8 @@ export async function GET(request: NextRequest) {
   if (mechanic) query = query.contains('mechanics', [mechanic]);
   if (theme) query = query.contains('themes', [theme]);
   if (platform) query = query.contains('platforms', [platform]);
+  if (designer) query = query.contains('designers', [designer]);
+  if (publisher) query = query.contains('publishers', [publisher]);
   if (type) query = query.contains('types', [type]);
 
   // Player count range
