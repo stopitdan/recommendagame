@@ -9,6 +9,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 import { parsePreferencesWithLLM } from '@/lib/llm/parse-preferences';
 import { getCachedParse, setCachedParse } from '@/lib/llm/cache';
 import type { ParsedPreferences } from '@/lib/llm/types';
@@ -56,12 +57,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Store in cache (both tiers, non-blocking)
-    setCachedParse(text, parsed).catch((err) =>
+    // Enrich with data from "similarTo" games in our DB
+    const enriched = await enrichFromSimilarGames(parsed);
+
+    // Store enriched result in cache (both tiers, non-blocking)
+    setCachedParse(text, enriched).catch((err) =>
       console.warn('[parse-text] Cache write failed:', err),
     );
 
-    return NextResponse.json({ parsed, cached: false });
+    return NextResponse.json({ parsed: enriched, cached: false });
   } catch (error) {
     console.error('[parse-text] Error:', error);
     return NextResponse.json(
@@ -69,4 +73,99 @@ export async function POST(request: NextRequest) {
       { status: 500 },
     );
   }
+}
+
+// ─── Enrich from DB ──────────────────────────────────────────
+
+/**
+ * When the LLM identifies "similarTo" game names, look them up in our DB
+ * and use their actual data to fill in gaps the LLM couldn't infer.
+ *
+ * "I want a game like Slay the Spire" → look up Slay the Spire →
+ * get its player count (1), complexity (2.7), play time (45 min),
+ * categories (Strategy, Adventure), mechanics (Deck Building) →
+ * merge into the parsed preferences.
+ */
+async function enrichFromSimilarGames(
+  parsed: ParsedPreferences,
+): Promise<ParsedPreferences> {
+  if (parsed.similarTo.length === 0) return parsed;
+
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return parsed;
+
+  const supabase = createClient(url, key);
+  const enriched = { ...parsed };
+
+  // Look up each similar game
+  for (const gameName of parsed.similarTo.slice(0, 3)) {
+    const { data } = await supabase
+      .from('games')
+      .select('min_players, max_players, avg_play_time, complexity, categories, mechanics, themes, types')
+      .ilike('name', gameName) // Exact match first
+      .limit(1)
+      .single();
+
+    if (!data) {
+      // Try fuzzy match
+      const { data: fuzzy } = await supabase
+        .from('games')
+        .select('min_players, max_players, avg_play_time, complexity, categories, mechanics, themes, types')
+        .ilike('name', `%${gameName}%`)
+        .order('rating_count', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (!fuzzy) continue;
+      Object.assign(data ?? {}, fuzzy);
+      if (!data) continue;
+    }
+
+    // Fill in player count if LLM didn't infer it
+    if (!enriched.playerCount && data.min_players && data.max_players) {
+      enriched.playerCount = { min: data.min_players, max: data.max_players };
+    }
+
+    // Fill in complexity if LLM didn't infer it
+    if (!enriched.complexity && data.complexity) {
+      // Give a range around the game's complexity (±0.5)
+      enriched.complexity = {
+        min: Math.max(1, Math.round((data.complexity - 0.5) * 2) / 2),
+        max: Math.min(5, Math.round((data.complexity + 0.5) * 2) / 2),
+      };
+    }
+
+    // Fill in time presets if LLM didn't infer any
+    if (enriched.timePresets.length === 0 && data.avg_play_time) {
+      const t = data.avg_play_time;
+      if (t <= 15) enriched.timePresets = ['quick'];
+      else if (t <= 30) enriched.timePresets = ['short'];
+      else if (t <= 60) enriched.timePresets = ['medium'];
+      else if (t <= 120) enriched.timePresets = ['long'];
+      else enriched.timePresets = ['epic'];
+    }
+
+    // Fill in game types if LLM didn't infer any
+    if (enriched.gameTypes.length === 0 && data.types?.length > 0) {
+      enriched.gameTypes = [...new Set([...enriched.gameTypes, ...data.types])];
+    }
+
+    // Merge categories into genres (deduplicated)
+    if (data.categories?.length > 0) {
+      enriched.genres = [...new Set([...enriched.genres, ...data.categories])];
+    }
+
+    // Merge mechanics (deduplicated)
+    if (data.mechanics?.length > 0) {
+      enriched.mechanics = [...new Set([...enriched.mechanics, ...data.mechanics])];
+    }
+
+    // Merge themes into keywords
+    if (data.themes?.length > 0) {
+      enriched.keywords = [...new Set([...enriched.keywords, ...data.themes])];
+    }
+  }
+
+  return enriched;
 }

@@ -75,14 +75,38 @@ export default function QuestionnaireFlow() {
    * Only sets values that are valid against our known enums.
    */
   function mergeWithParsed(parsed: ParsedPreferences) {
+    // Fuzzy genre matching: map LLM genres + DB categories to our UI options
+    const genreMap = new Map(GENRE_OPTIONS.map((g) => [g.toLowerCase(), g]));
+    const matchedGenres = new Set<string>();
+    for (const g of [...parsed.genres, ...parsed.mechanics]) {
+      const lower = g.toLowerCase();
+      // Exact match
+      if (genreMap.has(lower)) {
+        matchedGenres.add(genreMap.get(lower)!);
+        continue;
+      }
+      // Substring match: "Abstract Strategy" → "Strategy"
+      for (const [key, val] of genreMap) {
+        if (lower.includes(key) || key.includes(lower)) {
+          matchedGenres.add(val);
+        }
+      }
+    }
+
     setState((prev) => ({
       ...prev,
-      gameTypes: parsed.gameTypes.filter((t) => VALID_GAME_TYPES.has(t)) as GameType[],
+      gameTypes: parsed.gameTypes.length > 0
+        ? parsed.gameTypes.filter((t) => VALID_GAME_TYPES.has(t)) as GameType[]
+        : prev.gameTypes,
       playerCount: parsed.playerCount ?? prev.playerCount,
-      timePresets: parsed.timePresets.filter((t) => VALID_TIME_PRESETS.has(t)) as TimePreset[],
+      timePresets: parsed.timePresets.length > 0
+        ? parsed.timePresets.filter((t) => VALID_TIME_PRESETS.has(t)) as TimePreset[]
+        : prev.timePresets,
       complexity: parsed.complexity ?? prev.complexity,
-      genres: parsed.genres.filter((g) => VALID_GENRES.has(g as typeof GENRE_OPTIONS[number])),
-      moods: parsed.moods.filter((m) => VALID_MOODS.has(m)),
+      genres: matchedGenres.size > 0 ? [...matchedGenres] : prev.genres,
+      moods: parsed.moods.length > 0
+        ? parsed.moods.filter((m) => VALID_MOODS.has(m))
+        : prev.moods,
       llmParsed: parsed,
     }));
   }
