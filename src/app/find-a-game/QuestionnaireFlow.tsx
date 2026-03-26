@@ -358,7 +358,7 @@ export default function QuestionnaireFlow() {
             exit={{ opacity: 0, x: -30 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
           >
-            <Typography variant="h4" fontWeight={700} sx={{ mb: 1 }}>
+            <Typography variant="h4" fontWeight={700} sx={{ mb: 1, fontSize: { xs: '1.6rem', sm: '2rem', md: '2.125rem' } }}>
               {STEPS[step].title}
             </Typography>
             {isFreeTextStep && (

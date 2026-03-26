@@ -10,11 +10,15 @@ import { createAppTheme } from "@/theme";
 interface ColorModeContextType {
   mode: PaletteMode;
   toggleMode: () => void;
+  colorPreset: string;
+  setColorPreset: (id: string) => void;
 }
 
 const ColorModeContext = createContext<ColorModeContextType>({
   mode: "light",
   toggleMode: () => {},
+  colorPreset: 'game-night-glow',
+  setColorPreset: () => {},
 });
 
 export function useColorMode() {
@@ -24,6 +28,7 @@ export function useColorMode() {
 // ─── Storage ─────────────────────────────────────────────────
 
 const STORAGE_KEY = "rag_color_mode";
+const PRESET_STORAGE_KEY = "rag_color_preset";
 
 function getStoredMode(): PaletteMode | null {
   if (typeof window === "undefined") return null;
@@ -47,11 +52,14 @@ export default function ThemeRegistry({
   children: React.ReactNode;
 }) {
   const [mode, setMode] = useState<PaletteMode>("light");
+  const [colorPreset, setColorPresetState] = useState('game-night-glow');
 
-  // Initialize from stored preference or system setting
+  // Initialize from stored preferences
   useEffect(() => {
     const stored = getStoredMode();
     setMode(stored ?? getSystemMode());
+    const storedPreset = localStorage.getItem(PRESET_STORAGE_KEY);
+    if (storedPreset) setColorPresetState(storedPreset);
 
     // Listen for system theme changes (only if no stored preference)
     if (!stored) {
@@ -72,9 +80,14 @@ export default function ThemeRegistry({
     });
   }, []);
 
-  const theme = useMemo(() => createAppTheme(mode), [mode]);
+  const setColorPreset = useCallback((id: string) => {
+    setColorPresetState(id);
+    localStorage.setItem(PRESET_STORAGE_KEY, id);
+  }, []);
 
-  const contextValue = useMemo(() => ({ mode, toggleMode }), [mode, toggleMode]);
+  const theme = useMemo(() => createAppTheme(mode, colorPreset), [mode, colorPreset]);
+
+  const contextValue = useMemo(() => ({ mode, toggleMode, colorPreset, setColorPreset }), [mode, toggleMode, colorPreset, setColorPreset]);
 
   return (
     <ColorModeContext.Provider value={contextValue}>

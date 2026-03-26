@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -93,16 +93,22 @@ export default function GameDetailView() {
         &larr; Back
       </Button>
 
+      {/* Parallax hero banner */}
+      {game.imageUrl && (
+        <ParallaxBanner src={game.imageUrl} alt={game.name} />
+      )}
+
       <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4 }}>
-        {/* Image */}
+        {/* Image (hidden when parallax banner shows on mobile, visible on desktop as sidebar) */}
         {game.imageUrl && (
           <Box
             component="img"
             src={game.imageUrl}
             alt={game.name}
             sx={{
-              width: { xs: '100%', md: 280 },
-              height: { xs: 240, md: 'auto' },
+              display: { xs: 'none', md: 'block' },
+              width: { md: 280 },
+              height: 'auto',
               maxHeight: 400,
               objectFit: 'cover',
               borderRadius: 2,
@@ -278,5 +284,70 @@ export default function GameDetailView() {
         <SimilarGames gameId={game.id} />
       </Box>
     </Container>
+  );
+}
+
+/** Parallax hero banner — image scrolls at 50% speed */
+function ParallaxBanner({ src, alt }: { src: string; alt: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let ticking = false;
+    function onScroll() {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          if (ref.current) {
+            const offset = window.scrollY * 0.4;
+            ref.current.style.transform = `translateY(${offset}px)`;
+          }
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  return (
+    <Box
+      sx={{
+        display: { xs: 'block', md: 'none' },
+        position: 'relative',
+        height: 240,
+        overflow: 'hidden',
+        borderRadius: 3,
+        mb: 3,
+        mx: -2,
+      }}
+    >
+      <Box
+        ref={ref}
+        component="img"
+        src={src}
+        alt={alt}
+        sx={{
+          width: '100%',
+          height: '140%',
+          objectFit: 'cover',
+          position: 'absolute',
+          top: '-20%',
+          left: 0,
+          willChange: 'transform',
+        }}
+      />
+      {/* Gradient overlay at bottom */}
+      <Box
+        sx={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: '50%',
+          background: (theme) =>
+            `linear-gradient(transparent, ${theme.palette.background.default})`,
+        }}
+      />
+    </Box>
   );
 }

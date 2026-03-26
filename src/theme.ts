@@ -1,78 +1,35 @@
 import { createTheme, type PaletteMode } from "@mui/material/styles";
+import { type ColorPreset, getPreset, DEFAULT_PRESET_ID } from "@/lib/color-presets";
 
 /**
  * Recommend a Game — MUI Theme Factory
  *
- * "Game Night Glow" palette — vibrant, playful, inviting.
- *
- * Supports light and dark modes. Dark mode uses deeper backgrounds
- * while keeping the same vibrant accent colors.
+ * Reads from the color preset system. To change colors:
+ * 1. Edit or add a preset in src/lib/color-presets.ts
+ * 2. That's it — theme auto-generates from the preset
  */
 
-// ─── Shared Colors (same in both modes) ──────────────────────
+export function createAppTheme(mode: PaletteMode, presetId?: string) {
+  const c = getPreset(presetId ?? DEFAULT_PRESET_ID);
+  const isDark = mode === "dark";
 
-const INDIGO = "#5B4FDB";
-const INDIGO_DARK = "#4A3FC5";
-const INDIGO_LIGHT = "#7B71E8";
-const CORAL = "#FF6D3F";
-const CORAL_DARK = "#E85A2E";
-const TEAL = "#0EC6C6";
-const AMBER = "#FFB020";
+  const bg = isDark
+    ? { default: c.darkBg, paper: c.darkPaper }
+    : { default: c.lightBg, paper: c.lightPaper };
 
-// ─── Mode-Specific Colors ────────────────────────────────────
+  const text = isDark
+    ? { primary: c.darkText, secondary: c.darkTextSecondary }
+    : { primary: c.lightText, secondary: c.lightTextSecondary };
 
-const lightPalette = {
-  background: { default: "#FDFAF6", paper: "#FFFFFF" },
-  text: { primary: "#1A1A2E", secondary: "#64648C" },
-  divider: "#EEEDF5",
-  secondaryLight: "#FFF0EB",
-  infoLight: "#E5FAFA",
-  successLight: "#ECFDF5",
-  warningLight: "#FFF8E8",
-  errorLight: "#FEF2F2",
-  cardBorder: "#EEEDF5",
-  chipBorder: "#EEEDF5",
-  hoverBg: "rgba(91, 79, 219, 0.06)",
-  progressBg: "#EEEDF5",
-  sliderRail: "#EEEDF5",
-  appBarBg: "linear-gradient(135deg, #1A1A2E 0%, #2D2B55 100%)",
-  tooltipBg: "#1A1A2E",
-  alertSuccessBg: "#ECFDF5",
-  alertSuccessText: "#166534",
-  alertErrorBg: "#FEF2F2",
-  alertErrorText: "#991B1B",
-  alertInfoBg: "#E5FAFA",
-  alertInfoText: "#0AA3A3",
-};
+  const divider = isDark ? c.darkDivider : c.lightDivider;
 
-const darkPalette = {
-  background: { default: "#0F0F1A", paper: "#1A1A2E" },
-  text: { primary: "#EEEDF5", secondary: "#A0A0C0" },
-  divider: "#2D2B55",
-  secondaryLight: "rgba(255, 109, 63, 0.15)",
-  infoLight: "rgba(14, 198, 198, 0.15)",
-  successLight: "rgba(34, 197, 94, 0.15)",
-  warningLight: "rgba(255, 176, 32, 0.15)",
-  errorLight: "rgba(239, 68, 68, 0.15)",
-  cardBorder: "#2D2B55",
-  chipBorder: "#3D3B65",
-  hoverBg: "rgba(91, 79, 219, 0.12)",
-  progressBg: "#2D2B55",
-  sliderRail: "#2D2B55",
-  appBarBg: "linear-gradient(135deg, #0A0A14 0%, #1A1A2E 100%)",
-  tooltipBg: "#2D2B55",
-  alertSuccessBg: "rgba(34, 197, 94, 0.15)",
-  alertSuccessText: "#86EFAC",
-  alertErrorBg: "rgba(239, 68, 68, 0.15)",
-  alertErrorText: "#FCA5A5",
-  alertInfoBg: "rgba(14, 198, 198, 0.15)",
-  alertInfoText: "#5EEAD4",
-};
+  const hoverBg = isDark
+    ? `${c.primary}20`
+    : `${c.primary}10`;
 
-// ─── Theme Factory ───────────────────────────────────────────
-
-export function createAppTheme(mode: PaletteMode) {
-  const p = mode === "dark" ? darkPalette : lightPalette;
+  const secondaryLight = isDark
+    ? `${c.secondary}25`
+    : `${c.secondary}18`;
 
   return createTheme({
     typography: {
@@ -89,37 +46,37 @@ export function createAppTheme(mode: PaletteMode) {
     palette: {
       mode,
       primary: {
-        main: INDIGO,
-        dark: INDIGO_DARK,
-        light: INDIGO_LIGHT,
+        main: c.primary,
+        dark: c.primaryDark,
+        light: c.primaryLight,
         contrastText: "#FFFFFF",
       },
       secondary: {
-        main: CORAL,
-        dark: CORAL_DARK,
-        light: p.secondaryLight,
+        main: c.secondary,
+        dark: c.secondaryDark,
+        light: secondaryLight,
         contrastText: "#FFFFFF",
       },
-      background: p.background,
-      text: p.text,
-      divider: p.divider,
+      background: bg,
+      text,
+      divider,
       info: {
-        main: TEAL,
-        light: p.infoLight,
-        dark: "#0AA3A3",
+        main: c.accent,
+        light: isDark ? `${c.accent}25` : `${c.accent}18`,
+        dark: c.accent,
         contrastText: "#FFFFFF",
       },
       success: {
         main: "#22C55E",
-        light: p.successLight,
+        light: isDark ? "rgba(34, 197, 94, 0.15)" : "#ECFDF5",
       },
       warning: {
-        main: AMBER,
-        light: p.warningLight,
+        main: c.rating,
+        light: isDark ? `${c.rating}25` : `${c.rating}18`,
       },
       error: {
         main: "#EF4444",
-        light: p.errorLight,
+        light: isDark ? "rgba(239, 68, 68, 0.15)" : "#FEF2F2",
       },
     },
     shape: {
@@ -137,47 +94,47 @@ export function createAppTheme(mode: PaletteMode) {
             transition: "all 200ms cubic-bezier(0.4, 0, 0.2, 1)",
           },
           containedPrimary: {
-            background: `linear-gradient(135deg, ${INDIGO} 0%, ${INDIGO_LIGHT} 100%)`,
-            boxShadow: "0 4px 14px rgba(91, 79, 219, 0.3)",
+            background: `linear-gradient(135deg, ${c.primary} 0%, ${c.primaryLight} 100%)`,
+            boxShadow: `0 4px 14px ${c.primary}4D`,
             "&:hover": {
-              background: `linear-gradient(135deg, ${INDIGO_DARK} 0%, ${INDIGO} 100%)`,
-              boxShadow: "0 6px 20px rgba(91, 79, 219, 0.4)",
+              background: `linear-gradient(135deg, ${c.primaryDark} 0%, ${c.primary} 100%)`,
+              boxShadow: `0 6px 20px ${c.primary}66`,
               transform: "translateY(-1px)",
             },
             "&:active": { transform: "translateY(0)" },
           },
           containedSecondary: {
-            background: `linear-gradient(135deg, ${CORAL} 0%, #FF8F6B 100%)`,
-            boxShadow: "0 4px 14px rgba(255, 109, 63, 0.3)",
+            background: `linear-gradient(135deg, ${c.secondary} 0%, ${c.secondary}CC 100%)`,
+            boxShadow: `0 4px 14px ${c.secondary}4D`,
             "&:hover": {
-              background: `linear-gradient(135deg, ${CORAL_DARK} 0%, ${CORAL} 100%)`,
-              boxShadow: "0 6px 20px rgba(255, 109, 63, 0.4)",
+              background: `linear-gradient(135deg, ${c.secondaryDark} 0%, ${c.secondary} 100%)`,
+              boxShadow: `0 6px 20px ${c.secondary}66`,
               transform: "translateY(-1px)",
             },
             "&:active": { transform: "translateY(0)" },
           },
           outlinedPrimary: {
-            borderColor: INDIGO,
+            borderColor: c.primary,
             borderWidth: 2,
-            color: INDIGO,
+            color: c.primary,
             "&:hover": {
-              borderColor: INDIGO_DARK,
+              borderColor: c.primaryDark,
               borderWidth: 2,
-              backgroundColor: p.hoverBg,
+              backgroundColor: hoverBg,
             },
           },
           outlinedSecondary: {
-            borderColor: CORAL,
+            borderColor: c.secondary,
             borderWidth: 2,
-            color: CORAL,
+            color: c.secondary,
             "&:hover": {
-              borderColor: CORAL_DARK,
+              borderColor: c.secondaryDark,
               borderWidth: 2,
-              backgroundColor: "rgba(255, 109, 63, 0.06)",
+              backgroundColor: `${c.secondary}10`,
             },
           },
           text: {
-            "&:hover": { backgroundColor: p.hoverBg },
+            "&:hover": { backgroundColor: hoverBg },
           },
         },
       },
@@ -185,14 +142,14 @@ export function createAppTheme(mode: PaletteMode) {
         styleOverrides: {
           root: {
             borderRadius: 16,
-            border: `1px solid ${p.cardBorder}`,
-            backgroundColor: p.background.paper,
+            border: `1px solid ${divider}`,
+            backgroundColor: bg.paper,
             transition: "all 250ms cubic-bezier(0.4, 0, 0.2, 1)",
             "&:hover": {
-              boxShadow: mode === "dark"
-                ? "0 8px 30px rgba(91, 79, 219, 0.2), 0 2px 8px rgba(0,0,0,0.3)"
-                : "0 8px 30px rgba(91, 79, 219, 0.12), 0 2px 8px rgba(0,0,0,0.06)",
-              borderColor: "rgba(91, 79, 219, 0.2)",
+              boxShadow: isDark
+                ? `0 8px 30px ${c.primary}33, 0 2px 8px rgba(0,0,0,0.3)`
+                : `0 8px 30px ${c.primary}1F, 0 2px 8px rgba(0,0,0,0.06)`,
+              borderColor: `${c.primary}33`,
             },
           },
         },
@@ -213,18 +170,18 @@ export function createAppTheme(mode: PaletteMode) {
             borderRadius: 8,
           },
           outlined: {
-            borderColor: p.chipBorder,
+            borderColor: divider,
             "&:hover": {
-              borderColor: INDIGO,
-              backgroundColor: p.hoverBg,
+              borderColor: c.primary,
+              backgroundColor: hoverBg,
             },
           },
           filledPrimary: {
-            background: `linear-gradient(135deg, ${INDIGO}, ${INDIGO_LIGHT})`,
+            background: `linear-gradient(135deg, ${c.primary}, ${c.primaryLight})`,
             color: "#FFFFFF",
           },
           filledSecondary: {
-            background: `linear-gradient(135deg, ${CORAL}, #FF8F6B)`,
+            background: `linear-gradient(135deg, ${c.secondary}, ${c.secondary}CC)`,
             color: "#FFFFFF",
           },
         },
@@ -232,21 +189,23 @@ export function createAppTheme(mode: PaletteMode) {
       MuiAppBar: {
         styleOverrides: {
           root: {
-            background: p.appBarBg,
+            background: isDark
+              ? `linear-gradient(135deg, ${c.darkBg} 0%, ${c.darkPaper} 100%)`
+              : `linear-gradient(135deg, ${c.lightText} 0%, ${c.lightText}DD 100%)`,
             color: "#FFFFFF",
-            boxShadow: "0 2px 12px rgba(26, 26, 46, 0.15)",
+            boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
           },
         },
       },
       MuiLinearProgress: {
         styleOverrides: {
           root: {
-            backgroundColor: p.progressBg,
+            backgroundColor: divider,
             borderRadius: 6,
             height: 6,
           },
           bar: {
-            background: `linear-gradient(90deg, ${INDIGO}, ${TEAL}, ${CORAL})`,
+            background: `linear-gradient(90deg, ${c.primary}, ${c.accent}, ${c.secondary})`,
             borderRadius: 6,
           },
         },
@@ -258,10 +217,10 @@ export function createAppTheme(mode: PaletteMode) {
               borderRadius: 10,
               transition: "box-shadow 200ms ease",
               "&.Mui-focused": {
-                boxShadow: "0 0 0 3px rgba(91, 79, 219, 0.15)",
+                boxShadow: `0 0 0 3px ${c.primary}25`,
               },
               "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                borderColor: INDIGO,
+                borderColor: c.primary,
                 borderWidth: 2,
               },
             },
@@ -270,34 +229,43 @@ export function createAppTheme(mode: PaletteMode) {
       },
       MuiSlider: {
         styleOverrides: {
-          root: { color: INDIGO, height: 6 },
+          root: { color: c.primary, height: 6 },
           thumb: {
             width: 20,
             height: 20,
             "&:hover, &.Mui-active": {
-              boxShadow: "0 0 0 8px rgba(91, 79, 219, 0.16)",
+              boxShadow: `0 0 0 8px ${c.primary}28`,
             },
           },
           track: {
-            background: `linear-gradient(90deg, ${INDIGO}, ${TEAL})`,
+            background: `linear-gradient(90deg, ${c.primary}, ${c.accent})`,
             border: "none",
           },
           rail: {
-            backgroundColor: p.sliderRail,
+            backgroundColor: divider,
             opacity: 1,
           },
         },
       },
       MuiRating: {
         styleOverrides: {
-          root: { color: AMBER },
+          root: { color: c.rating },
         },
       },
       MuiAlert: {
         styleOverrides: {
-          standardSuccess: { backgroundColor: p.alertSuccessBg, color: p.alertSuccessText },
-          standardError: { backgroundColor: p.alertErrorBg, color: p.alertErrorText },
-          standardInfo: { backgroundColor: p.alertInfoBg, color: p.alertInfoText },
+          standardSuccess: {
+            backgroundColor: isDark ? "rgba(34,197,94,0.15)" : "#ECFDF5",
+            color: isDark ? "#86EFAC" : "#166534",
+          },
+          standardError: {
+            backgroundColor: isDark ? "rgba(239,68,68,0.15)" : "#FEF2F2",
+            color: isDark ? "#FCA5A5" : "#991B1B",
+          },
+          standardInfo: {
+            backgroundColor: isDark ? `${c.accent}25` : `${c.accent}18`,
+            color: isDark ? `${c.accent}` : c.accent,
+          },
         },
       },
       MuiDialog: {
@@ -308,10 +276,16 @@ export function createAppTheme(mode: PaletteMode) {
       MuiTooltip: {
         styleOverrides: {
           tooltip: {
-            backgroundColor: p.tooltipBg,
-            borderRadius: 8,
-            fontSize: "0.8rem",
+            backgroundColor: isDark ? c.darkDivider : c.lightText,
+            color: "#FFFFFF",
+            borderRadius: 10,
+            fontSize: "0.82rem",
+            fontWeight: 500,
             padding: "8px 14px",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+          },
+          arrow: {
+            color: isDark ? c.darkDivider : c.lightText,
           },
         },
       },
