@@ -52,7 +52,8 @@ export default function ResultsView() {
   const [freeText, setFreeText] = useState(searchParams.get('freeText') ?? '');
   const [isReparsing, setIsReparsing] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [filterText, setFilterText] = useState('');
+
+  // Refine filters — editing state (not applied until user clicks Apply or closes panel)
   const [filterPlayers, setFilterPlayers] = useState<[number, number]>([
     parseInt(searchParams.get('minPlayers') ?? '1', 10),
     parseInt(searchParams.get('maxPlayers') ?? '10', 10),
@@ -67,6 +68,24 @@ export default function ResultsView() {
   const [filterMechanics, setFilterMechanics] = useState<string[]>([]);
   const [filterThemes, setFilterThemes] = useState<string[]>([]);
   const [filterPlatforms, setFilterPlatforms] = useState<string[]>([]);
+
+  // Applied filters — what was last fetched (triggers re-fetch)
+  const [appliedRefine, setAppliedRefine] = useState({
+    playerCount: [
+      parseInt(searchParams.get('minPlayers') ?? '1', 10),
+      parseInt(searchParams.get('maxPlayers') ?? '10', 10),
+    ] as [number, number],
+    time: [0, 300] as [number, number],
+    complexity: [
+      parseFloat(searchParams.get('minComplexity') ?? '1'),
+      parseFloat(searchParams.get('maxComplexity') ?? '5'),
+    ] as [number, number],
+    minRating: 0,
+    categories: [] as string[],
+    mechanics: [] as string[],
+    themes: [] as string[],
+    platforms: [] as string[],
+  });
 
   /**
    * Reconstructs the QuestionnaireState from URL search params
@@ -84,23 +103,29 @@ export default function ResultsView() {
         try { llmParsed = JSON.parse(decodeURIComponent(llmRaw)); } catch { /* ignore */ }
       }
 
+      // Merge URL params with applied refine filters (refine overrides URL params)
+      const r = appliedRefine;
+      const urlGenres = searchParams.get('genres')?.split(',').filter(Boolean) ?? [];
       const preferences: QuestionnaireState & { popularity: string; limit: number } = {
         freeText: searchParams.get('freeText') ?? '',
         gameTypes: (searchParams.get('types')?.split(',').filter(Boolean) ?? []) as GameType[],
         playerCount: {
-          min: parseInt(searchParams.get('minPlayers') ?? '1', 10),
-          max: parseInt(searchParams.get('maxPlayers') ?? '8', 10),
+          min: r.playerCount[0],
+          max: r.playerCount[1],
         },
         timePresets: (searchParams.get('time')?.split(',').filter(Boolean) ?? []) as TimePreset[],
         complexity: {
-          min: parseFloat(searchParams.get('minComplexity') ?? '1'),
-          max: parseFloat(searchParams.get('maxComplexity') ?? '5'),
+          min: r.complexity[0],
+          max: r.complexity[1],
         },
-        genres: searchParams.get('genres')?.split(',').filter(Boolean) ?? [],
+        genres: [...new Set([...urlGenres, ...r.categories, ...r.mechanics, ...r.themes])],
         moods: searchParams.get('moods')?.split(',').filter(Boolean) ?? [],
         llmParsed,
         popularity: popularityOverride ?? popularity,
         limit: 100,
+        minRating: r.minRating > 0 ? r.minRating : undefined,
+        minTime: r.time[0] > 0 ? r.time[0] : undefined,
+        maxTime: r.time[1] < 300 ? r.time[1] : undefined,
       };
 
       const response = await fetch('/api/recommend', {
@@ -127,7 +152,7 @@ export default function ResultsView() {
     } finally {
       setLoading(false);
     }
-  }, [searchParams, popularity]);
+  }, [searchParams, popularity, appliedRefine]);
 
   useEffect(() => {
     fetchResults();
@@ -220,66 +245,21 @@ export default function ResultsView() {
     fetchResults(mode);
   }
 
-  // Client-side filtering of already-scored results
-  const filteredGames = games.filter((game) => {
-    // Text filter on name
-    if (filterText.trim()) {
-      const lower = filterText.toLowerCase();
-      if (!game.name.toLowerCase().includes(lower)) return false;
-    }
+  /** Apply refine filters — triggers a re-fetch with new constraints */
+  function applyRefineFilters() {
+    setAppliedRefine({
+      playerCount: filterPlayers,
+      time: filterTime,
+      complexity: filterComplexity,
+      minRating: filterMinRating,
+      categories: filterCategories,
+      mechanics: filterMechanics,
+      themes: filterThemes,
+      platforms: filterPlatforms,
+    });
+  }
 
-    // Player count
-    if (filterPlayers[0] > 1 || filterPlayers[1] < 10) {
-      if (!game.playerCount) return false;
-      if (game.playerCount.max < filterPlayers[0]) return false;
-      if (game.playerCount.min > filterPlayers[1]) return false;
-    }
-
-    // Play time
-    if (filterTime[0] > 0 || filterTime[1] < 300) {
-      const avg = game.playTime?.average ?? game.playTime?.max ?? 0;
-      if (avg < filterTime[0] || avg > filterTime[1]) return false;
-    }
-
-    // Complexity
-    if (filterComplexity[0] > 1 || filterComplexity[1] < 5) {
-      if (game.complexity == null) return true; // Don't exclude unknown complexity
-      if (game.complexity < filterComplexity[0] || game.complexity > filterComplexity[1]) return false;
-    }
-
-    // Rating
-    if (filterMinRating > 0) {
-      if ((game.rating ?? 0) < filterMinRating) return false;
-    }
-
-    // Categories (game must match ALL selected)
-    if (filterCategories.length > 0) {
-      const gameCats = game.categories.map((c) => c.toLowerCase());
-      if (!filterCategories.every((fc) => gameCats.some((gc) => gc.includes(fc.toLowerCase())))) return false;
-    }
-
-    // Mechanics (game must match ALL selected)
-    if (filterMechanics.length > 0) {
-      const gameMechs = game.mechanics.map((m) => m.toLowerCase());
-      if (!filterMechanics.every((fm) => gameMechs.some((gm) => gm.includes(fm.toLowerCase())))) return false;
-    }
-
-    // Themes (game must match ALL selected)
-    if (filterThemes.length > 0) {
-      const gameThemes = game.themes.map((t) => t.toLowerCase());
-      if (!filterThemes.every((ft) => gameThemes.some((gt) => gt.includes(ft.toLowerCase())))) return false;
-    }
-
-    // Platforms (game must match ANY selected)
-    if (filterPlatforms.length > 0) {
-      const gamePlats = game.platforms.map((p) => p.toLowerCase());
-      if (!filterPlatforms.some((fp) => gamePlats.some((gp) => gp.includes(fp.toLowerCase())))) return false;
-    }
-
-    return true;
-  });
-
-  const hasActiveResultFilters = filterText.trim() ||
+  const hasActiveResultFilters =
     filterPlayers[0] > 1 || filterPlayers[1] < 10 ||
     filterTime[0] > 0 || filterTime[1] < 300 ||
     filterComplexity[0] > 1 || filterComplexity[1] < 5 ||
@@ -288,7 +268,6 @@ export default function ResultsView() {
     filterThemes.length > 0 || filterPlatforms.length > 0;
 
   function clearResultFilters() {
-    setFilterText('');
     setFilterPlayers([1, 10]);
     setFilterTime([0, 300]);
     setFilterComplexity([1, 5]);
@@ -297,6 +276,16 @@ export default function ResultsView() {
     setFilterMechanics([]);
     setFilterThemes([]);
     setFilterPlatforms([]);
+    setAppliedRefine({
+      playerCount: [1, 10],
+      time: [0, 300],
+      complexity: [1, 5],
+      minRating: 0,
+      categories: [],
+      mechanics: [],
+      themes: [],
+      platforms: [],
+    });
   }
 
   return (
@@ -394,10 +383,15 @@ export default function ResultsView() {
           <Button
             variant={filtersOpen ? 'contained' : 'outlined'}
             size="small"
-            onClick={() => setFiltersOpen(!filtersOpen)}
+            onClick={() => {
+              if (filtersOpen) {
+                // Closing — apply pending filter changes
+                applyRefineFilters();
+              }
+              setFiltersOpen(!filtersOpen);
+            }}
           >
             Refine {hasActiveResultFilters ? `(${[
-              filterText.trim() ? 1 : 0,
               filterPlayers[0] > 1 || filterPlayers[1] < 10 ? 1 : 0,
               filterTime[0] > 0 || filterTime[1] < 300 ? 1 : 0,
               filterComplexity[0] > 1 || filterComplexity[1] < 5 ? 1 : 0,
@@ -521,14 +515,22 @@ export default function ResultsView() {
                 />
               </Box>
 
-              {hasActiveResultFilters && (
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Typography variant="body2" color="text.secondary">
-                    Showing {filteredGames.length} of {games.length} results
-                  </Typography>
-                  <Button size="small" onClick={clearResultFilters}>Clear filters</Button>
-                </Box>
-              )}
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Button
+                  size="small"
+                  onClick={clearResultFilters}
+                  disabled={!hasActiveResultFilters}
+                >
+                  Clear all filters
+                </Button>
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={() => { applyRefineFilters(); setFiltersOpen(false); }}
+                >
+                  Apply Filters
+                </Button>
+              </Box>
             </Stack>
           </Box>
         </Collapse>
@@ -563,7 +565,7 @@ export default function ResultsView() {
           </Box>
         )}
 
-        {!loading && filteredGames.map((game) => (
+        {!loading && games.map((game) => (
           <Box key={game.id}>
             <GameCard game={game} />
             {/* "Why we picked this" reasons */}

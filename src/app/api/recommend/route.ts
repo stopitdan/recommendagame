@@ -73,7 +73,13 @@ function createDbClient() {
 // ─── Route Handler ───────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
-  let body: QuestionnaireState & { limit?: number; popularity?: PopularityMode };
+  let body: QuestionnaireState & {
+    limit?: number;
+    popularity?: PopularityMode;
+    minRating?: number;
+    minTime?: number;
+    maxTime?: number;
+  };
 
   try {
     body = await request.json();
@@ -100,7 +106,12 @@ export async function POST(request: NextRequest) {
     // Step 1: Progressive candidate fetching
     // Try with all soft filters first, then loosen progressively.
     // This ensures we ALWAYS return results.
-    let candidates = await fetchCandidates(supabase, body, popularity);
+    const extra = {
+      minRating: body.minRating,
+      minTime: body.minTime,
+      maxTime: body.maxTime,
+    };
+    let candidates = await fetchCandidates(supabase, body, popularity, extra);
 
     // Step 1b: If user provided free text, supplement with text search results
     if (body.freeText && body.freeText.trim().length >= 3) {
@@ -205,6 +216,7 @@ async function fetchCandidates(
   supabase: any,
   prefs: QuestionnaireState,
   popularity: PopularityMode,
+  extra?: { minRating?: number; minTime?: number; maxTime?: number },
 ) {
   let query = supabase
     .from('games')
@@ -228,6 +240,17 @@ async function fetchCandidates(
   if (prefs.playerCount) {
     query = query.lte('min_players', prefs.playerCount.max);
     query = query.gte('max_players', prefs.playerCount.min);
+  }
+
+  // ── Extra refine filters (from results page) ──
+  if (extra?.minRating && extra.minRating > 0) {
+    query = query.gte('rating', extra.minRating);
+  }
+  if (extra?.minTime && extra.minTime > 0) {
+    query = query.gte('avg_play_time', extra.minTime);
+  }
+  if (extra?.maxTime && extra.maxTime < 300) {
+    query = query.lte('avg_play_time', extra.maxTime);
   }
 
   // ── Game type: soft filter at DB level (helps narrow pool) ──
