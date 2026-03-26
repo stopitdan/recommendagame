@@ -262,7 +262,15 @@ export default function QuestionnaireFlow() {
   function renderStep() {
     switch (step) {
       case 0:
-        return <FreeTextStep value={state.freeText} onChange={(v) => update({ freeText: v })} />;
+        return (
+          <FreeTextStep
+            value={state.freeText}
+            onChange={(v) => update({ freeText: v })}
+            onQuickSubmit={quickSubmit}
+            onCustomize={next}
+            isParsing={isParsing}
+          />
+        );
       case 1:
         return <GameTypeStep value={state.gameTypes} onChange={(v) => update({ gameTypes: v })} />;
       case 2:
@@ -322,7 +330,7 @@ export default function QuestionnaireFlow() {
         </AnimatePresence>
       </Container>
 
-      {/* Sticky Navigation */}
+      {/* Sticky Navigation — hidden on free text step (buttons are inline) */}
       <Box
         sx={{
           position: 'fixed',
@@ -335,6 +343,7 @@ export default function QuestionnaireFlow() {
           py: 2,
           px: 2,
           zIndex: 10,
+          display: isFreeTextStep ? 'none' : 'block',
         }}
       >
         <Container maxWidth="sm">
@@ -357,46 +366,16 @@ export default function QuestionnaireFlow() {
                 Save Preset
               </Button>
             )}
-            {!isFreeTextStep && (
-              <Button variant="text" onClick={skip} sx={{ minWidth: 80 }}>
-                {isLast ? '' : 'Skip'}
-              </Button>
-            )}
-            {isFreeTextStep && state.freeText.trim().length >= 3 && (
-              <Button
-                variant="outlined"
-                onClick={quickSubmit}
-                disabled={isParsing}
-                sx={{ minWidth: 160 }}
-              >
-                {isParsing ? (
-                  <Stack direction="row" spacing={1} alignItems="center">
-                    <CircularProgress size={16} color="inherit" />
-                    <span>Finding...</span>
-                  </Stack>
-                ) : (
-                  'Just show me games'
-                )}
-              </Button>
-            )}
+            <Button variant="text" onClick={skip} sx={{ minWidth: 80 }}>
+              {isLast ? '' : 'Skip'}
+            </Button>
             <Button
               variant="contained"
               onClick={next}
               disabled={isParsing}
               sx={{ minWidth: 140 }}
             >
-              {isParsing ? (
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <CircularProgress size={18} color="inherit" />
-                  <span>Analyzing...</span>
-                </Stack>
-              ) : isLast ? (
-                'Find Games'
-              ) : isFreeTextStep ? (
-                'Customize more'
-              ) : (
-                'Next'
-              )}
+              {isLast ? 'Find Games' : 'Next'}
             </Button>
           </Stack>
         </Container>
