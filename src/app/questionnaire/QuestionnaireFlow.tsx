@@ -320,7 +320,7 @@ export default function QuestionnaireFlow() {
             </Typography>
             {isFreeTextStep && (
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Describe what you&apos;re looking for and we&apos;ll set up the rest. Or skip to choose manually.
+                Describe what you&apos;re looking for and we&apos;ll take care of the rest!
               </Typography>
             )}
             <Box>

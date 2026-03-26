@@ -64,7 +64,7 @@ export default function FreeTextStep({
                 <span>Finding games...</span>
               </Stack>
             ) : (
-              'Find my game →'
+              'Find games'
             )}
           </Button>
         )}
