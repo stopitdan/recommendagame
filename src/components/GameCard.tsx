@@ -14,20 +14,24 @@ import type { Game } from '@/types/game';
 import { formatGameType } from '@/lib/utils/format';
 import FavoriteButton from './FavoriteButton';
 
-function AnimatedRating({ value }: { value: number }) {
+function AnimatedRating({ value, delay = 0 }: { value: number; delay?: number }) {
   const ref = useRef<HTMLSpanElement>(null);
   const motionVal = useMotionValue(0);
 
   useEffect(() => {
-    const controls = animate(motionVal, value, {
-      duration: 0.6,
-      ease: 'easeOut',
-      onUpdate: (v) => {
-        if (ref.current) ref.current.textContent = v.toFixed(1);
-      },
-    });
-    return () => controls.stop();
-  }, [value, motionVal]);
+    // Delay the count-up so it starts AFTER the card's reveal animation
+    const timeout = setTimeout(() => {
+      const controls = animate(motionVal, value, {
+        duration: 0.8,
+        ease: 'easeOut',
+        onUpdate: (v) => {
+          if (ref.current) ref.current.textContent = v.toFixed(1);
+        },
+      });
+      return () => controls.stop();
+    }, delay);
+    return () => clearTimeout(timeout);
+  }, [value, motionVal, delay]);
 
   return <span ref={ref}>0.0</span>;
 }
@@ -118,7 +122,7 @@ export default function GameCard({ game, showFavorite = true, isFavorited = fals
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
               {game.rating && (
                 <Chip
-                  label={<AnimatedRating value={game.rating} />}
+                  label={<AnimatedRating value={game.rating} delay={index != null ? Math.min(index * 40, 800) + 350 : 350} />}
                   size="small"
                   sx={{
                     bgcolor: 'primary.main',
