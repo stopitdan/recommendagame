@@ -36,6 +36,7 @@ export default function ResultsView() {
   const router = useRouter();
   const [games, setGames] = useState<RecommendedGame[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasLoaded, setHasLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [popularity, setPopularity] = useState<PopularityMode>('popular');
   const [engine, setEngine] = useState<string>('');
@@ -92,6 +93,8 @@ export default function ResultsView() {
       setGames(data.results ?? []);
       setEngine(data.engine ?? '');
       setTotalCandidates(data.totalCandidates ?? 0);
+
+      setHasLoaded(true);
 
       // Track recommendation count for guest signup prompt
       if (data.results?.length > 0) {
@@ -231,7 +234,7 @@ export default function ResultsView() {
           </Typography>
         )}
 
-        {!loading && !error && games.length === 0 && (
+        {!loading && hasLoaded && !error && games.length === 0 && (
           <Box sx={{ textAlign: 'center', py: 8 }}>
             <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
               No games found matching your preferences

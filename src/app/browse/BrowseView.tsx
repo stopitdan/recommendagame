@@ -132,6 +132,7 @@ export default function BrowseView() {
   const [games, setGames] = useState<Game[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [hasLoaded, setHasLoaded] = useState(false); // True after first successful fetch
   const [offset, setOffset] = useState(0);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
@@ -182,6 +183,7 @@ export default function BrowseView() {
       setGames(data.games ?? []);
       setTotal(data.total ?? 0);
       setOffset(newOffset);
+      setHasLoaded(true);
     } finally {
       setLoading(false);
     }
@@ -528,7 +530,7 @@ export default function BrowseView() {
         {/* Results */}
         {loading && <GameCardSkeletonList count={5} />}
 
-        {!loading && games.length === 0 && (
+        {!loading && hasLoaded && games.length === 0 && (
           <Box sx={{ textAlign: 'center', py: 8 }}>
             <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
               No games match these filters
