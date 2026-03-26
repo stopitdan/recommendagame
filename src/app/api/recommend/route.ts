@@ -97,23 +97,35 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    // Step 1: Fetch candidates with soft filters (only player count is hard)
+    // Step 1: Progressive candidate fetching
+    // Try with all soft filters first, then loosen progressively.
+    // This ensures we ALWAYS return results.
     let candidates = await fetchCandidates(supabase, body, popularity);
 
     // Step 1b: If user provided free text, supplement with text search results
-    // This ensures niche keywords like "roguelike" find relevant games even
-    // if they're not in the top 300 by rating
     if (body.freeText && body.freeText.trim().length >= 3) {
       const textResults = await fetchTextSearchCandidates(supabase, body.freeText);
-      // Merge without duplicates
       const existingIds = new Set(candidates.map((g) => g.id));
       const newGames = textResults.filter((g) => !existingIds.has(g.id));
       candidates = [...candidates, ...newGames];
     }
 
-    // Fallback: if zero results, retry with minimal filters
+    // Fallback 1: Drop game type filter (keep player count)
     if (candidates.length === 0) {
+      console.log('[Recommend] No results with type filter, dropping type constraint');
+      candidates = await fetchCandidatesNoType(supabase, body, popularity);
+    }
+
+    // Fallback 2: Drop player count too (keep only quality floor)
+    if (candidates.length === 0) {
+      console.log('[Recommend] No results with player count, dropping all constraints');
       candidates = await fetchCandidatesFallback(supabase, popularity);
+    }
+
+    // Fallback 3: Nuclear — drop quality floor entirely
+    if (candidates.length === 0) {
+      console.log('[Recommend] No results even with fallback, dropping quality floor');
+      candidates = await fetchCandidatesNuclear(supabase);
     }
 
     // Step 1c: If LLM parsed "similarTo" game names, resolve them and
@@ -161,8 +173,10 @@ export async function POST(request: NextRequest) {
       popularity,
     };
 
-    // Cache the response
-    recommendCache.set(key, response);
+    // Only cache responses with results (don't persist empty results)
+    if (topResults.length > 0) {
+      recommendCache.set(key, response);
+    }
 
     return NextResponse.json(response);
   } catch (error) {
@@ -265,9 +279,43 @@ async function fetchTextSearchCandidates(
 }
 
 /**
- * Last-resort fallback: fetch top-rated games with NO preference filters.
- * Only applies quality floor. Guarantees we always return something.
- * The scoring engine will still rank these by relevance to preferences.
+ * Fallback 1: Keep player count but drop game type filter.
+ * Handles cases like "word game for 7 players" where no word games
+ * support that count, but plenty of board/party games do.
+ */
+async function fetchCandidatesNoType(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+  prefs: QuestionnaireState,
+  popularity: PopularityMode,
+) {
+  let query = supabase
+    .from('games')
+    .select(GAME_COLUMNS)
+    .not('rating', 'is', null);
+
+  // Quality floor
+  if (popularity === 'popular') {
+    query = query.gte('rating_count', 30);
+  } else {
+    query = query.gte('rating_count', 3);
+  }
+
+  // Player count only (no type filter)
+  if (prefs.playerCount) {
+    query = query.lte('min_players', prefs.playerCount.max);
+    query = query.gte('max_players', prefs.playerCount.min);
+  }
+
+  query = query.order('rating', { ascending: false }).limit(CANDIDATE_POOL_SIZE);
+  const { data, error } = await query;
+  if (error) return [];
+  return ((data ?? []) as GameRow[]).map(rowToGame);
+}
+
+/**
+ * Fallback 2: No preference filters at all, just quality floor.
+ * Returns the top-rated games regardless of type, player count, etc.
  */
 async function fetchCandidatesFallback(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -279,24 +327,33 @@ async function fetchCandidatesFallback(
     .select(GAME_COLUMNS)
     .not('rating', 'is', null);
 
-  // Minimal quality floor
   if (popularity === 'popular') {
     query = query.gte('rating_count', 20);
   } else {
     query = query.gte('rating_count', 3);
   }
 
-  query = query
-    .order('rating', { ascending: false })
+  query = query.order('rating', { ascending: false }).limit(CANDIDATE_POOL_SIZE);
+  const { data, error } = await query;
+  if (error) return [];
+  return ((data ?? []) as GameRow[]).map(rowToGame);
+}
+
+/**
+ * Fallback 3: Nuclear option. No filters at all — just grab games.
+ * This should literally never return 0 unless the DB is empty.
+ */
+async function fetchCandidatesNuclear(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+) {
+  const { data, error } = await supabase
+    .from('games')
+    .select(GAME_COLUMNS)
+    .order('rating_count', { ascending: false })
     .limit(CANDIDATE_POOL_SIZE);
 
-  const { data, error } = await query;
-
-  if (error) {
-    console.error('[Recommend] Fallback query error:', error);
-    return [];
-  }
-
+  if (error) return [];
   return ((data ?? []) as GameRow[]).map(rowToGame);
 }
 
