@@ -22,6 +22,7 @@
 import type { Game } from '@/types/game';
 import type { QuestionnaireState, TimePreset } from '@/types/questionnaire';
 import { TIME_PRESETS } from '@/types/questionnaire';
+import type { ParsedPreferences } from '@/lib/llm/types';
 
 // ─── Types ───────────────────────────────────────────────────
 
@@ -116,7 +117,7 @@ export function scoreGame(
     complexityFit: scoreComplexity(game, prefs.complexity),
     genreMatch: scoreGenreMatch(game, prefs.genres),
     moodAlignment: scoreMoodAlignment(game, prefs.moods),
-    freeTextMatch: scoreFreeText(game, prefs.freeText),
+    freeTextMatch: scoreFreeText(game, prefs.freeText, prefs.llmParsed),
     qualitySignal: scoreQuality(game),
     popularitySignal: scorePopularity(game),
   };
@@ -379,13 +380,99 @@ function scoreMoodAlignment(game: Game, moods: string[]): number {
  *   - 0.4-1.0 based on number and quality of matches
  *   - Name matches weighted higher than description matches
  */
-function scoreFreeText(game: Game, freeText: string): number {
+function scoreFreeText(
+  game: Game,
+  freeText: string,
+  llmParsed?: ParsedPreferences | null,
+): number {
+  // If LLM-parsed data is available, use it (much more accurate)
+  if (llmParsed && hasLLMData(llmParsed)) {
+    return scoreFreeTextLLM(game, llmParsed);
+  }
+
+  // Fallback: regex keyword extraction
+  return scoreFreeTextKeywords(game, freeText);
+}
+
+/** Check if LLM parsed data has any meaningful content */
+function hasLLMData(parsed: ParsedPreferences): boolean {
+  return (
+    parsed.genres.length > 0 ||
+    parsed.mechanics.length > 0 ||
+    parsed.keywords.length > 0 ||
+    parsed.similarTo.length > 0
+  );
+}
+
+/**
+ * Score using LLM-extracted structured data.
+ * Much more precise than keyword matching because the LLM understands
+ * "deck builder" is a mechanic, "roguelike" is a genre, etc.
+ */
+function scoreFreeTextLLM(game: Game, parsed: ParsedPreferences): number {
+  const gameMechanics = game.mechanics.map((m) => m.toLowerCase());
+  const gameCategories = game.categories.map((c) => c.toLowerCase());
+  const gameThemes = game.themes.map((t) => t.toLowerCase());
+  const gameName = game.name.toLowerCase();
+  const gameDesc = (game.description ?? '').toLowerCase();
+  const allTags = [...gameMechanics, ...gameCategories, ...gameThemes];
+
+  let totalScore = 0;
+  let totalChecks = 0;
+
+  // Mechanics match (very strong signal — LLM identified specific mechanics)
+  if (parsed.mechanics.length > 0) {
+    let mechanicHits = 0;
+    for (const mech of parsed.mechanics) {
+      const lower = mech.toLowerCase();
+      if (gameMechanics.some((gm) => gm.includes(lower) || lower.includes(gm))) {
+        mechanicHits++;
+      }
+    }
+    totalScore += (mechanicHits / parsed.mechanics.length) * 1.0;
+    totalChecks++;
+  }
+
+  // Genre match (strong signal)
+  if (parsed.genres.length > 0) {
+    let genreHits = 0;
+    for (const genre of parsed.genres) {
+      const lower = genre.toLowerCase();
+      if (allTags.some((tag) => tag.includes(lower) || lower.includes(tag))) {
+        genreHits++;
+      }
+    }
+    totalScore += (genreHits / parsed.genres.length) * 0.9;
+    totalChecks++;
+  }
+
+  // Keywords match (moderate signal)
+  if (parsed.keywords.length > 0) {
+    let keywordHits = 0;
+    for (const kw of parsed.keywords) {
+      const lower = kw.toLowerCase();
+      if (gameName.includes(lower) || allTags.some((t) => t.includes(lower)) || gameDesc.includes(lower)) {
+        keywordHits++;
+      }
+    }
+    totalScore += (keywordHits / parsed.keywords.length) * 0.6;
+    totalChecks++;
+  }
+
+  if (totalChecks === 0) return 0.5;
+  return Math.min(totalScore / totalChecks, 1.0);
+}
+
+/**
+ * Fallback: score using regex keyword extraction.
+ * Used when LLM parsing is unavailable or returned empty results.
+ */
+function scoreFreeTextKeywords(game: Game, freeText: string): number {
   if (!freeText || freeText.trim().length === 0) return 0.5;
 
   const keywords = extractKeywords(freeText);
   if (keywords.length === 0) return 0.5;
 
-  // Build a searchable index of the game's text content
   const gameName = game.name.toLowerCase();
   const gameDesc = (game.description ?? '').toLowerCase();
   const gameTags = [
@@ -399,28 +486,21 @@ function scoreFreeText(game: Game, freeText: string): number {
   let matchCount = 0;
 
   for (const keyword of keywords) {
-    // Name match (strongest signal)
     if (gameName.includes(keyword)) {
       totalScore += 1.0;
       matchCount++;
       continue;
     }
-
-    // Category/mechanic/theme match (strong signal)
     if (gameTags.some((tag) => tag.includes(keyword) || keyword.includes(tag))) {
       totalScore += 0.9;
       matchCount++;
       continue;
     }
-
-    // Tags contain the keyword as a substring
     if (allTagsStr.includes(keyword)) {
       totalScore += 0.7;
       matchCount++;
       continue;
     }
-
-    // Description match (weaker but still relevant)
     if (gameDesc.includes(keyword)) {
       totalScore += 0.4;
       matchCount++;
@@ -429,9 +509,7 @@ function scoreFreeText(game: Game, freeText: string): number {
 
   if (matchCount === 0) return 0.0;
 
-  // Average match quality, capped at 1.0
   const avgQuality = totalScore / keywords.length;
-  // Bonus for more matches (diminishing returns)
   const coverageBonus = Math.min(matchCount / keywords.length, 1.0) * 0.2;
 
   return Math.min(avgQuality + coverageBonus, 1.0);

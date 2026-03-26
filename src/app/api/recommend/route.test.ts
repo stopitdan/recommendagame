@@ -10,7 +10,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 // --- Mock Supabase with factory (no external refs) ---
 vi.mock('@supabase/supabase-js', () => {
   const chainable: Record<string, ReturnType<typeof vi.fn>> = {};
-  const methods = ['select', 'not', 'contains', 'gt', 'lt', 'gte', 'lte', 'order', 'limit'];
+  const methods = ['select', 'not', 'contains', 'gt', 'lt', 'gte', 'lte', 'order', 'limit', 'or', 'textSearch', 'ilike', 'single', 'eq'];
   for (const m of methods) {
     chainable[m] = vi.fn();
   }
@@ -98,9 +98,16 @@ function uniquePrefs(overrides: Record<string, unknown> = {}) {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  // Reset chain to return itself
-  for (const fn of Object.values(chain)) {
-    fn.mockReturnValue(chain);
+  // Reset all chain methods to return the chain (for chaining)
+  for (const [key, fn] of Object.entries(chain)) {
+    // limit and single need to resolve to data, not the chain
+    if (key === 'limit') {
+      fn.mockResolvedValue({ data: [], error: null });
+    } else if (key === 'single') {
+      fn.mockResolvedValue({ data: null, error: null });
+    } else {
+      fn.mockReturnValue(chain);
+    }
   }
   mockFrom.mockReturnValue(chain);
 });

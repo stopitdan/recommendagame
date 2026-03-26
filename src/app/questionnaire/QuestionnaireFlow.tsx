@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
 import Container from '@mui/material/Container';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -14,8 +15,11 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import type { QuestionnaireState } from '@/types/questionnaire';
-import { INITIAL_STATE } from '@/types/questionnaire';
+import type { GameType } from '@/types/game';
+import type { TimePreset } from '@/types/questionnaire';
+import { INITIAL_STATE, GENRE_OPTIONS, MOOD_OPTIONS } from '@/types/questionnaire';
 import { saveGuestPreferences, getGuestPreferences } from '@/lib/guest';
+import type { ParsedPreferences } from '@/lib/llm/types';
 import GameTypeStep from '@/components/questionnaire/GameTypeStep';
 import PlayerCountStep from '@/components/questionnaire/PlayerCountStep';
 import TimeStep from '@/components/questionnaire/TimeStep';
@@ -25,15 +29,21 @@ import MoodStep from '@/components/questionnaire/MoodStep';
 import FreeTextStep from '@/components/questionnaire/FreeTextStep';
 import { motion, AnimatePresence } from 'motion/react';
 
+// Free text is now FIRST — LLM parses it to pre-fill subsequent steps
 const STEPS = [
+  { key: 'freeText', title: 'What are you looking for?' },
   { key: 'gameTypes', title: 'What kind of game?' },
   { key: 'playerCount', title: 'How many players?' },
   { key: 'timePresets', title: 'How much time do you have?' },
   { key: 'complexity', title: 'How complex?' },
   { key: 'genres', title: 'Pick genres you like' },
   { key: 'moods', title: "What's the vibe?" },
-  { key: 'freeText', title: 'Anything else?' },
 ] as const;
+
+const VALID_GAME_TYPES = new Set(['board', 'video', 'word', 'party', 'card']);
+const VALID_TIME_PRESETS = new Set(['quick', 'short', 'medium', 'long', 'epic']);
+const VALID_GENRES = new Set(GENRE_OPTIONS);
+const VALID_MOODS = new Set(MOOD_OPTIONS.map((m) => m.id));
 
 export default function QuestionnaireFlow() {
   const router = useRouter();
@@ -41,6 +51,7 @@ export default function QuestionnaireFlow() {
   const [state, setState] = useState<QuestionnaireState>(INITIAL_STATE);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [presetName, setPresetName] = useState('');
+  const [isParsing, setIsParsing] = useState(false);
 
   // Load guest preferences from localStorage on mount
   useEffect(() => {
@@ -53,12 +64,74 @@ export default function QuestionnaireFlow() {
   const totalSteps = STEPS.length;
   const progress = ((step + 1) / totalSteps) * 100;
   const isLast = step === totalSteps - 1;
+  const isFreeTextStep = step === 0;
 
   function update(partial: Partial<QuestionnaireState>) {
     setState((prev) => ({ ...prev, ...partial }));
   }
 
-  function next() {
+  /**
+   * Merge LLM-parsed preferences into the questionnaire state.
+   * Only sets values that are valid against our known enums.
+   */
+  function mergeWithParsed(parsed: ParsedPreferences) {
+    setState((prev) => ({
+      ...prev,
+      gameTypes: parsed.gameTypes.filter((t) => VALID_GAME_TYPES.has(t)) as GameType[],
+      playerCount: parsed.playerCount ?? prev.playerCount,
+      timePresets: parsed.timePresets.filter((t) => VALID_TIME_PRESETS.has(t)) as TimePreset[],
+      complexity: parsed.complexity ?? prev.complexity,
+      genres: parsed.genres.filter((g) => VALID_GENRES.has(g as typeof GENRE_OPTIONS[number])),
+      moods: parsed.moods.filter((m) => VALID_MOODS.has(m)),
+      llmParsed: parsed,
+    }));
+  }
+
+  /**
+   * Call the LLM to parse free text into structured preferences.
+   * Returns true if parsing succeeded, false otherwise.
+   */
+  async function parseFreeText(): Promise<boolean> {
+    if (!state.freeText.trim() || state.freeText.trim().length < 3) return false;
+
+    setIsParsing(true);
+    try {
+      const res = await fetch('/api/parse-text', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: state.freeText.trim() }),
+      });
+
+      if (!res.ok) return false;
+
+      const data = await res.json();
+      if (data.parsed) {
+        mergeWithParsed(data.parsed);
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    } finally {
+      setIsParsing(false);
+    }
+  }
+
+  async function next() {
+    if (isLast) {
+      submit();
+      return;
+    }
+
+    // If leaving the free text step with text, parse it
+    if (isFreeTextStep && state.freeText.trim().length >= 3) {
+      await parseFreeText();
+    }
+
+    setStep((s) => s + 1);
+  }
+
+  function skip() {
     if (isLast) {
       submit();
     } else {
@@ -84,10 +157,8 @@ export default function QuestionnaireFlow() {
   }
 
   function submit() {
-    // Save preferences to localStorage for guest users
     saveGuestPreferences(state as unknown as Record<string, unknown>);
 
-    // Build query params from state and navigate to results
     const params = new URLSearchParams();
 
     if (state.gameTypes.length > 0) params.set('types', state.gameTypes.join(','));
@@ -100,25 +171,30 @@ export default function QuestionnaireFlow() {
     if (state.moods.length > 0) params.set('moods', state.moods.join(','));
     if (state.freeText.trim()) params.set('freeText', state.freeText.trim());
 
+    // Pass LLM-parsed data as a URL param so the recommend API can use it
+    if (state.llmParsed) {
+      params.set('llmParsed', encodeURIComponent(JSON.stringify(state.llmParsed)));
+    }
+
     router.push(`/results?${params.toString()}`);
   }
 
   function renderStep() {
     switch (step) {
       case 0:
-        return <GameTypeStep value={state.gameTypes} onChange={(v) => update({ gameTypes: v })} />;
-      case 1:
-        return <PlayerCountStep value={state.playerCount} onChange={(v) => update({ playerCount: v })} />;
-      case 2:
-        return <TimeStep value={state.timePresets} onChange={(v) => update({ timePresets: v })} />;
-      case 3:
-        return <ComplexityStep value={state.complexity} onChange={(v) => update({ complexity: v })} />;
-      case 4:
-        return <GenreStep value={state.genres} onChange={(v) => update({ genres: v })} />;
-      case 5:
-        return <MoodStep value={state.moods} onChange={(v) => update({ moods: v })} />;
-      case 6:
         return <FreeTextStep value={state.freeText} onChange={(v) => update({ freeText: v })} />;
+      case 1:
+        return <GameTypeStep value={state.gameTypes} onChange={(v) => update({ gameTypes: v })} />;
+      case 2:
+        return <PlayerCountStep value={state.playerCount} onChange={(v) => update({ playerCount: v })} />;
+      case 3:
+        return <TimeStep value={state.timePresets} onChange={(v) => update({ timePresets: v })} />;
+      case 4:
+        return <ComplexityStep value={state.complexity} onChange={(v) => update({ complexity: v })} />;
+      case 5:
+        return <GenreStep value={state.genres} onChange={(v) => update({ genres: v })} />;
+      case 6:
+        return <MoodStep value={state.moods} onChange={(v) => update({ moods: v })} />;
       default:
         return null;
     }
@@ -144,9 +220,14 @@ export default function QuestionnaireFlow() {
             exit={{ opacity: 0, x: -30 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
           >
-            <Typography variant="h4" fontWeight={700} sx={{ mb: 3 }}>
+            <Typography variant="h4" fontWeight={700} sx={{ mb: 1 }}>
               {STEPS[step].title}
             </Typography>
+            {isFreeTextStep && (
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                Describe what you&apos;re looking for and we&apos;ll set up the rest. Or skip to choose manually.
+              </Typography>
+            )}
             <Box>
               {renderStep()}
             </Box>
@@ -189,11 +270,25 @@ export default function QuestionnaireFlow() {
                 Save Preset
               </Button>
             )}
-            <Button variant="text" onClick={next} sx={{ minWidth: 80 }}>
+            <Button variant="text" onClick={skip} sx={{ minWidth: 80 }}>
               {isLast ? '' : 'Skip'}
             </Button>
-            <Button variant="contained" onClick={next} sx={{ minWidth: 140 }}>
-              {isLast ? 'Find Games' : 'Next'}
+            <Button
+              variant="contained"
+              onClick={next}
+              disabled={isParsing}
+              sx={{ minWidth: 140 }}
+            >
+              {isParsing ? (
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <CircularProgress size={18} color="inherit" />
+                  <span>Analyzing...</span>
+                </Stack>
+              ) : isLast ? (
+                'Find Games'
+              ) : (
+                'Next'
+              )}
             </Button>
           </Stack>
         </Container>

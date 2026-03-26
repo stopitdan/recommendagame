@@ -111,9 +111,18 @@ export async function POST(request: NextRequest) {
       candidates = [...candidates, ...newGames];
     }
 
-    // Fallback: if too few results, retry with minimal filters
-    if (candidates.length < 10) {
+    // Fallback: if zero results, retry with minimal filters
+    if (candidates.length === 0) {
       candidates = await fetchCandidatesFallback(supabase, popularity);
+    }
+
+    // Step 1c: If LLM parsed "similarTo" game names, resolve them and
+    // merge their categories/mechanics into genres for scoring boost
+    if (body.llmParsed?.similarTo?.length) {
+      const resolvedTags = await resolveSimilarToGames(supabase, body.llmParsed.similarTo);
+      if (resolvedTags.length > 0) {
+        body.genres = [...new Set([...body.genres, ...resolvedTags])];
+      }
     }
 
     // Step 2: Rule-based scoring (fast, in-memory)
@@ -289,6 +298,38 @@ async function fetchCandidatesFallback(
   }
 
   return ((data ?? []) as GameRow[]).map(rowToGame);
+}
+
+// ─── SimilarTo Resolution ────────────────────────────────────
+
+/**
+ * Looks up games by name from the "similarTo" list and returns
+ * their categories, mechanics, and themes as a flat array.
+ * These get merged into the user's genre preferences so the
+ * existing scoreGenreMatch picks them up.
+ */
+async function resolveSimilarToGames(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+  similarTo: string[],
+): Promise<string[]> {
+  const allTags: string[] = [];
+
+  const lookups = similarTo.slice(0, 5).map(async (name) => {
+    const { data } = await supabase
+      .from('games')
+      .select('categories, mechanics, themes')
+      .ilike('name', `%${name}%`)
+      .limit(1)
+      .single();
+
+    if (data) {
+      allTags.push(...(data.categories ?? []), ...(data.mechanics ?? []), ...(data.themes ?? []));
+    }
+  });
+
+  await Promise.all(lookups);
+  return [...new Set(allTags)];
 }
 
 // ─── Helpers ─────────────────────────────────────────────────

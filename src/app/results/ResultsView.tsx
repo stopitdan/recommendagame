@@ -55,7 +55,14 @@ export default function ResultsView() {
 
     try {
       // Reconstruct preferences from URL params
+      let llmParsed = null;
+      const llmRaw = searchParams.get('llmParsed');
+      if (llmRaw) {
+        try { llmParsed = JSON.parse(decodeURIComponent(llmRaw)); } catch { /* ignore */ }
+      }
+
       const preferences: QuestionnaireState & { popularity: string; limit: number } = {
+        freeText: searchParams.get('freeText') ?? '',
         gameTypes: (searchParams.get('types')?.split(',').filter(Boolean) ?? []) as GameType[],
         playerCount: {
           min: parseInt(searchParams.get('minPlayers') ?? '1', 10),
@@ -68,7 +75,7 @@ export default function ResultsView() {
         },
         genres: searchParams.get('genres')?.split(',').filter(Boolean) ?? [],
         moods: searchParams.get('moods')?.split(',').filter(Boolean) ?? [],
-        freeText: searchParams.get('freeText') ?? '',
+        llmParsed,
         popularity: popularityOverride ?? popularity,
         limit: 20,
       };

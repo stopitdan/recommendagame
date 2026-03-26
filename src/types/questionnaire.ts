@@ -6,28 +6,32 @@
  */
 
 import type { GameType } from './game';
+import type { ParsedPreferences } from '@/lib/llm/types';
 
 export interface QuestionnaireState {
-  /** Step 1: What types of game? Empty = any type */
+  /** Step 1: Free text description (parsed by LLM to pre-fill other steps) */
+  freeText: string;
+
+  /** Step 2: What types of game? Empty = any type */
   gameTypes: GameType[];
 
-  /** Step 2: Player count range */
+  /** Step 3: Player count range */
   playerCount: PlayerCountRange;
 
-  /** Step 3: How much time available. Multiple = flexible */
+  /** Step 4: How much time available. Multiple = flexible */
   timePresets: TimePreset[];
 
-  /** Step 4: Complexity preference range (1-5) */
+  /** Step 5: Complexity preference range (1-5) */
   complexity: ComplexityRange;
 
-  /** Step 5: Selected genres/categories */
+  /** Step 6: Selected genres/categories */
   genres: string[];
 
-  /** Step 6: Selected moods/vibes */
+  /** Step 7: Selected moods/vibes */
   moods: string[];
 
-  /** Step 7: Free text input */
-  freeText: string;
+  /** LLM-extracted structured preferences (populated when free text is parsed) */
+  llmParsed?: ParsedPreferences | null;
 }
 
 export interface PlayerCountRange {
