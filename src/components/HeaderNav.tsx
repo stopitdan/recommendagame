@@ -7,10 +7,10 @@ import Tooltip from '@mui/material/Tooltip';
 import { motion } from 'motion/react';
 
 const NAV_ITEMS = [
-  { label: 'Find a Game', href: '/find-a-game', icon: '🎯' },
-  { label: 'Browse', href: '/browse', icon: '🔍' },
-  { label: 'Random', href: '/random', icon: '🎲' },
-  { label: 'Leaderboard', href: '/leaderboard', icon: '🏆' },
+  { label: 'Find a Game', href: '/find-a-game', icon: '🎯', tip: 'Get personalized recommendations' },
+  { label: 'Browse', href: '/browse', icon: '🔍', tip: 'Explore the full game catalog' },
+  { label: 'Random', href: '/random', icon: '🎲', tip: 'Roll the d20 for a random pick' },
+  { label: 'Leaderboard', href: '/leaderboard', icon: '🏆', tip: 'See the most popular games' },
 ];
 
 export default function HeaderNav() {
@@ -19,10 +19,10 @@ export default function HeaderNav() {
 
   return (
     <Box sx={{ display: 'flex', gap: 0.5 }}>
-      {NAV_ITEMS.map(({ label, href, icon }) => {
+      {NAV_ITEMS.map(({ label, href, icon, tip }) => {
         const isActive = pathname === href || pathname.startsWith(href + '/');
         return (
-          <Tooltip key={href} title={label} arrow>
+          <Tooltip key={href} title={tip}>
             <motion.div whileHover={{ y: -1 }} whileTap={{ scale: 0.95 }}>
               <Button
                 variant="text"

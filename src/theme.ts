@@ -274,6 +274,11 @@ export function createAppTheme(mode: PaletteMode, presetId?: string) {
         },
       },
       MuiTooltip: {
+        defaultProps: {
+          enterDelay: 500,
+          enterNextDelay: 300,
+          arrow: true,
+        },
         styleOverrides: {
           tooltip: {
             backgroundColor: isDark ? c.darkDivider : c.lightText,
