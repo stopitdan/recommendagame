@@ -1,8 +1,8 @@
 'use client';
 
 import { useRouter, usePathname } from 'next/navigation';
-import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import { motion } from 'motion/react';
 
@@ -38,6 +38,16 @@ export default function HeaderNav() {
                     color: '#FFFFFF',
                     backgroundColor: 'rgba(255,255,255,0.08)',
                   },
+                  '&:hover .nav-emoji': {
+                    animation: 'navWiggle 0.4s ease',
+                  },
+                  '@keyframes navWiggle': {
+                    '0%': { transform: 'rotate(0) scale(1)' },
+                    '25%': { transform: 'rotate(-12deg) scale(1.2)' },
+                    '50%': { transform: 'rotate(12deg) scale(1.2)' },
+                    '75%': { transform: 'rotate(-6deg) scale(1.1)' },
+                    '100%': { transform: 'rotate(0) scale(1)' },
+                  },
                   '&::after': isActive ? {
                     content: '""',
                     position: 'absolute',
@@ -51,13 +61,13 @@ export default function HeaderNav() {
                   transition: 'all 200ms ease',
                 }}
               >
-                <motion.span
-                  style={{ fontSize: '0.85rem', display: 'inline-block' }}
-                  whileHover={{ rotate: [0, -10, 10, 0], scale: 1.2 }}
-                  transition={{ duration: 0.3 }}
+                <Box
+                  component="span"
+                  className="nav-emoji"
+                  sx={{ fontSize: '0.85rem', display: 'inline-block' }}
                 >
                   {icon}
-                </motion.span>
+                </Box>
                 {label}
               </Button>
             </motion.div>
