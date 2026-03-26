@@ -262,6 +262,7 @@ export default function RandomGameView() {
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+              style={{ marginTop: 8 }}
             >
               {isNat20 ? (
                 <Box>
@@ -313,7 +314,7 @@ export default function RandomGameView() {
                 </Box>
               ) : (
                 <Typography variant="h5" fontWeight={700} sx={{ color: 'secondary.main' }}>
-                  Rolled {diceValue === 8 || diceValue === 11 || diceValue === 18 ? 'an' : 'a'} {diceValue}!
+                  You rolled {diceValue === 8 || diceValue === 11 || diceValue === 18 ? 'an' : 'a'} {diceValue}!
                 </Typography>
               )}
             </motion.div>
@@ -321,7 +322,7 @@ export default function RandomGameView() {
         </AnimatePresence>
 
         {/* Type filter chips */}
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center' }}>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center', mt: "8px !important" }}>
           {typeOptions.map((opt) => (
             <Chip
               key={opt.label}
