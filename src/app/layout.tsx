@@ -43,6 +43,9 @@ export const metadata: Metadata = {
     title: "Recommend a Game",
     description: "Smart game recommendation engine. Board games, video games, word games, and party games.",
   },
+  icons: {
+    icon: '/favicon.svg',
+  },
   robots: {
     index: true,
     follow: true,
