@@ -21,6 +21,7 @@ import Typography from '@mui/material/Typography';
 import GameCard from '@/components/GameCard';
 import { GameCardSkeletonList } from '@/components/GameCardSkeleton';
 import type { Game } from '@/types/game';
+import { CATEGORY_OPTIONS, MECHANIC_OPTIONS, THEME_OPTIONS, PLATFORM_OPTIONS } from '@/lib/filter-options';
 
 const PAGE_SIZE = 20;
 
@@ -28,12 +29,12 @@ const PAGE_SIZE = 20;
 
 interface Filters {
   type: string | null;
-  category: string | null;
-  mechanic: string | null;
-  theme: string | null;
-  platform: string | null;
-  designer: string | null;
-  publisher: string | null;
+  categories: string[];
+  mechanics: string[];
+  themes: string[];
+  platforms: string[];
+  designers: string[];
+  publishers: string[];
   q: string;
   sort: string;
   popularity: string;
@@ -46,12 +47,12 @@ interface Filters {
 
 const DEFAULT_FILTERS: Filters = {
   type: null,
-  category: null,
-  mechanic: null,
-  theme: null,
-  platform: null,
-  designer: null,
-  publisher: null,
+  categories: [],
+  mechanics: [],
+  themes: [],
+  platforms: [],
+  designers: [],
+  publishers: [],
   q: '',
   sort: 'rating',
   popularity: 'popular',
@@ -61,70 +62,6 @@ const DEFAULT_FILTERS: Filters = {
   minRating: 0,
   yearRange: [1950, 2026],
 };
-
-// Common categories from BGG + RAWG
-const CATEGORY_OPTIONS = [
-  'Abstract Strategy', 'Action', 'Adventure', 'Animals', 'Bluffing',
-  'Card Game', 'City Building', 'Civilization', 'Collectible Components',
-  'Comic Book / Strip', 'Deduction', 'Dice', 'Economic', 'Educational',
-  'Electronic', 'Environmental', 'Exploration', 'Family Game', 'Fantasy',
-  'Fighting', 'Horror', 'Humor', 'Industry / Manufacturing', 'Indie',
-  'Maze', 'Medieval', 'Miniatures', 'Movies / TV', 'Murder/Mystery',
-  'Mythology', 'Nautical', 'Negotiation', 'Party Game', 'Pirates',
-  'Political', 'Prehistoric', 'Print & Play', 'Puzzle', 'RPG',
-  'Racing', 'Real-time', 'Religious', 'Renaissance', 'Science Fiction',
-  'Shooter', 'Simulation', 'Space Exploration', 'Spies/Secret Agents',
-  'Sports', 'Strategy', 'Survival', 'Territory Building', 'Trains',
-  'Transportation', 'Travel', 'Trivia', 'War', 'Word Game', 'Zombies',
-].sort();
-
-// Common mechanics from BGG
-const MECHANIC_OPTIONS = [
-  'Action Points', 'Area Control', 'Area Movement', 'Auction/Bidding',
-  'Betting and Bluffing', 'Campaign / Battle Card Driven', 'Card Drafting',
-  'Chit-Pull System', 'Cooperative Game', 'Deck Building',
-  'Dice Rolling', 'Drafting', 'Engine Building', 'Grid Movement',
-  'Hand Management', 'Hidden Movement', 'Hidden Roles',
-  'Hexagon Grid', 'Income', 'Legacy Game', 'Line of Sight',
-  'Market', 'Memory', 'Modular Board', 'Move Through Deck',
-  'Network and Route Building', 'Once-Per-Game Abilities',
-  'Pattern Building', 'Pick-up and Deliver', 'Player Elimination',
-  'Point to Point Movement', 'Press Your Luck', 'Programmed Movement',
-  'Push Your Luck', 'Real-Time', 'Resource Management',
-  'Rock-Paper-Scissors', 'Role Playing', 'Roll / Spin and Move',
-  'Rondel', 'Route Building', 'Semi-Cooperative Game',
-  'Set Collection', 'Simultaneous Action Selection',
-  'Social Deduction', 'Solo / Solitaire Game', 'Storytelling',
-  'Take That', 'Tile Placement', 'Time Track', 'Trading',
-  'Trick-taking', 'Variable Phase Order', 'Variable Player Powers',
-  'Voting', 'Worker Placement',
-].sort();
-
-// Common themes from BGG families + RAWG tags
-const THEME_OPTIONS = [
-  'Adventure', 'Ancient', 'Animals', 'Arabian', 'Aviation / Flight',
-  'Civilization', 'Civil War', 'Comic Book / Strip', 'Economic',
-  'Environmental', 'Exploration', 'Farming', 'Fantasy', 'Fighting',
-  'Horror', 'Humor', 'Industry / Manufacturing', 'Mature / Adult',
-  'Medical', 'Medieval', 'Modern Warfare', 'Movies / TV / Radio theme',
-  'Murder/Mystery', 'Mythology', 'Nautical', 'Novel-based',
-  'Pirates', 'Political', 'Post-Napoleonic', 'Prehistoric',
-  'Racing', 'Religious', 'Renaissance', 'Science Fiction',
-  'Space Exploration', 'Spies/Secret Agents', 'Sports',
-  'Trains', 'Transportation', 'Travel', 'Video Game Theme',
-  'World War I', 'World War II', 'Zombies',
-  // BGG families (common ones)
-  'Animals: Cats', 'Animals: Dogs', 'Animals: Dinosaurs',
-  'Country: Japan', 'Country: USA', 'Crowdfunding: Kickstarter',
-  'Theme: Cthulhu Mythos', 'Theme: Steampunk', 'Theme: Vikings',
-  'Theme: Zombies', 'Theme: Post-Apocalyptic', 'Theme: Cyberpunk',
-].sort();
-
-const PLATFORM_OPTIONS = [
-  'Android', 'iOS', 'Linux', 'macOS', 'Nintendo Switch',
-  'PC', 'PlayStation 4', 'PlayStation 5', 'Web',
-  'Xbox One', 'Xbox Series S/X',
-].sort();
 
 const COMPLEXITY_LABELS: Record<number, string> = {
   1: 'Light',
@@ -151,12 +88,12 @@ export default function BrowseView() {
   const initialFilters: Filters = {
     ...DEFAULT_FILTERS,
     type: searchParams.get('type'),
-    category: searchParams.get('category'),
-    mechanic: searchParams.get('mechanic'),
-    theme: searchParams.get('theme'),
-    platform: searchParams.get('platform'),
-    designer: searchParams.get('designer'),
-    publisher: searchParams.get('publisher'),
+    categories: searchParams.get('category') ? [searchParams.get('category')!] : [],
+    mechanics: searchParams.get('mechanic') ? [searchParams.get('mechanic')!] : [],
+    themes: searchParams.get('theme') ? [searchParams.get('theme')!] : [],
+    platforms: searchParams.get('platform') ? [searchParams.get('platform')!] : [],
+    designers: searchParams.get('designer') ? [searchParams.get('designer')!] : [],
+    publishers: searchParams.get('publisher') ? [searchParams.get('publisher')!] : [],
     q: searchParams.get('q') ?? '',
   };
 
@@ -184,12 +121,14 @@ export default function BrowseView() {
     try {
       const f = appliedFilters;
       const params = new URLSearchParams();
-      if (f.category) params.set('category', f.category);
-      if (f.mechanic) params.set('mechanic', f.mechanic);
-      if (f.theme) params.set('theme', f.theme);
-      if (f.platform) params.set('platform', f.platform);
-      if (f.designer) params.set('designer', f.designer);
-      if (f.publisher) params.set('publisher', f.publisher);
+      // Send first value of each array filter (API handles one at a time)
+      // For multi-select, the client-side post-filters handle the rest
+      if (f.categories.length > 0) params.set('category', f.categories[0]);
+      if (f.mechanics.length > 0) params.set('mechanic', f.mechanics[0]);
+      if (f.themes.length > 0) params.set('theme', f.themes[0]);
+      if (f.platforms.length > 0) params.set('platform', f.platforms[0]);
+      if (f.designers.length > 0) params.set('designer', f.designers[0]);
+      if (f.publishers.length > 0) params.set('publisher', f.publishers[0]);
       if (f.type) params.set('type', f.type);
       if (f.q.trim()) params.set('q', f.q.trim());
       params.set('sort', f.sort);
@@ -230,8 +169,10 @@ export default function BrowseView() {
   }
 
   const af = appliedFilters; // shorthand for active filter checks
-  const hasActiveFilters = af.type || af.category || af.mechanic ||
-    af.theme || af.platform || af.designer || af.publisher || af.q.trim() ||
+  const hasActiveFilters = af.type ||
+    af.categories.length > 0 || af.mechanics.length > 0 ||
+    af.themes.length > 0 || af.platforms.length > 0 ||
+    af.designers.length > 0 || af.publishers.length > 0 || af.q.trim() ||
     af.playerCount[0] > 1 || af.playerCount[1] < 10 ||
     af.playTime[0] > 0 || af.playTime[1] < 300 ||
     af.complexity[0] > 1 || af.complexity[1] < 5 ||
@@ -239,7 +180,13 @@ export default function BrowseView() {
     af.yearRange[0] > 1950 || af.yearRange[1] < 2026;
 
   const activeFilterCount = [
-    af.type, af.category, af.mechanic, af.theme, af.platform, af.designer, af.publisher,
+    af.type,
+    af.categories.length > 0 ? 'cat' : null,
+    af.mechanics.length > 0 ? 'mech' : null,
+    af.themes.length > 0 ? 'theme' : null,
+    af.platforms.length > 0 ? 'plat' : null,
+    af.designers.length > 0 ? 'des' : null,
+    af.publishers.length > 0 ? 'pub' : null,
     af.q.trim() || null,
     af.playerCount[0] > 1 || af.playerCount[1] < 10 ? 'players' : null,
     af.playTime[0] > 0 || af.playTime[1] < 300 ? 'time' : null,
@@ -436,77 +383,79 @@ export default function BrowseView() {
                 />
               </Box>
 
-              {/* Row 4: Category + Mechanic + Theme autocomplete */}
+              {/* Row 4: Category + Mechanic + Theme — multi-select */}
               <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr 1fr' }, gap: 3 }}>
                 <Autocomplete
-                  value={filters.category}
-                  onChange={(_, v) => updateFilter({ category: v })}
+                  multiple
+                  disableCloseOnSelect
+                  value={filters.categories}
+                  onChange={(_, v) => updateFilter({ categories: v })}
                   options={CATEGORY_OPTIONS}
-                  renderInput={(params) => (
-                    <TextField {...params} label="Category" size="small" placeholder="Type to search..." />
-                  )}
-                  freeSolo={false}
-                  clearOnBlur
+                  renderInput={(params) => <TextField {...params} label="Categories" size="small" placeholder={filters.categories.length ? '' : 'Add...'} />}
                   size="small"
+                  limitTags={2}
+                  ChipProps={{ size: 'small', variant: 'outlined' }}
                 />
                 <Autocomplete
-                  value={filters.mechanic}
-                  onChange={(_, v) => updateFilter({ mechanic: v })}
+                  multiple
+                  disableCloseOnSelect
+                  value={filters.mechanics}
+                  onChange={(_, v) => updateFilter({ mechanics: v })}
                   options={MECHANIC_OPTIONS}
-                  renderInput={(params) => (
-                    <TextField {...params} label="Mechanic" size="small" placeholder="Type to search..." />
-                  )}
-                  freeSolo={false}
-                  clearOnBlur
+                  renderInput={(params) => <TextField {...params} label="Mechanics" size="small" placeholder={filters.mechanics.length ? '' : 'Add...'} />}
                   size="small"
+                  limitTags={2}
+                  ChipProps={{ size: 'small', variant: 'outlined' }}
                 />
                 <Autocomplete
-                  value={filters.theme}
-                  onChange={(_, v) => updateFilter({ theme: v })}
+                  multiple
+                  disableCloseOnSelect
+                  value={filters.themes}
+                  onChange={(_, v) => updateFilter({ themes: v })}
                   options={THEME_OPTIONS}
-                  renderInput={(params) => (
-                    <TextField {...params} label="Theme" size="small" placeholder="Type to search..." />
-                  )}
-                  freeSolo={false}
-                  clearOnBlur
+                  renderInput={(params) => <TextField {...params} label="Themes" size="small" placeholder={filters.themes.length ? '' : 'Add...'} />}
                   size="small"
+                  limitTags={2}
+                  ChipProps={{ size: 'small', variant: 'outlined' }}
                 />
               </Box>
 
-              {/* Row 5: Platform + Designer + Publisher */}
+              {/* Row 5: Platform + Designer + Publisher — multi-select */}
               <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr 1fr' }, gap: 3 }}>
                 <Autocomplete
-                  value={filters.platform}
-                  onChange={(_, v) => updateFilter({ platform: v })}
+                  multiple
+                  disableCloseOnSelect
+                  value={filters.platforms}
+                  onChange={(_, v) => updateFilter({ platforms: v })}
                   options={PLATFORM_OPTIONS}
-                  renderInput={(params) => (
-                    <TextField {...params} label="Platform" size="small" placeholder="Type to search..." />
-                  )}
-                  freeSolo={false}
-                  clearOnBlur
+                  renderInput={(params) => <TextField {...params} label="Platforms" size="small" placeholder={filters.platforms.length ? '' : 'Add...'} />}
                   size="small"
+                  limitTags={2}
+                  ChipProps={{ size: 'small', variant: 'outlined' }}
                 />
                 <Autocomplete
-                  value={filters.designer}
-                  onChange={(_, v) => updateFilter({ designer: v })}
-                  options={[]}
+                  multiple
+                  disableCloseOnSelect
                   freeSolo
-                  renderInput={(params) => (
-                    <TextField {...params} label="Designer" size="small" placeholder="e.g. Reiner Knizia" />
-                  )}
-                  clearOnBlur
+                  value={filters.designers}
+                  onChange={(_, v) => updateFilter({ designers: v as string[] })}
+                  options={[]}
+                  renderInput={(params) => <TextField {...params} label="Designers" size="small" placeholder={filters.designers.length ? '' : 'e.g. Reiner Knizia'} />}
                   size="small"
+                  limitTags={2}
+                  ChipProps={{ size: 'small', variant: 'outlined' }}
                 />
                 <Autocomplete
-                  value={filters.publisher}
-                  onChange={(_, v) => updateFilter({ publisher: v })}
-                  options={[]}
+                  multiple
+                  disableCloseOnSelect
                   freeSolo
-                  renderInput={(params) => (
-                    <TextField {...params} label="Publisher" size="small" placeholder="e.g. Fantasy Flight" />
-                  )}
-                  clearOnBlur
+                  value={filters.publishers}
+                  onChange={(_, v) => updateFilter({ publishers: v as string[] })}
+                  options={[]}
+                  renderInput={(params) => <TextField {...params} label="Publishers" size="small" placeholder={filters.publishers.length ? '' : 'e.g. Fantasy Flight'} />}
                   size="small"
+                  limitTags={2}
+                  ChipProps={{ size: 'small', variant: 'outlined' }}
                 />
               </Box>
 
@@ -550,24 +499,24 @@ export default function BrowseView() {
         {/* Active filter chips */}
         {hasActiveFilters && (
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-            {af.category && (
-              <Chip label={`Category: ${af.category}`} onDelete={() => updateAndApply({ category: null })} size="small" color="secondary" />
-            )}
-            {af.mechanic && (
-              <Chip label={`Mechanic: ${af.mechanic}`} onDelete={() => updateAndApply({ mechanic: null })} size="small" color="secondary" />
-            )}
-            {af.theme && (
-              <Chip label={`Theme: ${af.theme}`} onDelete={() => updateAndApply({ theme: null })} size="small" color="secondary" />
-            )}
-            {af.platform && (
-              <Chip label={`Platform: ${af.platform}`} onDelete={() => updateAndApply({ platform: null })} size="small" color="secondary" />
-            )}
-            {af.designer && (
-              <Chip label={`Designer: ${af.designer}`} onDelete={() => updateAndApply({ designer: null })} size="small" color="secondary" />
-            )}
-            {af.publisher && (
-              <Chip label={`Publisher: ${af.publisher}`} onDelete={() => updateAndApply({ publisher: null })} size="small" color="secondary" />
-            )}
+            {af.categories.map((c) => (
+              <Chip key={`cat-${c}`} label={`Category: ${c}`} onDelete={() => updateAndApply({ categories: af.categories.filter((x) => x !== c) })} size="small" color="secondary" />
+            ))}
+            {af.mechanics.map((m) => (
+              <Chip key={`mech-${m}`} label={`Mechanic: ${m}`} onDelete={() => updateAndApply({ mechanics: af.mechanics.filter((x) => x !== m) })} size="small" color="secondary" />
+            ))}
+            {af.themes.map((t) => (
+              <Chip key={`theme-${t}`} label={`Theme: ${t}`} onDelete={() => updateAndApply({ themes: af.themes.filter((x) => x !== t) })} size="small" color="secondary" />
+            ))}
+            {af.platforms.map((p) => (
+              <Chip key={`plat-${p}`} label={`Platform: ${p}`} onDelete={() => updateAndApply({ platforms: af.platforms.filter((x) => x !== p) })} size="small" color="secondary" />
+            ))}
+            {af.designers.map((d) => (
+              <Chip key={`des-${d}`} label={`Designer: ${d}`} onDelete={() => updateAndApply({ designers: af.designers.filter((x) => x !== d) })} size="small" color="secondary" />
+            ))}
+            {af.publishers.map((p) => (
+              <Chip key={`pub-${p}`} label={`Publisher: ${p}`} onDelete={() => updateAndApply({ publishers: af.publishers.filter((x) => x !== p) })} size="small" color="secondary" />
+            ))}
             {(af.playerCount[0] > 1 || af.playerCount[1] < 10) && (
               <Chip
                 label={`${af.playerCount[0]}–${af.playerCount[1]}${af.playerCount[1] >= 10 ? '+' : ''} players`}
