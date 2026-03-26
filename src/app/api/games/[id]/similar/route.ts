@@ -76,17 +76,55 @@ export async function GET(
     }
   }
 
-  // Fallback: category-based matching
-  if (similarIds.length === 0 && sourceGame.categories.length > 0) {
-    const { data: catMatches } = await supabase
+  // Fallback: category-based matching (loosened constraints)
+  if (similarIds.length === 0) {
+    let query = supabase
       .from('games')
       .select('*')
       .neq('id', id)
-      .contains('types', sourceGame.types)
       .not('rating', 'is', null)
-      .gte('rating_count', 20)
       .order('rating', { ascending: false })
-      .limit(50);
+      .limit(100);
+
+    // Try matching by type first, but don't require it
+    if (sourceGame.types.length > 0) {
+      query = query.contains('types', sourceGame.types);
+    }
+
+    const { data: catMatches } = await query;
+
+    // If type-filtered returned too few, try without type filter
+    if (!catMatches || catMatches.length < 10) {
+      const { data: broadMatches } = await supabase
+        .from('games')
+        .select('*')
+        .neq('id', id)
+        .not('rating', 'is', null)
+        .gte('rating_count', 5)
+        .order('rating', { ascending: false })
+        .limit(100);
+
+      if (broadMatches && broadMatches.length > (catMatches?.length ?? 0)) {
+        Object.assign(catMatches ?? {}, broadMatches);
+        // Use broadMatches below
+        const scored = (broadMatches as GameRow[])
+          .map((row) => {
+            const game = rowToGame(row);
+            const vec = normalize(gameToVector(game));
+            const sim = cosineSimilarity(sourceVector, vec);
+            return { game, sim };
+          })
+          .sort((a, b) => b.sim - a.sim)
+          .slice(0, 8);
+
+        const result = {
+          similar: scored.map((s) => ({ ...s.game, _similarity: Math.round(s.sim * 1000) / 1000 })),
+          method: 'broad-fallback',
+        };
+        similarGamesCache.set(id, result);
+        return NextResponse.json(result);
+      }
+    }
 
     if (catMatches) {
       // Score by category overlap + in-memory vector similarity
