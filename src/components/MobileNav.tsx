@@ -12,6 +12,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Typography from '@mui/material/Typography';
 import { logout } from '@/app/actions/auth';
+import { useColorMode } from './ThemeRegistry';
 
 interface MobileNavProps {
   isLoggedIn: boolean;
@@ -139,6 +140,12 @@ export default function MobileNav({ isLoggedIn, email, displayName }: MobileNavP
         <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)' }} />
 
         <List sx={{ px: 1, py: 1 }}>
+          <MobileDarkModeToggle />
+        </List>
+
+        <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)' }} />
+
+        <List sx={{ px: 1, py: 1 }}>
           {!isLoggedIn ? (
             <>
               <ListItemButton onClick={() => navigate('/login')} sx={{ borderRadius: 2, mb: 0.5, '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' } }}>
@@ -169,5 +176,20 @@ export default function MobileNav({ isLoggedIn, email, displayName }: MobileNavP
         </List>
       </Drawer>
     </>
+  );
+}
+
+function MobileDarkModeToggle() {
+  const { mode, toggleMode } = useColorMode();
+  return (
+    <ListItemButton onClick={toggleMode} sx={{ borderRadius: 2, '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' } }}>
+      <ListItemIcon sx={{ minWidth: 36, fontSize: '1.1rem' }}>
+        {mode === 'dark' ? '☀️' : '🌙'}
+      </ListItemIcon>
+      <ListItemText
+        primary={mode === 'dark' ? 'Light Mode' : 'Dark Mode'}
+        primaryTypographyProps={{ color: 'white' }}
+      />
+    </ListItemButton>
   );
 }

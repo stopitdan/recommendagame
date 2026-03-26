@@ -575,9 +575,9 @@ export default function ResultsView() {
 
         {!loading && games
           .filter((game) => !nameFilter.trim() || game.name.toLowerCase().includes(nameFilter.toLowerCase()))
-          .map((game) => (
+          .map((game, i) => (
           <Box key={game.id}>
-            <GameCard game={game} />
+            <GameCard game={game} index={i} />
             {/* "Why we picked this" reasons */}
             {game._reasons && game._reasons.length > 0 && (
               <Box sx={{ px: 2, pb: 1, mt: -0.5 }}>

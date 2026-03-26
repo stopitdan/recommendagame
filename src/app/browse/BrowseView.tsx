@@ -574,8 +574,8 @@ export default function BrowseView() {
           </Box>
         )}
 
-        {!loading && games.map((game) => (
-          <GameCard key={game.id} game={game} />
+        {!loading && games.map((game, i) => (
+          <GameCard key={game.id} game={game} index={i} />
         ))}
 
         {/* Pagination */}

@@ -11,6 +11,7 @@ import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import FavoriteButton from '@/components/FavoriteButton';
+import ShareInviteButton from '@/components/ShareInviteButton';
 import ReviewForm from '@/components/ReviewForm';
 import ReviewList from '@/components/ReviewList';
 import SimilarGames from '@/components/SimilarGames';
@@ -130,6 +131,7 @@ export default function GameDetailView() {
                 />
               )}
               <FavoriteButton gameId={game.id} />
+              <ShareInviteButton gameId={game.id} gameName={game.name} />
             </Box>
           </Box>
 

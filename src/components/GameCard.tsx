@@ -3,6 +3,8 @@
 import { useRouter } from 'next/navigation';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
+import { motion, useMotionValue, useTransform, animate } from 'motion/react';
+import { useEffect, useRef } from 'react';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Chip from '@mui/material/Chip';
@@ -12,14 +14,34 @@ import type { Game } from '@/types/game';
 import { formatGameType } from '@/lib/utils/format';
 import FavoriteButton from './FavoriteButton';
 
+function AnimatedRating({ value }: { value: number }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const motionVal = useMotionValue(0);
+
+  useEffect(() => {
+    const controls = animate(motionVal, value, {
+      duration: 0.6,
+      ease: 'easeOut',
+      onUpdate: (v) => {
+        if (ref.current) ref.current.textContent = v.toFixed(1);
+      },
+    });
+    return () => controls.stop();
+  }, [value, motionVal]);
+
+  return <span ref={ref}>0.0</span>;
+}
+
 export interface GameCardProps {
   game: Game;
   showFavorite?: boolean;
   isFavorited?: boolean;
   onFavoriteToggle?: (gameId: string, favorited: boolean) => void;
+  /** Index for staggered reveal animation (optional) */
+  index?: number;
 }
 
-export default function GameCard({ game, showFavorite = true, isFavorited = false, onFavoriteToggle }: GameCardProps) {
+export default function GameCard({ game, showFavorite = true, isFavorited = false, onFavoriteToggle, index }: GameCardProps) {
   const router = useRouter();
   const details: string[] = [];
   if (game.playerCount) {
@@ -45,6 +67,15 @@ export default function GameCard({ game, showFavorite = true, isFavorited = fals
   }
 
   return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        duration: 0.35,
+        delay: index != null ? Math.min(index * 0.04, 0.8) : 0,
+        ease: [0.25, 0.1, 0.25, 1],
+      }}
+    >
     <Card
       variant="outlined"
       onClick={handleCardClick}
@@ -87,7 +118,7 @@ export default function GameCard({ game, showFavorite = true, isFavorited = fals
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
               {game.rating && (
                 <Chip
-                  label={game.rating.toFixed(1)}
+                  label={<AnimatedRating value={game.rating} />}
                   size="small"
                   sx={{
                     bgcolor: 'primary.main',
@@ -129,5 +160,6 @@ export default function GameCard({ game, showFavorite = true, isFavorited = fals
         </Stack>
       </CardContent>
     </Card>
+    </motion.div>
   );
 }

@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/server';
 import HeaderNav from './HeaderNav';
 import HeaderAuth from './HeaderAuth';
 import MobileNav from './MobileNav';
+import DarkModeToggle from './DarkModeToggle';
 
 export default async function Header() {
   let user = null;
@@ -50,8 +51,9 @@ export default async function Header() {
 
         <Box sx={{ flex: 1 }} />
 
-        {/* Desktop auth */}
+        {/* Desktop auth + dark mode */}
         <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1, alignItems: 'center' }}>
+          <DarkModeToggle />
           <HeaderAuth
             isLoggedIn={!!user}
             email={user?.email ?? ''}

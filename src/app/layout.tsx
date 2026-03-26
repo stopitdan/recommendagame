@@ -4,6 +4,7 @@ import { AppRouterCacheProvider } from "@mui/material-nextjs/v16-appRouter";
 import ThemeRegistry from "@/components/ThemeRegistry";
 import Header from "@/components/Header";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import ScrollProgress from "@/components/ScrollProgress";
 import Footer from "@/components/Footer";
 import "./globals.css";
 
@@ -62,6 +63,7 @@ export default function RootLayout({
       <body className={roboto.className}>
         <AppRouterCacheProvider>
           <ThemeRegistry>
+            <ScrollProgress />
             <Header />
             <ErrorBoundary>
               <main style={{ flex: 1 }}>
