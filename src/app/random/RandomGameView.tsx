@@ -322,7 +322,7 @@ export default function RandomGameView() {
         </AnimatePresence>
 
         {/* Type filter chips */}
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center', mt: "8px !important" }}>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center', mt: "16px !important" }}>
           {typeOptions.map((opt) => (
             <Chip
               key={opt.label}
