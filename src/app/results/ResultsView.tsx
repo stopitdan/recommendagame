@@ -408,13 +408,6 @@ export default function ResultsView() {
         <Collapse in={filtersOpen}>
           <Box sx={{ p: 2.5, borderRadius: 2, border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
             <Stack spacing={2.5}>
-              <TextField
-                size="small"
-                fullWidth
-                placeholder="Filter by name..."
-                value={filterText}
-                onChange={(e) => setFilterText(e.target.value)}
-              />
               <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 3 }}>
                 <Box sx={{ px: 1 }}>
                   <Typography variant="subtitle2" fontWeight={600} gutterBottom>
