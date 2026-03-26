@@ -6,11 +6,14 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
+import Collapse from '@mui/material/Collapse';
 import Container from '@mui/material/Container';
+import Divider from '@mui/material/Divider';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
+import Slider from '@mui/material/Slider';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
@@ -20,40 +23,99 @@ import type { Game } from '@/types/game';
 
 const PAGE_SIZE = 20;
 
+// ─── Filter State ────────────────────────────────────────────
+
+interface Filters {
+  type: string | null;
+  category: string | null;
+  mechanic: string | null;
+  theme: string | null;
+  platform: string | null;
+  q: string;
+  sort: string;
+  popularity: string;
+  playerCount: [number, number];
+  playTime: [number, number];
+  complexity: [number, number];
+  minRating: number;
+  yearRange: [number, number];
+}
+
+const DEFAULT_FILTERS: Filters = {
+  type: null,
+  category: null,
+  mechanic: null,
+  theme: null,
+  platform: null,
+  q: '',
+  sort: 'rating',
+  popularity: 'popular',
+  playerCount: [1, 10],
+  playTime: [0, 300],
+  complexity: [1, 5],
+  minRating: 0,
+  yearRange: [1950, 2026],
+};
+
+const COMPLEXITY_LABELS: Record<number, string> = {
+  1: 'Light',
+  2: 'Easy',
+  3: 'Medium',
+  4: 'Heavy',
+  5: 'Expert',
+};
+
+// ─── Component ───────────────────────────────────────────────
+
 export default function BrowseView() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [games, setGames] = useState<Game[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [searchText, setSearchText] = useState('');
-  const [sort, setSort] = useState('rating');
   const [offset, setOffset] = useState(0);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
-  // Read initial filters from URL
-  const category = searchParams.get('category');
-  const mechanic = searchParams.get('mechanic');
-  const theme = searchParams.get('theme');
-  const platform = searchParams.get('platform');
-  const type = searchParams.get('type');
+  // Initialize filters from URL params
+  const [filters, setFilters] = useState<Filters>(() => ({
+    ...DEFAULT_FILTERS,
+    type: searchParams.get('type'),
+    category: searchParams.get('category'),
+    mechanic: searchParams.get('mechanic'),
+    theme: searchParams.get('theme'),
+    platform: searchParams.get('platform'),
+    q: searchParams.get('q') ?? '',
+  }));
 
-  const activeFilter = category || mechanic || theme || platform || type;
-  const filterLabel = category ?? mechanic ?? theme ?? platform ?? type ?? 'All Games';
-  const filterType = category ? 'category' : mechanic ? 'mechanic' : theme ? 'theme' : platform ? 'platform' : type ? 'type' : null;
+  function updateFilter(partial: Partial<Filters>) {
+    setFilters((prev) => ({ ...prev, ...partial }));
+  }
 
   const fetchGames = useCallback(async (newOffset: number = 0) => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (category) params.set('category', category);
-      if (mechanic) params.set('mechanic', mechanic);
-      if (theme) params.set('theme', theme);
-      if (platform) params.set('platform', platform);
-      if (type) params.set('type', type);
-      if (searchText.trim()) params.set('q', searchText.trim());
-      params.set('sort', sort);
+      if (filters.category) params.set('category', filters.category);
+      if (filters.mechanic) params.set('mechanic', filters.mechanic);
+      if (filters.theme) params.set('theme', filters.theme);
+      if (filters.platform) params.set('platform', filters.platform);
+      if (filters.type) params.set('type', filters.type);
+      if (filters.q.trim()) params.set('q', filters.q.trim());
+      params.set('sort', filters.sort);
+      params.set('popularity', filters.popularity);
       params.set('limit', String(PAGE_SIZE));
       params.set('offset', String(newOffset));
+
+      // Numeric range filters — only send if different from defaults
+      if (filters.playerCount[0] > 1) params.set('minPlayers', String(filters.playerCount[0]));
+      if (filters.playerCount[1] < 10) params.set('maxPlayers', String(filters.playerCount[1]));
+      if (filters.playTime[0] > 0) params.set('minTime', String(filters.playTime[0]));
+      if (filters.playTime[1] < 300) params.set('maxTime', String(filters.playTime[1]));
+      if (filters.complexity[0] > 1) params.set('minComplexity', String(filters.complexity[0]));
+      if (filters.complexity[1] < 5) params.set('maxComplexity', String(filters.complexity[1]));
+      if (filters.minRating > 0) params.set('minRating', String(filters.minRating));
+      if (filters.yearRange[0] > 1950) params.set('yearFrom', String(filters.yearRange[0]));
+      if (filters.yearRange[1] < 2026) params.set('yearTo', String(filters.yearRange[1]));
 
       const res = await fetch(`/api/games/browse?${params.toString()}`);
       if (!res.ok) return;
@@ -64,15 +126,34 @@ export default function BrowseView() {
     } finally {
       setLoading(false);
     }
-  }, [category, mechanic, theme, platform, type, searchText, sort]);
+  }, [filters]);
 
   useEffect(() => {
     fetchGames(0);
   }, [fetchGames]);
 
-  function clearFilter() {
+  function clearAllFilters() {
+    setFilters(DEFAULT_FILTERS);
     router.push('/browse');
   }
+
+  const hasActiveFilters = filters.type || filters.category || filters.mechanic ||
+    filters.theme || filters.platform || filters.q.trim() ||
+    filters.playerCount[0] > 1 || filters.playerCount[1] < 10 ||
+    filters.playTime[0] > 0 || filters.playTime[1] < 300 ||
+    filters.complexity[0] > 1 || filters.complexity[1] < 5 ||
+    filters.minRating > 0 ||
+    filters.yearRange[0] > 1950 || filters.yearRange[1] < 2026;
+
+  const activeFilterCount = [
+    filters.type, filters.category, filters.mechanic, filters.theme, filters.platform,
+    filters.q.trim() || null,
+    filters.playerCount[0] > 1 || filters.playerCount[1] < 10 ? 'players' : null,
+    filters.playTime[0] > 0 || filters.playTime[1] < 300 ? 'time' : null,
+    filters.complexity[0] > 1 || filters.complexity[1] < 5 ? 'complexity' : null,
+    filters.minRating > 0 ? 'rating' : null,
+    filters.yearRange[0] > 1950 || filters.yearRange[1] < 2026 ? 'year' : null,
+  ].filter(Boolean).length;
 
   const hasMore = offset + PAGE_SIZE < total;
 
@@ -82,21 +163,8 @@ export default function BrowseView() {
         {/* Header */}
         <Box>
           <Typography variant="h4" fontWeight={700}>
-            {activeFilter ? filterLabel : 'Browse Games'}
+            Browse Games
           </Typography>
-          {activeFilter && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
-              <Typography variant="body2" color="text.secondary">
-                Filtering by {filterType}:
-              </Typography>
-              <Chip
-                label={filterLabel}
-                onDelete={clearFilter}
-                color="secondary"
-                size="small"
-              />
-            </Box>
-          )}
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
             {total.toLocaleString()} games found
           </Typography>
@@ -114,36 +182,30 @@ export default function BrowseView() {
             <Chip
               key={t.label}
               label={`${t.emoji} ${t.label}`}
-              onClick={() => {
-                if (t.value) {
-                  router.push(`/browse?type=${t.value}`);
-                } else {
-                  router.push('/browse');
-                }
-              }}
-              color={type === t.value || (!type && !t.value && !activeFilter) ? 'primary' : 'default'}
-              variant={type === t.value || (!type && !t.value && !activeFilter) ? 'filled' : 'outlined'}
+              onClick={() => updateFilter({ type: t.value })}
+              color={filters.type === t.value || (!filters.type && !t.value) ? 'primary' : 'default'}
+              variant={filters.type === t.value || (!filters.type && !t.value) ? 'filled' : 'outlined'}
               sx={{ transition: 'all 200ms ease' }}
             />
           ))}
         </Box>
 
-        {/* Search + Sort controls */}
-        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+        {/* Search + Sort + Filter toggle */}
+        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
           <TextField
             size="small"
-            placeholder="Search within results..."
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
+            placeholder="Search games..."
+            value={filters.q}
+            onChange={(e) => updateFilter({ q: e.target.value })}
             onKeyDown={(e) => e.key === 'Enter' && fetchGames(0)}
             sx={{ flex: 1, minWidth: 200 }}
           />
           <FormControl size="small" sx={{ minWidth: 150 }}>
             <InputLabel>Sort by</InputLabel>
             <Select
-              value={sort}
+              value={filters.sort}
               label="Sort by"
-              onChange={(e) => setSort(e.target.value)}
+              onChange={(e) => updateFilter({ sort: e.target.value })}
             >
               <MenuItem value="rating">Rating</MenuItem>
               <MenuItem value="popularity">Most Popular</MenuItem>
@@ -151,15 +213,240 @@ export default function BrowseView() {
               <MenuItem value="year">Newest First</MenuItem>
             </Select>
           </FormControl>
+          <Button
+            variant={filtersOpen ? 'contained' : 'outlined'}
+            size="medium"
+            onClick={() => setFiltersOpen(!filtersOpen)}
+            sx={{ minWidth: 120 }}
+          >
+            Filters {activeFilterCount > 0 ? `(${activeFilterCount})` : ''}
+          </Button>
         </Box>
+
+        {/* Expanded filter panel */}
+        <Collapse in={filtersOpen}>
+          <Box
+            sx={{
+              p: 3,
+              borderRadius: 2,
+              border: '1px solid',
+              borderColor: 'divider',
+              bgcolor: 'background.paper',
+            }}
+          >
+            <Stack spacing={3}>
+              {/* Row 1: Players + Play Time */}
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 3 }}>
+                <Box>
+                  <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                    Players: {filters.playerCount[0]}–{filters.playerCount[1] >= 10 ? '10+' : filters.playerCount[1]}
+                  </Typography>
+                  <Slider
+                    value={filters.playerCount}
+                    onChange={(_, v) => updateFilter({ playerCount: v as [number, number] })}
+                    min={1}
+                    max={10}
+                    step={1}
+                    valueLabelDisplay="auto"
+                    marks={[
+                      { value: 1, label: '1' },
+                      { value: 2, label: '2' },
+                      { value: 4, label: '4' },
+                      { value: 6, label: '6' },
+                      { value: 10, label: '10+' },
+                    ]}
+                  />
+                </Box>
+                <Box>
+                  <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                    Play Time: {filters.playTime[0]}–{filters.playTime[1] >= 300 ? '300+' : filters.playTime[1]} min
+                  </Typography>
+                  <Slider
+                    value={filters.playTime}
+                    onChange={(_, v) => updateFilter({ playTime: v as [number, number] })}
+                    min={0}
+                    max={300}
+                    step={15}
+                    valueLabelDisplay="auto"
+                    marks={[
+                      { value: 0, label: '0' },
+                      { value: 30, label: '30m' },
+                      { value: 60, label: '1h' },
+                      { value: 120, label: '2h' },
+                      { value: 300, label: '5h+' },
+                    ]}
+                  />
+                </Box>
+              </Box>
+
+              {/* Row 2: Complexity + Rating */}
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 3 }}>
+                <Box>
+                  <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                    Complexity: {COMPLEXITY_LABELS[filters.complexity[0]] ?? filters.complexity[0]}–{COMPLEXITY_LABELS[filters.complexity[1]] ?? filters.complexity[1]}
+                  </Typography>
+                  <Slider
+                    value={filters.complexity}
+                    onChange={(_, v) => updateFilter({ complexity: v as [number, number] })}
+                    min={1}
+                    max={5}
+                    step={0.5}
+                    valueLabelDisplay="auto"
+                    marks={[
+                      { value: 1, label: 'Light' },
+                      { value: 3, label: 'Medium' },
+                      { value: 5, label: 'Expert' },
+                    ]}
+                  />
+                </Box>
+                <Box>
+                  <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                    Minimum Rating: {filters.minRating > 0 ? `${filters.minRating}+` : 'Any'}
+                  </Typography>
+                  <Slider
+                    value={filters.minRating}
+                    onChange={(_, v) => updateFilter({ minRating: v as number })}
+                    min={0}
+                    max={9}
+                    step={0.5}
+                    valueLabelDisplay="auto"
+                    marks={[
+                      { value: 0, label: 'Any' },
+                      { value: 5, label: '5' },
+                      { value: 7, label: '7' },
+                      { value: 9, label: '9' },
+                    ]}
+                  />
+                </Box>
+              </Box>
+
+              {/* Row 3: Year range */}
+              <Box>
+                <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                  Year Published: {filters.yearRange[0]}–{filters.yearRange[1]}
+                </Typography>
+                <Slider
+                  value={filters.yearRange}
+                  onChange={(_, v) => updateFilter({ yearRange: v as [number, number] })}
+                  min={1950}
+                  max={2026}
+                  step={1}
+                  valueLabelDisplay="auto"
+                  marks={[
+                    { value: 1950, label: '1950' },
+                    { value: 1980, label: '80' },
+                    { value: 2000, label: '2000' },
+                    { value: 2010, label: '10' },
+                    { value: 2020, label: '20' },
+                    { value: 2026, label: '26' },
+                  ]}
+                />
+              </Box>
+
+              {/* Row 4: Popularity mode */}
+              <Box>
+                <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                  Show
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  {[
+                    { value: 'popular', label: 'Popular Games' },
+                    { value: 'any', label: 'All Games' },
+                    { value: 'hidden-gems', label: 'Hidden Gems' },
+                  ].map((opt) => (
+                    <Chip
+                      key={opt.value}
+                      label={opt.label}
+                      onClick={() => updateFilter({ popularity: opt.value })}
+                      color={filters.popularity === opt.value ? 'secondary' : 'default'}
+                      variant={filters.popularity === opt.value ? 'filled' : 'outlined'}
+                    />
+                  ))}
+                </Box>
+              </Box>
+
+              <Divider />
+
+              {/* Actions */}
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Button variant="text" onClick={clearAllFilters} disabled={!hasActiveFilters}>
+                  Clear all filters
+                </Button>
+                <Button variant="contained" onClick={() => fetchGames(0)}>
+                  Apply Filters
+                </Button>
+              </Box>
+            </Stack>
+          </Box>
+        </Collapse>
+
+        {/* Active filter chips */}
+        {hasActiveFilters && (
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            {filters.category && (
+              <Chip label={`Category: ${filters.category}`} onDelete={() => updateFilter({ category: null })} size="small" color="secondary" />
+            )}
+            {filters.mechanic && (
+              <Chip label={`Mechanic: ${filters.mechanic}`} onDelete={() => updateFilter({ mechanic: null })} size="small" color="secondary" />
+            )}
+            {filters.theme && (
+              <Chip label={`Theme: ${filters.theme}`} onDelete={() => updateFilter({ theme: null })} size="small" color="secondary" />
+            )}
+            {(filters.playerCount[0] > 1 || filters.playerCount[1] < 10) && (
+              <Chip
+                label={`${filters.playerCount[0]}–${filters.playerCount[1]}${filters.playerCount[1] >= 10 ? '+' : ''} players`}
+                onDelete={() => updateFilter({ playerCount: [1, 10] })}
+                size="small"
+                variant="outlined"
+              />
+            )}
+            {(filters.playTime[0] > 0 || filters.playTime[1] < 300) && (
+              <Chip
+                label={`${filters.playTime[0]}–${filters.playTime[1]}${filters.playTime[1] >= 300 ? '+' : ''} min`}
+                onDelete={() => updateFilter({ playTime: [0, 300] })}
+                size="small"
+                variant="outlined"
+              />
+            )}
+            {(filters.complexity[0] > 1 || filters.complexity[1] < 5) && (
+              <Chip
+                label={`Complexity ${filters.complexity[0]}–${filters.complexity[1]}`}
+                onDelete={() => updateFilter({ complexity: [1, 5] })}
+                size="small"
+                variant="outlined"
+              />
+            )}
+            {filters.minRating > 0 && (
+              <Chip
+                label={`Rating ${filters.minRating}+`}
+                onDelete={() => updateFilter({ minRating: 0 })}
+                size="small"
+                variant="outlined"
+              />
+            )}
+            {(filters.yearRange[0] > 1950 || filters.yearRange[1] < 2026) && (
+              <Chip
+                label={`${filters.yearRange[0]}–${filters.yearRange[1]}`}
+                onDelete={() => updateFilter({ yearRange: [1950, 2026] })}
+                size="small"
+                variant="outlined"
+              />
+            )}
+          </Box>
+        )}
 
         {/* Results */}
         {loading && <GameCardSkeletonList count={5} />}
 
         {!loading && games.length === 0 && (
-          <Typography variant="body1" color="text.secondary" textAlign="center" sx={{ py: 8 }}>
-            No games found matching these filters.
-          </Typography>
+          <Box sx={{ textAlign: 'center', py: 8 }}>
+            <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
+              No games match these filters
+            </Typography>
+            <Button variant="outlined" onClick={clearAllFilters}>
+              Clear all filters
+            </Button>
+          </Box>
         )}
 
         {!loading && games.map((game) => (
@@ -177,7 +464,7 @@ export default function BrowseView() {
               Previous
             </Button>
             <Typography variant="body2" color="text.secondary" sx={{ alignSelf: 'center' }}>
-              Showing {offset + 1}–{Math.min(offset + PAGE_SIZE, total)} of {total.toLocaleString()}
+              {offset + 1}–{Math.min(offset + PAGE_SIZE, total)} of {total.toLocaleString()}
             </Typography>
             <Button
               variant="outlined"

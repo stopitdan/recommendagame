@@ -48,6 +48,17 @@ export async function GET(request: NextRequest) {
   const limit = Math.min(parseInt(searchParams.get('limit') ?? '40', 10), 100);
   const offset = parseInt(searchParams.get('offset') ?? '0', 10);
 
+  // Numeric range filters
+  const minPlayers = searchParams.get('minPlayers');
+  const maxPlayers = searchParams.get('maxPlayers');
+  const minTime = searchParams.get('minTime');
+  const maxTime = searchParams.get('maxTime');
+  const minComplexity = searchParams.get('minComplexity');
+  const maxComplexity = searchParams.get('maxComplexity');
+  const minRating = searchParams.get('minRating');
+  const yearFrom = searchParams.get('yearFrom');
+  const yearTo = searchParams.get('yearTo');
+
   let query = supabase.from('games').select('*', { count: 'exact' });
 
   // Array containment filters
@@ -56,6 +67,25 @@ export async function GET(request: NextRequest) {
   if (theme) query = query.contains('themes', [theme]);
   if (platform) query = query.contains('platforms', [platform]);
   if (type) query = query.contains('types', [type]);
+
+  // Player count range
+  if (minPlayers) query = query.gte('max_players', parseInt(minPlayers, 10));
+  if (maxPlayers) query = query.lte('min_players', parseInt(maxPlayers, 10));
+
+  // Play time range (minutes)
+  if (minTime) query = query.gte('avg_play_time', parseInt(minTime, 10));
+  if (maxTime) query = query.lte('avg_play_time', parseInt(maxTime, 10));
+
+  // Complexity range (1-5)
+  if (minComplexity) query = query.gte('complexity', parseFloat(minComplexity));
+  if (maxComplexity) query = query.lte('complexity', parseFloat(maxComplexity));
+
+  // Minimum rating
+  if (minRating) query = query.gte('rating', parseFloat(minRating));
+
+  // Year range
+  if (yearFrom) query = query.gte('year_published', parseInt(yearFrom, 10));
+  if (yearTo) query = query.lte('year_published', parseInt(yearTo, 10));
 
   // Text search
   if (textQuery) {
