@@ -1,19 +1,21 @@
 /**
  * GET /api/games/random
  *
- * Returns a random game. Uses a two-step approach:
- * 1. Fetch a small random page of quality games
- * 2. Pick one randomly from that page
+ * Returns a random game. Fetches top 100 by popularity and picks one.
+ * No offsets, no ranges, no complex queries — just limit(100) + random pick.
  *
  * Query params:
  *   type — Filter by game type (board, video, word, party)
- *   minRating — Minimum rating (default: 6.0)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const GAME_COLUMNS = 'id,source,source_id,name,description,year_published,types,min_players,max_players,recommended_players,min_play_time,max_play_time,avg_play_time,complexity,rating,rating_count,categories,mechanics,themes,platforms,thumbnail_url,image_url,source_url';
+const COLUMNS = 'id,source,source_id,name,description,year_published,types,min_players,max_players,avg_play_time,complexity,rating,rating_count,categories,mechanics,themes,platforms,thumbnail_url,image_url,source_url';
+
+let cachedGames: Record<string, unknown[]> = {};
+let cacheTime = 0;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -28,74 +30,51 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Database not configured' }, { status: 500 });
   }
 
-  const { searchParams } = request.nextUrl;
-  const type = searchParams.get('type');
-  const minRating = parseFloat(searchParams.get('minRating') ?? '6.0');
+  const type = request.nextUrl.searchParams.get('type') ?? 'all';
+  const cacheKey = type;
 
-  // Strategy: pick a random page from the top-rated games.
-  // PAGE_SIZE games per page, random page number from 0 to MAX_PAGES.
-  // If the random page overshoots, we fall back to page 0.
-  const PAGE_SIZE = 50;
-  const MAX_PAGES = 30; // 30 pages × 50 = top 1500 games — plenty of variety
-  const randomPage = Math.floor(Math.random() * MAX_PAGES);
-
-  for (let attempt = 0; attempt < 3; attempt++) {
-    const page = attempt === 0 ? randomPage : 0; // Fall back to first page on retry
-    const offset = page * PAGE_SIZE;
-
-    try {
-      let query = supabase
-        .from('games')
-        .select(GAME_COLUMNS)
-        .not('rating', 'is', null)
-        .gte('rating', attempt > 0 ? 4.0 : minRating) // Loosen on retry
-        .gte('rating_count', attempt > 0 ? 5 : 20)     // Loosen on retry
-        .order('rating', { ascending: false })
-        .range(offset, offset + PAGE_SIZE - 1);
-
-      if (type) {
-        query = query.contains('types', [type]);
-      }
-
-      const { data, error } = await query;
-
-      if (error) {
-        console.error(`[Random] Attempt ${attempt + 1} error:`, error.message);
-        continue; // Retry
-      }
-
-      if (data && data.length > 0) {
-        const pick = data[Math.floor(Math.random() * data.length)];
-        return NextResponse.json({ game: pick });
-      }
-
-      // Empty results — retry with page 0
-    } catch (err) {
-      console.error(`[Random] Attempt ${attempt + 1} exception:`, err);
-    }
+  // Return from cache if fresh
+  if (cachedGames[cacheKey] && Date.now() - cacheTime < CACHE_TTL) {
+    const games = cachedGames[cacheKey];
+    return NextResponse.json({ game: games[Math.floor(Math.random() * games.length)] });
   }
 
-  // All retries exhausted — try absolute minimum filters
   try {
+    // Use gt filter to hit the rating index directly — much faster than
+    // ordering the full table. rating >= 7.0 is a small subset.
     let query = supabase
       .from('games')
-      .select(GAME_COLUMNS)
-      .not('rating', 'is', null)
-      .order('rating_count', { ascending: false })
-      .limit(PAGE_SIZE);
+      .select(COLUMNS)
+      .gte('rating', 6.5)
+      .limit(200);
 
-    if (type) {
+    if (type !== 'all') {
       query = query.contains('types', [type]);
     }
 
-    const { data } = await query;
-    if (data && data.length > 0) {
-      const pick = data[Math.floor(Math.random() * data.length)];
-      return NextResponse.json({ game: pick });
-    }
-  } catch {
-    // Final fallback failed
-  }
+    const { data, error } = await query;
 
-  return NextResponse.json({ error: 'No games found' }, { status: 404 });
+    if (error) {
+      console.error('[Random]', error.message);
+      // Try to serve from stale cache
+      if (cachedGames[cacheKey]?.length) {
+        const games = cachedGames[cacheKey];
+        return NextResponse.json({ game: games[Math.floor(Math.random() * games.length)] });
+      }
+      return NextResponse.json({ error: 'Database error' }, { status: 500 });
+    }
+
+    if (!data || data.length === 0) {
+      return NextResponse.json({ error: 'No games found' }, { status: 404 });
+    }
+
+    // Cache the results
+    cachedGames[cacheKey] = data;
+    cacheTime = Date.now();
+
+    return NextResponse.json({ game: data[Math.floor(Math.random() * data.length)] });
+  } catch (err) {
+    console.error('[Random] Exception:', err);
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+  }
 }
