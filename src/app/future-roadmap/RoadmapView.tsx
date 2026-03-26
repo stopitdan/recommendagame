@@ -126,6 +126,7 @@ const PHASES: Phase[] = [
       { title: 'Conversational Recommendations', description: 'Chat-style interface where users describe what they want and get iterative, conversational recommendations.', status: 'future', tags: ['AI', 'UI'] },
       { title: 'Game Group Matching', description: 'Multiple users input preferences, engine finds games everyone will enjoy. "Find a game for our group."', status: 'future', tags: ['Feature', 'AI'] },
       { title: 'Trending / Seasonal Recommendations', description: 'Surface games trending this week, seasonal picks (Halloween horror games, holiday party games).', status: 'future', tags: ['Feature'] },
+      { title: 'Better Video Game Data Source', description: 'RAWG is missing key data (tags, descriptions) for many games. Evaluate IGDB (Twitch-backed, richer metadata), Steam API (store descriptions, user tags, reviews), or GiantBomb. "A modern metroidvania about bugs" should find Hollow Knight.', status: 'planned', tags: ['API', 'Data'] },
       { title: 'Import BGG / Steam Library', description: 'Connect your BGG or Steam account to auto-populate preferences from games you already own and rate.', status: 'future', tags: ['Feature', 'API'] },
       { title: 'Caching Layer (Redis)', description: 'Upstash Redis for sub-100ms cached responses on popular queries.', status: 'future', tags: ['Infrastructure'] },
       { title: 'Tech Stack Diagram', description: 'Visual architecture diagram showing how all the pieces connect.', status: 'future', tags: ['Documentation'] },
