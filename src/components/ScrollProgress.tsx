@@ -1,35 +1,42 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Box from '@mui/material/Box';
+import { useRef, useEffect } from 'react';
 
 /**
  * Thin colored progress bar fixed at the top of the viewport.
- * Fills as the user scrolls down the page.
+ * Fills as the user scrolls. Uses direct DOM manipulation for
+ * zero-latency updates (no React state → no re-render delay).
  */
 export default function ScrollProgress() {
-  const [progress, setProgress] = useState(0);
+  const barRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    function handleScroll() {
+    let ticking = false;
+
+    function update() {
+      if (!barRef.current) return;
       const scrollTop = window.scrollY;
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      if (docHeight <= 0) {
-        setProgress(0);
-        return;
-      }
-      setProgress(Math.min(scrollTop / docHeight, 1));
+      const progress = docHeight > 0 ? Math.min(scrollTop / docHeight, 1) : 0;
+      barRef.current.style.transform = `scaleX(${progress})`;
+      ticking = false;
     }
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    function onScroll() {
+      if (!ticking) {
+        requestAnimationFrame(update);
+        ticking = true;
+      }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    update(); // Initial
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  if (progress <= 0) return null;
-
   return (
-    <Box
-      sx={{
+    <div
+      style={{
         position: 'fixed',
         top: 0,
         left: 0,
@@ -39,15 +46,18 @@ export default function ScrollProgress() {
         pointerEvents: 'none',
       }}
     >
-      <Box
-        sx={{
+      <div
+        ref={barRef}
+        style={{
           height: '100%',
-          width: `${progress * 100}%`,
+          width: '100%',
           background: 'linear-gradient(90deg, #5B4FDB, #FF6D3F)',
-          transition: 'width 50ms linear',
+          transformOrigin: 'left',
+          transform: 'scaleX(0)',
           borderRadius: '0 2px 2px 0',
+          // No CSS transition — scaleX is updated directly via rAF for instant response
         }}
       />
-    </Box>
+    </div>
   );
 }
