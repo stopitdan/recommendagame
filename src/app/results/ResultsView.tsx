@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Alert from '@mui/material/Alert';
+import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
@@ -24,6 +25,7 @@ import type { Game } from '@/types/game';
 import type { QuestionnaireState, TimePreset } from '@/types/questionnaire';
 import type { GameType } from '@/types/game';
 import { incrementRecommendCount } from '@/lib/guest';
+import { CATEGORY_OPTIONS, MECHANIC_OPTIONS, THEME_OPTIONS, PLATFORM_OPTIONS } from '@/lib/filter-options';
 
 type PopularityMode = 'popular' | 'any' | 'hidden-gems';
 
@@ -61,6 +63,10 @@ export default function ResultsView() {
     parseFloat(searchParams.get('maxComplexity') ?? '5'),
   ]);
   const [filterMinRating, setFilterMinRating] = useState(0);
+  const [filterCategories, setFilterCategories] = useState<string[]>([]);
+  const [filterMechanics, setFilterMechanics] = useState<string[]>([]);
+  const [filterThemes, setFilterThemes] = useState<string[]>([]);
+  const [filterPlatforms, setFilterPlatforms] = useState<string[]>([]);
 
   /**
    * Reconstructs the QuestionnaireState from URL search params
@@ -246,6 +252,30 @@ export default function ResultsView() {
       if ((game.rating ?? 0) < filterMinRating) return false;
     }
 
+    // Categories (game must match ALL selected)
+    if (filterCategories.length > 0) {
+      const gameCats = game.categories.map((c) => c.toLowerCase());
+      if (!filterCategories.every((fc) => gameCats.some((gc) => gc.includes(fc.toLowerCase())))) return false;
+    }
+
+    // Mechanics (game must match ALL selected)
+    if (filterMechanics.length > 0) {
+      const gameMechs = game.mechanics.map((m) => m.toLowerCase());
+      if (!filterMechanics.every((fm) => gameMechs.some((gm) => gm.includes(fm.toLowerCase())))) return false;
+    }
+
+    // Themes (game must match ALL selected)
+    if (filterThemes.length > 0) {
+      const gameThemes = game.themes.map((t) => t.toLowerCase());
+      if (!filterThemes.every((ft) => gameThemes.some((gt) => gt.includes(ft.toLowerCase())))) return false;
+    }
+
+    // Platforms (game must match ANY selected)
+    if (filterPlatforms.length > 0) {
+      const gamePlats = game.platforms.map((p) => p.toLowerCase());
+      if (!filterPlatforms.some((fp) => gamePlats.some((gp) => gp.includes(fp.toLowerCase())))) return false;
+    }
+
     return true;
   });
 
@@ -253,7 +283,9 @@ export default function ResultsView() {
     filterPlayers[0] > 1 || filterPlayers[1] < 10 ||
     filterTime[0] > 0 || filterTime[1] < 300 ||
     filterComplexity[0] > 1 || filterComplexity[1] < 5 ||
-    filterMinRating > 0;
+    filterMinRating > 0 ||
+    filterCategories.length > 0 || filterMechanics.length > 0 ||
+    filterThemes.length > 0 || filterPlatforms.length > 0;
 
   function clearResultFilters() {
     setFilterText('');
@@ -261,6 +293,10 @@ export default function ResultsView() {
     setFilterTime([0, 300]);
     setFilterComplexity([1, 5]);
     setFilterMinRating(0);
+    setFilterCategories([]);
+    setFilterMechanics([]);
+    setFilterThemes([]);
+    setFilterPlatforms([]);
   }
 
   return (
@@ -366,6 +402,10 @@ export default function ResultsView() {
               filterTime[0] > 0 || filterTime[1] < 300 ? 1 : 0,
               filterComplexity[0] > 1 || filterComplexity[1] < 5 ? 1 : 0,
               filterMinRating > 0 ? 1 : 0,
+              filterCategories.length > 0 ? 1 : 0,
+              filterMechanics.length > 0 ? 1 : 0,
+              filterThemes.length > 0 ? 1 : 0,
+              filterPlatforms.length > 0 ? 1 : 0,
             ].reduce((a, b) => a + b, 0)})` : ''}
           </Button>
         </Box>
@@ -433,6 +473,50 @@ export default function ResultsView() {
                   />
                 </Box>
               </Box>
+              {/* Category, Mechanic, Theme, Platform — multi-select with chips */}
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                <Autocomplete
+                  multiple
+                  value={filterCategories}
+                  onChange={(_, v) => setFilterCategories(v)}
+                  options={CATEGORY_OPTIONS}
+                  renderInput={(params) => <TextField {...params} label="Categories" size="small" placeholder="Add..." />}
+                  size="small"
+                  limitTags={3}
+                  ChipProps={{ size: 'small', variant: 'outlined' }}
+                />
+                <Autocomplete
+                  multiple
+                  value={filterMechanics}
+                  onChange={(_, v) => setFilterMechanics(v)}
+                  options={MECHANIC_OPTIONS}
+                  renderInput={(params) => <TextField {...params} label="Mechanics" size="small" placeholder="Add..." />}
+                  size="small"
+                  limitTags={3}
+                  ChipProps={{ size: 'small', variant: 'outlined' }}
+                />
+                <Autocomplete
+                  multiple
+                  value={filterThemes}
+                  onChange={(_, v) => setFilterThemes(v)}
+                  options={THEME_OPTIONS}
+                  renderInput={(params) => <TextField {...params} label="Themes" size="small" placeholder="Add..." />}
+                  size="small"
+                  limitTags={3}
+                  ChipProps={{ size: 'small', variant: 'outlined' }}
+                />
+                <Autocomplete
+                  multiple
+                  value={filterPlatforms}
+                  onChange={(_, v) => setFilterPlatforms(v)}
+                  options={PLATFORM_OPTIONS}
+                  renderInput={(params) => <TextField {...params} label="Platforms" size="small" placeholder="Add..." />}
+                  size="small"
+                  limitTags={3}
+                  ChipProps={{ size: 'small', variant: 'outlined' }}
+                />
+              </Box>
+
               {hasActiveResultFilters && (
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Typography variant="body2" color="text.secondary">
