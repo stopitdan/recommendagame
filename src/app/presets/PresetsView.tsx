@@ -85,7 +85,7 @@ export default function PresetsView() {
           <Typography variant="h4" fontWeight={700}>
             My Presets
           </Typography>
-          <Button variant="contained" onClick={() => router.push('/questionnaire')}>
+          <Button variant="contained" onClick={() => router.push('/find-a-game')}>
             Create New
           </Button>
         </Box>
@@ -117,7 +117,7 @@ export default function PresetsView() {
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
               Go through the questionnaire and tap &quot;Save Preset&quot; on the last step.
             </Typography>
-            <Button variant="contained" onClick={() => router.push('/questionnaire')}>
+            <Button variant="contained" onClick={() => router.push('/find-a-game')}>
               Get Started
             </Button>
           </Box>

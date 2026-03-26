@@ -5,7 +5,7 @@ import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 
 const NAV_ITEMS = [
-  { label: 'Find a Game', href: '/questionnaire', icon: '🎯' },
+  { label: 'Find a Game', href: '/find-a-game', icon: '🎯' },
   { label: 'Browse', href: '/browse', icon: '🔍' },
   { label: 'Random', href: '/random', icon: '🎲' },
   { label: 'Leaderboard', href: '/leaderboard', icon: '🏆' },

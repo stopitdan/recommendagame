@@ -20,7 +20,7 @@ interface MobileNavProps {
 }
 
 const NAV_ITEMS = [
-  { label: 'Find a Game', href: '/questionnaire', icon: '🎯' },
+  { label: 'Find a Game', href: '/find-a-game', icon: '🎯' },
   { label: 'Browse', href: '/browse', icon: '🔍' },
   { label: 'Random Game', href: '/random', icon: '🎲' },
   { label: 'Leaderboard', href: '/leaderboard', icon: '🏆' },

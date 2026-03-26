@@ -235,7 +235,7 @@ export default function ResultsView() {
             >
               {shareCopied ? 'Link Copied!' : '🔗 Share'}
             </Button>
-            <Button variant="outlined" size="small" onClick={() => router.push('/questionnaire')}>
+            <Button variant="outlined" size="small" onClick={() => router.push('/find-a-game')}>
               Start Over
             </Button>
           </Box>
@@ -316,7 +316,7 @@ export default function ResultsView() {
                   Try including all games
                 </Button>
               )}
-              <Button variant="contained" onClick={() => router.push('/questionnaire')}>
+              <Button variant="contained" onClick={() => router.push('/find-a-game')}>
                 Try Different Preferences
               </Button>
             </Stack>

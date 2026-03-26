@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography';
 
 const LINKS = {
   Discover: [
-    { label: 'Find a Game', href: '/questionnaire' },
+    { label: 'Find a Game', href: '/find-a-game' },
     { label: 'Browse Games', href: '/browse' },
     { label: 'Leaderboard', href: '/leaderboard' },
     { label: 'How It Works', href: '/about' },

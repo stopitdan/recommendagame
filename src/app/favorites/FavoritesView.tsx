@@ -59,7 +59,7 @@ export default function FavoritesView() {
           <Typography variant="h4" fontWeight={700}>
             My Favorites
           </Typography>
-          <Button variant="contained" onClick={() => router.push('/questionnaire')}>
+          <Button variant="contained" onClick={() => router.push('/find-a-game')}>
             Find More Games
           </Button>
         </Box>
@@ -91,7 +91,7 @@ export default function FavoritesView() {
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
               Find games you love and tap the heart to save them here.
             </Typography>
-            <Button variant="contained" onClick={() => router.push('/questionnaire')}>
+            <Button variant="contained" onClick={() => router.push('/find-a-game')}>
               Find Games
             </Button>
           </Box>

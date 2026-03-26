@@ -52,7 +52,7 @@ export default function GameDetailView() {
         <Typography variant="h5" color="text.secondary" sx={{ mb: 2 }}>
           Game not found
         </Typography>
-        <Button variant="contained" onClick={() => router.push('/questionnaire')}>
+        <Button variant="contained" onClick={() => router.push('/find-a-game')}>
           Find Games
         </Button>
       </Container>

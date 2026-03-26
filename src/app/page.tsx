@@ -347,7 +347,7 @@ export default function Home() {
                 }}
               >
                 <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
-                  <Link href="/questionnaire" style={{ textDecoration: "none" }}>
+                  <Link href="/find-a-game" style={{ textDecoration: "none" }}>
                     <motion.div whileHover={{ y: -3, scale: 1.03 }} whileTap={{ scale: 0.97 }}>
                       <Button
                         variant="contained"
@@ -656,7 +656,7 @@ export default function Home() {
             </Typography>
           </Section>
           <Section delay={0.3}>
-            <Link href="/questionnaire" style={{ textDecoration: "none" }}>
+            <Link href="/find-a-game" style={{ textDecoration: "none" }}>
               <motion.div
                 whileHover={{ y: -4, scale: 1.04 }}
                 whileTap={{ scale: 0.96 }}

@@ -179,7 +179,7 @@ export default function ProfileHub() {
               <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
                 No favorites yet
               </Typography>
-              <Button variant="contained" onClick={() => router.push('/questionnaire')}>
+              <Button variant="contained" onClick={() => router.push('/find-a-game')}>
                 Find Games to Favorite
               </Button>
             </Box>
@@ -250,7 +250,7 @@ export default function ProfileHub() {
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                 Save your questionnaire answers to quickly get recommendations again
               </Typography>
-              <Button variant="contained" onClick={() => router.push('/questionnaire')}>
+              <Button variant="contained" onClick={() => router.push('/find-a-game')}>
                 Create a Preset
               </Button>
             </Box>

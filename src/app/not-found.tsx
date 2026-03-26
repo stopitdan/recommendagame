@@ -48,7 +48,7 @@ export default function NotFound() {
         </Button>
         <Button
           variant="outlined"
-          onClick={() => router.push('/questionnaire')}
+          onClick={() => router.push('/find-a-game')}
         >
           Find a Game Instead
         </Button>
