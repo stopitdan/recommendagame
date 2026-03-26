@@ -45,6 +45,8 @@ export default function ResultsView() {
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [presetName, setPresetName] = useState('');
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [freeText, setFreeText] = useState(searchParams.get('freeText') ?? '');
+  const [isReparsing, setIsReparsing] = useState(false);
 
   /**
    * Reconstructs the QuestionnaireState from URL search params
@@ -156,6 +158,43 @@ export default function ResultsView() {
     }
   }
 
+  async function reSearch() {
+    if (!freeText.trim()) return;
+    setIsReparsing(true);
+
+    // Re-parse with LLM
+    let llmParsed = null;
+    try {
+      const res = await fetch('/api/parse-text', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: freeText.trim() }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        llmParsed = data.parsed;
+      }
+    } catch { /* proceed without LLM */ }
+
+    // Rebuild URL with new text + LLM data, keep other params
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('freeText', freeText.trim());
+    if (llmParsed) {
+      params.set('llmParsed', encodeURIComponent(JSON.stringify(llmParsed)));
+      // Update genre/type params from LLM if available
+      if (llmParsed.gameTypes?.length) params.set('types', llmParsed.gameTypes.join(','));
+      if (llmParsed.genres?.length) params.set('genres', llmParsed.genres.join(','));
+      if (llmParsed.moods?.length) params.set('moods', llmParsed.moods.join(','));
+      if (llmParsed.playerCount) {
+        params.set('minPlayers', String(llmParsed.playerCount.min));
+        params.set('maxPlayers', String(llmParsed.playerCount.max));
+      }
+    }
+
+    setIsReparsing(false);
+    router.push(`/results?${params.toString()}`);
+  }
+
   function changePopularity(mode: PopularityMode) {
     setPopularity(mode);
     fetchResults(mode);
@@ -201,6 +240,38 @@ export default function ResultsView() {
             </Button>
           </Box>
         </Box>
+
+        {/* Editable search prompt */}
+        {(freeText || searchParams.get('freeText')) && (
+          <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
+            <TextField
+              value={freeText}
+              onChange={(e) => setFreeText(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && reSearch()}
+              size="small"
+              fullWidth
+              placeholder="Describe what you're looking for..."
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  bgcolor: 'background.paper',
+                },
+              }}
+            />
+            <Button
+              variant="contained"
+              onClick={reSearch}
+              disabled={isReparsing || !freeText.trim()}
+              sx={{ minWidth: 120, whiteSpace: 'nowrap' }}
+            >
+              {isReparsing ? (
+                <CircularProgress size={20} color="inherit" />
+              ) : (
+                'Search again'
+              )}
+            </Button>
+          </Box>
+        )}
 
         {/* Popularity toggle */}
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
