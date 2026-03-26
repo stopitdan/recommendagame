@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { Metadata } from 'next';
 import Container from '@mui/material/Container';
 import InviteView from './InviteView';
@@ -9,7 +10,9 @@ export const metadata: Metadata = {
 export default function InvitePage() {
   return (
     <Container maxWidth="sm" sx={{ py: 4 }}>
-      <InviteView />
+      <Suspense>
+        <InviteView />
+      </Suspense>
     </Container>
   );
 }

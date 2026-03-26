@@ -12,7 +12,8 @@ export async function GET() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ achievements: [] });
 
-    const { data } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data } = await (supabase as any)
       .from('user_achievements')
       .select('achievement_id, unlocked_at')
       .eq('user_id', user.id);
@@ -34,7 +35,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing achievementId' }, { status: 400 });
     }
 
-    const { error } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase as any)
       .from('user_achievements')
       .upsert({
         user_id: user.id,
