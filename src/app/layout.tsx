@@ -4,6 +4,7 @@ import { AppRouterCacheProvider } from "@mui/material-nextjs/v16-appRouter";
 import ThemeRegistry from "@/components/ThemeRegistry";
 import Header from "@/components/Header";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import PageTransition from "@/components/PageTransition";
 import { AchievementProvider } from "@/components/AchievementToast";
 import ScrollProgress from "@/components/ScrollProgress";
 import Footer from "@/components/Footer";
@@ -69,7 +70,9 @@ export default function RootLayout({
             <AchievementProvider>
             <ErrorBoundary>
               <main style={{ flex: 1 }}>
-                {children}
+                <PageTransition>
+                  {children}
+                </PageTransition>
               </main>
             </ErrorBoundary>
             <Footer />
