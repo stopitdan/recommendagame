@@ -43,6 +43,7 @@ export interface ScoreBreakdown {
   freeTextMatch: number;
   qualitySignal: number;
   popularitySignal: number;
+  recencyBoost: number;
 }
 
 /** Weights for each scoring dimension (must sum to ~1.0) */
@@ -56,34 +57,38 @@ export interface ScoringWeights {
   freeTextMatch: number;
   qualitySignal: number;
   popularitySignal: number;
+  recencyBoost: number;
 }
 
 // ─── Default Weights ─────────────────────────────────────────
 
 export const DEFAULT_WEIGHTS: ScoringWeights = {
-  typeMatch: 0.18,       // Most important — wrong type = wrong game
-  playerCountFit: 0.17,  // Critical — can't play a 5p game with 2 people
-  timeFit: 0.11,         // Important — but flexible
+  typeMatch: 0.17,       // Most important — wrong type = wrong game
+  playerCountFit: 0.16,  // Critical — can't play a 5p game with 2 people
+  timeFit: 0.10,         // Important — but flexible
   complexityFit: 0.09,   // Nice to have
   genreMatch: 0.14,      // Strong signal — genres drive taste
   moodAlignment: 0.09,   // Soft signal — vibes
   freeTextMatch: 0.08,   // Keyword matching from free text input
-  qualitySignal: 0.07,   // Tiebreaker
-  popularitySignal: 0.07, // Tiebreaker
+  qualitySignal: 0.06,   // Tiebreaker
+  popularitySignal: 0.06, // Tiebreaker
+  recencyBoost: 0.05,    // Mild freshness boost for newer games
 };
 
 export const HIDDEN_GEMS_WEIGHTS: ScoringWeights = {
   ...DEFAULT_WEIGHTS,
-  qualitySignal: 0.11,
+  qualitySignal: 0.10,
   popularitySignal: 0.02,
   genreMatch: 0.15,
+  recencyBoost: 0.06,    // Hidden gems benefit more from recency
 };
 
 export const POPULAR_WEIGHTS: ScoringWeights = {
   ...DEFAULT_WEIGHTS,
-  popularitySignal: 0.11,
-  qualitySignal: 0.09,
+  popularitySignal: 0.10,
+  qualitySignal: 0.08,
   moodAlignment: 0.06,
+  recencyBoost: 0.04,
 };
 
 // ─── Main Scoring Function ───────────────────────────────────
@@ -120,6 +125,7 @@ export function scoreGame(
     freeTextMatch: scoreFreeText(game, prefs.freeText, prefs.llmParsed),
     qualitySignal: scoreQuality(game),
     popularitySignal: scorePopularity(game),
+    recencyBoost: scoreRecency(game),
   };
 
   // Weighted sum
@@ -132,7 +138,8 @@ export function scoreGame(
     breakdown.moodAlignment * weights.moodAlignment +
     breakdown.freeTextMatch * weights.freeTextMatch +
     breakdown.qualitySignal * weights.qualitySignal +
-    breakdown.popularitySignal * weights.popularitySignal;
+    breakdown.popularitySignal * weights.popularitySignal +
+    breakdown.recencyBoost * weights.recencyBoost;
 
   const reasons = generateReasons(game, prefs, breakdown);
 
@@ -569,6 +576,34 @@ function extractKeywords(text: string): string[] {
 }
 
 /**
+ * Recency boost: newer games get a mild boost.
+ *
+ * Scoring:
+ *   - Released this year or last year: 1.0
+ *   - Released 2-5 years ago: 0.7-0.9
+ *   - Released 5-15 years ago: 0.3-0.6
+ *   - Released 15+ years ago: 0.1-0.2
+ *   - Unknown year: 0.3 (neutral)
+ *
+ * This prevents the recommendation engine from only surfacing
+ * 20-year-old classics while newer games get buried.
+ */
+function scoreRecency(game: Game): number {
+  if (!game.yearPublished) return 0.3;
+
+  const currentYear = new Date().getFullYear();
+  const age = currentYear - game.yearPublished;
+
+  if (age <= 1) return 1.0;
+  if (age <= 3) return 0.85;
+  if (age <= 5) return 0.7;
+  if (age <= 10) return 0.5;
+  if (age <= 15) return 0.3;
+  if (age <= 25) return 0.2;
+  return 0.1;
+}
+
+/**
  * Quality signal: normalized 0-10 rating to 0-1.
  */
 function scoreQuality(game: Game): number {
@@ -672,6 +707,16 @@ function generateReasons(
     };
     const matched = prefs.moods.find((m) => moodLabels[m]);
     if (matched) reasons.push(`Fits the ${moodLabels[matched]} vibe you're after`);
+  }
+
+  // Recency
+  if (breakdown.recencyBoost >= 0.85 && game.yearPublished) {
+    const currentYear = new Date().getFullYear();
+    if (game.yearPublished >= currentYear) {
+      reasons.push(`Brand new — released in ${game.yearPublished}`);
+    } else if (game.yearPublished >= currentYear - 1) {
+      reasons.push(`Recently released (${game.yearPublished})`);
+    }
   }
 
   // Quality

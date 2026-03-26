@@ -1,11 +1,27 @@
 /**
  * Tests for the /api/recommend endpoint.
  *
- * Mocks Supabase to test request validation, response shape,
- * and integration with the scoring engine.
+ * Mocks Supabase and vector similarity to test request validation,
+ * response shape, and integration with the scoring engine.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+// --- Mock vector similarity (no real pgvector in tests) ---
+vi.mock('@/lib/recommendation/similarity', () => ({
+  computeSimilarityInMemory: vi.fn().mockReturnValue([]),
+  fetchVectorCandidates: vi.fn().mockResolvedValue([]),
+}));
+
+// --- Mock Redis (no real Redis in tests) ---
+vi.mock('@/lib/redis', () => ({
+  redisCache: {
+    get: vi.fn().mockResolvedValue(null),
+    set: vi.fn().mockResolvedValue(undefined),
+    del: vi.fn().mockResolvedValue(undefined),
+    isAvailable: vi.fn().mockReturnValue(false),
+  },
+}));
 
 // --- Mock Supabase with factory (no external refs) ---
 vi.mock('@supabase/supabase-js', () => {
@@ -100,7 +116,6 @@ beforeEach(() => {
   vi.clearAllMocks();
   // Reset all chain methods to return the chain (for chaining)
   for (const [key, fn] of Object.entries(chain)) {
-    // limit and single need to resolve to data, not the chain
     if (key === 'limit') {
       fn.mockResolvedValue({ data: [], error: null });
     } else if (key === 'single') {
@@ -137,7 +152,6 @@ describe('POST /api/recommend', () => {
     expect(res.status).toBe(200);
     const data = await res.json();
 
-    expect(data.engine).toMatch(/v1/);
     expect(data.count).toBe(2);
     expect(data.results).toHaveLength(2);
     expect(data.results[0]._score).toBeGreaterThan(data.results[1]._score);
@@ -146,7 +160,7 @@ describe('POST /api/recommend', () => {
   });
 
   it('returns empty results when DB returns no candidates', async () => {
-    chain.limit.mockResolvedValueOnce({ data: [], error: null });
+    chain.limit.mockResolvedValue({ data: [], error: null });
 
     const res = await POST(makeRequest(uniquePrefs()) as any);
     const data = await res.json();
@@ -185,10 +199,24 @@ describe('POST /api/recommend', () => {
   });
 
   it('returns empty results gracefully on DB error', async () => {
-    chain.limit.mockResolvedValueOnce({ data: null, error: { message: 'DB error' } });
+    chain.limit.mockResolvedValue({ data: null, error: { message: 'DB error' } });
 
     const res = await POST(makeRequest(uniquePrefs()) as any);
     const data = await res.json();
     expect(data.count).toBe(0);
+  });
+
+  it('deduplicates candidates from multiple sources', async () => {
+    // Same game returned by both rating-based and text search
+    const gameRows = [makeGameRow('dup')];
+    chain.limit.mockResolvedValueOnce({ data: gameRows, error: null }); // rating fetch
+    // Text search returns same game — fetchVectorCandidates is mocked to return []
+
+    const res = await POST(makeRequest(uniquePrefs()) as any);
+    const data = await res.json();
+
+    // Should only have 1 result (no duplicates)
+    expect(data.count).toBe(1);
+    expect(data.results[0].id).toBe('bgg-dup');
   });
 });

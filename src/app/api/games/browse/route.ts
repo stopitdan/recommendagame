@@ -21,6 +21,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import type { GameRow } from '@/types/supabase';
 import { rowToGame } from '@/lib/supabase/games';
+import { redisCache } from '@/lib/redis';
 
 function createDbClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -60,6 +61,11 @@ export async function GET(request: NextRequest) {
   const minRating = searchParams.get('minRating');
   const yearFrom = searchParams.get('yearFrom');
   const yearTo = searchParams.get('yearTo');
+
+  // Check Redis cache (browse results change slowly — 5 min TTL)
+  const browseKey = `browse:${searchParams.toString()}`;
+  const cached = await redisCache.get<unknown>(browseKey);
+  if (cached) return NextResponse.json(cached);
 
   // Only request exact count when filters are applied (full table count is slow on free tier)
   const hasFilters = category || mechanic || theme || platform || designer || publisher ||
@@ -140,11 +146,16 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({
+  const response = {
     games: ((data ?? []) as GameRow[]).map(rowToGame),
     total: count ?? 0,
     limit,
     offset,
     filters: { category, mechanic, theme, platform, type, q: textQuery, popularity, sort },
-  });
+  };
+
+  // Cache for 5 minutes (browse data changes slowly)
+  redisCache.set(browseKey, response, 300);
+
+  return NextResponse.json(response);
 }

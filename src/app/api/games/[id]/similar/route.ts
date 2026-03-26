@@ -11,6 +11,7 @@ import { createClient } from '@supabase/supabase-js';
 import { rowToGame } from '@/lib/supabase/games';
 import { gameToVector, normalize, cosineSimilarity } from '@/lib/recommendation/embeddings';
 import { similarGamesCache } from '@/lib/cache';
+import { redisCache } from '@/lib/redis';
 import type { GameRow } from '@/types/supabase';
 
 function getSupabase() {
@@ -26,10 +27,15 @@ export async function GET(
 ) {
   const { id } = await params;
 
-  // Check cache first
-  const cached = similarGamesCache.get(id);
-  if (cached) {
-    return NextResponse.json(cached);
+  // Check caches: in-memory → Redis
+  const memoryCached = similarGamesCache.get(id);
+  if (memoryCached) return NextResponse.json(memoryCached);
+
+  const redisCacheKey = `similar:${id}`;
+  const redisCached = await redisCache.get<unknown>(redisCacheKey);
+  if (redisCached) {
+    similarGamesCache.set(id, redisCached);
+    return NextResponse.json(redisCached);
   }
 
   const supabase = getSupabase();
@@ -122,6 +128,7 @@ export async function GET(
           method: 'broad-fallback',
         };
         similarGamesCache.set(id, result);
+        redisCache.set(redisCacheKey, result, 600);
         return NextResponse.json(result);
       }
     }

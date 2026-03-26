@@ -33,9 +33,12 @@ const SOURCE_OPTIONS = [
 ];
 
 import { useAchievements } from '@/components/AchievementToast';
+import { useColorMode } from '@/components/ThemeRegistry';
+import { COLOR_PRESETS } from '@/lib/color-presets';
 
 export default function SettingsView() {
   const { unlock } = useAchievements();
+  const { colorPreset, setColorPreset, mode, toggleMode } = useColorMode();
   const router = useRouter();
   const [settings, setSettings] = useState<Settings>({
     popularityMode: 'popular',
@@ -220,6 +223,83 @@ export default function SettingsView() {
                   />
                 );
               })}
+            </Box>
+          </CardContent>
+        </Card>
+
+        {/* Color theme */}
+        <Card variant="outlined">
+          <CardContent>
+            <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>
+              Color Theme
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              Choose a color palette for the app.
+            </Typography>
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 1.5 }}>
+              {COLOR_PRESETS.map((preset) => (
+                <Card
+                  key={preset.id}
+                  variant="outlined"
+                  onClick={() => setColorPreset(preset.id)}
+                  sx={{
+                    cursor: 'pointer',
+                    borderColor: colorPreset === preset.id ? 'secondary.main' : 'divider',
+                    borderWidth: colorPreset === preset.id ? 2 : 1,
+                    transition: 'all 200ms',
+                    '&:hover': { borderColor: 'secondary.main' },
+                  }}
+                >
+                  <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                      <Typography sx={{ fontSize: '1.2rem' }}>{preset.emoji}</Typography>
+                      <Typography variant="subtitle2" fontWeight={600} sx={{ fontSize: '0.8rem' }}>
+                        {preset.name}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', gap: 0.5 }}>
+                      {[preset.primary, preset.secondary, preset.accent, preset.rating].map((color) => (
+                        <Box
+                          key={color}
+                          sx={{
+                            width: 20,
+                            height: 20,
+                            borderRadius: '50%',
+                            bgcolor: color,
+                            border: '1px solid',
+                            borderColor: 'divider',
+                          }}
+                        />
+                      ))}
+                    </Box>
+                  </CardContent>
+                </Card>
+              ))}
+            </Box>
+          </CardContent>
+        </Card>
+
+        {/* Dark mode toggle */}
+        <Card variant="outlined">
+          <CardContent>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Box>
+                <Typography variant="h6" fontWeight={600}>
+                  Dark Mode
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {mode === 'dark' ? 'Currently using dark mode' : 'Currently using light mode'}
+                </Typography>
+              </Box>
+              <Chip
+                label={mode === 'dark' ? '🌙 Dark' : '☀️ Light'}
+                onClick={() => {
+                  toggleMode();
+                  unlock('dark_side');
+                }}
+                color="secondary"
+                variant="outlined"
+              />
             </Box>
           </CardContent>
         </Card>

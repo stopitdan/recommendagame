@@ -3,22 +3,21 @@
  *
  * The main recommendation endpoint. Combines multiple layers:
  *
- *   Layer 1: Rule-based scoring — scores games on 8 weighted dimensions
- *   Layer 2: Content-based filtering — cosine similarity via embeddings
- *   Layer 3: Collaborative filtering — (future) user-to-user patterns
+ *   Layer 1: Hybrid candidate fetching — 250 by pgvector similarity +
+ *            250 by rating + text search, deduplicated
+ *   Layer 2: Rule-based scoring — scores games on 9 weighted dimensions
+ *   Layer 3: In-memory similarity re-ranking on top candidates
  *
- * Optimized for speed:
- *   - Candidate pool reduced to 200 (we only show 20 results)
- *   - Candidate fetch and similarity search run in parallel
- *   - Response caching for identical preferences (2 min TTL)
- *   - In-memory similarity only on top 100 candidates (not all 200)
+ * The key innovation is hybrid candidate fetching: pgvector finds niche
+ * games that match user preferences (e.g., actual roguelike deck builders),
+ * while rating-based fetching ensures popular quality games are included.
+ * This avoids the "top 500 by rating" trap where niche games get missed.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import type { GameRow } from '@/types/supabase';
 import type { QuestionnaireState } from '@/types/questionnaire';
-import { TIME_PRESETS } from '@/types/questionnaire';
 import { rowToGame } from '@/lib/supabase/games';
 import {
   scoreGames,
@@ -27,12 +26,17 @@ import {
   HIDDEN_GEMS_WEIGHTS,
 } from '@/lib/recommendation/scoring';
 import type { ScoringWeights } from '@/lib/recommendation/scoring';
-import { computeSimilarityInMemory } from '@/lib/recommendation/similarity';
+import { computeSimilarityInMemory, fetchVectorCandidates } from '@/lib/recommendation/similarity';
 import { MemoryCache } from '@/lib/cache';
+import { redisCache } from '@/lib/redis';
+import { diversityRerank } from '@/lib/recommendation/diversity';
+import { buildRejectionProfile, computeRejectionPenalty } from '@/lib/recommendation/rejection';
 
 // ─── Config ──────────────────────────────────────────────────
 
-const CANDIDATE_POOL_SIZE = 500;
+/** Per-source candidate limits (rating-based + vector-based) */
+const RATING_POOL_SIZE = 250;
+const VECTOR_POOL_SIZE = 250;
 const DEFAULT_RESULT_LIMIT = 100;
 const MAX_RESULT_LIMIT = 200;
 const SIMILARITY_CANDIDATES = 100;
@@ -79,6 +83,7 @@ export async function POST(request: NextRequest) {
     minRating?: number;
     minTime?: number;
     maxTime?: number;
+    userId?: string;
   };
 
   try {
@@ -95,47 +100,67 @@ export async function POST(request: NextRequest) {
   const limit = Math.min(body.limit ?? DEFAULT_RESULT_LIMIT, MAX_RESULT_LIMIT);
   const popularity: PopularityMode = body.popularity ?? 'popular';
 
-  // Check cache first
+  // Check caches: Redis (persistent) → in-memory (warm start)
   const key = cacheKey(body, popularity);
-  const cached = recommendCache.get(key);
-  if (cached) {
-    return NextResponse.json(cached);
+  const redisKey = `rec:${key}`;
+
+  const memoryCached = recommendCache.get(key);
+  if (memoryCached) {
+    return NextResponse.json(memoryCached);
+  }
+
+  const redisCached = await redisCache.get<unknown>(redisKey);
+  if (redisCached) {
+    recommendCache.set(key, redisCached); // Warm the in-memory cache
+    return NextResponse.json(redisCached);
   }
 
   try {
-    // Step 1: Progressive candidate fetching
-    // Try with all soft filters first, then loosen progressively.
-    // This ensures we ALWAYS return results.
+    // Step 1: Hybrid candidate fetching
+    // Two parallel sources: vector similarity + rating-based.
+    // Vector finds niche games matching preferences (roguelike deck builders).
+    // Rating finds generally excellent games. Deduplicate and score all.
     const extra = {
       minRating: body.minRating,
       minTime: body.minTime,
       maxTime: body.maxTime,
     };
-    let candidates = await fetchCandidates(supabase, body, popularity, extra);
 
-    // Step 1b: If user provided free text, supplement with text search results
-    if (body.freeText && body.freeText.trim().length >= 3) {
-      const textResults = await fetchTextSearchCandidates(supabase, body.freeText);
-      const existingIds = new Set(candidates.map((g) => g.id));
-      const newGames = textResults.filter((g) => !existingIds.has(g.id));
-      candidates = [...candidates, ...newGames];
+    const [ratingCandidates, vectorCandidates, textCandidates] = await Promise.all([
+      fetchCandidates(supabase, body, popularity, extra),
+      fetchVectorCandidates(body, { limit: VECTOR_POOL_SIZE, columns: GAME_COLUMNS }),
+      body.freeText && body.freeText.trim().length >= 3
+        ? fetchTextSearchCandidates(supabase, body.freeText)
+        : Promise.resolve([]),
+    ]);
+
+    // Deduplicate: rating-based first, then merge in vector + text matches
+    const seen = new Set<string>();
+    let candidates = [...ratingCandidates];
+    for (const g of candidates) seen.add(g.id);
+
+    for (const g of vectorCandidates) {
+      if (!seen.has(g.id)) { candidates.push(g); seen.add(g.id); }
+    }
+    for (const g of textCandidates) {
+      if (!seen.has(g.id)) { candidates.push(g); seen.add(g.id); }
     }
 
-    // Fallback 1: Drop game type filter (keep player count)
+    console.log(`[Recommend] Hybrid pool: ${ratingCandidates.length} rating + ${vectorCandidates.length} vector + ${textCandidates.length} text = ${candidates.length} unique`);
+
+    // Progressive fallbacks (only if hybrid produced nothing)
     if (candidates.length === 0) {
       console.log('[Recommend] No results with type filter, dropping type constraint');
       candidates = await fetchCandidatesNoType(supabase, body, popularity);
     }
 
-    // Fallback 2: Drop player count too (keep only quality floor)
     if (candidates.length === 0) {
       console.log('[Recommend] No results with player count, dropping all constraints');
       candidates = await fetchCandidatesFallback(supabase, popularity);
     }
 
-    // Fallback 3: Nuclear — drop quality floor entirely
     if (candidates.length === 0) {
-      console.log('[Recommend] No results even with fallback, dropping quality floor');
+      console.log('[Recommend] Nuclear fallback — dropping quality floor');
       candidates = await fetchCandidatesNuclear(supabase);
     }
 
@@ -153,7 +178,7 @@ export async function POST(request: NextRequest) {
     const scored = scoreGames(candidates, body, weights);
 
     // Step 3: In-memory similarity on top candidates only (skip if too few)
-    let engineVersion = 'rule-based-v1';
+    let engineVersion = vectorCandidates.length > 0 ? 'hybrid-vector-v2' : 'rule-based-v1';
     const topCandidates = candidates.slice(0, SIMILARITY_CANDIDATES);
     if (topCandidates.length >= 5) {
       const inMemory = computeSimilarityInMemory(body, topCandidates, topCandidates.length);
@@ -165,11 +190,26 @@ export async function POST(request: NextRequest) {
         item.score = item.score * RULE_WEIGHT + sim * SIMILARITY_WEIGHT;
       }
       scored.sort((a, b) => b.score - a.score);
-      engineVersion = 'hybrid-inmemory-v1';
+      engineVersion = vectorCandidates.length > 0 ? 'hybrid-vector-v2' : 'hybrid-inmemory-v1';
     }
 
-    // Step 4: Take top N
-    const topResults = scored.slice(0, limit);
+    // Step 4: Apply rejection penalties (if user has negative feedback)
+    const rejectionProfile = await buildRejectionProfile(body.userId ?? null);
+    if (rejectionProfile) {
+      for (const item of scored) {
+        const penalty = computeRejectionPenalty(item.game, rejectionProfile);
+        if (penalty > 0) {
+          item.score *= (1 - penalty);
+        }
+      }
+      scored.sort((a, b) => b.score - a.score);
+    }
+
+    // Step 5: Diversity re-ranking (prevent 20 strategy games in a row)
+    const diversified = diversityRerank(scored);
+
+    // Step 6: Take top N
+    const topResults = diversified.slice(0, limit);
 
     const response = {
       results: topResults.map(({ game, score, reasons, breakdown }) => ({
@@ -184,9 +224,10 @@ export async function POST(request: NextRequest) {
       popularity,
     };
 
-    // Only cache responses with results (don't persist empty results)
+    // Cache responses with results in both layers
     if (topResults.length > 0) {
       recommendCache.set(key, response);
+      redisCache.set(redisKey, response, 120); // 2 min TTL in Redis
     }
 
     return NextResponse.json(response);
@@ -266,7 +307,7 @@ async function fetchCandidates(
 
   query = query
     .order('rating', { ascending: false })
-    .limit(CANDIDATE_POOL_SIZE);
+    .limit(RATING_POOL_SIZE);
 
   const { data, error } = await query;
 
@@ -330,7 +371,7 @@ async function fetchCandidatesNoType(
     query = query.gte('max_players', prefs.playerCount.min);
   }
 
-  query = query.order('rating', { ascending: false }).limit(CANDIDATE_POOL_SIZE);
+  query = query.order('rating', { ascending: false }).limit(RATING_POOL_SIZE);
   const { data, error } = await query;
   if (error) return [];
   return ((data ?? []) as GameRow[]).map(rowToGame);
@@ -356,7 +397,7 @@ async function fetchCandidatesFallback(
     query = query.gte('rating_count', 3);
   }
 
-  query = query.order('rating', { ascending: false }).limit(CANDIDATE_POOL_SIZE);
+  query = query.order('rating', { ascending: false }).limit(RATING_POOL_SIZE);
   const { data, error } = await query;
   if (error) return [];
   return ((data ?? []) as GameRow[]).map(rowToGame);
@@ -374,7 +415,7 @@ async function fetchCandidatesNuclear(
     .from('games')
     .select(GAME_COLUMNS)
     .order('rating_count', { ascending: false })
-    .limit(CANDIDATE_POOL_SIZE);
+    .limit(RATING_POOL_SIZE);
 
   if (error) return [];
   return ((data ?? []) as GameRow[]).map(rowToGame);

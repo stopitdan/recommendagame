@@ -9,6 +9,7 @@ import { describe, it, expect } from 'vitest';
 import {
   gameToVector,
   preferencesToVector,
+  enrichedPreferencesToVector,
   cosineSimilarity,
   normalize,
   generateEmbeddings,
@@ -217,6 +218,64 @@ describe('semantic similarity', () => {
     const simAC = cosineSimilarity(gameA, gameC);
 
     expect(simAB).toBeGreaterThan(simAC);
+  });
+});
+
+// ─── Enriched Preference Vector ──────────────────────────────
+
+describe('enrichedPreferencesToVector', () => {
+  it('produces a normalized vector', () => {
+    const vec = enrichedPreferencesToVector(makePrefs(), {
+      gameTypes: [],
+      genres: ['Roguelike'],
+      mechanics: ['Deck Building'],
+      moods: [],
+      complexity: null,
+      playerCount: null,
+      timePresets: [],
+      similarTo: [],
+      keywords: ['dungeon'],
+    });
+
+    const magnitude = Math.sqrt(vec.reduce((sum, v) => sum + v * v, 0));
+    expect(magnitude).toBeCloseTo(1.0, 5);
+    expect(vec).toHaveLength(VECTOR_DIM);
+  });
+
+  it('enriched vector is more similar to matching game than base vector', () => {
+    const roguelikeDeckBuilder = normalize(gameToVector(makeGame({
+      categories: ['Roguelike'],
+      mechanics: ['Deck Building'],
+      themes: ['Dungeon'],
+    })));
+
+    const basePrefs = makePrefs({ genres: ['Strategy'] });
+    const baseVec = preferencesToVector(basePrefs);
+
+    const enrichedVec = enrichedPreferencesToVector(basePrefs, {
+      gameTypes: [],
+      genres: ['Roguelike'],
+      mechanics: ['Deck Building'],
+      moods: [],
+      complexity: null,
+      playerCount: null,
+      timePresets: [],
+      similarTo: [],
+      keywords: ['dungeon'],
+    });
+
+    const baseSim = cosineSimilarity(roguelikeDeckBuilder, baseVec);
+    const enrichedSim = cosineSimilarity(roguelikeDeckBuilder, enrichedVec);
+
+    expect(enrichedSim).toBeGreaterThan(baseSim);
+  });
+
+  it('returns base vector when no LLM data', () => {
+    const prefs = makePrefs();
+    const base = preferencesToVector(prefs);
+    const enriched = enrichedPreferencesToVector(prefs, null);
+
+    expect(enriched).toEqual(base);
   });
 });
 

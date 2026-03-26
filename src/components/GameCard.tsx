@@ -13,17 +13,22 @@ import type { Game } from '@/types/game';
 import { formatGameType } from '@/lib/utils/format';
 import AnimatedRating from './AnimatedRating';
 import FavoriteButton from './FavoriteButton';
+import GameCardActions from './GameCardActions';
 
 export interface GameCardProps {
   game: Game;
   showFavorite?: boolean;
   isFavorited?: boolean;
   onFavoriteToggle?: (gameId: string, favorited: boolean) => void;
+  /** Show "Not This" and "More Like This" action buttons */
+  showActions?: boolean;
+  onDismiss?: (gameId: string) => void;
+  onMoreLikeThis?: (gameId: string) => void;
   /** Index for staggered reveal animation (optional) */
   index?: number;
 }
 
-export default function GameCard({ game, showFavorite = true, isFavorited = false, onFavoriteToggle, index }: GameCardProps) {
+export default function GameCard({ game, showFavorite = true, isFavorited = false, onFavoriteToggle, showActions = false, onDismiss, onMoreLikeThis, index }: GameCardProps) {
   const router = useRouter();
   const details: string[] = [];
   if (game.playerCount) {
@@ -107,6 +112,13 @@ export default function GameCard({ game, showFavorite = true, isFavorited = fals
                     color: '#FFFFFF',
                     fontWeight: 600,
                   }}
+                />
+              )}
+              {showActions && (
+                <GameCardActions
+                  gameId={game.id}
+                  onDismiss={onDismiss}
+                  onMoreLikeThis={onMoreLikeThis}
                 />
               )}
               {showFavorite && (

@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import type { GameRow } from '@/types/supabase';
 import { rowToGame } from '@/lib/supabase/games';
+import { redisCache } from '@/lib/redis';
 
 function createDbClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -25,6 +26,11 @@ export async function GET(
     return NextResponse.json({ error: 'Database not configured' }, { status: 500 });
   }
 
+  // Check Redis (game data rarely changes — 10 min TTL)
+  const cacheKey = `game:${id}`;
+  const cached = await redisCache.get<unknown>(cacheKey);
+  if (cached) return NextResponse.json(cached);
+
   const { data, error } = await supabase
     .from('games')
     .select('*')
@@ -35,5 +41,8 @@ export async function GET(
     return NextResponse.json({ error: 'Game not found' }, { status: 404 });
   }
 
-  return NextResponse.json({ game: rowToGame(data as GameRow) });
+  const response = { game: rowToGame(data as GameRow) };
+  redisCache.set(cacheKey, response, 600); // 10 min TTL
+
+  return NextResponse.json(response);
 }

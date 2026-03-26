@@ -15,7 +15,7 @@ import { createClient } from '@supabase/supabase-js';
 import type { QuestionnaireState } from '@/types/questionnaire';
 import type { Game } from '@/types/game';
 import { rowToGame } from '@/lib/supabase/games';
-import { preferencesToVector, cosineSimilarity, gameToVector, normalize } from './embeddings';
+import { preferencesToVector, enrichedPreferencesToVector, cosineSimilarity, gameToVector, normalize } from './embeddings';
 
 // ─── Types ───────────────────────────────────────────────────
 
@@ -101,6 +101,61 @@ export async function findSimilarToPreferences(
   }
 
   return results.slice(0, limit);
+}
+
+// ─── Vector Candidate Fetching (for recommendation pipeline) ─
+
+/**
+ * Fetches candidate games using pgvector similarity search.
+ *
+ * Unlike findSimilarToPreferences(), this is optimized for the
+ * recommendation pipeline: it uses LLM-enriched vectors, fetches
+ * specific columns (not SELECT *), and returns Game objects ready
+ * for the scoring engine.
+ *
+ * This is the core of "Step 1" — vector-based candidate retrieval
+ * that finds niche games matching user preferences instead of just
+ * the top-rated games overall.
+ */
+export async function fetchVectorCandidates(
+  prefs: QuestionnaireState,
+  options: {
+    limit?: number;
+    columns?: string;
+  } = {},
+): Promise<Game[]> {
+  const { limit = 250, columns } = options;
+
+  const supabase = getSupabase();
+  if (!supabase) return [];
+
+  // Build vector enriched with LLM-parsed data for better matches
+  const queryVector = enrichedPreferencesToVector(prefs, prefs.llmParsed);
+
+  // Use match_games RPC — returns game_id + similarity score
+  const { data: matches, error: rpcError } = await supabase.rpc('match_games', {
+    query_embedding: `[${queryVector.join(',')}]`,
+    match_count: limit,
+    similarity_threshold: 0.15, // Low threshold — let the scoring engine decide
+  });
+
+  if (rpcError || !matches || matches.length === 0) {
+    if (rpcError) console.error('[Vector] RPC error:', rpcError);
+    return [];
+  }
+
+  // Fetch full game data for matched IDs
+  const gameIds = matches.map((m: { game_id: string }) => m.game_id);
+
+  const selectCols = columns ?? '*';
+  const { data: gameRows, error: gamesError } = await supabase
+    .from('games')
+    .select(selectCols)
+    .in('id', gameIds);
+
+  if (gamesError || !gameRows) return [];
+
+  return (gameRows as any[]).map(rowToGame);
 }
 
 // ─── Game-to-Game Similarity Search ──────────────────────────

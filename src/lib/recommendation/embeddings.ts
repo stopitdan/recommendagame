@@ -29,6 +29,7 @@
 import type { Game } from '@/types/game';
 import type { QuestionnaireState } from '@/types/questionnaire';
 import { TIME_PRESETS } from '@/types/questionnaire';
+import type { ParsedPreferences } from '@/lib/llm/types';
 
 // ─── Constants ───────────────────────────────────────────────
 
@@ -186,6 +187,59 @@ export function preferencesToVector(prefs: QuestionnaireState): number[] {
 
   // Normalize the vector to unit length for cosine similarity
   return normalize(vec);
+}
+
+// ─── LLM-Enriched Preference Vector ─────────────────────────
+
+/**
+ * Builds a preference vector enriched with LLM-parsed data.
+ *
+ * When a user types "roguelike deck builder," the LLM extracts
+ * mechanics=["Deck Building"], genres=["Roguelike"], etc.
+ * This function folds those signals into the vector so pgvector
+ * finds actual roguelike deck builders, not just highly-rated games.
+ */
+export function enrichedPreferencesToVector(
+  prefs: QuestionnaireState,
+  llmParsed?: ParsedPreferences | null,
+): number[] {
+  const vec = preferencesToVector(prefs);
+
+  if (!llmParsed) return vec;
+
+  // Un-normalize so we can add signals, then re-normalize at the end
+  const raw = denormalize(vec);
+
+  // LLM-extracted mechanics → mechanic slots (strong signal)
+  for (const mech of llmParsed.mechanics) {
+    raw[MECHANIC_OFFSET + hashToIndex(mech, MECHANIC_SIZE)] += 1.5;
+  }
+
+  // LLM-extracted genres → category + theme slots
+  for (const genre of llmParsed.genres) {
+    raw[CATEGORY_OFFSET + hashToIndex(genre, CATEGORY_SIZE)] += 1.2;
+    raw[THEME_OFFSET + hashToIndex(genre, THEME_SIZE)] += 0.8;
+  }
+
+  // LLM-extracted keywords → spread across category/mechanic/theme
+  for (const kw of llmParsed.keywords) {
+    raw[CATEGORY_OFFSET + hashToIndex(kw, CATEGORY_SIZE)] += 0.6;
+    raw[MECHANIC_OFFSET + hashToIndex(kw, MECHANIC_SIZE)] += 0.6;
+    raw[THEME_OFFSET + hashToIndex(kw, THEME_SIZE)] += 0.6;
+  }
+
+  return normalize(raw);
+}
+
+/**
+ * Reverses normalization to get back the raw (un-unit-length) vector.
+ * We need this to add more signals before re-normalizing.
+ */
+function denormalize(vec: number[]): number[] {
+  // Since we normalize to unit length, we can just scale back up.
+  // But we don't know the original magnitude — the relative proportions
+  // are what matter for cosine similarity, so we just clone and add to it.
+  return [...vec];
 }
 
 // ─── Similarity ──────────────────────────────────────────────

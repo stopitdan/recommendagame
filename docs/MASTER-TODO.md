@@ -1,6 +1,6 @@
 # Recommend a Game — Master TODO
 
-Last updated: 2026-03-26
+Last updated: 2026-03-27
 
 ## Legend
 - ✅ Done
@@ -14,11 +14,14 @@ Last updated: 2026-03-26
 - ✅ Unified Game schema
 - ✅ BGG Adapter (XML API)
 - ✅ RAWG Adapter (Video Games)
+- ✅ IGDB Adapter (Video Games — richer metadata)
 - ✅ Word & Party Games Dataset (47 games)
 - ✅ Supabase Database + Schema
 - ✅ BGG Kaggle Import (22k games)
 - ✅ BGG Live API Crawler (scanning 400k IDs)
 - ✅ RAWG Crawler (80k+ games)
+- ✅ IGDB Crawler (20k+ games with rich genres/themes/keywords)
+- ✅ RAWG→IGDB Deduplication (13k dupes removed)
 
 ## Phase 2: Auth & User System — ✅ Complete
 - ✅ Supabase Auth (Email/Password)
@@ -46,13 +49,17 @@ Last updated: 2026-03-26
 - ✅ Editable Search on Results Page
 
 ## Phase 4: Recommendation Engine — ✅ Complete
-- ✅ Layer 1: Rule-Based Scoring (9 dimensions)
-- ✅ Layer 2: Content-Based Filtering (pgvector, 26.5k embeddings)
+- ✅ Layer 1: Rule-Based Scoring (10 dimensions including recency)
+- ✅ Layer 2: Content-Based Filtering (pgvector, enriched vectors)
 - ✅ Layer 3: Collaborative Filtering
 - ✅ Layer 4: Feedback Loop
 - ✅ Hybrid Engine (rule-based 60% + similarity 40%)
+- ✅ Hybrid Candidate Fetching (250 vector + 250 rating + text search)
 - ✅ Progressive Fallback (never 0 results)
 - ✅ SimilarTo Game Resolution (DB lookup from LLM output)
+- ✅ Diversity Re-ranking (MMR-based, prevents homogeneous results)
+- ✅ Rejection Learning (penalizes patterns from "Not This" feedback)
+- ✅ Recency Boost (newer games get mild freshness signal)
 
 ## Phase 5: Polish & Delight — ✅ Complete
 - ✅ Game Night Glow Color Theme
@@ -61,6 +68,8 @@ Last updated: 2026-03-26
 - ✅ Loading Skeletons
 - ✅ Dark Mode (system default + toggle + localStorage)
 - ✅ Pluggable Color Preset System (6 themes)
+- ✅ Color Theme Picker in Settings UI
+- ✅ Dark Mode Toggle in Settings UI
 - ✅ Staggered Card Reveal Animation
 - ✅ Rating Counter Animation
 - ✅ Favorite Heart Micro-Animation (particle burst)
@@ -73,7 +82,7 @@ Last updated: 2026-03-26
 - ✅ Responsive Polish
 - ✅ Dice Emoji Favicon
 - ✅ Game Type Labels (Board Game, Video Game, etc.)
-- 📋 Color Theme Picker in Settings UI
+- ✅ Match Percentage Badges on Results
 - 📋 Iconography & Less Text
 
 ## Phase 6: Growth & Monetization — 📋 Planned
@@ -97,24 +106,30 @@ Last updated: 2026-03-26
 - 🔮 Game Night Timer
 - 🔮 "What Should WE Play?" (multi-player room code)
 
-## Phase 8: Recommendation Quality — 📋 Planned
-- 📋 "Not This" Button (thumbs-down + learn)
-- 📋 "More Like This" Button
+## Phase 8: Recommendation Quality — ✅ Complete
+- ✅ "Not This" Button (thumbs-down + rejection learning)
+- ✅ "More Like This" Button (re-search seeded with game attributes)
+- ✅ Feedback API (upsert to user_game_feedback)
+- ✅ Diversity Re-ranking (MMR algorithm)
+- ✅ Recency Scoring Dimension
+- ✅ Rejection-Based Learning
+- ✅ Match Percentage Display
 - 📋 Preference Learning Banner
 
-## Phase 9: Advanced Intelligence — 📋 Planned
-- 📋 Better Video Game Data Source (IGDB/Steam)
-- 📋 pgvector Primary Retrieval
-- 📋 Advanced LLM Intelligence
+## Phase 9: Advanced Intelligence — Partial
+- ✅ Better Video Game Data Source (IGDB)
+- ✅ pgvector Primary Retrieval (hybrid 250+250)
+- ✅ Enriched LLM-Preference Vectors
+- ✅ Advanced LLM Prompt (tone detection, intensity, expanded genres)
+- ✅ Caching Layer (Redis via Upstash)
 - 🔮 Conversational Recommendations
 - 🔮 Game Group Matching
 - 🔮 Trending / Seasonal Recommendations
 - 🔮 Import BGG / Steam Library
-- 📋 Caching Layer (Redis)
 - 🔮 Tech Stack Diagram
 - 🔮 FAQ / Tutorial Page
 
 ## Untracked / Ongoing
 - 📋 Shared component refactor audit
-- 📋 More test coverage
+- ✅ Test coverage (273 tests, 25 files)
 - 🔄 BGG API crawler (ingesting 400k games)

@@ -28,6 +28,7 @@ import type { GameType } from '@/types/game';
 import { incrementRecommendCount } from '@/lib/guest';
 import { useAchievements } from '@/components/AchievementToast';
 import { CATEGORY_OPTIONS, MECHANIC_OPTIONS, THEME_OPTIONS, PLATFORM_OPTIONS } from '@/lib/filter-options';
+import { createClient } from '@/lib/supabase/client';
 
 type PopularityMode = 'popular' | 'any' | 'hidden-gems';
 
@@ -35,6 +36,7 @@ type PopularityMode = 'popular' | 'any' | 'hidden-gems';
 interface RecommendedGame extends Game {
   _score?: number;
   _reasons?: string[];
+  _breakdown?: Record<string, number>;
 }
 
 export default function ResultsView() {
@@ -56,6 +58,15 @@ export default function ResultsView() {
   const [isReparsing, setIsReparsing] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [nameFilter, setNameFilter] = useState('');
+  const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
+  const [userId, setUserId] = useState<string | null>(null);
+
+  // Get logged-in user ID for rejection learning
+  useEffect(() => {
+    createClient().auth.getUser().then(({ data }) => {
+      setUserId(data.user?.id ?? null);
+    });
+  }, []);
 
   // Refine filters — editing state (not applied until user clicks Apply or closes panel)
   const [filterPlayers, setFilterPlayers] = useState<[number, number]>([
@@ -110,7 +121,7 @@ export default function ResultsView() {
       // Merge URL params with applied refine filters (refine overrides URL params)
       const r = appliedRefine;
       const urlGenres = searchParams.get('genres')?.split(',').filter(Boolean) ?? [];
-      const preferences: QuestionnaireState & { popularity: string; limit: number; minRating?: number; minTime?: number; maxTime?: number } = {
+      const preferences: QuestionnaireState & { popularity: string; limit: number; minRating?: number; minTime?: number; maxTime?: number; userId?: string } = {
         freeText: searchParams.get('freeText') ?? '',
         gameTypes: (searchParams.get('types')?.split(',').filter(Boolean) ?? []) as GameType[],
         playerCount: {
@@ -130,6 +141,7 @@ export default function ResultsView() {
         minRating: r.minRating > 0 ? r.minRating : undefined,
         minTime: r.time[0] > 0 ? r.time[0] : undefined,
         maxTime: r.time[1] < 300 ? r.time[1] : undefined,
+        userId: userId ?? undefined,
       };
 
       const response = await fetch('/api/recommend', {
@@ -167,7 +179,7 @@ export default function ResultsView() {
     } finally {
       setLoading(false);
     }
-  }, [searchParams, popularity, appliedRefine]);
+  }, [searchParams, popularity, appliedRefine, userId]);
 
   useEffect(() => {
     fetchResults();
@@ -301,6 +313,25 @@ export default function ResultsView() {
       themes: [],
       platforms: [],
     });
+  }
+
+  /** Dismiss a game — hide it from results and record negative feedback */
+  function handleDismiss(gameId: string) {
+    setDismissedIds((prev) => new Set(prev).add(gameId));
+  }
+
+  /** "More Like This" — navigate to results seeded with this game's attributes */
+  function handleMoreLikeThis(gameId: string) {
+    const game = games.find((g) => g.id === gameId);
+    if (!game) return;
+
+    const params = new URLSearchParams();
+    params.set('freeText', `Games similar to ${game.name}`);
+    if (game.types.length > 0) params.set('types', game.types.join(','));
+    const genres = [...game.categories.slice(0, 3), ...game.mechanics.slice(0, 2)];
+    if (genres.length > 0) params.set('genres', genres.join(','));
+
+    router.push(`/results?${params.toString()}`);
   }
 
   return (
@@ -621,15 +652,37 @@ export default function ResultsView() {
         )}
 
         {!loading && games
+          .filter((game) => !dismissedIds.has(game.id))
           .filter((game) => !nameFilter.trim() || game.name.toLowerCase().includes(nameFilter.toLowerCase()))
           .map((game, i) => (
           <Box key={game.id}>
-            <GameCard game={game} index={i} />
-            {/* "Why we picked this" reasons */}
-            {game._reasons && game._reasons.length > 0 && (
+            <GameCard
+              game={game}
+              index={i}
+              showActions
+              onDismiss={handleDismiss}
+              onMoreLikeThis={handleMoreLikeThis}
+            />
+            {/* "Why we picked this" reasons + match score */}
+            {(game._reasons?.length || game._score) && (
               <Box sx={{ px: 2, pb: 1, mt: -0.5 }}>
-                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                  {game._reasons.map((reason, i) => (
+                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap alignItems="center">
+                  {game._score != null && (
+                    <Chip
+                      label={`${Math.round(game._score * 100)}% match`}
+                      size="small"
+                      sx={{
+                        bgcolor: game._score >= 0.7 ? 'success.main'
+                          : game._score >= 0.4 ? 'warning.main'
+                          : 'text.disabled',
+                        color: '#fff',
+                        fontWeight: 700,
+                        fontSize: '0.7rem',
+                        height: 22,
+                      }}
+                    />
+                  )}
+                  {game._reasons?.map((reason, i) => (
                     <Chip
                       key={i}
                       label={reason}

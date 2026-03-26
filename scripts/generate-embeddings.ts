@@ -20,7 +20,7 @@ import { gameToVector, normalize, VECTOR_DIM } from '../src/lib/recommendation/e
 import { rowToGame } from '../src/lib/supabase/games';
 import type { GameRow } from '../src/types/supabase';
 
-const BATCH_SIZE = parseInt(process.argv[2] ?? '500', 10);
+const BATCH_SIZE = parseInt(process.argv[2] ?? '50', 10);
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
