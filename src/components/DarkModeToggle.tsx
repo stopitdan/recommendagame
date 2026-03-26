@@ -3,14 +3,21 @@
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import { useColorMode } from './ThemeRegistry';
+import { useAchievements } from './AchievementToast';
 
 export default function DarkModeToggle() {
   const { mode, toggleMode } = useColorMode();
+  const { unlock } = useAchievements();
+
+  function handleToggle() {
+    toggleMode();
+    if (mode === 'light') unlock('dark_side');
+  }
 
   return (
     <Tooltip title={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}>
       <IconButton
-        onClick={toggleMode}
+        onClick={handleToggle}
         size="small"
         sx={{
           color: '#FFFFFF',

@@ -15,6 +15,7 @@ import Typography from '@mui/material/Typography';
 import { motion, AnimatePresence } from 'motion/react';
 import type { Game } from '@/types/game';
 import AnimatedRating from '@/components/AnimatedRating';
+import { useAchievements } from '@/components/AchievementToast';
 
 // Dynamic import — Three.js can't SSR
 const PhysicsDice = dynamic(() => import('@/components/PhysicsDice'), {
@@ -224,18 +225,24 @@ export default function RandomGameView() {
     setLoading(false);
   }
 
+  const { unlock } = useAchievements();
+
   const handleDiceSettled = useCallback((value: number) => {
     setDiceValue(value);
     setRolling(false);
 
+    unlock('first_roll');
+
     if (value === 20) {
       setIsNat20(true);
       triggerNat20Confetti();
+      unlock('natural_20');
     } else if (value === 1) {
       setIsNat1(true);
       triggerNat1Blood();
+      unlock('natural_1');
     }
-  }, []);
+  }, [unlock]);
 
   const typeOptions = [
     { label: 'Any Game', value: null, emoji: '🎲' },

@@ -4,6 +4,7 @@ import { useState, useRef, useCallback } from 'react';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import { motion, AnimatePresence } from 'motion/react';
+import { useAchievements } from './AchievementToast';
 
 export interface FavoriteButtonProps {
   gameId: string;
@@ -56,6 +57,7 @@ export default function FavoriteButton({ gameId, initialFavorited = false, onTog
   const [favorited, setFavorited] = useState(initialFavorited);
   const [loading, setLoading] = useState(false);
   const [showBurst, setShowBurst] = useState(false);
+  const { unlock } = useAchievements();
 
   const handleBurstComplete = useCallback(() => setShowBurst(false), []);
 
@@ -63,7 +65,10 @@ export default function FavoriteButton({ gameId, initialFavorited = false, onTog
     // Optimistic update — show the new state immediately
     const wasFavorited = favorited;
     setFavorited(!wasFavorited);
-    if (!wasFavorited) setShowBurst(true);
+    if (!wasFavorited) {
+      setShowBurst(true);
+      unlock('first_favorite');
+    }
     onToggle?.(!wasFavorited);
 
     try {

@@ -20,6 +20,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import GameCard from '@/components/GameCard';
 import { GameCardSkeletonList } from '@/components/GameCardSkeleton';
+import GameLoader from '@/components/GameLoader';
 import type { Game } from '@/types/game';
 import { CATEGORY_OPTIONS, MECHANIC_OPTIONS, THEME_OPTIONS, PLATFORM_OPTIONS } from '@/lib/filter-options';
 
@@ -561,7 +562,7 @@ export default function BrowseView() {
         )}
 
         {/* Results */}
-        {loading && <GameCardSkeletonList count={5} />}
+        {loading && <GameLoader variant="cards" message="Loading games..." />}
 
         {!loading && hasLoaded && games.length === 0 && (
           <Box sx={{ textAlign: 'center', py: 8 }}>

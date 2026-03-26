@@ -20,6 +20,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import GameCard from '@/components/GameCard';
 import { GameCardSkeletonList } from '@/components/GameCardSkeleton';
+import GameLoader from '@/components/GameLoader';
 import SignupPrompt from '@/components/SignupPrompt';
 import type { Game } from '@/types/game';
 import type { QuestionnaireState, TimePreset } from '@/types/questionnaire';
@@ -544,9 +545,7 @@ export default function ResultsView() {
         )}
 
         {loading && (
-          <Box sx={{ py: 2 }}>
-            <GameCardSkeletonList count={5} />
-          </Box>
+          <GameLoader variant="search" message="Finding your perfect games..." />
         )}
 
         {error && (

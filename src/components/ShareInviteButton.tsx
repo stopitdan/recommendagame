@@ -3,11 +3,14 @@
 import { useState } from 'react';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
+import { useAchievements } from './AchievementToast';
 
 export default function ShareInviteButton({ gameId, gameName }: { gameId: string; gameName: string }) {
   const [copied, setCopied] = useState(false);
+  const { unlock } = useAchievements();
 
   function share() {
+    unlock('shared_invite');
     const url = `${window.location.origin}/invite?game=${encodeURIComponent(gameId)}&host=${encodeURIComponent('A friend')}`;
 
     if (navigator.share) {
