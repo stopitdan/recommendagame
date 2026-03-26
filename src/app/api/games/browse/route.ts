@@ -59,7 +59,17 @@ export async function GET(request: NextRequest) {
   const yearFrom = searchParams.get('yearFrom');
   const yearTo = searchParams.get('yearTo');
 
-  let query = supabase.from('games').select('*', { count: 'exact' });
+  // Only request exact count when filters are applied (full table count is slow on free tier)
+  const hasFilters = category || mechanic || theme || platform || type || textQuery ||
+    minPlayers || maxPlayers || minTime || maxTime || minComplexity || maxComplexity ||
+    minRating || yearFrom || yearTo;
+
+  const selectColumns = 'id,source,source_id,name,description,year_published,types,min_players,max_players,recommended_players,min_play_time,max_play_time,avg_play_time,complexity,rating,rating_count,categories,mechanics,themes,platforms,thumbnail_url,image_url,source_url';
+
+  let query = supabase.from('games').select(
+    selectColumns,
+    hasFilters ? { count: 'exact' } : { count: 'estimated' },
+  );
 
   // Array containment filters
   if (category) query = query.contains('categories', [category]);
@@ -126,7 +136,7 @@ export async function GET(request: NextRequest) {
   }
 
   return NextResponse.json({
-    games: (data as GameRow[]).map(rowToGame),
+    games: ((data ?? []) as GameRow[]).map(rowToGame),
     total: count ?? 0,
     limit,
     offset,
