@@ -69,7 +69,7 @@ const PHASES: Phase[] = [
       { title: 'Quick Collections on Landing Page', description: 'Date Night, Quick Play, Party Night, Strategy Deep Dive — one-click preset recommendations.', status: 'done', tags: ['UI'] },
       { title: 'Browse Page with Filters', description: 'Full game catalog with source, type, and tag filters + server-side pagination.', status: 'done', tags: ['UI'] },
       { title: 'Game Detail Pages', description: 'Full game info, similar games section, review form, favorite button.', status: 'done', tags: ['UI'] },
-      { title: 'LLM-Powered Free Text Parsing', description: 'Send free text to Claude to extract structured preferences: genres, mechanics, moods, similar game references. "Something like Catan but faster" → {mechanics: ["Trading"], complexity: {max: 2.5}}.', status: 'planned', tags: ['AI', 'Recommendation'] },
+      { title: 'LLM-Powered Free Text Parsing', description: 'GPT-4o-mini extracts structured preferences from natural language. Two-tier cache (memory + Supabase) with fuzzy matching. DB enrichment for "similarTo" games fills player count, complexity, time, genres from actual game data. Smart questionnaire filtering hides irrelevant options.', status: 'done', tags: ['AI', 'Recommendation'] },
     ],
   },
   {
@@ -120,7 +120,8 @@ const PHASES: Phase[] = [
     subtitle: 'LLM integration and smart features',
     timeframe: 'Future',
     items: [
-      { title: 'LLM Free Text Parser', description: 'Use Claude to parse natural language into structured preferences. "Something like Catan but faster and more competitive" becomes actionable filters.', status: 'future', tags: ['AI'] },
+      { title: 'LLM Free Text Parser', description: 'GPT-4o-mini parsing with DB enrichment, two-tier fuzzy cache, and smart questionnaire pre-fill. Completed in Phase 3.', status: 'done', tags: ['AI'] },
+      { title: 'Advanced LLM Intelligence', description: 'Multi-turn refinement ("too complex, show me simpler ones"), mood/tone detection from phrasing, cross-referencing user review history to personalize LLM extraction, smarter "similarTo" that chains through related games (Catan → Settlers → resource games), and LLM-generated "why you\'ll love this" descriptions per recommendation.', status: 'future', tags: ['AI', 'Recommendation'] },
       { title: 'Conversational Recommendations', description: 'Chat-style interface where users describe what they want and get iterative, conversational recommendations.', status: 'future', tags: ['AI', 'UI'] },
       { title: 'Game Group Matching', description: 'Multiple users input preferences, engine finds games everyone will enjoy. "Find a game for our group."', status: 'future', tags: ['Feature', 'AI'] },
       { title: 'Trending / Seasonal Recommendations', description: 'Surface games trending this week, seasonal picks (Halloween horror games, holiday party games).', status: 'future', tags: ['Feature'] },
