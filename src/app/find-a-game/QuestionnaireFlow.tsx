@@ -21,7 +21,6 @@ import { INITIAL_STATE, GENRE_OPTIONS, MOOD_OPTIONS } from '@/types/questionnair
 import { saveGuestPreferences, getGuestPreferences } from '@/lib/guest';
 import type { ParsedPreferences } from '@/lib/llm/types';
 import GameTypeStep from '@/components/questionnaire/GameTypeStep';
-import PlayerCountStep from '@/components/questionnaire/PlayerCountStep';
 import TimeStep from '@/components/questionnaire/TimeStep';
 import ComplexityStep from '@/components/questionnaire/ComplexityStep';
 import GenreStep from '@/components/questionnaire/GenreStep';
@@ -34,7 +33,6 @@ import { motion, AnimatePresence } from 'motion/react';
 const STEPS = [
   { key: 'freeText', title: 'What are you looking for?' },
   { key: 'gameTypes', title: 'What kind of game?' },
-  { key: 'playerCount', title: 'How many players?' },
   { key: 'timePresets', title: 'How much time do you have?' },
   { key: 'complexity', title: 'How complex?' },
   { key: 'genres', title: 'Pick genres you like' },
@@ -265,6 +263,8 @@ export default function QuestionnaireFlow() {
           <FreeTextStep
             value={state.freeText}
             onChange={(v) => update({ freeText: v })}
+            playerCount={state.playerCount}
+            onPlayerCountChange={(v) => update({ playerCount: v })}
             onQuickSubmit={quickSubmit}
             onCustomize={next}
             isParsing={isParsing}
@@ -273,14 +273,12 @@ export default function QuestionnaireFlow() {
       case 1:
         return <GameTypeStep value={state.gameTypes} onChange={(v) => update({ gameTypes: v })} />;
       case 2:
-        return <PlayerCountStep value={state.playerCount} onChange={(v) => update({ playerCount: v })} />;
-      case 3:
         return <TimeStep value={state.timePresets} onChange={(v) => update({ timePresets: v })} />;
-      case 4:
+      case 3:
         return <ComplexityStep value={state.complexity} onChange={(v) => update({ complexity: v })} />;
-      case 5:
+      case 4:
         return <GenreStep value={state.genres} onChange={(v) => update({ genres: v })} filteredGenres={getFilteredGenres(state)} />;
-      case 6: {
+      case 5: {
         const filteredMoods = getFilteredMoods(state);
         const descOverrides: Record<string, string> = {};
         for (const m of filteredMoods) {
@@ -296,7 +294,7 @@ export default function QuestionnaireFlow() {
 
   return (
     <Box sx={{ minHeight: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column' }}>
-      <Container maxWidth="sm" sx={{ flex: 1, display: 'flex', flexDirection: 'column', pt: 3, pb: 12 }}>
+      <Container maxWidth="sm" sx={{ flex: 1, display: 'flex', flexDirection: 'column', pt: { xs: 3, md: 8, lg: 10 }, pb: 12 }}>
         {/* Progress — hidden on free text step, shows steps 1-6 for the filter steps */}
         {!isFreeTextStep && (
           <Box sx={{ mb: 1 }}>

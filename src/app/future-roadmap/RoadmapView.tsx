@@ -82,6 +82,7 @@ const PHASES: Phase[] = [
       { title: 'Layer 3: Collaborative Filtering', description: 'Item-based and user-based collaborative filtering. "Users who liked Catan also liked Ticket to Ride." Activates when enough reviews exist.', status: 'done', tags: ['ML', 'Recommendation'] },
       { title: 'Layer 4: Feedback Loop', description: 'Reviews and favorites update the user\'s preference vector in real-time. The system learns what you like with each interaction.', status: 'done', tags: ['ML', 'Recommendation'] },
       { title: 'Hybrid Engine', description: 'Combines rule-based scoring (60%) + content similarity (40%) with automatic fallback. Upgrades to collaborative filtering when data is sufficient.', status: 'done', tags: ['Recommendation'] },
+      { title: 'pgvector Primary Retrieval', description: 'Use pgvector similarity search as the primary candidate source instead of "top N by rating." Query "500 games closest to this preference vector" for much better niche game discovery. Hybrid retrieval: 250 by rating + 250 by vector similarity.', status: 'planned', tags: ['ML', 'Recommendation'] },
       { title: 'Review-Weighted Similarity', description: 'Weight recommendations from users with similar preference profiles higher. A strategy gamer\'s review matters more to another strategy gamer.', status: 'planned', tags: ['ML', 'Recommendation'] },
     ],
   },
