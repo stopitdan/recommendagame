@@ -9,6 +9,7 @@ import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import type { Game } from '@/types/game';
+import { formatGameType } from '@/lib/utils/format';
 import FavoriteButton from './FavoriteButton';
 
 export interface GameCardProps {
@@ -119,7 +120,7 @@ export default function GameCard({ game, showFavorite = true, isFavorited = fals
 
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
             {game.types.map((t) => (
-              <Chip key={t} label={t} size="small" variant="outlined" />
+              <Chip key={t} label={formatGameType(t)} size="small" variant="outlined" />
             ))}
             {game.categories.slice(0, 3).map((c) => (
               <Chip key={c} label={c} size="small" />

@@ -15,6 +15,7 @@ import ReviewForm from '@/components/ReviewForm';
 import ReviewList from '@/components/ReviewList';
 import SimilarGames from '@/components/SimilarGames';
 import type { Game } from '@/types/game';
+import { formatGameType } from '@/lib/utils/format';
 
 export default function GameDetailView() {
   const { id } = useParams<{ id: string }>();
@@ -117,7 +118,7 @@ export default function GameDetailView() {
               </Typography>
               <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 1 }}>
                 {game.types.map((t) => (
-                  <Chip key={t} label={t} size="small" variant="outlined" />
+                  <Chip key={t} label={formatGameType(t)} size="small" variant="outlined" />
                 ))}
               </Box>
             </Box>
