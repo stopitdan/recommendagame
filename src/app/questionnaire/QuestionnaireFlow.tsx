@@ -63,7 +63,6 @@ export default function QuestionnaireFlow() {
   }, []);
 
   const totalSteps = STEPS.length;
-  const progress = ((step + 1) / totalSteps) * 100;
   const isLast = step === totalSteps - 1;
   const isFreeTextStep = step === 0;
 
@@ -298,13 +297,15 @@ export default function QuestionnaireFlow() {
   return (
     <Box sx={{ minHeight: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column' }}>
       <Container maxWidth="sm" sx={{ flex: 1, display: 'flex', flexDirection: 'column', pt: 3, pb: 12 }}>
-        {/* Progress */}
-        <Box sx={{ mb: 1 }}>
-          <LinearProgress variant="determinate" value={progress} sx={{ borderRadius: 1, height: 6 }} />
-          <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block', textAlign: 'right' }}>
-            {step + 1} of {totalSteps}
-          </Typography>
-        </Box>
+        {/* Progress — hidden on free text step, shows steps 1-6 for the filter steps */}
+        {!isFreeTextStep && (
+          <Box sx={{ mb: 1 }}>
+            <LinearProgress variant="determinate" value={((step) / (totalSteps - 1)) * 100} sx={{ borderRadius: 1, height: 6 }} />
+            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block', textAlign: 'right' }}>
+              {step} of {totalSteps - 1}
+            </Typography>
+          </Box>
+        )}
 
         {/* Step Title + Content with slide animation */}
         <AnimatePresence mode="wait">
