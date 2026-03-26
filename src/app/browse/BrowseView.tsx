@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
@@ -56,6 +57,44 @@ const DEFAULT_FILTERS: Filters = {
   minRating: 0,
   yearRange: [1950, 2026],
 };
+
+// Common categories from BGG + RAWG
+const CATEGORY_OPTIONS = [
+  'Abstract Strategy', 'Action', 'Adventure', 'Animals', 'Bluffing',
+  'Card Game', 'City Building', 'Civilization', 'Collectible Components',
+  'Comic Book / Strip', 'Deduction', 'Dice', 'Economic', 'Educational',
+  'Electronic', 'Environmental', 'Exploration', 'Family Game', 'Fantasy',
+  'Fighting', 'Horror', 'Humor', 'Industry / Manufacturing', 'Indie',
+  'Maze', 'Medieval', 'Miniatures', 'Movies / TV', 'Murder/Mystery',
+  'Mythology', 'Nautical', 'Negotiation', 'Party Game', 'Pirates',
+  'Political', 'Prehistoric', 'Print & Play', 'Puzzle', 'RPG',
+  'Racing', 'Real-time', 'Religious', 'Renaissance', 'Science Fiction',
+  'Shooter', 'Simulation', 'Space Exploration', 'Spies/Secret Agents',
+  'Sports', 'Strategy', 'Survival', 'Territory Building', 'Trains',
+  'Transportation', 'Travel', 'Trivia', 'War', 'Word Game', 'Zombies',
+].sort();
+
+// Common mechanics from BGG
+const MECHANIC_OPTIONS = [
+  'Action Points', 'Area Control', 'Area Movement', 'Auction/Bidding',
+  'Betting and Bluffing', 'Campaign / Battle Card Driven', 'Card Drafting',
+  'Chit-Pull System', 'Cooperative Game', 'Deck Building',
+  'Dice Rolling', 'Drafting', 'Engine Building', 'Grid Movement',
+  'Hand Management', 'Hidden Movement', 'Hidden Roles',
+  'Hexagon Grid', 'Income', 'Legacy Game', 'Line of Sight',
+  'Market', 'Memory', 'Modular Board', 'Move Through Deck',
+  'Network and Route Building', 'Once-Per-Game Abilities',
+  'Pattern Building', 'Pick-up and Deliver', 'Player Elimination',
+  'Point to Point Movement', 'Press Your Luck', 'Programmed Movement',
+  'Push Your Luck', 'Real-Time', 'Resource Management',
+  'Rock-Paper-Scissors', 'Role Playing', 'Roll / Spin and Move',
+  'Rondel', 'Route Building', 'Semi-Cooperative Game',
+  'Set Collection', 'Simultaneous Action Selection',
+  'Social Deduction', 'Solo / Solitaire Game', 'Storytelling',
+  'Take That', 'Tile Placement', 'Time Track', 'Trading',
+  'Trick-taking', 'Variable Phase Order', 'Variable Player Powers',
+  'Voting', 'Worker Placement',
+].sort();
 
 const COMPLEXITY_LABELS: Record<number, string> = {
   1: 'Light',
@@ -237,7 +276,7 @@ export default function BrowseView() {
             <Stack spacing={3}>
               {/* Row 1: Players + Play Time */}
               <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 3 }}>
-                <Box>
+                <Box sx={{ px: 1 }}>
                   <Typography variant="subtitle2" fontWeight={600} gutterBottom>
                     Players: {filters.playerCount[0]}–{filters.playerCount[1] >= 10 ? '10+' : filters.playerCount[1]}
                   </Typography>
@@ -250,14 +289,12 @@ export default function BrowseView() {
                     valueLabelDisplay="auto"
                     marks={[
                       { value: 1, label: '1' },
-                      { value: 2, label: '2' },
                       { value: 4, label: '4' },
-                      { value: 6, label: '6' },
                       { value: 10, label: '10+' },
                     ]}
                   />
                 </Box>
-                <Box>
+                <Box sx={{ px: 1 }}>
                   <Typography variant="subtitle2" fontWeight={600} gutterBottom>
                     Play Time: {filters.playTime[0]}–{filters.playTime[1] >= 300 ? '300+' : filters.playTime[1]} min
                   </Typography>
@@ -270,7 +307,6 @@ export default function BrowseView() {
                     valueLabelDisplay="auto"
                     marks={[
                       { value: 0, label: '0' },
-                      { value: 30, label: '30m' },
                       { value: 60, label: '1h' },
                       { value: 120, label: '2h' },
                       { value: 300, label: '5h+' },
@@ -281,7 +317,7 @@ export default function BrowseView() {
 
               {/* Row 2: Complexity + Rating */}
               <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 3 }}>
-                <Box>
+                <Box sx={{ px: 1 }}>
                   <Typography variant="subtitle2" fontWeight={600} gutterBottom>
                     Complexity: {COMPLEXITY_LABELS[filters.complexity[0]] ?? filters.complexity[0]}–{COMPLEXITY_LABELS[filters.complexity[1]] ?? filters.complexity[1]}
                   </Typography>
@@ -294,12 +330,11 @@ export default function BrowseView() {
                     valueLabelDisplay="auto"
                     marks={[
                       { value: 1, label: 'Light' },
-                      { value: 3, label: 'Medium' },
                       { value: 5, label: 'Expert' },
                     ]}
                   />
                 </Box>
-                <Box>
+                <Box sx={{ px: 1 }}>
                   <Typography variant="subtitle2" fontWeight={600} gutterBottom>
                     Minimum Rating: {filters.minRating > 0 ? `${filters.minRating}+` : 'Any'}
                   </Typography>
@@ -312,9 +347,7 @@ export default function BrowseView() {
                     valueLabelDisplay="auto"
                     marks={[
                       { value: 0, label: 'Any' },
-                      { value: 5, label: '5' },
-                      { value: 7, label: '7' },
-                      { value: 9, label: '9' },
+                      { value: 9, label: '9+' },
                     ]}
                   />
                 </Box>
@@ -343,7 +376,33 @@ export default function BrowseView() {
                 />
               </Box>
 
-              {/* Row 4: Popularity mode */}
+              {/* Row 4: Category + Mechanic autocomplete */}
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 3 }}>
+                <Autocomplete
+                  value={filters.category}
+                  onChange={(_, v) => updateFilter({ category: v })}
+                  options={CATEGORY_OPTIONS}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Category" size="small" placeholder="Type to search..." />
+                  )}
+                  freeSolo={false}
+                  clearOnBlur
+                  size="small"
+                />
+                <Autocomplete
+                  value={filters.mechanic}
+                  onChange={(_, v) => updateFilter({ mechanic: v })}
+                  options={MECHANIC_OPTIONS}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Mechanic" size="small" placeholder="Type to search..." />
+                  )}
+                  freeSolo={false}
+                  clearOnBlur
+                  size="small"
+                />
+              </Box>
+
+              {/* Row 5: Popularity mode */}
               <Box>
                 <Typography variant="subtitle2" fontWeight={600} gutterBottom>
                   Show
