@@ -164,6 +164,61 @@ export default function QuestionnaireFlow() {
     }
   }
 
+  /**
+   * Skip the entire questionnaire — parse free text and go straight to results.
+   * Only available on the free text step when text is entered.
+   */
+  async function quickSubmit() {
+    if (!state.freeText.trim()) return;
+    setIsParsing(true);
+
+    try {
+      const res = await fetch('/api/parse-text', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: state.freeText.trim() }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.parsed) {
+          // Merge parsed data into state, then submit immediately
+          const merged = {
+            ...state,
+            gameTypes: data.parsed.gameTypes?.filter((t: string) => VALID_GAME_TYPES.has(t)) as GameType[] ?? state.gameTypes,
+            playerCount: data.parsed.playerCount ?? state.playerCount,
+            timePresets: data.parsed.timePresets?.filter((t: string) => VALID_TIME_PRESETS.has(t)) as TimePreset[] ?? state.timePresets,
+            complexity: data.parsed.complexity ?? state.complexity,
+            llmParsed: data.parsed,
+          };
+          // Build URL params from merged state
+          const params = new URLSearchParams();
+          if (merged.gameTypes.length > 0) params.set('types', merged.gameTypes.join(','));
+          params.set('minPlayers', String(merged.playerCount.min));
+          params.set('maxPlayers', String(merged.playerCount.max));
+          if (merged.timePresets.length > 0) params.set('time', merged.timePresets.join(','));
+          params.set('minComplexity', String(merged.complexity.min));
+          params.set('maxComplexity', String(merged.complexity.max));
+          if (data.parsed.genres?.length > 0) params.set('genres', data.parsed.genres.join(','));
+          if (data.parsed.moods?.length > 0) params.set('moods', data.parsed.moods.join(','));
+          params.set('freeText', state.freeText.trim());
+          params.set('llmParsed', encodeURIComponent(JSON.stringify(data.parsed)));
+
+          saveGuestPreferences(merged as unknown as Record<string, unknown>);
+          router.push(`/results?${params.toString()}`);
+          return;
+        }
+      }
+    } catch {
+      // Fall through to regular submit
+    } finally {
+      setIsParsing(false);
+    }
+
+    // LLM failed — submit with just the free text
+    submit();
+  }
+
   function back() {
     if (step > 0) setStep((s) => s - 1);
   }
@@ -302,9 +357,28 @@ export default function QuestionnaireFlow() {
                 Save Preset
               </Button>
             )}
-            <Button variant="text" onClick={skip} sx={{ minWidth: 80 }}>
-              {isLast ? '' : 'Skip'}
-            </Button>
+            {!isFreeTextStep && (
+              <Button variant="text" onClick={skip} sx={{ minWidth: 80 }}>
+                {isLast ? '' : 'Skip'}
+              </Button>
+            )}
+            {isFreeTextStep && state.freeText.trim().length >= 3 && (
+              <Button
+                variant="outlined"
+                onClick={quickSubmit}
+                disabled={isParsing}
+                sx={{ minWidth: 160 }}
+              >
+                {isParsing ? (
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <CircularProgress size={16} color="inherit" />
+                    <span>Finding...</span>
+                  </Stack>
+                ) : (
+                  'Just show me games'
+                )}
+              </Button>
+            )}
             <Button
               variant="contained"
               onClick={next}
@@ -318,6 +392,8 @@ export default function QuestionnaireFlow() {
                 </Stack>
               ) : isLast ? (
                 'Find Games'
+              ) : isFreeTextStep ? (
+                'Customize more'
               ) : (
                 'Next'
               )}
