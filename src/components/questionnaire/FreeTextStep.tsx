@@ -2,8 +2,8 @@
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
-import Slider from '@mui/material/Slider';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
@@ -35,37 +35,51 @@ export default function FreeTextStep({
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      {/* Player count — required, asked first */}
+      {/* Player count — simple number picker */}
       <Box sx={{ width: '100%', mb: 3 }}>
         <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-          How many players?
+          How many players do you have?
         </Typography>
-        <Box sx={{ px: 2 }}>
-          <Slider
-            value={[playerCount.min, playerCount.max]}
-            onChange={(_, v) => {
-              const [min, max] = v as number[];
-              onPlayerCountChange({ min, max });
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center' }}>
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => {
+            const isSelected = playerCount.min === n && playerCount.max === n;
+            return (
+              <Chip
+                key={n}
+                label={n}
+                onClick={() => onPlayerCountChange({ min: n, max: n })}
+                color={isSelected ? 'primary' : 'default'}
+                variant={isSelected ? 'filled' : 'outlined'}
+                sx={{
+                  width: 48,
+                  height: 48,
+                  fontSize: '1.1rem',
+                  fontWeight: 700,
+                  borderRadius: '50%',
+                  transition: 'all 200ms ease',
+                  transform: isSelected ? 'scale(1.1)' : 'scale(1)',
+                  '& .MuiChip-label': { px: 0 },
+                }}
+              />
+            );
+          })}
+          <Chip
+            label="9+"
+            onClick={() => onPlayerCountChange({ min: 9, max: 99 })}
+            color={playerCount.min >= 9 ? 'primary' : 'default'}
+            variant={playerCount.min >= 9 ? 'filled' : 'outlined'}
+            sx={{
+              width: 48,
+              height: 48,
+              fontSize: '1rem',
+              fontWeight: 700,
+              borderRadius: '50%',
+              transition: 'all 200ms ease',
+              transform: playerCount.min >= 9 ? 'scale(1.1)' : 'scale(1)',
+              '& .MuiChip-label': { px: 0 },
             }}
-            min={1}
-            max={10}
-            step={1}
-            valueLabelDisplay="auto"
-            marks={[
-              { value: 1, label: '1' },
-              { value: 2, label: '2' },
-              { value: 4, label: '4' },
-              { value: 6, label: '6' },
-              { value: 8, label: '8' },
-              { value: 10, label: '10+' },
-            ]}
           />
         </Box>
-        <Typography variant="body2" color="text.secondary" textAlign="center">
-          {playerCount.min === playerCount.max
-            ? `${playerCount.min} player${playerCount.min === 1 ? '' : 's'}`
-            : `${playerCount.min}–${playerCount.max}${playerCount.max >= 10 ? '+' : ''} players`}
-        </Typography>
       </Box>
 
       {/* Free text prompt */}

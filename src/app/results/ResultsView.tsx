@@ -376,14 +376,48 @@ export default function ResultsView() {
           </Box>
         )}
 
-        {/* Filter + Popularity controls */}
+        {/* Game type quick filters */}
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          {[
+            { label: '🎲 All', value: null },
+            { label: '♟️ Board', value: 'board' },
+            { label: '🎮 Video', value: 'video' },
+            { label: '🔤 Word', value: 'word' },
+            { label: '🎉 Party', value: 'party' },
+          ].map((t) => {
+            const currentTypes = searchParams.get('types')?.split(',') ?? [];
+            const isActive = t.value === null
+              ? currentTypes.length === 0
+              : currentTypes.includes(t.value);
+            return (
+              <Chip
+                key={t.label}
+                label={t.label}
+                onClick={() => {
+                  const params = new URLSearchParams(searchParams.toString());
+                  if (t.value) {
+                    params.set('types', t.value);
+                  } else {
+                    params.delete('types');
+                  }
+                  router.push(`/results?${params.toString()}`);
+                }}
+                color={isActive ? 'primary' : 'default'}
+                variant={isActive ? 'filled' : 'outlined'}
+                size="small"
+              />
+            );
+          })}
+        </Box>
+
+        {/* Popularity controls */}
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
           <Typography variant="body2" color="text.secondary" sx={{ mr: 0.5 }}>
             Show:
           </Typography>
           {([
-            { mode: 'popular' as const, label: 'Popular Games' },
-            { mode: 'any' as const, label: 'All Games' },
+            { mode: 'popular' as const, label: 'Popular' },
+            { mode: 'any' as const, label: 'All' },
             { mode: 'hidden-gems' as const, label: 'Hidden Gems' },
           ]).map(({ mode, label }) => (
             <Chip
@@ -392,6 +426,7 @@ export default function ResultsView() {
               onClick={() => changePopularity(mode)}
               color={popularity === mode ? 'secondary' : 'default'}
               variant={popularity === mode ? 'filled' : 'outlined'}
+              size="small"
             />
           ))}
           <Box sx={{ flex: 1 }} />
