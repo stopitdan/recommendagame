@@ -316,7 +316,7 @@ export default function RandomGameView() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ type: 'spring', stiffness: 400, damping: 15 }}
               style={{ marginTop: 8 }}
-            >
+          >
               {isNat20 ? (
                 <Box>
                   <Typography
