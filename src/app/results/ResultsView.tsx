@@ -107,7 +107,7 @@ export default function ResultsView() {
       // Merge URL params with applied refine filters (refine overrides URL params)
       const r = appliedRefine;
       const urlGenres = searchParams.get('genres')?.split(',').filter(Boolean) ?? [];
-      const preferences: QuestionnaireState & { popularity: string; limit: number } = {
+      const preferences: QuestionnaireState & { popularity: string; limit: number; minRating?: number; minTime?: number; maxTime?: number } = {
         freeText: searchParams.get('freeText') ?? '',
         gameTypes: (searchParams.get('types')?.split(',').filter(Boolean) ?? []) as GameType[],
         playerCount: {
