@@ -96,6 +96,26 @@ const MECHANIC_OPTIONS = [
   'Voting', 'Worker Placement',
 ].sort();
 
+// Common themes from BGG families + RAWG tags
+const THEME_OPTIONS = [
+  'Adventure', 'Ancient', 'Animals', 'Arabian', 'Aviation / Flight',
+  'Civilization', 'Civil War', 'Comic Book / Strip', 'Economic',
+  'Environmental', 'Exploration', 'Farming', 'Fantasy', 'Fighting',
+  'Horror', 'Humor', 'Industry / Manufacturing', 'Mature / Adult',
+  'Medical', 'Medieval', 'Modern Warfare', 'Movies / TV / Radio theme',
+  'Murder/Mystery', 'Mythology', 'Nautical', 'Novel-based',
+  'Pirates', 'Political', 'Post-Napoleonic', 'Prehistoric',
+  'Racing', 'Religious', 'Renaissance', 'Science Fiction',
+  'Space Exploration', 'Spies/Secret Agents', 'Sports',
+  'Trains', 'Transportation', 'Travel', 'Video Game Theme',
+  'World War I', 'World War II', 'Zombies',
+  // BGG families (common ones)
+  'Animals: Cats', 'Animals: Dogs', 'Animals: Dinosaurs',
+  'Country: Japan', 'Country: USA', 'Crowdfunding: Kickstarter',
+  'Theme: Cthulhu Mythos', 'Theme: Steampunk', 'Theme: Vikings',
+  'Theme: Zombies', 'Theme: Post-Apocalyptic', 'Theme: Cyberpunk',
+].sort();
+
 const COMPLEXITY_LABELS: Record<number, string> = {
   1: 'Light',
   2: 'Easy',
@@ -376,8 +396,8 @@ export default function BrowseView() {
                 />
               </Box>
 
-              {/* Row 4: Category + Mechanic autocomplete */}
-              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 3 }}>
+              {/* Row 4: Category + Mechanic + Theme autocomplete */}
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr 1fr' }, gap: 3 }}>
                 <Autocomplete
                   value={filters.category}
                   onChange={(_, v) => updateFilter({ category: v })}
@@ -395,6 +415,17 @@ export default function BrowseView() {
                   options={MECHANIC_OPTIONS}
                   renderInput={(params) => (
                     <TextField {...params} label="Mechanic" size="small" placeholder="Type to search..." />
+                  )}
+                  freeSolo={false}
+                  clearOnBlur
+                  size="small"
+                />
+                <Autocomplete
+                  value={filters.theme}
+                  onChange={(_, v) => updateFilter({ theme: v })}
+                  options={THEME_OPTIONS}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Theme" size="small" placeholder="Type to search..." />
                   )}
                   freeSolo={false}
                   clearOnBlur
