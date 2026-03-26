@@ -27,6 +27,7 @@ import GenreStep from '@/components/questionnaire/GenreStep';
 import MoodStep from '@/components/questionnaire/MoodStep';
 import FreeTextStep from '@/components/questionnaire/FreeTextStep';
 import { getFilteredMoods, getFilteredGenres, getMoodDescription } from '@/lib/questionnaire-context';
+import { useAchievements } from '@/components/AchievementToast';
 import { motion, AnimatePresence } from 'motion/react';
 
 // Free text is now FIRST — LLM parses it to pre-fill subsequent steps
@@ -51,6 +52,7 @@ export default function QuestionnaireFlow() {
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [presetName, setPresetName] = useState('');
   const [isParsing, setIsParsing] = useState(false);
+  const { unlock } = useAchievements();
 
   // Load guest preferences from localStorage on mount
   useEffect(() => {
@@ -168,6 +170,7 @@ export default function QuestionnaireFlow() {
   async function quickSubmit() {
     if (!state.freeText.trim()) return;
     setIsParsing(true);
+    unlock('first_search');
 
     try {
       const res = await fetch('/api/parse-text', {
@@ -235,6 +238,19 @@ export default function QuestionnaireFlow() {
 
   function submit() {
     saveGuestPreferences(state as unknown as Record<string, unknown>);
+    unlock('first_search');
+
+    // Count active filters for picky_player achievement
+    const filterCount = [
+      state.gameTypes.length > 0,
+      state.playerCount.min > 1 || state.playerCount.max < 10,
+      state.timePresets.length > 0,
+      state.complexity.min > 1 || state.complexity.max < 5,
+      state.genres.length > 0,
+      state.moods.length > 0,
+      state.freeText.trim().length > 0,
+    ].filter(Boolean).length;
+    if (filterCount >= 5) unlock('picky_player');
 
     const params = new URLSearchParams();
 

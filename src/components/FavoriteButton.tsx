@@ -86,10 +86,14 @@ export default function FavoriteButton({ gameId, initialFavorited = false, onTog
           body: JSON.stringify({ gameId }),
         });
         if (!res.ok) {
-          // Revert on failure
           setFavorited(false);
           setShowBurst(false);
           onToggle?.(false);
+        } else {
+          // Check if they've hit 5 favorites
+          fetch('/api/favorites').then((r) => r.json()).then((data) => {
+            if (data.favorites?.length >= 5) unlock('five_favorites');
+          }).catch(() => {});
         }
       }
     } catch {

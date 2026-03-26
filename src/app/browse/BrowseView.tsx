@@ -23,6 +23,7 @@ import { GameCardSkeletonList } from '@/components/GameCardSkeleton';
 import GameLoader from '@/components/GameLoader';
 import type { Game } from '@/types/game';
 import { CATEGORY_OPTIONS, MECHANIC_OPTIONS, THEME_OPTIONS, PLATFORM_OPTIONS } from '@/lib/filter-options';
+import { useAchievements } from '@/components/AchievementToast';
 
 const PAGE_SIZE = 20;
 
@@ -82,6 +83,8 @@ export default function BrowseView() {
   const [loading, setLoading] = useState(true);
   const [hasLoaded, setHasLoaded] = useState(false); // True after first successful fetch
   const [offset, setOffset] = useState(0);
+  const [totalBrowsed, setTotalBrowsed] = useState(0);
+  const { unlock } = useAchievements();
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   // `filters` = what's being edited in the panel (not yet applied)
@@ -150,10 +153,16 @@ export default function BrowseView() {
       const res = await fetch(`/api/games/browse?${params.toString()}`);
       if (!res.ok) return;
       const data = await res.json();
-      setGames(data.games ?? []);
+      const newGames = data.games ?? [];
+      setGames(newGames);
       setTotal(data.total ?? 0);
       setOffset(newOffset);
       setHasLoaded(true);
+      setTotalBrowsed((prev) => {
+        const next = prev + newGames.length;
+        if (next >= 50) unlock('explorer');
+        return next;
+      });
     } finally {
       setLoading(false);
     }

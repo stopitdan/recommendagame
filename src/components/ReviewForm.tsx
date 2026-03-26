@@ -8,6 +8,7 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
+import { useAchievements } from './AchievementToast';
 
 export interface ReviewFormProps {
   gameId: string;
@@ -18,6 +19,7 @@ export default function ReviewForm({ gameId, onSubmit }: ReviewFormProps) {
   const [rating, setRating] = useState<number | null>(null);
   const [reviewText, setReviewText] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const { unlock } = useAchievements();
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,6 +53,11 @@ export default function ReviewForm({ gameId, onSubmit }: ReviewFormProps) {
       }
 
       setSuccess(true);
+      unlock('first_review');
+      // Check if they've hit 10 reviews
+      fetch('/api/reviews?count=true').then((r) => r.json()).then((data) => {
+        if (data.count >= 10) unlock('ten_reviews');
+      }).catch(() => {});
       onSubmit?.();
     } catch {
       setError('Something went wrong');
