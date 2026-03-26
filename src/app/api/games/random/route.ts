@@ -1,8 +1,9 @@
 /**
  * GET /api/games/random
  *
- * Returns a random game from the database. Uses a random offset
- * with a bounded range instead of counting all rows (which times out).
+ * Returns a random game. Uses a two-step approach:
+ * 1. Fetch a small random page of quality games
+ * 2. Pick one randomly from that page
  *
  * Query params:
  *   type — Filter by game type (board, video, word, party)
@@ -31,56 +32,70 @@ export async function GET(request: NextRequest) {
   const type = searchParams.get('type');
   const minRating = parseFloat(searchParams.get('minRating') ?? '6.0');
 
-  // Fetch a batch of random candidates and pick one.
-  // This avoids the expensive COUNT query that times out on large tables.
-  // We grab 50 games at a random offset and pick one from the batch.
-  const MAX_OFFSET = 5000; // Don't go too high — most quality games are in the first few thousand by rating
-  const randomOffset = Math.floor(Math.random() * MAX_OFFSET);
+  // Strategy: pick a random page from the top-rated games.
+  // PAGE_SIZE games per page, random page number from 0 to MAX_PAGES.
+  // If the random page overshoots, we fall back to page 0.
+  const PAGE_SIZE = 50;
+  const MAX_PAGES = 30; // 30 pages × 50 = top 1500 games — plenty of variety
+  const randomPage = Math.floor(Math.random() * MAX_PAGES);
 
-  let query = supabase
-    .from('games')
-    .select(GAME_COLUMNS)
-    .not('rating', 'is', null)
-    .gte('rating', minRating)
-    .gte('rating_count', 20)
-    .order('rating', { ascending: false })
-    .range(randomOffset, randomOffset + 49);
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const page = attempt === 0 ? randomPage : 0; // Fall back to first page on retry
+    const offset = page * PAGE_SIZE;
 
-  if (type) {
-    query = query.contains('types', [type]);
+    try {
+      let query = supabase
+        .from('games')
+        .select(GAME_COLUMNS)
+        .not('rating', 'is', null)
+        .gte('rating', attempt > 0 ? 4.0 : minRating) // Loosen on retry
+        .gte('rating_count', attempt > 0 ? 5 : 20)     // Loosen on retry
+        .order('rating', { ascending: false })
+        .range(offset, offset + PAGE_SIZE - 1);
+
+      if (type) {
+        query = query.contains('types', [type]);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error(`[Random] Attempt ${attempt + 1} error:`, error.message);
+        continue; // Retry
+      }
+
+      if (data && data.length > 0) {
+        const pick = data[Math.floor(Math.random() * data.length)];
+        return NextResponse.json({ game: pick });
+      }
+
+      // Empty results — retry with page 0
+    } catch (err) {
+      console.error(`[Random] Attempt ${attempt + 1} exception:`, err);
+    }
   }
 
-  const { data, error } = await query;
-
-  if (error) {
-    return NextResponse.json({ error: 'Database error' }, { status: 500 });
-  }
-
-  if (!data || data.length === 0) {
-    // Fallback: try from the start (offset was too high for this filter)
-    let fallback = supabase
+  // All retries exhausted — try absolute minimum filters
+  try {
+    let query = supabase
       .from('games')
       .select(GAME_COLUMNS)
       .not('rating', 'is', null)
-      .gte('rating', minRating)
-      .gte('rating_count', 10)
-      .order('rating', { ascending: false })
-      .limit(50);
+      .order('rating_count', { ascending: false })
+      .limit(PAGE_SIZE);
 
     if (type) {
-      fallback = fallback.contains('types', [type]);
+      query = query.contains('types', [type]);
     }
 
-    const { data: fallbackData } = await fallback;
-    if (!fallbackData || fallbackData.length === 0) {
-      return NextResponse.json({ error: 'No games found' }, { status: 404 });
+    const { data } = await query;
+    if (data && data.length > 0) {
+      const pick = data[Math.floor(Math.random() * data.length)];
+      return NextResponse.json({ game: pick });
     }
-
-    const pick = fallbackData[Math.floor(Math.random() * fallbackData.length)];
-    return NextResponse.json({ game: pick });
+  } catch {
+    // Final fallback failed
   }
 
-  // Pick a random game from the batch
-  const pick = data[Math.floor(Math.random() * data.length)];
-  return NextResponse.json({ game: pick });
+  return NextResponse.json({ error: 'No games found' }, { status: 404 });
 }
