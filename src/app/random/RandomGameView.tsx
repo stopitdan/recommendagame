@@ -203,18 +203,25 @@ export default function RandomGameView() {
     setIsNat20(false);
     setIsNat1(false);
 
-    try {
-      const params = type ? `?type=${type}` : '';
-      const res = await fetch(`/api/games/random${params}`);
-      if (res.ok) {
-        const data = await res.json();
-        setGame(data.game);
+    // Try up to 3 times to get a random game
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const params = type ? `?type=${type}` : '';
+        const res = await fetch(`/api/games/random${params}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.game) {
+            setGame(data.game);
+            break;
+          }
+        }
+        // If failed, wait a bit before retrying
+        if (attempt < 2) await new Promise((r) => setTimeout(r, 500));
+      } catch {
+        if (attempt < 2) await new Promise((r) => setTimeout(r, 500));
       }
-    } catch {
-      // Fetch failed — dice will still settle
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   }
 
   const handleDiceSettled = useCallback((value: number) => {
