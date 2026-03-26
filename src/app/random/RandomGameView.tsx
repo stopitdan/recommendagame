@@ -14,6 +14,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { motion, AnimatePresence } from 'motion/react';
 import type { Game } from '@/types/game';
+import AnimatedRating from '@/components/AnimatedRating';
 
 // Dynamic import — Three.js can't SSR
 const PhysicsDice = dynamic(() => import('@/components/PhysicsDice'), {
@@ -408,7 +409,7 @@ export default function RandomGameView() {
                   <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2, justifyContent: 'center' }}>
                     {(game as any).rating && (
                       <Chip
-                        label={`⭐ ${Number((game as any).rating).toFixed(1)}`}
+                        label={<AnimatedRating value={Number((game as any).rating)} prefix="⭐ " delay={500} />}
                         size="small"
                         sx={{ fontWeight: 600 }}
                       />

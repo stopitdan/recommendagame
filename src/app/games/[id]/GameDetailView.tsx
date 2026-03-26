@@ -10,6 +10,7 @@ import Container from '@mui/material/Container';
 import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import AnimatedRating from '@/components/AnimatedRating';
 import FavoriteButton from '@/components/FavoriteButton';
 import ShareInviteButton from '@/components/ShareInviteButton';
 import ReviewForm from '@/components/ReviewForm';
@@ -126,7 +127,7 @@ export default function GameDetailView() {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
               {game.rating && (
                 <Chip
-                  label={game.rating.toFixed(1)}
+                  label={<AnimatedRating value={game.rating} delay={200} />}
                   sx={{ bgcolor: 'primary.main', color: 'primary.contrastText', fontWeight: 700, fontSize: '1rem', py: 2 }}
                 />
               )}

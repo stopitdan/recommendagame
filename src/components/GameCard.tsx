@@ -3,8 +3,7 @@
 import { useRouter } from 'next/navigation';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import { motion, useMotionValue, useTransform, animate } from 'motion/react';
-import { useEffect, useRef } from 'react';
+import { motion } from 'motion/react';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Chip from '@mui/material/Chip';
@@ -12,29 +11,8 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import type { Game } from '@/types/game';
 import { formatGameType } from '@/lib/utils/format';
+import AnimatedRating from './AnimatedRating';
 import FavoriteButton from './FavoriteButton';
-
-function AnimatedRating({ value, delay = 0 }: { value: number; delay?: number }) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const motionVal = useMotionValue(0);
-
-  useEffect(() => {
-    // Delay the count-up so it starts AFTER the card's reveal animation
-    const timeout = setTimeout(() => {
-      const controls = animate(motionVal, value, {
-        duration: 0.8,
-        ease: 'easeOut',
-        onUpdate: (v) => {
-          if (ref.current) ref.current.textContent = v.toFixed(1);
-        },
-      });
-      return () => controls.stop();
-    }, delay);
-    return () => clearTimeout(timeout);
-  }, [value, motionVal, delay]);
-
-  return <span ref={ref}>0.0</span>;
-}
 
 export interface GameCardProps {
   game: Game;

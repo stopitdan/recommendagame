@@ -11,6 +11,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { motion } from 'motion/react';
 import type { Game } from '@/types/game';
+import AnimatedRating from '@/components/AnimatedRating';
 import { formatGameType } from '@/lib/utils/format';
 
 export default function InviteView() {
@@ -95,7 +96,7 @@ export default function InviteView() {
                 <Chip key={t} label={formatGameType(t)} size="small" variant="outlined" />
               ))}
               {game.rating && (
-                <Chip label={`⭐ ${game.rating.toFixed(1)}`} size="small" sx={{ fontWeight: 600 }} />
+                <Chip label={<AnimatedRating value={game.rating} prefix="⭐ " delay={400} />} size="small" sx={{ fontWeight: 600 }} />
               )}
               {game.playerCount && (
                 <Chip
