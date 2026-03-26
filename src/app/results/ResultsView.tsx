@@ -477,40 +477,44 @@ export default function ResultsView() {
               <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
                 <Autocomplete
                   multiple
+                  disableCloseOnSelect
                   value={filterCategories}
                   onChange={(_, v) => setFilterCategories(v)}
                   options={CATEGORY_OPTIONS}
-                  renderInput={(params) => <TextField {...params} label="Categories" size="small" placeholder="Add..." />}
+                  renderInput={(params) => <TextField {...params} label="Categories" size="small" placeholder={filterCategories.length ? '' : 'Add...'} />}
                   size="small"
                   limitTags={3}
                   ChipProps={{ size: 'small', variant: 'outlined' }}
                 />
                 <Autocomplete
                   multiple
+                  disableCloseOnSelect
                   value={filterMechanics}
                   onChange={(_, v) => setFilterMechanics(v)}
                   options={MECHANIC_OPTIONS}
-                  renderInput={(params) => <TextField {...params} label="Mechanics" size="small" placeholder="Add..." />}
+                  renderInput={(params) => <TextField {...params} label="Mechanics" size="small" placeholder={filterMechanics.length ? '' : 'Add...'} />}
                   size="small"
                   limitTags={3}
                   ChipProps={{ size: 'small', variant: 'outlined' }}
                 />
                 <Autocomplete
                   multiple
+                  disableCloseOnSelect
                   value={filterThemes}
                   onChange={(_, v) => setFilterThemes(v)}
                   options={THEME_OPTIONS}
-                  renderInput={(params) => <TextField {...params} label="Themes" size="small" placeholder="Add..." />}
+                  renderInput={(params) => <TextField {...params} label="Themes" size="small" placeholder={filterThemes.length ? '' : 'Add...'} />}
                   size="small"
                   limitTags={3}
                   ChipProps={{ size: 'small', variant: 'outlined' }}
                 />
                 <Autocomplete
                   multiple
+                  disableCloseOnSelect
                   value={filterPlatforms}
                   onChange={(_, v) => setFilterPlatforms(v)}
                   options={PLATFORM_OPTIONS}
-                  renderInput={(params) => <TextField {...params} label="Platforms" size="small" placeholder="Add..." />}
+                  renderInput={(params) => <TextField {...params} label="Platforms" size="small" placeholder={filterPlatforms.length ? '' : 'Add...'} />}
                   size="small"
                   limitTags={3}
                   ChipProps={{ size: 'small', variant: 'outlined' }}
