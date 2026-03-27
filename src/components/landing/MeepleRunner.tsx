@@ -45,14 +45,15 @@ export default function MeepleRunner() {
   const [ui, setUi] = useState<'idle' | 'play' | 'dead'>('idle');
   const [uiSc, setUiSc] = useState(0);
   const [uiHi, setUiHi] = useState(0);
-  const [vis, setVis] = useState(true);
+  const [nearTop, setNearTop] = useState(true);
 
   useEffect(() => {
     try { const v = parseInt(localStorage.getItem(LS_KEY) ?? '0'); if (v > 0) { hi.current = v; setUiHi(v); } } catch {}
   }, []);
 
+  // Track scroll position
   useEffect(() => {
-    const fn = () => setVis(window.scrollY < window.innerHeight * 1.3);
+    const fn = () => setNearTop(window.scrollY < window.innerHeight * 1.2);
     window.addEventListener('scroll', fn, { passive: true });
     return () => window.removeEventListener('scroll', fn);
   }, []);
@@ -83,12 +84,15 @@ export default function MeepleRunner() {
   }, []);
 
   const die = useCallback(() => {
-    gs.current = 'dead'; setUi('dead'); setUiSc(sc.current);
-    spikes.current = []; // clear spikes for clean death screen
+    gs.current = 'dead'; setUiSc(sc.current);
+    spikes.current = [];
     if (sc.current > hi.current) {
       hi.current = sc.current; setUiHi(sc.current);
       try { localStorage.setItem(LS_KEY, String(sc.current)); } catch {}
     }
+    // If scrolled past hero, go back to idle (will auto-hide)
+    // Otherwise show death screen
+    setUi(window.scrollY > window.innerHeight * 1.2 ? 'idle' : 'dead');
   }, []);
 
   // Keyboard
@@ -209,7 +213,9 @@ export default function MeepleRunner() {
             x: gw + 5,
             gnd: !ceil,
             w: 8 + Math.random() * 6,
-            h: ceil ? playH * (0.45 + Math.random() * 0.15) : 10 + Math.random() * 15,
+            h: ceil
+              ? playH * (0.7 + Math.random() * 0.15) // ceiling: 70-85% of play area (MUST duck)
+              : BALL_R * 1.5 + Math.random() * BALL_R * 1.5, // ground: 1.5-3x ball radius (must jump)
           });
           nxt.current = 50 + Math.random() * 130;
         }
@@ -304,7 +310,9 @@ export default function MeepleRunner() {
     return () => cancelAnimationFrame(anim);
   }, [theme, die]);
 
-  if (!vis) return null;
+  // Show when: near top of page OR actively playing
+  // Hide when: scrolled past hero AND not mid-game
+  if (!nearTop && ui !== 'play') return null;
 
   return (
     <Box
