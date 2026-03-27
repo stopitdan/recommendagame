@@ -20,6 +20,7 @@ const HISCORE_KEY = 'rag_runner_hiscore';
 const GROUND_FROM_BOTTOM = 20; // ground line px from canvas bottom
 const BALL_R = 9;
 const GRAVITY = 0.35;
+const GRAVITY_HELD = 0.12; // much reduced gravity while jump key held = noticeably higher jump
 const JUMP_VEL = -7.5;
 const INITIAL_SPEED = 1.4;
 const MAX_SPEED = 4.5;
@@ -48,6 +49,7 @@ export default function MeepleRunner() {
   const ducking = useRef(false);
   const wasAirborne = useRef(false); // track if we were in the air (for squish)
   const squish = useRef(1); // 1=normal, <1=flat, >1=tall
+  const jumpHeld = useRef(false); // true while jump key is pressed
   const spikes = useRef<Spike[]>([]);
   const frame = useRef(0);
   const nextSpike = useRef(160);
@@ -97,18 +99,26 @@ export default function MeepleRunner() {
         if (e.key === ' ' || e.key === 'ArrowUp') { e.preventDefault(); start(); }
         return;
       }
-      if (e.key === 'ArrowUp' || e.key === ' ') { e.preventDefault(); jump(); }
+      if (e.key === 'ArrowUp' || e.key === ' ') { e.preventDefault(); jump(); jumpHeld.current = true; }
       if (e.key === 'ArrowDown') { e.preventDefault(); ducking.current = true; }
     };
-    const ku = (e: KeyboardEvent) => { if (e.key === 'ArrowDown') ducking.current = false; };
+    const ku = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowDown') ducking.current = false;
+      if (e.key === 'ArrowUp' || e.key === ' ') jumpHeld.current = false;
+    };
     window.addEventListener('keydown', kd);
     window.addEventListener('keyup', ku);
     return () => { window.removeEventListener('keydown', kd); window.removeEventListener('keyup', ku); };
   }, [start, jump]);
 
   const interact = useCallback(() => {
-    if (state.current !== 'playing') start(); else jump();
+    if (state.current !== 'playing') start();
+    else { jump(); jumpHeld.current = true; }
   }, [start, jump]);
+
+  const interactEnd = useCallback(() => {
+    jumpHeld.current = false;
+  }, []);
 
   // Game loop
   useEffect(() => {
@@ -153,9 +163,10 @@ export default function MeepleRunner() {
         score.current = Math.floor(frame.current / 10);
         if (frame.current % 10 === 0) setUiScore(score.current);
 
-        // Physics
+        // Physics — hold jump for higher arc (reduced gravity while rising + held)
         const wasInAir = by.current > 1;
-        bvy.current += GRAVITY;
+        const useGravity = (jumpHeld.current && bvy.current < 0) ? GRAVITY_HELD : GRAVITY;
+        bvy.current += useGravity;
         by.current -= bvy.current;
         if (by.current < 0) {
           by.current = 0;
@@ -164,6 +175,13 @@ export default function MeepleRunner() {
           if (wasInAir) {
             squish.current = 0.55;
           }
+        }
+
+        // Cap max height so ball doesn't clip out the top
+        const maxHeight = gndY - 8 - BALL_R * 2;
+        if (by.current > maxHeight) {
+          by.current = maxHeight;
+          bvy.current = 0;
         }
 
         // Track airborne state
@@ -184,8 +202,8 @@ export default function MeepleRunner() {
             ground: !isCeiling,
             w: 8 + Math.random() * 8,
             h: isCeiling
-              ? 12 + Math.random() * 10 // ceiling: 12-22px (not too low)
-              : 12 + Math.random() * 14, // ground: 12-26px
+              ? (gndY - 12) * (0.55 + Math.random() * 0.25) // reaches 55-80% down from ceiling — MUST duck
+              : 12 + Math.random() * 14,
           });
           nextSpike.current = GAP_MIN + Math.random() * (GAP_MAX - GAP_MIN);
         }
@@ -206,12 +224,13 @@ export default function MeepleRunner() {
             // Ground spike: bottom=0, top=height
             if (bBot < s.h) { die(); break; }
           } else {
-            // Ceiling spike: hangs from top, tip at (playH - gndY + s.h) from ground
-            // In ball coords: spike occupies from (gndY - 8 - s.h) to top
-            const spikeBottomFromGround = (gndY - 8) - s.h;
-            // Convert to ball coordinate (ball Y is distance above ground)
-            const spikeTip = spikeBottomFromGround;
-            if (bTop > spikeTip) { die(); break; }
+            // Ceiling spike: hangs from top of canvas (y=8), tip at y=8+h
+            // Convert to ball coords: ball Y is distance above ground (gndY)
+            // Spike tip in screen Y = 8 + s.h
+            // Spike tip in ball Y = gndY - (8 + s.h)
+            const spikeTipBallY = gndY - (8 + s.h);
+            // Ball top = by + effective height
+            if (bTop > spikeTipBallY) { die(); break; }
           }
         }
       }
@@ -311,8 +330,10 @@ export default function MeepleRunner() {
     >
       <canvas
         ref={canvasRef}
-        onClick={() => ui === 'playing' && jump()}
-        onTouchStart={() => ui === 'playing' && jump()}
+        onMouseDown={() => { if (ui === 'playing') { jump(); jumpHeld.current = true; } }}
+        onMouseUp={() => { jumpHeld.current = false; }}
+        onTouchStart={() => { if (ui === 'playing') { jump(); jumpHeld.current = true; } }}
+        onTouchEnd={() => { jumpHeld.current = false; }}
         style={{ width: '100%', height: '100%', display: 'block', cursor: ui === 'playing' ? 'pointer' : 'default' }}
       />
 
