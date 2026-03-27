@@ -65,10 +65,14 @@ The recommendation engine returns 0 results for normal queries and irrelevant re
 | # | Date | Changes | Test Query | Before | After | Notes |
 |---|------|---------|-----------|--------|-------|-------|
 | 0 | 2026-03-26 | Baseline | "fun easy 2 players" | 0 results | — | Completely broken |
-| 1 | — | Phase 1: Fix fallbacks | — | — | — | Pending |
-| 2 | — | Phase 2: Tag search | — | — | — | Pending |
-| 3 | — | Phase 3: Popularity cache | — | — | — | Pending |
-| 4 | — | Phase 4: Semantic embeddings | — | — | — | Pending |
+| 1 | 2026-03-27 | Phase 1: Fix fallbacks, client injection, emergency chain | "fun easy 2p" | 0 results | Returns results (but slow) | RPC was timing out due to WHERE clause in match_games |
+| 2 | 2026-03-27 | Phase 2: Tag search + description search | "Hollow Knight" browse | 500 error (57s timeout) | Found it (but 102s!!) | textSearch replaces ilike, but still too slow |
+| 3 | 2026-03-27 | Phase 3: Popularity cache (38 lists, 1390 games) | — | — | Cached in Redis | Works as fallback |
+| 4 | 2026-03-27 | Phase 4: Semantic embeddings code | — | — | Not generated yet | Script times out, needs fixing |
+| 5 | 2026-03-27 | Rewrote match_games RPC (removed WHERE defeating HNSW) | — | RPC timeout | hashRpc: OK | Critical fix |
+| 6 | 2026-03-27 | Added rating/rating_count DESC indexes | — | Full table scans | Faster ordering | Helps but not enough |
+| 7 | 2026-03-27 | Increased statement_timeout to 120s all roles | — | 8s timeout | 120s timeout | Needed for large dataset |
+| 8 | — | **NEXT: Add search layer (Meilisearch?) or optimize queries** | — | 102s browse | Target: <2s | THE priority |
 
 ## Test Queries (use these to benchmark every iteration)
 
