@@ -31,6 +31,9 @@ const GAME_COLUMNS = 'id,source,source_id,name,description,year_published,types,
 const POPULAR_CATEGORIES = [
   'Strategy', 'Family', 'Party', 'Cooperative', 'RPG', 'Adventure',
   'Puzzle', 'Action', 'Horror', 'Sci-Fi', 'Fantasy', 'Word Game',
+  'Card Game', 'War', 'Abstract', 'Economic', 'Trivia', 'Dice',
+  'Racing', 'Sports', 'Simulation', 'Shooter', 'Fighting',
+  'Platformer', 'Open World', 'Survival', 'Indie',
 ];
 
 // ─── Compute + Cache ─────────────────────────────────────────
@@ -51,30 +54,41 @@ export async function computeAndCachePopularLists(): Promise<{
   let totalLists = 0;
   let totalGames = 0;
 
-  // Helper to fetch + cache a list
+  // Helper to fetch + cache a list (with error handling for timeouts)
   async function cacheList(cacheKey: string, query: any, limit: number = 30) {
-    const { data } = await query.limit(limit);
-    if (data && data.length > 0) {
-      const games = (data as GameRow[]).map(rowToGame);
-      await redisCache.set(`${REDIS_PREFIX}:${cacheKey}`, games, TTL_SECONDS);
-      totalLists++;
-      totalGames += games.length;
+    try {
+      const { data, error } = await query.limit(limit);
+      if (error) {
+        console.log(`  [skip] ${cacheKey}: ${error.message}`);
+        return;
+      }
+      if (data && data.length > 0) {
+        const games = (data as GameRow[]).map(rowToGame);
+        await redisCache.set(`${REDIS_PREFIX}:${cacheKey}`, games, TTL_SECONDS);
+        totalLists++;
+        totalGames += games.length;
+        console.log(`  [cached] ${cacheKey}: ${games.length} games`);
+      } else {
+        console.log(`  [empty] ${cacheKey}`);
+      }
+    } catch (err) {
+      console.log(`  [error] ${cacheKey}: ${err}`);
     }
   }
 
-  // Top overall
+  // Top overall — order by most-reviewed (fast, uses index)
   await cacheList('overall', supabase
     .from('games').select(GAME_COLUMNS)
-    .not('rating', 'is', null).gte('rating_count', 50)
-    .order('rating', { ascending: false }), 50);
+    .gte('rating_count', 10)
+    .order('rating_count', { ascending: false }), 100);
 
   // Top per type
   for (const type of ['board', 'video', 'word', 'party']) {
     await cacheList(`type:${type}`, supabase
       .from('games').select(GAME_COLUMNS)
       .contains('types', [type])
-      .not('rating', 'is', null).gte('rating_count', 20)
-      .order('rating', { ascending: false }));
+      .gte('rating_count', 5)
+      .order('rating_count', { ascending: false }), 50);
   }
 
   // Top per player count bracket
@@ -89,9 +103,9 @@ export async function computeAndCachePopularLists(): Promise<{
   for (const { key: bracketKey, min, max } of playerBrackets) {
     await cacheList(`players:${bracketKey}`, supabase
       .from('games').select(GAME_COLUMNS)
-      .not('rating', 'is', null).gte('rating_count', 10)
       .lte('min_players', max).gte('max_players', min)
-      .order('rating', { ascending: false }));
+      .gte('rating_count', 3)
+      .order('rating_count', { ascending: false }), 50);
   }
 
   // Top per popular category
@@ -99,8 +113,22 @@ export async function computeAndCachePopularLists(): Promise<{
     await cacheList(`cat:${category}`, supabase
       .from('games').select(GAME_COLUMNS)
       .contains('categories', [category])
-      .not('rating', 'is', null).gte('rating_count', 10)
-      .order('rating', { ascending: false }), 20);
+      .gte('rating_count', 3)
+      .order('rating_count', { ascending: false }), 30);
+  }
+
+  // Top per popular mechanic
+  const POPULAR_MECHANICS = [
+    'Deck Building', 'Worker Placement', 'Area Control', 'Dice Rolling',
+    'Hand Management', 'Set Collection', 'Cooperative', 'Social Deduction',
+    'Engine Building', 'Tile Placement',
+  ];
+  for (const mechanic of POPULAR_MECHANICS) {
+    await cacheList(`mech:${mechanic}`, supabase
+      .from('games').select(GAME_COLUMNS)
+      .contains('mechanics', [mechanic])
+      .gte('rating_count', 3)
+      .order('rating_count', { ascending: false }), 30);
   }
 
   return { totalLists, totalGames };

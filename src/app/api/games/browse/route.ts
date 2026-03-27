@@ -108,9 +108,9 @@ export async function GET(request: NextRequest) {
   if (yearFrom) query = query.gte('year_published', parseInt(yearFrom, 10));
   if (yearTo) query = query.lte('year_published', parseInt(yearTo, 10));
 
-  // Text search
+  // Text search — use full-text search index (fast) instead of ilike (full scan)
   if (textQuery) {
-    query = query.ilike('name', `%${textQuery}%`);
+    query = query.textSearch('name', textQuery.trim(), { type: 'websearch' });
   }
 
   // Popularity filter

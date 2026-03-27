@@ -20,7 +20,7 @@ import { gameToVector, normalize, VECTOR_DIM } from '../src/lib/recommendation/e
 import { rowToGame } from '../src/lib/supabase/games';
 import type { GameRow } from '../src/types/supabase';
 
-const BATCH_SIZE = parseInt(process.argv[2] ?? '50', 10);
+const BATCH_SIZE = parseInt(process.argv[2] ?? '200', 10);
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -64,16 +64,17 @@ async function main() {
       };
     });
 
-    // Upsert into game_embeddings
-    const { error: upsertError } = await supabase
-      .from('game_embeddings')
-      .upsert(embeddings, { onConflict: 'game_id' });
+    // Upsert one at a time (batch upserts of 768-dim vectors timeout)
+    for (const emb of embeddings) {
+      const { error: upsertError } = await supabase
+        .from('game_embeddings')
+        .upsert(emb, { onConflict: 'game_id' });
 
-    if (upsertError) {
-      console.error(`[Embeddings] Upsert error at offset ${offset}:`, upsertError.message);
-      totalFailed += rows.length;
-    } else {
-      totalUpserted += rows.length;
+      if (upsertError) {
+        totalFailed++;
+      } else {
+        totalUpserted++;
+      }
     }
 
     totalProcessed += rows.length;
