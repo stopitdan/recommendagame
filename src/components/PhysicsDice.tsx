@@ -58,7 +58,7 @@ const globalFaces = computeFaceData();
 // Pre-compute the quaternion that makes face 20 point at the camera
 const INITIAL_QUAT = new THREE.Quaternion().setFromUnitVectors(
   globalFaces[19].normal, // face 20 is index 19
-  new THREE.Vector3(0, -0.5, 7).normalize(),
+  new THREE.Vector3(0, -0.2, 7).normalize(),
 );
 
 // ─── Create number texture via canvas ────────────────────────
@@ -287,7 +287,7 @@ const SETTLE_DUR = 0.3;   // Final tiny SLERP to flat face
 const PRESENT_DUR = 0.35; // Grow to highlight result
 
 /** Camera direction — the face we want pointing at the user */
-const TO_CAMERA = new THREE.Vector3(0, -0.5, 7).normalize();
+const TO_CAMERA = new THREE.Vector3(0, -0.2, 7).normalize();
 
 function AnimatedD20({
   rolling,
@@ -426,11 +426,11 @@ function AnimatedD20({
         group.quaternion.normalize();
 
         const bounces = [
-          { dur: 0.40, h: 0.6 },
-          { dur: 0.30, h: 0.3 },
-          { dur: 0.20, h: 0.13 },
-          { dur: 0.12, h: 0.05 },
-          { dur: 0.07, h: 0.02 },
+          { dur: 0.40, h: 1.1 },
+          { dur: 0.30, h: 0.55 },
+          { dur: 0.20, h: 0.24 },
+          { dur: 0.12, h: 0.10 },
+          { dur: 0.07, h: 0.03 },
         ];
         let bounceY = 0;
         let bt = t;
@@ -588,9 +588,9 @@ export default function PhysicsDice({ rolling, onSettled, skin, isNat20 }: Physi
   const activeSkin = skin ?? getSkin(DEFAULT_SKIN_ID);
 
   return (
-    <div style={{ width: '100%', height: 200, cursor: 'pointer', borderRadius: 16, overflow: 'hidden' }}>
+    <div style={{ width: '100%', height: 300, cursor: 'pointer', borderRadius: 16, overflow: 'hidden' }}>
       <Canvas
-        camera={{ position: [0, -0.5, 7], fov: 28, near: 0.1 }}
+        camera={{ position: [0, -0.2, 7], fov: 30, near: 0.1 }}
         style={{ background: 'transparent' }}
         gl={{ alpha: true, antialias: true }}
       >
