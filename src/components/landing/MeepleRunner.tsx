@@ -7,20 +7,13 @@ import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import { useTheme, alpha } from '@mui/material/styles';
 
-/**
- * Ball Runner — Chrome Dino clone, fixed to bottom of viewport.
- *
- * ALWAYS visible at the bottom of the screen with a "Start Game" button.
- * Hold SPACE/UP for longer jumps (reduced gravity while key held + rising).
- * DOWN to duck. Speed increases gradually. Score + high score tracked.
- */
-
 const LS_KEY = 'rag_runner_hi';
 
-// Physics tuned for ~80px tall canvas
-const JUMP_VEL = -5.5;
-const GRAVITY = 0.22;
-const GRAVITY_HOLD = 0.08; // 1/3 normal gravity while holding jump + rising
+// Physics
+const JUMP_VEL = -5.2;
+const GRAVITY_NORMAL = 0.2;
+const GRAVITY_HELD = 0.07;    // 1/3 gravity while holding = huge difference
+const GRAVITY_FALLING = 0.3;  // faster fall after peak for snappy feel
 const SPEED_INIT = 1.5;
 const SPEED_MAX = 4.5;
 const SPEED_INC = 0.0004;
@@ -37,11 +30,11 @@ export default function MeepleRunner() {
   const sc = useRef(0);
   const hi = useRef(0);
   const spd = useRef(SPEED_INIT);
-  const by = useRef(0);
-  const bvy = useRef(0);
+  const ballY = useRef(0);   // distance above ground (0 = on ground)
+  const velY = useRef(0);    // negative = rising, positive = falling
   const duckRef = useRef(false);
-  const jumpHeld = useRef(false); // TRUE while jump key/button is physically held down
-  const squish = useRef(1);
+  const jumpKeyDown = useRef(false);
+  const squishTimer = useRef(0); // countdown frames for squish effect
   const spikes = useRef<Spike[]>([]);
   const fr = useRef(0);
   const nextGap = useRef(120);
@@ -60,30 +53,27 @@ export default function MeepleRunner() {
   const startGame = useCallback(() => {
     gs.current = 'play'; setUiState('play');
     sc.current = 0; spd.current = SPEED_INIT;
-    by.current = 0; bvy.current = 0;
-    duckRef.current = false; jumpHeld.current = false;
-    squish.current = 1; spikes.current = [];
-    fr.current = 0; nextGap.current = 120;
-    setUiScore(0);
+    ballY.current = 0; velY.current = 0;
+    duckRef.current = false; jumpKeyDown.current = false;
+    squishTimer.current = 0; spikes.current = [];
+    fr.current = 0; nextGap.current = 120; setUiScore(0);
   }, []);
 
   const die = useCallback(() => {
-    gs.current = 'dead'; setUiState('dead');
-    setUiScore(sc.current);
+    gs.current = 'dead'; setUiState('dead'); setUiScore(sc.current);
     if (sc.current > hi.current) {
       hi.current = sc.current; setUiHi(sc.current);
       try { localStorage.setItem(LS_KEY, String(sc.current)); } catch {}
     }
   }, []);
 
-  const tryJump = useCallback(() => {
-    if (by.current < 0.5) {
-      bvy.current = JUMP_VEL;
-      squish.current = 1.25;
+  const doJump = useCallback(() => {
+    if (ballY.current < 0.5) { // on ground
+      velY.current = JUMP_VEL;
     }
   }, []);
 
-  // Keyboard — track held state explicitly
+  // Keyboard
   useEffect(() => {
     const kd = (e: KeyboardEvent) => {
       const k = e.key;
@@ -93,19 +83,19 @@ export default function MeepleRunner() {
       }
       if (k === ' ' || k === 'ArrowUp') {
         e.preventDefault();
-        if (!e.repeat) tryJump(); // only first press triggers jump
-        jumpHeld.current = true;  // stays true while held (even on repeat)
+        if (!e.repeat) doJump();
+        jumpKeyDown.current = true;
       }
       if (k === 'ArrowDown') { e.preventDefault(); duckRef.current = true; }
     };
     const ku = (e: KeyboardEvent) => {
       if (e.key === 'ArrowDown') duckRef.current = false;
-      if (e.key === ' ' || e.key === 'ArrowUp') jumpHeld.current = false;
+      if (e.key === ' ' || e.key === 'ArrowUp') jumpKeyDown.current = false;
     };
     window.addEventListener('keydown', kd);
     window.addEventListener('keyup', ku);
     return () => { window.removeEventListener('keydown', kd); window.removeEventListener('keyup', ku); };
-  }, [startGame, tryJump]);
+  }, [startGame, doJump]);
 
   // Game loop
   useEffect(() => {
@@ -133,7 +123,7 @@ export default function MeepleRunner() {
       const bx = 45;
       const playTop = 4;
 
-      // Ground
+      // Ground line
       ctx.strokeStyle = alpha(theme.palette.divider, 0.2);
       ctx.lineWidth = 1;
       ctx.setLineDash([4, 4]);
@@ -146,29 +136,43 @@ export default function MeepleRunner() {
         sc.current = Math.floor(fr.current / 10);
         if (fr.current % 10 === 0) setUiScore(sc.current);
 
-        // PHYSICS — the key Chrome Dino mechanic:
-        // While jumpHeld is true AND ball is still rising (bvy < 0),
-        // use much lower gravity so the ball floats longer at the peak.
-        const rising = bvy.current < 0;
-        const grav = (jumpHeld.current && rising) ? GRAVITY_HOLD : GRAVITY;
-        bvy.current += grav;
-        by.current -= bvy.current;
-
-        // Ground clamp
-        const wasAir = by.current > 0.5 || bvy.current !== 0;
-        if (by.current < 0) {
-          const landing = wasAir && bvy.current > 0;
-          by.current = 0; bvy.current = 0;
-          if (landing) squish.current = 0.5;
+        // ── PHYSICS ──
+        // Three gravity states:
+        //   1. Rising + key held: very low gravity (float at peak)
+        //   2. Rising + key released: normal gravity
+        //   3. Falling: slightly higher gravity (snappy descent)
+        const rising = velY.current < 0;
+        let grav: number;
+        if (rising && jumpKeyDown.current) {
+          grav = GRAVITY_HELD;   // HOLD = float
+        } else if (rising) {
+          grav = GRAVITY_NORMAL; // released = normal rise
+        } else {
+          grav = GRAVITY_FALLING; // falling = snappy
         }
 
-        // Ceiling clamp
-        const maxH = gnd - playTop - BALL_R * 2;
-        if (by.current > maxH) { by.current = maxH; if (bvy.current < 0) bvy.current = 0; }
+        velY.current += grav;
+        ballY.current -= velY.current;
 
-        // Squish spring recovery
-        squish.current += (1 - squish.current) * 0.1;
-        if (duckRef.current && by.current < 1) squish.current = 0.35;
+        // Landing
+        if (ballY.current <= 0) {
+          if (ballY.current < -0.5) {
+            // Was airborne, now landing — trigger squish
+            squishTimer.current = 8; // 8 frames of squish
+          }
+          ballY.current = 0;
+          velY.current = 0;
+        }
+
+        // Ceiling cap
+        const maxH = gnd - playTop - BALL_R * 2;
+        if (ballY.current > maxH) {
+          ballY.current = maxH;
+          if (velY.current < 0) velY.current = 0;
+        }
+
+        // Squish timer countdown
+        if (squishTimer.current > 0) squishTimer.current--;
 
         // Spawn spikes
         nextGap.current -= spd.current;
@@ -180,7 +184,7 @@ export default function MeepleRunner() {
             ground: !ceil,
             w: 7 + Math.random() * 5,
             h: ceil
-              ? playArea * (0.55 + Math.random() * 0.15) // must duck
+              ? playArea * (0.55 + Math.random() * 0.15)
               : 8 + Math.random() * (BALL_R * 2.5),
           });
           nextGap.current = 70 + Math.random() * 180;
@@ -190,14 +194,15 @@ export default function MeepleRunner() {
         spikes.current = spikes.current.filter(s => s.x > -20);
 
         // Collision
-        const effH = BALL_R * 2 * Math.min(squish.current, 1);
+        const isDuck = duckRef.current && ballY.current < 1;
+        const effH = isDuck ? BALL_R : BALL_R * 2;
         for (const s of spikes.current) {
           if (bx + BALL_R < s.x || bx - BALL_R > s.x + s.w) continue;
           if (s.ground) {
-            if (by.current < s.h) { die(); break; }
+            if (ballY.current < s.h) { die(); break; }
           } else {
             const tipBallY = gnd - playTop - s.h;
-            if (by.current + effH > tipBallY) { die(); break; }
+            if (ballY.current + effH > tipBallY) { die(); break; }
           }
         }
       }
@@ -216,11 +221,25 @@ export default function MeepleRunner() {
         ctx.closePath(); ctx.fill();
       }
 
-      // Ball
-      const drawY = gnd - by.current;
-      const sq = squish.current;
-      const rx = BALL_R * (2 - sq);
-      const ry = BALL_R * sq;
+      // Ball — CIRCLE by default, squish only on landing or ducking
+      const drawY = gnd - ballY.current;
+      const isDuck = duckRef.current && ballY.current < 1 && gs.current === 'play';
+      const isSquishing = squishTimer.current > 0;
+
+      let rx = BALL_R;
+      let ry = BALL_R;
+
+      if (isDuck) {
+        // Ducking: wide and flat
+        rx = BALL_R * 1.4;
+        ry = BALL_R * 0.5;
+      } else if (isSquishing) {
+        // Landing squish: wide and slightly flat, springs back
+        const t = squishTimer.current / 8; // 1.0 → 0.0
+        rx = BALL_R * (1 + t * 0.4);
+        ry = BALL_R * (1 - t * 0.35);
+      }
+      // else: perfect circle (rx = ry = BALL_R)
 
       // Shadow
       ctx.fillStyle = alpha(theme.palette.text.primary, 0.04);
@@ -235,7 +254,7 @@ export default function MeepleRunner() {
 
       // Highlight
       ctx.fillStyle = 'rgba(255,255,255,0.2)';
-      ctx.beginPath(); ctx.ellipse(bx - rx * 0.2, drawY - ry * 1.15, rx * 0.2, ry * 0.12, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(bx - rx * 0.2, drawY - ry * 1.15, rx * 0.18, ry * 0.12, 0, 0, Math.PI * 2); ctx.fill();
 
       // Eye
       if (gs.current !== 'dead') {
@@ -252,7 +271,7 @@ export default function MeepleRunner() {
         ctx.stroke();
       }
 
-      // Score (canvas-drawn during play)
+      // Score HUD
       if (gs.current === 'play') {
         ctx.font = '700 10px monospace';
         ctx.fillStyle = theme.palette.text.secondary;
@@ -274,9 +293,7 @@ export default function MeepleRunner() {
   return (
     <Box
       sx={{
-        // ALWAYS fixed at bottom — visible on every scroll position
-        position: 'fixed',
-        bottom: 0, left: 0, right: 0,
+        position: 'fixed', bottom: 0, left: 0, right: 0,
         height: { xs: 70, md: 80 },
         zIndex: 40,
         borderTop: '1px solid', borderColor: 'divider',
@@ -287,14 +304,13 @@ export default function MeepleRunner() {
     >
       <canvas
         ref={canvasRef}
-        onMouseDown={() => { if (gs.current === 'play') { tryJump(); jumpHeld.current = true; } }}
-        onMouseUp={() => { jumpHeld.current = false; }}
-        onTouchStart={() => { if (gs.current === 'play') { tryJump(); jumpHeld.current = true; } }}
-        onTouchEnd={() => { jumpHeld.current = false; }}
+        onMouseDown={() => { if (gs.current === 'play') { doJump(); jumpKeyDown.current = true; } }}
+        onMouseUp={() => { jumpKeyDown.current = false; }}
+        onTouchStart={() => { if (gs.current === 'play') { doJump(); jumpKeyDown.current = true; } }}
+        onTouchEnd={() => { jumpKeyDown.current = false; }}
         style={{ width: '100%', height: '100%', display: 'block', cursor: uiState === 'play' ? 'pointer' : 'default' }}
       />
 
-      {/* START / GAME OVER — always-visible HTML overlay */}
       {uiState !== 'play' && (
         <Box
           sx={{
@@ -310,17 +326,13 @@ export default function MeepleRunner() {
               </Typography>
             )}
             <Button
-              variant="contained"
-              size="small"
-              onClick={startGame}
-              sx={{ borderRadius: 2, px: 2.5, py: 0.6, fontWeight: 700, fontSize: '0.8rem' }}
+              variant="contained" size="small" onClick={startGame}
+              sx={{ borderRadius: 2, px: 2.5, py: 0.6, fontWeight: 700, fontSize: '0.85rem' }}
             >
               {uiState === 'dead' ? 'Play Again' : 'Start Game'}
             </Button>
             {uiHi > 0 && (
-              <Typography variant="caption" sx={{ color: 'text.disabled', fontSize: '0.7rem' }}>
-                Best: {uiHi}
-              </Typography>
+              <Typography variant="caption" sx={{ color: 'text.disabled', fontSize: '0.7rem' }}>Best: {uiHi}</Typography>
             )}
             {uiState === 'idle' && (
               <Typography variant="caption" sx={{ color: 'text.disabled', fontSize: '0.7rem', display: { xs: 'none', sm: 'block' } }}>
