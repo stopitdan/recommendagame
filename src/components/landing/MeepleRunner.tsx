@@ -170,8 +170,8 @@ export default function MeepleRunner() {
         const rising = vy.current < 0;
 
         if (rising && jumpHeld) {
-          // HOLDING + RISING: almost no gravity, just slight deceleration
-          vy.current *= 0.97; // gentle drag, ball slowly decelerates
+          // HOLDING + RISING: barely any deceleration, coast for a long time
+          vy.current *= 0.995; // very slow decay — ball floats at peak
         } else if (rising && !jumpHeld) {
           // RELEASED while rising: normal gravity, starts coming down
           vy.current += GRAVITY;
@@ -269,12 +269,6 @@ export default function MeepleRunner() {
           ctx.fillStyle = alpha(theme.palette.text.secondary, 0.2); ctx.font = '400 8px monospace';
           ctx.fillText('HI ' + String(hi.current).padStart(5, '0'), ox + gw - 4, 16);
         }
-      }
-
-      // Debug: show jump state (REMOVE AFTER CONFIRMING IT WORKS)
-      if (gs.current === 'play') {
-        ctx.fillStyle = jumpHeld ? 'rgba(0,255,0,0.5)' : 'rgba(255,0,0,0.3)';
-        ctx.beginPath(); ctx.arc(ox + 8, 8, 4, 0, Math.PI * 2); ctx.fill();
       }
 
       anim = requestAnimationFrame(loop);
