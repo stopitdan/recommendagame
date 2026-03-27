@@ -174,10 +174,12 @@ function FaceLabels({ faces, skin, labelStyle, labelSize, labelFont, labelWeight
 
 // ─── Shader material for animated skins ──────────────────────
 
-function ShaderDiceMaterial({ shaderKey, shaderColors }: {
+function ShaderDiceMaterial({ shaderKey, shaderColors, speed = 1.0 }: {
   shaderKey: string;
   /** Optional custom colors — falls back to SHADER_DEFAULTS for this key */
   shaderColors?: { color1: string; color2: string; color3: string };
+  /** Animation speed multiplier (default 1.0) */
+  speed?: number;
 }) {
   const matRef = useRef<THREE.ShaderMaterial>(null!);
 
@@ -204,10 +206,10 @@ function ShaderDiceMaterial({ shaderKey, shaderColors }: {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shaderKey]);
 
-  // Update color uniforms reactively without recreating the material
+  // Update color uniforms and advance time at custom speed
   useFrame((_, delta) => {
     if (matRef.current) {
-      matRef.current.uniforms.uTime.value += delta;
+      matRef.current.uniforms.uTime.value += delta * speed;
       matRef.current.uniforms.uColor1.value.set(c1);
       matRef.current.uniforms.uColor2.value.set(c2);
       matRef.current.uniforms.uColor3.value.set(c3);
@@ -524,6 +526,7 @@ function AnimatedD20({
           <ShaderDiceMaterial
             shaderKey={skin.shaderKey!}
             shaderColors={customConfig?.shaderColors}
+            speed={customConfig?.shaderSpeed}
           />
         ) : (
           <meshStandardMaterial

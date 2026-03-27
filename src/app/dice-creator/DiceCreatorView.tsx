@@ -152,10 +152,10 @@ function ShaderSwatchGrid({ selected, onSelect }: {
   );
 }
 
-// ─── Debounced color picker ─────────────────────────────────────
-// Local state keeps the native color wheel smooth. A 350ms debounce
-// commits to the reducer so the 3D preview updates while dragging
-// without firing on every single pixel.
+// ─── Throttled color picker ─────────────────────────────────────
+// Local state keeps the native color wheel smooth. Throttle (not
+// debounce) ensures the preview updates at a steady ~12fps while
+// dragging, rather than waiting for a pause.
 
 function ColorPicker({ label, value, onChange }: {
   label: string;
@@ -163,8 +163,9 @@ function ColorPicker({ label, value, onChange }: {
   onChange: (hex: string) => void;
 }) {
   const [localValue, setLocalValue] = useState(value);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const latestRef = useRef(value);
+  const lastFired = useRef(0);
+  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   // Sync from parent on external changes (e.g. "Reset to defaults", fork preset)
   useEffect(() => {
@@ -175,8 +176,21 @@ function ColorPicker({ label, value, onChange }: {
   function handleChange(hex: string) {
     setLocalValue(hex);
     latestRef.current = hex;
-    clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => onChange(hex), 350);
+
+    const now = Date.now();
+    const elapsed = now - lastFired.current;
+
+    // Throttle: fire immediately if enough time passed, otherwise schedule
+    if (elapsed >= 80) {
+      lastFired.current = now;
+      onChange(hex);
+    } else {
+      clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => {
+        lastFired.current = Date.now();
+        onChange(latestRef.current);
+      }, 80 - elapsed);
+    }
   }
 
   // Flush on blur so the final value always commits
@@ -478,6 +492,22 @@ export default function DiceCreatorView() {
                           </Stack>
                         </Box>
                       )}
+                      <Box>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <Typography variant="body2">Animation Speed</Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {((config.shaderSpeed ?? 1.0) * 100).toFixed(0)}%
+                          </Typography>
+                        </Box>
+                        <Slider
+                          value={config.shaderSpeed ?? 1.0}
+                          onChangeCommitted={(_, val) => updateConfig({ shaderSpeed: val as number })}
+                          min={0.1}
+                          max={3.0}
+                          step={0.1}
+                          size="small"
+                        />
+                      </Box>
                     </>
                   )}
 
@@ -565,38 +595,48 @@ export default function DiceCreatorView() {
               </AccordionSummary>
               <AccordionDetails>
                 <Stack spacing={2}>
-                  <Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Typography variant="body2">Metalness</Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        Matte ↔ Metallic
-                      </Typography>
-                    </Box>
-                    <Slider
-                      value={config.metalness}
-                      onChangeCommitted={(_, val) => updateConfig({ metalness: val as number })}
-                      min={0}
-                      max={1}
-                      step={0.05}
-                      size="small"
-                    />
-                  </Box>
-                  <Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Typography variant="body2">Roughness</Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        Glossy ↔ Rough
-                      </Typography>
-                    </Box>
-                    <Slider
-                      value={config.roughness}
-                      onChangeCommitted={(_, val) => updateConfig({ roughness: val as number })}
-                      min={0}
-                      max={1}
-                      step={0.05}
-                      size="small"
-                    />
-                  </Box>
+                  {config.baseType === 'solid' && (
+                    <>
+                      <Box>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <Typography variant="body2">Metalness</Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            Matte ↔ Metallic
+                          </Typography>
+                        </Box>
+                        <Slider
+                          value={config.metalness}
+                          onChangeCommitted={(_, val) => updateConfig({ metalness: val as number })}
+                          min={0}
+                          max={1}
+                          step={0.05}
+                          size="small"
+                        />
+                      </Box>
+                      <Box>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <Typography variant="body2">Roughness</Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            Smooth reflections ↔ Scattered light
+                          </Typography>
+                        </Box>
+                        <Slider
+                          value={config.roughness}
+                          onChangeCommitted={(_, val) => updateConfig({ roughness: val as number })}
+                          min={0}
+                          max={1}
+                          step={0.05}
+                          size="small"
+                        />
+                      </Box>
+                    </>
+                  )}
+                  {config.baseType === 'shader' && (
+                    <Typography variant="body2" color="text.secondary">
+                      Metalness and roughness only apply to solid color dice.
+                      Shader effects have their own lighting built in.
+                    </Typography>
+                  )}
                   <ColorPicker
                     label="Accent Light"
                     value={config.accent}

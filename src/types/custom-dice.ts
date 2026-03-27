@@ -19,6 +19,8 @@ export interface CustomDiceSkinConfig {
   shaderKey?: string;
   /** Custom shader colors instead of defaults */
   shaderColors?: { color1: string; color2: string; color3: string };
+  /** Shader animation speed multiplier (0.1-3.0, default 1.0) */
+  shaderSpeed?: number;
 
   // ── Image Layer (when baseType = 'image') ──
   /** How the image is applied to the die */
