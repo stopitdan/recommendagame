@@ -67,6 +67,9 @@ function createNumberTexture(
   num: number,
   color = '#FFFFFF',
   shadowColor = 'rgba(0,0,0,0.5)',
+  sizeMultiplier = 1.0,
+  fontFamily = 'Arial',
+  fontWeight = 'bold',
 ): THREE.CanvasTexture {
   const size = 128;
   const canvas = document.createElement('canvas');
@@ -74,11 +77,14 @@ function createNumberTexture(
   canvas.height = size;
   const ctx = canvas.getContext('2d')!;
 
+  const basePx = num > 9 ? 48 : 56;
+  const px = Math.round(basePx * sizeMultiplier);
+
   ctx.clearRect(0, 0, size, size);
   ctx.shadowColor = shadowColor;
   ctx.shadowBlur = 4;
   ctx.fillStyle = color;
-  ctx.font = `bold ${num > 9 ? 48 : 56}px Arial, sans-serif`;
+  ctx.font = `${fontWeight} ${px}px ${fontFamily}, sans-serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(String(num), size / 2, size / 2);
@@ -120,11 +126,14 @@ function createEmojiTexture(num: number, skinId: string): THREE.CanvasTexture {
 
 // ─── Face labels on the die ──────────────────────────────────
 
-function FaceLabels({ faces, skin, labelStyle }: {
+function FaceLabels({ faces, skin, labelStyle, labelSize, labelFont, labelWeight }: {
   faces: FaceData[];
   skin: DiceSkin;
   /** Override label style — used by custom dice for 'hidden' mode */
   labelStyle?: 'numbers' | 'emoji' | 'hidden';
+  labelSize?: number;
+  labelFont?: string;
+  labelWeight?: string;
 }) {
   const effectiveStyle = labelStyle ?? (skin.type === 'emoji' ? 'emoji' : 'numbers');
 
@@ -134,9 +143,9 @@ function FaceLabels({ faces, skin, labelStyle }: {
       return Array.from({ length: 20 }, (_, i) => createEmojiTexture(i + 1, skin.id));
     }
     return Array.from({ length: 20 }, (_, i) =>
-      createNumberTexture(i + 1, skin.label, skin.labelShadow),
+      createNumberTexture(i + 1, skin.label, skin.labelShadow, labelSize, labelFont, labelWeight),
     );
-  }, [effectiveStyle, skin.id, skin.label, skin.labelShadow]);
+  }, [effectiveStyle, skin.id, skin.label, skin.labelShadow, labelSize, labelFont, labelWeight]);
 
   if (!textures) return null;
 
@@ -531,7 +540,14 @@ function AnimatedD20({
           opacity={customConfig.overlayOpacity ?? 0.5}
         />
       )}
-      <FaceLabels faces={globalFaces} skin={skin} labelStyle={labelStyle} />
+      <FaceLabels
+        faces={globalFaces}
+        skin={skin}
+        labelStyle={labelStyle}
+        labelSize={customConfig?.labelSize}
+        labelFont={customConfig?.labelFont}
+        labelWeight={customConfig?.labelWeight}
+      />
     </group>
   );
 }

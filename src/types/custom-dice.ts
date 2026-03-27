@@ -50,6 +50,12 @@ export interface CustomDiceSkinConfig {
   labelShadow: string;
   /** Which emoji set (for emoji labelStyle) */
   emojiSet?: 'mood' | 'spooky';
+  /** Label size multiplier (0.5-1.5, default 1.0) */
+  labelSize?: number;
+  /** Font family for number labels */
+  labelFont?: string;
+  /** Font weight for number labels ('normal', 'bold', '900') */
+  labelWeight?: string;
 }
 
 // ─── Database row types ─────────────────────────────────────────

@@ -10,10 +10,8 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Slider from '@mui/material/Slider';
-import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
@@ -43,7 +41,6 @@ interface CreatorState {
   name: string;
   emoji: string;
   config: CustomDiceSkinConfig;
-  isPublic: boolean;
   /** Existing skin ID when editing */
   editId: string | null;
 }
@@ -51,7 +48,6 @@ interface CreatorState {
 type CreatorAction =
   | { type: 'SET_NAME'; name: string }
   | { type: 'SET_EMOJI'; emoji: string }
-  | { type: 'SET_PUBLIC'; isPublic: boolean }
   | { type: 'SET_EDIT_ID'; editId: string }
   | { type: 'UPDATE_CONFIG'; patch: Partial<CustomDiceSkinConfig> }
   | { type: 'LOAD_STATE'; state: CreatorState };
@@ -65,6 +61,9 @@ const DEFAULT_CONFIG: CustomDiceSkinConfig = {
   labelStyle: 'numbers',
   label: '#FFFFFF',
   labelShadow: 'rgba(0,0,0,0.5)',
+  labelSize: 1.0,
+  labelFont: 'Arial',
+  labelWeight: 'bold',
 };
 
 function reducer(state: CreatorState, action: CreatorAction): CreatorState {
@@ -73,8 +72,6 @@ function reducer(state: CreatorState, action: CreatorAction): CreatorState {
       return { ...state, name: action.name.slice(0, 50) };
     case 'SET_EMOJI':
       return { ...state, emoji: action.emoji };
-    case 'SET_PUBLIC':
-      return { ...state, isPublic: action.isPublic };
     case 'SET_EDIT_ID':
       return { ...state, editId: action.editId };
     case 'UPDATE_CONFIG':
@@ -90,7 +87,6 @@ const INITIAL_STATE: CreatorState = {
   name: '',
   emoji: '🎲',
   config: DEFAULT_CONFIG,
-  isPublic: false,
   editId: null,
 };
 
@@ -101,6 +97,25 @@ const EMOJI_OPTIONS = [
   '🏛️', '🌋', '❄️', '🪩', '🌑', '😄', '👻', '🐉', '💀', '🎃',
   '🤖', '🦄', '🧙', '🪄', '⭐', '🌟', '💫', '🎪', '🎭', '🎨',
   '🏆', '👑', '💰', '🗡️', '🛡️', '🏹', '⚔️', '🔮', '📿', '🧿',
+];
+
+// ─── Font options ───────────────────────────────────────────────
+
+const FONT_OPTIONS = [
+  { label: 'Arial', value: 'Arial' },
+  { label: 'Georgia', value: 'Georgia' },
+  { label: 'Courier', value: 'Courier New' },
+  { label: 'Impact', value: 'Impact' },
+  { label: 'Comic Sans', value: 'Comic Sans MS' },
+  { label: 'Times', value: 'Times New Roman' },
+  { label: 'Verdana', value: 'Verdana' },
+  { label: 'Trebuchet', value: 'Trebuchet MS' },
+];
+
+const WEIGHT_OPTIONS = [
+  { label: 'Normal', value: 'normal' },
+  { label: 'Bold', value: 'bold' },
+  { label: 'Extra Bold', value: '900' },
 ];
 
 // ─── Shader swatch grid ─────────────────────────────────────────
@@ -138,6 +153,8 @@ function ShaderSwatchGrid({ selected, onSelect }: {
 }
 
 // ─── Debounced color picker ─────────────────────────────────────
+// Uses local state so the native color wheel stays responsive,
+// only commits to the reducer after the user stops dragging.
 
 function ColorPicker({ label, value, onChange }: {
   label: string;
@@ -145,23 +162,20 @@ function ColorPicker({ label, value, onChange }: {
   onChange: (hex: string) => void;
 }) {
   const [localValue, setLocalValue] = useState(value);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const committed = useRef(value);
 
-  // Sync from parent when value changes externally (e.g. "Reset to defaults")
+  // Sync from parent on external changes (e.g. "Reset to defaults", fork preset)
   useEffect(() => {
     setLocalValue(value);
+    committed.current = value;
   }, [value]);
 
-  function handleChange(hex: string) {
-    setLocalValue(hex);
-    clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => onChange(hex), 150);
-  }
-
-  // Flush on blur so final value always commits
-  function handleBlur() {
-    clearTimeout(timerRef.current);
-    if (localValue !== value) onChange(localValue);
+  // Commit only on mouse-up / blur — NOT on every drag pixel
+  function commit() {
+    if (localValue !== committed.current) {
+      committed.current = localValue;
+      onChange(localValue);
+    }
   }
 
   return (
@@ -170,8 +184,10 @@ function ColorPicker({ label, value, onChange }: {
       <input
         type="color"
         value={localValue.startsWith('#') ? localValue.slice(0, 7) : '#000000'}
-        onChange={(e) => handleChange(e.target.value)}
-        onBlur={handleBlur}
+        onChange={(e) => setLocalValue(e.target.value)}
+        onBlur={commit}
+        onMouseUp={commit}
+        onTouchEnd={commit}
         style={{
           width: 36,
           height: 36,
@@ -190,6 +206,9 @@ function ColorPicker({ label, value, onChange }: {
 }
 
 // ─── Main Component ─────────────────────────────────────────────
+
+// Stable ref so PhysicsDice Canvas doesn't re-render on parent changes
+const NOOP = () => {};
 
 export default function DiceCreatorView() {
   const router = useRouter();
@@ -214,7 +233,6 @@ export default function DiceCreatorView() {
             name: skin.name,
             emoji: skin.emoji,
             config: skin.config,
-            isPublic: skin.is_public,
             editId: skin.id,
           },
         });
@@ -225,25 +243,15 @@ export default function DiceCreatorView() {
     loadSkin();
   }, [searchParams]);
 
-  // Debounced config for preview — updates 100ms after last change
-  const [debouncedConfig, setDebouncedConfig] = useState(state.config);
-  const debounceTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
-
-  useEffect(() => {
-    clearTimeout(debounceTimer.current);
-    debounceTimer.current = setTimeout(() => setDebouncedConfig(state.config), 100);
-    return () => clearTimeout(debounceTimer.current);
-  }, [state.config]);
-
-  // Build a live preview DiceSkin from debounced state
+  // Build preview skin — only recomputes when config reference changes
   const previewSkin = useMemo(
     () => resolveCustomSkin(
       state.editId ?? 'preview',
       state.name || 'Preview',
       state.emoji,
-      debouncedConfig,
+      state.config,
     ),
-    [state.editId, state.name, state.emoji, debouncedConfig],
+    [state.editId, state.name, state.emoji, state.config],
   );
 
   const handleSave = useCallback(async () => {
@@ -271,7 +279,7 @@ export default function DiceCreatorView() {
         name: state.name.trim(),
         emoji: state.emoji,
         config: state.config,
-        is_public: state.isPublic,
+        // is_public: false — public feature commented out for now
       };
 
       const url = state.editId ? `/api/dice-skins/${state.editId}` : '/api/dice-skins';
@@ -291,7 +299,6 @@ export default function DiceCreatorView() {
       const data = await res.json();
       setSnackbar({ message: state.editId ? 'Dice skin updated!' : 'Dice skin created!', severity: 'success' });
 
-      // If new, redirect to edit mode
       if (!state.editId && data.id) {
         dispatch({ type: 'SET_EDIT_ID', editId: data.id });
       }
@@ -319,7 +326,7 @@ export default function DiceCreatorView() {
       metalness: skin.metalness,
       roughness: skin.roughness,
       shaderKey: skin.shaderKey,
-      labelStyle: skin.type === 'emoji' ? 'emoji' : 'numbers',
+      labelStyle: 'numbers',
     });
   }
 
@@ -504,46 +511,43 @@ export default function DiceCreatorView() {
               <AccordionSummary expandIcon={<ExpandIcon />}>
                 <Typography fontWeight={600}>Overlay Effect</Typography>
                 <Typography variant="caption" color="text.secondary" sx={{ ml: 1, mt: 0.3 }}>
-                  Optional
+                  Optional — layers a shader effect on top of the base
                 </Typography>
               </AccordionSummary>
               <AccordionDetails>
                 <Stack spacing={2}>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={!!config.overlayShaderKey}
-                        onChange={(_, checked) => {
-                          if (checked) {
-                            updateConfig({ overlayShaderKey: 'fire', overlayOpacity: 0.5 });
-                          } else {
-                            updateConfig({ overlayShaderKey: undefined, overlayOpacity: undefined });
-                          }
-                        }}
-                      />
-                    }
-                    label="Add shader overlay"
+                  <Typography variant="body2" color="text.secondary">
+                    Pick a shader below to overlay it on top of your base layer.
+                    Use the opacity slider to control how visible the overlay is.
+                  </Typography>
+                  <ShaderSwatchGrid
+                    selected={config.overlayShaderKey}
+                    onSelect={(key) => updateConfig({
+                      overlayShaderKey: key === config.overlayShaderKey ? undefined : key,
+                      overlayOpacity: config.overlayOpacity ?? 0.5,
+                    })}
                   />
                   {config.overlayShaderKey && (
-                    <>
-                      <ShaderSwatchGrid
-                        selected={config.overlayShaderKey}
-                        onSelect={(key) => updateConfig({ overlayShaderKey: key })}
+                    <Box>
+                      <Typography variant="body2" sx={{ mb: 1 }}>
+                        Opacity: {Math.round((config.overlayOpacity ?? 0.5) * 100)}%
+                      </Typography>
+                      <Slider
+                        value={config.overlayOpacity ?? 0.5}
+                        onChangeCommitted={(_, val) => updateConfig({ overlayOpacity: val as number })}
+                        min={0.05}
+                        max={1}
+                        step={0.05}
+                        size="small"
                       />
-                      <Box>
-                        <Typography variant="body2" sx={{ mb: 1 }}>
-                          Opacity: {Math.round((config.overlayOpacity ?? 0.5) * 100)}%
-                        </Typography>
-                        <Slider
-                          value={config.overlayOpacity ?? 0.5}
-                          onChange={(_, val) => updateConfig({ overlayOpacity: val as number })}
-                          min={0}
-                          max={1}
-                          step={0.05}
-                          size="small"
-                        />
-                      </Box>
-                    </>
+                      <Button
+                        variant="text"
+                        size="small"
+                        onClick={() => updateConfig({ overlayShaderKey: undefined, overlayOpacity: undefined })}
+                      >
+                        Remove overlay
+                      </Button>
+                    </Box>
                   )}
                 </Stack>
               </AccordionDetails>
@@ -565,7 +569,6 @@ export default function DiceCreatorView() {
                     </Box>
                     <Slider
                       value={config.metalness}
-                      onChange={(_, val) => updateConfig({ metalness: val as number })}
                       onChangeCommitted={(_, val) => updateConfig({ metalness: val as number })}
                       min={0}
                       max={1}
@@ -582,7 +585,6 @@ export default function DiceCreatorView() {
                     </Box>
                     <Slider
                       value={config.roughness}
-                      onChange={(_, val) => updateConfig({ roughness: val as number })}
                       onChangeCommitted={(_, val) => updateConfig({ roughness: val as number })}
                       min={0}
                       max={1}
@@ -614,7 +616,6 @@ export default function DiceCreatorView() {
                     fullWidth
                   >
                     <ToggleButton value="numbers">Numbers</ToggleButton>
-                    <ToggleButton value="emoji">Emoji</ToggleButton>
                     <ToggleButton value="hidden">Hidden</ToggleButton>
                   </ToggleButtonGroup>
 
@@ -630,33 +631,64 @@ export default function DiceCreatorView() {
                         value={config.labelShadow}
                         onChange={(hex) => updateConfig({ labelShadow: hex })}
                       />
+                      <Box>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <Typography variant="body2">Size</Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {Math.round((config.labelSize ?? 1.0) * 100)}%
+                          </Typography>
+                        </Box>
+                        <Slider
+                          value={config.labelSize ?? 1.0}
+                          onChangeCommitted={(_, val) => updateConfig({ labelSize: val as number })}
+                          min={0.5}
+                          max={1.5}
+                          step={0.1}
+                          size="small"
+                        />
+                      </Box>
+                      <TextField
+                        select
+                        label="Font"
+                        value={config.labelFont ?? 'Arial'}
+                        onChange={(e) => updateConfig({ labelFont: e.target.value })}
+                        size="small"
+                        fullWidth
+                      >
+                        {FONT_OPTIONS.map((f) => (
+                          <MenuItem key={f.value} value={f.value}>
+                            <span style={{ fontFamily: f.value }}>{f.label}</span>
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                      <TextField
+                        select
+                        label="Weight"
+                        value={config.labelWeight ?? 'bold'}
+                        onChange={(e) => updateConfig({ labelWeight: e.target.value })}
+                        size="small"
+                        fullWidth
+                      >
+                        {WEIGHT_OPTIONS.map((w) => (
+                          <MenuItem key={w.value} value={w.value}>
+                            <span style={{ fontWeight: w.value }}>{w.label}</span>
+                          </MenuItem>
+                        ))}
+                      </TextField>
                     </>
-                  )}
-
-                  {config.labelStyle === 'emoji' && (
-                    <TextField
-                      select
-                      label="Emoji Set"
-                      value={config.emojiSet ?? 'mood'}
-                      onChange={(e) => updateConfig({ emojiSet: e.target.value as 'mood' | 'spooky' })}
-                      size="small"
-                      fullWidth
-                    >
-                      <MenuItem value="mood">Mood (😢 → 🥳)</MenuItem>
-                      <MenuItem value="spooky">Spooky (💀 → 🪄)</MenuItem>
-                    </TextField>
                   )}
                 </Stack>
               </AccordionDetails>
             </Accordion>
 
-            {/* Section 6: Save & Share */}
+            {/* Section 6: Save */}
             <Accordion defaultExpanded>
               <AccordionSummary expandIcon={<ExpandIcon />}>
-                <Typography fontWeight={600}>Save & Share</Typography>
+                <Typography fontWeight={600}>Save</Typography>
               </AccordionSummary>
               <AccordionDetails>
                 <Stack spacing={2}>
+                  {/* Public toggle — commented out for now, no gallery to show them in
                   <FormControlLabel
                     control={
                       <Switch
@@ -669,6 +701,7 @@ export default function DiceCreatorView() {
                   <Typography variant="caption" color="text.secondary" sx={{ mt: -1 }}>
                     Public skins appear in the Dice Gallery for others to use and vote on.
                   </Typography>
+                  */}
 
                   <TextField
                     select
@@ -729,7 +762,7 @@ export default function DiceCreatorView() {
           }}>
             <PhysicsDice
               rolling={false}
-              onSettled={() => {}}
+              onSettled={NOOP}
               skin={previewSkin}
             />
             <Box sx={{ p: 2, textAlign: 'center' }}>
