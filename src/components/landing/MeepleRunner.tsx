@@ -83,7 +83,9 @@ export default function MeepleRunner() {
     gs.current = 'play'; setUi('play');
     sc.current = 0; spd.current = SPD0;
     py.current = 0; vy.current = 0;
-    JUMP_DOWN = false; DUCK_DOWN = false;
+    // NOTE: Do NOT reset JUMP_DOWN here! The player is holding the key
+    // to start the game — resetting it kills the hold-to-jump mechanic.
+    DUCK_DOWN = false;
     sqT.current = 0; spikes.current = [];
     fr.current = 0; nxt.current = 40; setUiSc(0);
   }, []);
@@ -306,7 +308,7 @@ export default function MeepleRunner() {
       ref={boxRef}
       sx={{
         position: 'fixed', bottom: 0, left: 0, right: 0,
-        height: ui === 'play' ? { xs: 100, md: 120 } : { xs: 24, md: 28 },
+        height: ui === 'play' ? { xs: 80, md: 90 } : { xs: 24, md: 28 },
         zIndex: 30,
         bgcolor: ui === 'play' ? alpha(theme.palette.background.default, 0.94) : 'transparent',
         backdropFilter: ui === 'play' ? 'blur(10px)' : 'none',

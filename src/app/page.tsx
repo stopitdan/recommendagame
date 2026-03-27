@@ -245,6 +245,8 @@ export default function Home() {
           minHeight: { xs: "90vh", md: "100vh" },
           display: "flex",
           alignItems: "center",
+          pt: { xs: 0, md: 0 }, // nav is ~64px, but we use negative margin below to compensate
+          mt: { xs: '-32px', md: '-40px' }, // shift content up to account for nav
           // Animated gradient mesh background
           background: `
             radial-gradient(ellipse 80% 50% at 20% 20%, ${alpha(theme.palette.primary.light, 0.15)} 0%, transparent 60%),
