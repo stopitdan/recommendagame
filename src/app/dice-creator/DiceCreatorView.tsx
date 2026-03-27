@@ -1,6 +1,6 @@
 'use client';
 
-import { useReducer, useCallback, useEffect, useState, useMemo } from 'react';
+import { useReducer, useCallback, useEffect, useState, useMemo, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Box from '@mui/material/Box';
@@ -137,20 +137,41 @@ function ShaderSwatchGrid({ selected, onSelect }: {
   );
 }
 
-// ─── Color picker helper ────────────────────────────────────────
+// ─── Debounced color picker ─────────────────────────────────────
 
 function ColorPicker({ label, value, onChange }: {
   label: string;
   value: string;
   onChange: (hex: string) => void;
 }) {
+  const [localValue, setLocalValue] = useState(value);
+  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  // Sync from parent when value changes externally (e.g. "Reset to defaults")
+  useEffect(() => {
+    setLocalValue(value);
+  }, [value]);
+
+  function handleChange(hex: string) {
+    setLocalValue(hex);
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => onChange(hex), 150);
+  }
+
+  // Flush on blur so final value always commits
+  function handleBlur() {
+    clearTimeout(timerRef.current);
+    if (localValue !== value) onChange(localValue);
+  }
+
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
       <Typography variant="body2" sx={{ minWidth: 100 }}>{label}</Typography>
       <input
         type="color"
-        value={value.startsWith('#') ? value.slice(0, 7) : '#000000'}
-        onChange={(e) => onChange(e.target.value)}
+        value={localValue.startsWith('#') ? localValue.slice(0, 7) : '#000000'}
+        onChange={(e) => handleChange(e.target.value)}
+        onBlur={handleBlur}
         style={{
           width: 36,
           height: 36,
@@ -162,7 +183,7 @@ function ColorPicker({ label, value, onChange }: {
         }}
       />
       <Typography variant="caption" color="text.secondary" sx={{ fontFamily: 'monospace' }}>
-        {value}
+        {localValue}
       </Typography>
     </Box>
   );
@@ -204,15 +225,25 @@ export default function DiceCreatorView() {
     loadSkin();
   }, [searchParams]);
 
-  // Build a live preview DiceSkin from current state
+  // Debounced config for preview — updates 100ms after last change
+  const [debouncedConfig, setDebouncedConfig] = useState(state.config);
+  const debounceTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  useEffect(() => {
+    clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(() => setDebouncedConfig(state.config), 100);
+    return () => clearTimeout(debounceTimer.current);
+  }, [state.config]);
+
+  // Build a live preview DiceSkin from debounced state
   const previewSkin = useMemo(
     () => resolveCustomSkin(
       state.editId ?? 'preview',
       state.name || 'Preview',
       state.emoji,
-      state.config,
+      debouncedConfig,
     ),
-    [state.editId, state.name, state.emoji, state.config],
+    [state.editId, state.name, state.emoji, debouncedConfig],
   );
 
   const handleSave = useCallback(async () => {
@@ -535,6 +566,7 @@ export default function DiceCreatorView() {
                     <Slider
                       value={config.metalness}
                       onChange={(_, val) => updateConfig({ metalness: val as number })}
+                      onChangeCommitted={(_, val) => updateConfig({ metalness: val as number })}
                       min={0}
                       max={1}
                       step={0.05}
@@ -551,6 +583,7 @@ export default function DiceCreatorView() {
                     <Slider
                       value={config.roughness}
                       onChange={(_, val) => updateConfig({ roughness: val as number })}
+                      onChangeCommitted={(_, val) => updateConfig({ roughness: val as number })}
                       min={0}
                       max={1}
                       step={0.05}

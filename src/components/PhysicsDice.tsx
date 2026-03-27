@@ -216,25 +216,42 @@ function OverlayMesh({ shaderKey, opacity }: {
   opacity: number;
 }) {
   const matRef = useRef<THREE.ShaderMaterial>(null!);
+  const defaults = SHADER_DEFAULTS[shaderKey];
 
   const material = useMemo(() => {
     const code = getShaderCode(shaderKey);
     if (!code) return null;
+
+    // Inject uOpacity uniform into the fragment shader and multiply alpha by it
+    const overlayFragment = code.fragment.replace(
+      'uniform float uTime;',
+      'uniform float uTime;\nuniform float uOpacity;',
+    ).replace(
+      /gl_FragColor\s*=\s*vec4\(([^,]+),\s*1\.0\)\s*;/,
+      'gl_FragColor = vec4($1, uOpacity);',
+    );
+
     return new THREE.ShaderMaterial({
       vertexShader: code.vertex,
-      fragmentShader: code.fragment,
+      fragmentShader: overlayFragment,
       uniforms: {
         uTime: { value: 0 },
+        uOpacity: { value: opacity },
+        uColor1: { value: new THREE.Color(defaults?.color1 ?? '#FFFFFF') },
+        uColor2: { value: new THREE.Color(defaults?.color2 ?? '#FFFFFF') },
+        uColor3: { value: new THREE.Color(defaults?.color3 ?? '#FFFFFF') },
       },
       transparent: true,
-      opacity,
       depthWrite: false,
     });
-  }, [shaderKey, opacity]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shaderKey]);
 
+  // Update opacity reactively without recreating the material
   useFrame((_, delta) => {
     if (matRef.current) {
       matRef.current.uniforms.uTime.value += delta;
+      matRef.current.uniforms.uOpacity.value = opacity;
     }
   });
 

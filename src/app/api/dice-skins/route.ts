@@ -64,7 +64,11 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: 'Failed to create skin' }, { status: 500 });
+    console.error('Failed to create dice skin:', error);
+    return NextResponse.json(
+      { error: error.message || 'Failed to create skin' },
+      { status: 500 },
+    );
   }
 
   return NextResponse.json({ id: data.id }, { status: 201 });
