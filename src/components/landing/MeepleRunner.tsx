@@ -335,8 +335,8 @@ export default function MeepleRunner() {
     return () => cancelAnimationFrame(anim);
   }, [theme, die]);
 
-  // Unmount completely once fully faded AND not playing
-  if (scrollOpacity === 0 && ui !== 'play') return null;
+  // Never fully unmount — just hide via opacity/pointerEvents
+  // Unmounting causes canvas to reset and game loop to restart, losing state
 
   return (
     <Box
@@ -351,6 +351,7 @@ export default function MeepleRunner() {
         borderColor: 'divider',
         overflow: 'hidden',
         opacity: ui === 'play' ? 1 : scrollOpacity,
+        visibility: (ui !== 'play' && scrollOpacity === 0) ? 'hidden' : 'visible',
         pointerEvents: (ui !== 'play' && scrollOpacity === 0) ? 'none' : 'auto',
         transition: 'height 250ms ease, background-color 250ms ease, opacity 150ms ease',
         cursor: 'pointer',
