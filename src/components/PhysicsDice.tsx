@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect, useMemo } from 'react';
+import { useRef, useEffect, useMemo, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { type DiceSkin, type DiceSkinType, getSkin, getEmojiForFace, DEFAULT_SKIN_ID } from '@/lib/dice-skins';
@@ -218,6 +218,47 @@ function ShaderDiceMaterial({ shaderKey, shaderColors, speed = 1.0 }: {
 
   if (!material) return null;
   return <primitive ref={matRef} object={material} attach="material" />;
+}
+
+// ─── Image-based material ─────────────────────────────────────
+
+function ImageDiceMaterial({ url, bodyColor, metalness, roughness }: {
+  url: string;
+  bodyColor: string;
+  metalness: number;
+  roughness: number;
+}) {
+  const [texture, setTexture] = useState<THREE.Texture | null>(null);
+
+  useEffect(() => {
+    if (!url) return;
+    const loader = new THREE.TextureLoader();
+    loader.load(
+      url,
+      (tex) => {
+        tex.needsUpdate = true;
+        setTexture(tex);
+      },
+      undefined,
+      () => {
+        // Load failed — fall back to body color (texture stays null)
+      },
+    );
+    return () => {
+      texture?.dispose();
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [url]);
+
+  return (
+    <meshStandardMaterial
+      map={texture ?? undefined}
+      color={texture ? '#ffffff' : bodyColor}
+      metalness={metalness}
+      roughness={roughness}
+      flatShading
+    />
+  );
 }
 
 // ─── Overlay shader mesh (transparent layer on top of base) ───
@@ -517,6 +558,7 @@ function AnimatedD20({
   // Extract custom config if present (from resolveCustomSkin)
   const customConfig = (skin as DiceSkin & { customConfig?: CustomDiceSkinConfig }).customConfig;
   const labelStyle = customConfig?.labelStyle;
+  const isImage = customConfig?.baseType === 'image' && !!customConfig?.wrapImageUrl;
 
   return (
     <group ref={groupRef}>
@@ -527,6 +569,13 @@ function AnimatedD20({
             shaderKey={skin.shaderKey!}
             shaderColors={customConfig?.shaderColors}
             speed={customConfig?.shaderSpeed}
+          />
+        ) : isImage ? (
+          <ImageDiceMaterial
+            url={customConfig!.wrapImageUrl!}
+            bodyColor={skin.body}
+            metalness={skin.metalness}
+            roughness={skin.roughness}
           />
         ) : (
           <meshStandardMaterial

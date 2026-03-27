@@ -514,20 +514,6 @@ export default function DiceCreatorView() {
 
                   {config.baseType === 'image' && (
                     <>
-                      <ToggleButtonGroup
-                        value={config.imageMode ?? 'wrap'}
-                        exclusive
-                        onChange={(_, val) => val && updateConfig({ imageMode: val })}
-                        size="small"
-                        fullWidth
-                      >
-                        <ToggleButton value="wrap">Wrap</ToggleButton>
-                        <ToggleButton value="tile">Tile</ToggleButton>
-                        <ToggleButton value="per-face">Per-Face</ToggleButton>
-                      </ToggleButtonGroup>
-                      <Typography variant="caption" color="text.secondary">
-                        Image upload coming soon — for now, use a direct image URL.
-                      </Typography>
                       <TextField
                         label="Image URL"
                         value={config.wrapImageUrl ?? ''}
@@ -535,7 +521,26 @@ export default function DiceCreatorView() {
                         fullWidth
                         size="small"
                         placeholder="https://example.com/image.png"
+                        helperText="The image will be stretched across the whole die surface."
                       />
+                      {config.wrapImageUrl && (
+                        <Box
+                          component="img"
+                          src={config.wrapImageUrl}
+                          alt="Preview"
+                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                          onLoad={(e) => { (e.target as HTMLImageElement).style.display = 'block'; }}
+                          sx={{
+                            width: 64,
+                            height: 64,
+                            objectFit: 'cover',
+                            borderRadius: 1,
+                            border: '1px solid',
+                            borderColor: 'divider',
+                            display: 'none',
+                          }}
+                        />
+                      )}
                     </>
                   )}
                 </Stack>
