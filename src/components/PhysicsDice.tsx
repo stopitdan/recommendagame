@@ -222,41 +222,62 @@ function ShaderDiceMaterial({ shaderKey, shaderColors, speed = 1.0 }: {
 
 // ─── Image-based material ─────────────────────────────────────
 
-function ImageDiceMaterial({ url, bodyColor, metalness, roughness }: {
+function ImageDiceMaterial({ url, bodyColor, metalness, roughness, tile = false }: {
   url: string;
   bodyColor: string;
   metalness: number;
   roughness: number;
+  /** When true, repeats the image across each face instead of wrapping once */
+  tile?: boolean;
 }) {
+  const matRef = useRef<THREE.MeshStandardMaterial>(null!);
   const [texture, setTexture] = useState<THREE.Texture | null>(null);
+  const prevTexture = useRef<THREE.Texture | null>(null);
 
   useEffect(() => {
     if (!url) return;
-    const loader = new THREE.TextureLoader();
-    loader.load(
-      url,
-      (tex) => {
-        tex.needsUpdate = true;
-        setTexture(tex);
-      },
-      undefined,
-      () => {
-        // Load failed — fall back to body color (texture stays null)
-      },
-    );
-    return () => {
-      texture?.dispose();
+    let active = true;
+
+    // Load via Image element with crossOrigin to handle CORS
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      if (!active) return;
+      // Draw onto a canvas so Three.js can use it as a CanvasTexture
+      const canvas = document.createElement('canvas');
+      const size = 512;
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d')!;
+      ctx.drawImage(img, 0, 0, size, size);
+      const tex = new THREE.CanvasTexture(canvas);
+      if (tile) {
+        tex.wrapS = THREE.RepeatWrapping;
+        tex.wrapT = THREE.RepeatWrapping;
+        tex.repeat.set(3, 3);
+      }
+      tex.needsUpdate = true;
+      prevTexture.current?.dispose();
+      prevTexture.current = tex;
+      setTexture(tex);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [url]);
+    img.src = url;
+
+    return () => { active = false; };
+  }, [url, tile]);
+
+  // Tell Three.js the material changed whenever texture updates
+  useEffect(() => {
+    if (matRef.current) matRef.current.needsUpdate = true;
+  }, [texture]);
 
   return (
     <meshStandardMaterial
+      ref={matRef}
       map={texture ?? undefined}
       color={texture ? '#ffffff' : bodyColor}
       metalness={metalness}
       roughness={roughness}
-      flatShading
     />
   );
 }
@@ -576,6 +597,7 @@ function AnimatedD20({
             bodyColor={skin.body}
             metalness={skin.metalness}
             roughness={skin.roughness}
+            tile={customConfig?.imageMode === 'tile'}
           />
         ) : (
           <meshStandardMaterial

@@ -514,6 +514,21 @@ export default function DiceCreatorView() {
 
                   {config.baseType === 'image' && (
                     <>
+                      <ToggleButtonGroup
+                        value={config.imageMode ?? 'wrap'}
+                        exclusive
+                        onChange={(_, val) => val && updateConfig({ imageMode: val })}
+                        size="small"
+                        fullWidth
+                      >
+                        <ToggleButton value="wrap">Wrap</ToggleButton>
+                        <ToggleButton value="tile">Tile</ToggleButton>
+                      </ToggleButtonGroup>
+                      <Typography variant="caption" color="text.secondary">
+                        {(config.imageMode ?? 'wrap') === 'tile'
+                          ? 'Repeats the image across all faces.'
+                          : 'Stretches the image across the whole die.'}
+                      </Typography>
                       <TextField
                         label="Image URL"
                         value={config.wrapImageUrl ?? ''}
@@ -521,7 +536,6 @@ export default function DiceCreatorView() {
                         fullWidth
                         size="small"
                         placeholder="https://example.com/image.png"
-                        helperText="The image will be stretched across the whole die surface."
                       />
                       {config.wrapImageUrl && (
                         <Box
