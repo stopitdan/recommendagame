@@ -6,130 +6,124 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import { useTheme, alpha } from '@mui/material/styles';
-import { motion, AnimatePresence } from 'motion/react';
 
 /**
- * Ball Runner — Chrome Dino-style side-scroller.
- * Fixed to bottom of viewport only during active play.
+ * Ball Runner — Chrome Dino clone.
+ *
+ * Replicates Chrome Dino physics exactly:
+ * - Tap/SPACE = jump. HOLD for higher/longer jump.
+ * - DOWN = duck under ceiling spikes.
+ * - Speed increases over time. Score increments.
+ *
+ * The key Chrome Dino mechanic: holding the jump button applies
+ * REDUCED gravity while the ball is rising, so you stay in the
+ * air longer. Short tap = low hop. Long hold = high arc.
  */
 
-const HISCORE_KEY = 'rag_runner_hiscore';
+const LS_KEY = 'rag_runner_hi';
 
-// ─── Tuning ──────────────────────────────────────────────────
+// Chrome Dino-accurate physics (scaled for our smaller canvas)
+const JUMP_VEL = -10;
+const GRAVITY = 0.6;
+const GRAVITY_HOLD = 0.25; // while jump held + rising = float longer
+const SPEED_INIT = 2.5;
+const SPEED_MAX = 6;
+const SPEED_INC = 0.001;
+const GROUND_PAD = 18; // ground line from bottom
+const BALL_R = 8;
 
-const GROUND_FROM_BOTTOM = 20; // ground line px from canvas bottom
-const BALL_R = 9;
-const GRAVITY = 0.35;
-const GRAVITY_HELD = 0.12; // much reduced gravity while jump key held = noticeably higher jump
-const JUMP_VEL = -7.5;
-const INITIAL_SPEED = 1.4;
-const MAX_SPEED = 4.5;
-const SPEED_INC = 0.0005;
-const GAP_MIN = 120;
-const GAP_MAX = 320;
-
-interface Spike {
-  x: number;
-  ground: boolean; // true = stalagmite, false = stalactite
-  w: number;
-  h: number;
-}
+interface Spike { x: number; ground: boolean; w: number; h: number; }
 
 export default function MeepleRunner() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const theme = useTheme();
 
-  // All game state in refs for perf
-  const state = useRef<'idle' | 'playing' | 'dead'>('idle');
-  const score = useRef(0);
-  const hiScore = useRef(0);
-  const speed = useRef(INITIAL_SPEED);
-  const by = useRef(0); // ball Y above ground
+  // Game state (refs for animation loop perf)
+  const gs = useRef<'idle' | 'play' | 'dead'>('idle');
+  const sc = useRef(0);
+  const hi = useRef(0);
+  const spd = useRef(SPEED_INIT);
+  const by = useRef(0);
   const bvy = useRef(0);
-  const ducking = useRef(false);
-  const wasAirborne = useRef(false); // track if we were in the air (for squish)
-  const squish = useRef(1); // 1=normal, <1=flat, >1=tall
-  const jumpHeld = useRef(false); // true while jump key is pressed
+  const duck = useRef(false);
+  const holdJump = useRef(false);
+  const squish = useRef(1);
+  const wasAir = useRef(false);
   const spikes = useRef<Spike[]>([]);
-  const frame = useRef(0);
-  const nextSpike = useRef(160);
+  const fr = useRef(0);
+  const nextGap = useRef(100);
 
-  const [ui, setUi] = useState<'idle' | 'playing' | 'dead'>('idle');
+  // UI state (triggers React re-renders for overlay)
+  const [uiState, setUiState] = useState<'idle' | 'play' | 'dead'>('idle');
   const [uiScore, setUiScore] = useState(0);
   const [uiHi, setUiHi] = useState(0);
 
+  // Load hi score
   useEffect(() => {
     try {
-      const s = localStorage.getItem(HISCORE_KEY);
-      if (s) { hiScore.current = parseInt(s, 10) || 0; setUiHi(hiScore.current); }
+      const v = parseInt(localStorage.getItem(LS_KEY) ?? '0', 10);
+      if (v > 0) { hi.current = v; setUiHi(v); }
     } catch {}
   }, []);
 
-  const start = useCallback(() => {
-    state.current = 'playing'; setUi('playing');
-    score.current = 0; speed.current = INITIAL_SPEED;
+  const startGame = useCallback(() => {
+    gs.current = 'play'; setUiState('play');
+    sc.current = 0; spd.current = SPEED_INIT;
     by.current = 0; bvy.current = 0;
-    ducking.current = false; wasAirborne.current = false;
-    squish.current = 1; spikes.current = [];
-    frame.current = 0; nextSpike.current = 160;
-    setUiScore(0);
+    duck.current = false; holdJump.current = false;
+    squish.current = 1; wasAir.current = false;
+    spikes.current = []; fr.current = 0;
+    nextGap.current = 100; setUiScore(0);
   }, []);
 
   const die = useCallback(() => {
-    state.current = 'dead'; setUi('dead');
-    setUiScore(score.current);
-    if (score.current > hiScore.current) {
-      hiScore.current = score.current;
-      setUiHi(hiScore.current);
-      try { localStorage.setItem(HISCORE_KEY, String(hiScore.current)); } catch {}
+    gs.current = 'dead'; setUiState('dead');
+    setUiScore(sc.current);
+    if (sc.current > hi.current) {
+      hi.current = sc.current; setUiHi(sc.current);
+      try { localStorage.setItem(LS_KEY, String(sc.current)); } catch {}
     }
   }, []);
 
   const jump = useCallback(() => {
-    if (by.current < 1) {
+    if (by.current < 0.5) { // on ground
       bvy.current = JUMP_VEL;
-      squish.current = 1.25; // stretch up on jump
+      squish.current = 1.3; // stretch on launch
+      holdJump.current = true;
     }
   }, []);
 
-  // Keys
+  const releaseJump = useCallback(() => { holdJump.current = false; }, []);
+
+  // Keyboard
   useEffect(() => {
     const kd = (e: KeyboardEvent) => {
-      if (state.current !== 'playing') {
-        if (e.key === ' ' || e.key === 'ArrowUp') { e.preventDefault(); start(); }
+      if (e.repeat) return; // ignore key repeat — only first press triggers jump
+      const k = e.key;
+      if (gs.current !== 'play') {
+        if (k === ' ' || k === 'ArrowUp') { e.preventDefault(); startGame(); }
         return;
       }
-      if (e.key === 'ArrowUp' || e.key === ' ') { e.preventDefault(); jump(); jumpHeld.current = true; }
-      if (e.key === 'ArrowDown') { e.preventDefault(); ducking.current = true; }
+      if (k === ' ' || k === 'ArrowUp') { e.preventDefault(); jump(); }
+      if (k === 'ArrowDown') { e.preventDefault(); duck.current = true; }
     };
     const ku = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowDown') ducking.current = false;
-      if (e.key === 'ArrowUp' || e.key === ' ') jumpHeld.current = false;
+      if (e.key === 'ArrowDown') duck.current = false;
+      if (e.key === ' ' || e.key === 'ArrowUp') releaseJump();
     };
     window.addEventListener('keydown', kd);
     window.addEventListener('keyup', ku);
     return () => { window.removeEventListener('keydown', kd); window.removeEventListener('keyup', ku); };
-  }, [start, jump]);
-
-  const interact = useCallback(() => {
-    if (state.current !== 'playing') start();
-    else { jump(); jumpHeld.current = true; }
-  }, [start, jump]);
-
-  const interactEnd = useCallback(() => {
-    jumpHeld.current = false;
-  }, []);
+  }, [startGame, jump, releaseJump]);
 
   // Game loop
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const resize = () => {
-      const rect = canvas.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
+      const r = canvas.getBoundingClientRect();
+      const d = window.devicePixelRatio || 1;
+      canvas.width = r.width * d; canvas.height = r.height * d;
     };
     resize();
     window.addEventListener('resize', resize);
@@ -138,178 +132,162 @@ export default function MeepleRunner() {
     const loop = () => {
       const ctx = canvas.getContext('2d');
       if (!ctx) { anim = requestAnimationFrame(loop); return; }
-
-      const dpr = window.devicePixelRatio || 1;
-      const w = canvas.width / dpr;
-      const h = canvas.height / dpr;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const d = window.devicePixelRatio || 1;
+      const w = canvas.width / d;
+      const h = canvas.height / d;
+      ctx.setTransform(d, 0, 0, d, 0, 0);
       ctx.clearRect(0, 0, w, h);
 
-      const gndY = h - GROUND_FROM_BOTTOM; // ground line Y
-      const ballX = 55;
-      const playH = gndY - 8; // playable height (top of area)
+      const gnd = h - GROUND_PAD;
+      const bx = 50;
+      const playTop = 6;
 
       // Ground line
-      ctx.strokeStyle = alpha(theme.palette.divider, 0.2);
+      ctx.strokeStyle = alpha(theme.palette.divider, 0.25);
       ctx.lineWidth = 1;
-      ctx.setLineDash([5, 5]);
-      ctx.beginPath(); ctx.moveTo(0, gndY); ctx.lineTo(w, gndY); ctx.stroke();
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath(); ctx.moveTo(0, gnd); ctx.lineTo(w, gnd); ctx.stroke();
       ctx.setLineDash([]);
 
-      // ─── Update ───
-      if (state.current === 'playing') {
-        frame.current++;
-        speed.current = Math.min(MAX_SPEED, speed.current + SPEED_INC);
-        score.current = Math.floor(frame.current / 10);
-        if (frame.current % 10 === 0) setUiScore(score.current);
+      // ── UPDATE ──
+      if (gs.current === 'play') {
+        fr.current++;
+        spd.current = Math.min(SPEED_MAX, spd.current + SPEED_INC);
+        sc.current = Math.floor(fr.current / 8);
+        if (fr.current % 8 === 0) setUiScore(sc.current);
 
-        // Physics — hold jump for higher arc (reduced gravity while rising + held)
-        const wasInAir = by.current > 1;
-        const useGravity = (jumpHeld.current && bvy.current < 0) ? GRAVITY_HELD : GRAVITY;
-        bvy.current += useGravity;
+        // Chrome Dino physics: reduced gravity while holding jump AND rising
+        const airBefore = by.current > 0.5;
+        const grav = (holdJump.current && bvy.current < 0) ? GRAVITY_HOLD : GRAVITY;
+        bvy.current += grav;
         by.current -= bvy.current;
+
+        // Ground
         if (by.current < 0) {
-          by.current = 0;
-          bvy.current = 0;
-          // Only squish on LANDING (was in air, now on ground)
-          if (wasInAir) {
-            squish.current = 0.55;
-          }
+          by.current = 0; bvy.current = 0;
+          if (airBefore) squish.current = 0.5; // squish on land
         }
+        // Ceiling cap
+        const maxH = gnd - playTop - BALL_R * 2;
+        if (by.current > maxH) { by.current = maxH; if (bvy.current < 0) bvy.current = 0; }
 
-        // Cap max height so ball doesn't clip out the top
-        const maxHeight = gndY - 8 - BALL_R * 2;
-        if (by.current > maxHeight) {
-          by.current = maxHeight;
-          bvy.current = 0;
-        }
+        wasAir.current = by.current > 0.5;
 
-        // Track airborne state
-        wasAirborne.current = by.current > 1;
-
-        // Squish spring recovery
-        squish.current += (1 - squish.current) * 0.1;
-
-        // Ducking: flatten only when on ground
-        if (ducking.current && by.current < 1) squish.current = 0.45;
+        // Squish spring
+        squish.current += (1 - squish.current) * 0.12;
+        if (duck.current && by.current < 1) squish.current = 0.4;
 
         // Spawn spikes
-        nextSpike.current--;
-        if (nextSpike.current <= 0) {
-          const isCeiling = Math.random() < 0.25 && score.current > 25;
+        nextGap.current -= spd.current;
+        if (nextGap.current <= 0) {
+          const ceil = Math.random() < 0.2 && sc.current > 30;
+          const playArea = gnd - playTop;
           spikes.current.push({
-            x: w + 20,
-            ground: !isCeiling,
-            w: 8 + Math.random() * 8,
-            h: isCeiling
-              ? (gndY - 12) * (0.55 + Math.random() * 0.25) // reaches 55-80% down from ceiling — MUST duck
-              : 12 + Math.random() * 14,
+            x: w + 10,
+            ground: !ceil,
+            w: 8 + Math.random() * 6,
+            h: ceil
+              ? playArea * (0.5 + Math.random() * 0.2) // ceiling: hangs 50-70% down
+              : 10 + Math.random() * (BALL_R * 2.5),   // ground: 10 to ~30px
           });
-          nextSpike.current = GAP_MIN + Math.random() * (GAP_MAX - GAP_MIN);
+          nextGap.current = 80 + Math.random() * 200; // px gap (not frames)
         }
 
-        // Move + cull spikes
-        for (const s of spikes.current) s.x -= speed.current;
-        spikes.current = spikes.current.filter((s) => s.x > -30);
+        // Move spikes
+        for (const s of spikes.current) s.x -= spd.current;
+        spikes.current = spikes.current.filter(s => s.x > -20);
 
         // Collision
-        const effectiveH = BALL_R * 2 * Math.min(squish.current, 1);
-        const bBot = by.current;
-        const bTop = by.current + effectiveH;
-
+        const effH = BALL_R * 2 * Math.min(squish.current, 1);
         for (const s of spikes.current) {
-          if (ballX + BALL_R < s.x || ballX - BALL_R > s.x + s.w) continue;
-
+          if (bx + BALL_R < s.x || bx - BALL_R > s.x + s.w) continue;
           if (s.ground) {
-            // Ground spike: bottom=0, top=height
-            if (bBot < s.h) { die(); break; }
+            if (by.current < s.h) { die(); break; }
           } else {
-            // Ceiling spike: hangs from top of canvas (y=8), tip at y=8+h
-            // Convert to ball coords: ball Y is distance above ground (gndY)
-            // Spike tip in screen Y = 8 + s.h
-            // Spike tip in ball Y = gndY - (8 + s.h)
-            const spikeTipBallY = gndY - (8 + s.h);
-            // Ball top = by + effective height
-            if (bTop > spikeTipBallY) { die(); break; }
+            // Ceiling spike tip is at playTop + s.h (screen coords)
+            // In ball-Y coords (distance above ground): gnd - (playTop + s.h)
+            const tipBallY = gnd - playTop - s.h;
+            if (by.current + effH > tipBallY) { die(); break; }
           }
         }
       }
 
-      // ─── Draw ───
+      // ── DRAW ──
 
       // Spikes
+      ctx.fillStyle = alpha(theme.palette.text.primary, 0.5);
       for (const s of spikes.current) {
-        ctx.fillStyle = alpha(theme.palette.text.primary, 0.55);
+        ctx.beginPath();
         if (s.ground) {
-          ctx.beginPath();
-          ctx.moveTo(s.x, gndY);
-          ctx.lineTo(s.x + s.w / 2, gndY - s.h);
-          ctx.lineTo(s.x + s.w, gndY);
-          ctx.closePath(); ctx.fill();
+          ctx.moveTo(s.x, gnd);
+          ctx.lineTo(s.x + s.w / 2, gnd - s.h);
+          ctx.lineTo(s.x + s.w, gnd);
         } else {
-          // Ceiling: hangs from top of play area
-          const topY = 8;
-          ctx.beginPath();
-          ctx.moveTo(s.x, topY);
-          ctx.lineTo(s.x + s.w / 2, topY + s.h);
-          ctx.lineTo(s.x + s.w, topY);
-          ctx.closePath(); ctx.fill();
+          ctx.moveTo(s.x, playTop);
+          ctx.lineTo(s.x + s.w / 2, playTop + s.h);
+          ctx.lineTo(s.x + s.w, playTop);
         }
+        ctx.closePath(); ctx.fill();
       }
 
       // Ball
-      const drawY = gndY - by.current;
+      const drawY = gnd - by.current;
       const sq = squish.current;
-      const rx = BALL_R * (2 - sq); // wider when squished
+      const rx = BALL_R * (2 - sq);
       const ry = BALL_R * sq;
 
       // Shadow
-      ctx.fillStyle = alpha(theme.palette.text.primary, 0.06);
+      ctx.fillStyle = alpha(theme.palette.text.primary, 0.05);
       ctx.beginPath();
-      ctx.ellipse(ballX, gndY + 1, rx * 0.7, 1.5, 0, 0, Math.PI * 2);
+      ctx.ellipse(bx, gnd + 1, rx * 0.6, 1.5, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // Body gradient
-      const grad = ctx.createRadialGradient(
-        ballX - rx * 0.25, drawY - ry * 0.3, 0,
-        ballX, drawY, Math.max(rx, ry),
-      );
-      grad.addColorStop(0, theme.palette.secondary.main);
-      grad.addColorStop(1, theme.palette.secondary.dark ?? theme.palette.secondary.main);
-      ctx.fillStyle = grad;
+      // Body
+      const gr = ctx.createRadialGradient(bx - rx * 0.2, drawY - ry * 0.3, 0, bx, drawY, Math.max(rx, ry));
+      gr.addColorStop(0, theme.palette.secondary.main);
+      gr.addColorStop(1, theme.palette.secondary.dark ?? theme.palette.secondary.main);
+      ctx.fillStyle = gr;
       ctx.beginPath();
-      ctx.ellipse(ballX, drawY - ry, rx, ry, 0, 0, Math.PI * 2);
+      ctx.ellipse(bx, drawY - ry, rx, ry, 0, 0, Math.PI * 2);
       ctx.fill();
 
       // Highlight
-      ctx.fillStyle = 'rgba(255,255,255,0.25)';
+      ctx.fillStyle = 'rgba(255,255,255,0.2)';
       ctx.beginPath();
-      ctx.ellipse(ballX - rx * 0.2, drawY - ry * 1.2, rx * 0.25, ry * 0.2, -0.3, 0, Math.PI * 2);
+      ctx.ellipse(bx - rx * 0.2, drawY - ry * 1.2, rx * 0.2, ry * 0.15, 0, 0, Math.PI * 2);
       ctx.fill();
 
       // Eye
-      if (state.current !== 'dead') {
+      if (gs.current !== 'dead') {
         ctx.fillStyle = '#fff';
-        ctx.beginPath();
-        ctx.arc(ballX + rx * 0.3, drawY - ry, 2.5, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.beginPath(); ctx.arc(bx + rx * 0.3, drawY - ry, 2.2, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = theme.palette.text.primary;
-        ctx.beginPath();
-        ctx.arc(ballX + rx * 0.4, drawY - ry, 1.2, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.beginPath(); ctx.arc(bx + rx * 0.4, drawY - ry, 1, 0, Math.PI * 2); ctx.fill();
       } else {
         ctx.strokeStyle = theme.palette.text.primary;
-        ctx.lineWidth = 1.2;
-        const ex = ballX + rx * 0.3, ey = drawY - ry;
+        ctx.lineWidth = 1;
+        const ex = bx + rx * 0.3, ey = drawY - ry;
         ctx.beginPath();
         ctx.moveTo(ex - 2, ey - 2); ctx.lineTo(ex + 2, ey + 2);
         ctx.moveTo(ex + 2, ey - 2); ctx.lineTo(ex - 2, ey + 2);
         ctx.stroke();
       }
 
+      // Score on canvas (always visible during play)
+      if (gs.current === 'play') {
+        ctx.font = '700 11px monospace';
+        ctx.fillStyle = theme.palette.text.secondary;
+        ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+        ctx.fillText(String(sc.current).padStart(5, '0'), w - 10, 6);
+        if (hi.current > 0) {
+          ctx.fillStyle = alpha(theme.palette.text.secondary, 0.4);
+          ctx.font = '500 9px monospace';
+          ctx.fillText('HI ' + String(hi.current).padStart(5, '0'), w - 10, 20);
+        }
+      }
+
       anim = requestAnimationFrame(loop);
     };
-
     anim = requestAnimationFrame(loop);
     return () => { cancelAnimationFrame(anim); window.removeEventListener('resize', resize); };
   }, [theme, die]);
@@ -317,87 +295,63 @@ export default function MeepleRunner() {
   return (
     <Box
       sx={{
-        position: ui === 'playing' ? 'fixed' : 'relative',
-        bottom: ui === 'playing' ? 0 : 'auto',
+        position: uiState === 'play' ? 'fixed' : 'relative',
+        bottom: uiState === 'play' ? 0 : 'auto',
         left: 0, right: 0,
         height: { xs: 80, md: 90 },
-        zIndex: ui === 'playing' ? 50 : 1,
+        zIndex: uiState === 'play' ? 50 : 1,
         borderTop: '1px solid', borderColor: 'divider',
-        bgcolor: alpha(theme.palette.background.default, ui === 'playing' ? 0.95 : 0.7),
-        backdropFilter: ui === 'playing' ? 'blur(12px)' : 'blur(4px)',
+        bgcolor: alpha(theme.palette.background.default, uiState === 'play' ? 0.95 : 0.7),
+        backdropFilter: uiState === 'play' ? 'blur(12px)' : 'none',
         overflow: 'hidden',
       }}
     >
       <canvas
         ref={canvasRef}
-        onMouseDown={() => { if (ui === 'playing') { jump(); jumpHeld.current = true; } }}
-        onMouseUp={() => { jumpHeld.current = false; }}
-        onTouchStart={() => { if (ui === 'playing') { jump(); jumpHeld.current = true; } }}
-        onTouchEnd={() => { jumpHeld.current = false; }}
-        style={{ width: '100%', height: '100%', display: 'block', cursor: ui === 'playing' ? 'pointer' : 'default' }}
+        onMouseDown={() => { if (gs.current === 'play') jump(); }}
+        onMouseUp={releaseJump}
+        onTouchStart={() => { if (gs.current === 'play') jump(); }}
+        onTouchEnd={releaseJump}
+        style={{ width: '100%', height: '100%', display: 'block', cursor: uiState === 'play' ? 'pointer' : 'default' }}
       />
 
-      {/* Overlay UI */}
-      <AnimatePresence>
-        {ui !== 'playing' && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
-            style={{
-              position: 'absolute', inset: 0,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              zIndex: 5,
-              background: alpha(theme.palette.background.default, 0.4),
-            }}
-          >
-            <Stack direction="row" spacing={2} alignItems="center">
-              {ui === 'dead' && (
-                <Typography variant="body2" sx={{ fontWeight: 700, color: 'secondary.main' }}>
-                  Score: {uiScore}
-                </Typography>
-              )}
+      {/* START / GAME OVER overlay — rendered as HTML on top of canvas */}
+      {uiState !== 'play' && (
+        <Box
+          sx={{
+            position: 'absolute', inset: 0, zIndex: 10,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            bgcolor: alpha(theme.palette.background.default, 0.5),
+          }}
+        >
+          <Stack direction="row" spacing={2} alignItems="center">
+            {uiState === 'dead' && (
+              <Typography variant="body2" sx={{ fontWeight: 700, color: 'secondary.main' }}>
+                Score: {uiScore}
+              </Typography>
+            )}
 
-              <Button
-                variant="contained"
-                size="small"
-                onClick={start}
-                sx={{
-                  borderRadius: 2, px: 3, py: 0.8,
-                  fontWeight: 700, fontSize: '0.85rem',
-                }}
-              >
-                {ui === 'dead' ? 'Play Again' : 'Start Game'}
-              </Button>
+            <Button
+              variant="contained"
+              size="small"
+              onClick={startGame}
+              sx={{ borderRadius: 2, px: 3, py: 0.8, fontWeight: 700, fontSize: '0.85rem' }}
+            >
+              {uiState === 'dead' ? 'Play Again' : 'Start Game'}
+            </Button>
 
-              {uiHi > 0 && (
-                <Typography variant="caption" sx={{ color: 'text.disabled' }}>
-                  Best: {uiHi}
-                </Typography>
-              )}
+            {uiHi > 0 && (
+              <Typography variant="caption" sx={{ color: 'text.disabled' }}>
+                Best: {uiHi}
+              </Typography>
+            )}
 
-              {ui === 'idle' && (
-                <Typography variant="caption" sx={{ color: 'text.disabled', display: { xs: 'none', md: 'block' } }}>
-                  SPACE to jump · DOWN to duck
-                </Typography>
-              )}
-            </Stack>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Score HUD during gameplay */}
-      {ui === 'playing' && (
-        <Box sx={{ position: 'absolute', top: 6, right: 14, zIndex: 5 }}>
-          <Typography sx={{ fontWeight: 700, color: 'text.secondary', fontFamily: 'monospace', fontSize: '0.85rem' }}>
-            {String(uiScore).padStart(5, '0')}
-          </Typography>
-          {uiHi > 0 && (
-            <Typography sx={{ color: 'text.disabled', fontFamily: 'monospace', fontSize: '0.6rem' }}>
-              HI {String(uiHi).padStart(5, '0')}
-            </Typography>
-          )}
+            {uiState === 'idle' && (
+              <Typography variant="caption" sx={{ color: 'text.disabled', display: { xs: 'none', md: 'block' } }}>
+                SPACE to jump · DOWN to duck
+              </Typography>
+            )}
+          </Stack>
         </Box>
       )}
     </Box>
