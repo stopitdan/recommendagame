@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import IconButton from '@mui/material/IconButton';
+import Paper from '@mui/material/Paper';
+import Popper from '@mui/material/Popper';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
@@ -76,6 +78,103 @@ interface DiceCustomizerProps {
  * Animated swatches preview the shader effects.
  * Locked skins show a lock icon and prompt signup for guests.
  */
+// ─── Custom skin swatch with hover-delay edit popover ────────────
+
+function CustomSkinSwatch({ cs, resolved, isActive, onSelect }: {
+  cs: CustomDiceSkinSummary;
+  resolved: DiceSkin;
+  isActive: boolean;
+  onSelect: () => void;
+}) {
+  const router = useRouter();
+  const [anchor, setAnchor] = useState<HTMLElement | null>(null);
+  const hoverTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const closeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  function handleMouseEnter(e: React.MouseEvent<HTMLElement>) {
+    const el = e.currentTarget;
+    clearTimeout(closeTimer.current);
+    hoverTimer.current = setTimeout(() => setAnchor(el), 500);
+  }
+
+  function handleMouseLeave() {
+    clearTimeout(hoverTimer.current);
+    // Small delay before closing so the user can move into the popover
+    closeTimer.current = setTimeout(() => setAnchor(null), 150);
+  }
+
+  const open = Boolean(anchor);
+
+  return (
+    <Box
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      sx={{ position: 'relative' }}
+    >
+      <IconButton
+        onClick={onSelect}
+        sx={{
+          width: 34,
+          height: 34,
+          p: 0,
+          border: isActive ? '2.5px solid' : '2px solid transparent',
+          borderColor: isActive ? 'primary.main' : 'transparent',
+          borderRadius: '50%',
+          transition: 'all 150ms ease',
+          '&:hover': { transform: 'scale(1.2)' },
+        }}
+      >
+        <Box
+          sx={{
+            width: 24,
+            height: 24,
+            borderRadius: '50%',
+            background: resolved.swatchBg,
+          }}
+        />
+      </IconButton>
+
+      <Popper
+        open={open}
+        anchorEl={anchor}
+        placement="top"
+        modifiers={[{ name: 'offset', options: { offset: [0, 6] } }]}
+        sx={{ zIndex: 1400 }}
+      >
+        <Paper
+          onMouseEnter={() => clearTimeout(closeTimer.current)}
+          onMouseLeave={handleMouseLeave}
+          elevation={4}
+          sx={{
+            p: 1,
+            borderRadius: 2,
+            minWidth: 110,
+          }}
+        >
+          <Stack spacing={0.5} alignItems="center">
+            <Typography variant="caption" fontWeight={600} noWrap sx={{ maxWidth: 100 }}>
+              {cs.emoji} {cs.name}
+            </Typography>
+            <Button
+              size="small"
+              variant="outlined"
+              fullWidth
+              onClick={(e) => {
+                e.stopPropagation();
+                setAnchor(null);
+                router.push(`/dice-creator?id=${cs.id}`);
+              }}
+              sx={{ fontSize: '0.7rem', py: 0.3 }}
+            >
+              Edit
+            </Button>
+          </Stack>
+        </Paper>
+      </Popper>
+    </Box>
+  );
+}
+
 export default function DiceCustomizer({ activeSkinId, isLoggedIn, onSelect, vertical, customSkins }: DiceCustomizerProps) {
   const router = useRouter();
   const [signupOpen, setSignupOpen] = useState(false);
@@ -203,30 +302,13 @@ export default function DiceCustomizer({ activeSkinId, isLoggedIn, onSelect, ver
                 const resolved = resolveCustomSkin(cs.id, cs.name, cs.emoji, cs.config);
                 const isActive = cs.id === activeSkinId;
                 return (
-                  <Tooltip key={cs.id} title={`${cs.emoji} ${cs.name}`}>
-                    <IconButton
-                      onClick={() => onSelect(resolved)}
-                      sx={{
-                        width: 34,
-                        height: 34,
-                        p: 0,
-                        border: isActive ? '2.5px solid' : '2px solid transparent',
-                        borderColor: isActive ? 'primary.main' : 'transparent',
-                        borderRadius: '50%',
-                        transition: 'all 150ms ease',
-                        '&:hover': { transform: 'scale(1.2)' },
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          width: 24,
-                          height: 24,
-                          borderRadius: '50%',
-                          background: resolved.swatchBg,
-                        }}
-                      />
-                    </IconButton>
-                  </Tooltip>
+                  <CustomSkinSwatch
+                    key={cs.id}
+                    cs={cs}
+                    resolved={resolved}
+                    isActive={isActive}
+                    onSelect={() => onSelect(resolved)}
+                  />
                 );
               })}
             </Box>
