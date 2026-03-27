@@ -295,7 +295,7 @@ export default function Home() {
           <InteractiveParticles count={100} />
         </Box>
 
-        <Container maxWidth="md" sx={{ position: "relative", zIndex: 1 }}>
+        <Container maxWidth="md" sx={{ position: "relative", zIndex: 1, pointerEvents: "none" }}>
           <motion.div style={{ y: smoothY, opacity: smoothOpacity }}>
             <Stack spacing={3} alignItems="center" textAlign="center">
               {/* Tagline */}
@@ -349,7 +349,7 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ duration: 0.6, delay: 1.2 }}
               >
-                <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
+                <Stack direction="row" spacing={2} sx={{ mt: 1, pointerEvents: "auto" }}>
                   <Link href="/find-a-game" style={{ textDecoration: "none" }}>
                     <MagneticButton strength={0.25} radius={120}>
                       <motion.div whileTap={{ scale: 0.95 }}>
