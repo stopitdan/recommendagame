@@ -332,7 +332,7 @@ export default function RandomGameView() {
   ];
 
   return (
-    <Container maxWidth="sm" sx={{ py: 4, textAlign: 'center', minHeight: '100vh' }}>
+    <Container maxWidth="md" sx={{ py: 4, textAlign: 'center', minHeight: '100vh' }}>
       <Stack spacing={3} alignItems="center">
         <Box>
           <Typography variant="h3" fontWeight={800} sx={{ mb: 1 }}>
@@ -343,21 +343,45 @@ export default function RandomGameView() {
           </Typography>
         </Box>
 
-        {/* 3D Physics Dice */}
-        <Box sx={{ width: '100%', maxWidth: 400 }} onClick={() => !rolling && rollDice()}>
-          <PhysicsDice
-            rolling={rolling}
-            onSettled={handleDiceSettled}
-            skin={activeSkin}
-          />
+        {/* Dice + Customizer — side-by-side on desktop, stacked on mobile */}
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', md: 'row' },
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: { xs: 2, md: 3 },
+            width: '100%',
+          }}
+        >
+          {/* Desktop: vertical customizer to the left */}
+          <Box sx={{ display: { xs: 'none', md: 'block' }, flexShrink: 0 }}>
+            <DiceCustomizer
+              activeSkinId={activeSkin.id}
+              isLoggedIn={isLoggedIn}
+              onSelect={handleSkinSelect}
+              vertical
+            />
+          </Box>
+
+          {/* 3D Physics Dice — always centered */}
+          <Box sx={{ width: '100%', maxWidth: 400 }} onClick={() => !rolling && rollDice()}>
+            <PhysicsDice
+              rolling={rolling}
+              onSettled={handleDiceSettled}
+              skin={activeSkin}
+            />
+          </Box>
         </Box>
 
-        {/* Dice skin customizer */}
-        <DiceCustomizer
-          activeSkinId={activeSkin.id}
-          isLoggedIn={isLoggedIn}
-          onSelect={handleSkinSelect}
-        />
+        {/* Mobile: horizontal customizer below the dice */}
+        <Box sx={{ display: { xs: 'block', md: 'none' }, width: '100%' }}>
+          <DiceCustomizer
+            activeSkinId={activeSkin.id}
+            isLoggedIn={isLoggedIn}
+            onSelect={handleSkinSelect}
+          />
+        </Box>
 
         {/* Dice result */}
         <AnimatePresence mode="wait">

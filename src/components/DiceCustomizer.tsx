@@ -62,6 +62,8 @@ interface DiceCustomizerProps {
   activeSkinId: string;
   isLoggedIn: boolean;
   onSelect: (skin: DiceSkin) => void;
+  /** When true, renders as a narrow vertical strip (2-3 columns) instead of a wide row */
+  vertical?: boolean;
 }
 
 /**
@@ -69,7 +71,7 @@ interface DiceCustomizerProps {
  * Animated swatches preview the shader effects.
  * Locked skins show a lock icon and prompt signup for guests.
  */
-export default function DiceCustomizer({ activeSkinId, isLoggedIn, onSelect }: DiceCustomizerProps) {
+export default function DiceCustomizer({ activeSkinId, isLoggedIn, onSelect, vertical }: DiceCustomizerProps) {
   const router = useRouter();
   const [signupOpen, setSignupOpen] = useState(false);
 
@@ -92,16 +94,21 @@ export default function DiceCustomizer({ activeSkinId, isLoggedIn, onSelect }: D
 
   return (
     <>
-      <Box sx={{ width: '100%', maxWidth: 440 }}>
-        <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
+      <Box sx={{ width: vertical ? 'auto' : '100%', maxWidth: vertical ? undefined : 440 }}>
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ mb: 1, display: 'block', textAlign: vertical ? 'center' : undefined }}
+        >
           Customize your dice
         </Typography>
         <Box
           sx={{
-            display: 'flex',
+            display: 'grid',
+            gridTemplateColumns: vertical ? 'repeat(3, 34px)' : 'repeat(auto-fill, 34px)',
             gap: 0.8,
-            flexWrap: 'wrap',
             justifyContent: 'center',
+            justifyItems: 'center',
           }}
         >
           {DICE_SKINS.map((skin) => {
