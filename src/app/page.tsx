@@ -253,18 +253,40 @@ export default function Home() {
             radial-gradient(ellipse 50% 50% at 90% 10%, ${alpha(theme.palette.info.light, 0.1)} 0%, transparent 50%),
             ${theme.palette.background.default}
           `,
-          // Subtle animated gradient shift via CSS animation
+          // Animated swirling gradient blobs
           '&::before': {
             content: '""',
             position: 'absolute',
-            inset: 0,
-            background: `radial-gradient(ellipse 100% 80% at 50% 50%, ${alpha(theme.palette.primary.main, 0.04)} 0%, transparent 70%)`,
-            animation: 'gradientShift 8s ease-in-out infinite alternate',
+            inset: '-20%',
+            background: `
+              radial-gradient(ellipse 40% 40% at 30% 30%, ${alpha(theme.palette.primary.light, 0.08)} 0%, transparent 70%),
+              radial-gradient(ellipse 35% 35% at 70% 60%, ${alpha(theme.palette.secondary.main, 0.06)} 0%, transparent 70%),
+              radial-gradient(ellipse 45% 30% at 50% 80%, ${alpha(theme.palette.info.main, 0.07)} 0%, transparent 70%)
+            `,
+            animation: 'gradientSwirl 20s ease-in-out infinite',
             pointerEvents: 'none',
           },
-          '@keyframes gradientShift': {
-            '0%': { transform: 'translate(-5%, -5%) scale(1.1)' },
-            '100%': { transform: 'translate(5%, 5%) scale(0.9)' },
+          '&::after': {
+            content: '""',
+            position: 'absolute',
+            inset: '-15%',
+            background: `
+              radial-gradient(ellipse 50% 40% at 60% 20%, ${alpha(theme.palette.info.main, 0.05)} 0%, transparent 60%),
+              radial-gradient(ellipse 30% 50% at 20% 70%, ${alpha(theme.palette.primary.main, 0.06)} 0%, transparent 60%)
+            `,
+            animation: 'gradientSwirl2 25s ease-in-out infinite',
+            pointerEvents: 'none',
+          },
+          '@keyframes gradientSwirl': {
+            '0%': { transform: 'translate(0%, 0%) rotate(0deg) scale(1)' },
+            '33%': { transform: 'translate(5%, -3%) rotate(3deg) scale(1.05)' },
+            '66%': { transform: 'translate(-3%, 5%) rotate(-2deg) scale(0.95)' },
+            '100%': { transform: 'translate(0%, 0%) rotate(0deg) scale(1)' },
+          },
+          '@keyframes gradientSwirl2': {
+            '0%': { transform: 'translate(0%, 0%) rotate(0deg)' },
+            '50%': { transform: 'translate(-4%, 4%) rotate(-4deg)' },
+            '100%': { transform: 'translate(0%, 0%) rotate(0deg)' },
           },
         }}
       >

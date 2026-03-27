@@ -2,45 +2,50 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import Stack from '@mui/material/Stack';
 import { useTheme, alpha } from '@mui/material/styles';
-
-const HISCORE_KEY = 'rag_meeple_hiscore';
+import { motion, AnimatePresence } from 'motion/react';
 
 /**
- * Meeple Runner — Chrome Dino-style side-scroller.
+ * Ball Runner — side-scroller game at the bottom of the landing page.
  *
- * Sits at the bottom of the landing page. Click/tap or press SPACE to start.
- * Once playing, the bar becomes fixed so you can play while scrolling.
- * When idle or dead, it scrolls with the page like normal content.
+ * A squishy ball bounces over stalagmites (ground spikes) and ducks
+ * under stalactites (ceiling spikes). The ball squishes on landing,
+ * stretches when jumping, and has a trail effect.
  *
- * UP/SPACE = jump, DOWN = duck. Obstacles are game-themed emojis.
- * Speed gradually increases. Score tracked.
+ * Click "Start Game" to play. SPACE/UP = jump, DOWN = duck.
+ * Score ticks up over time. High score persisted to localStorage.
  */
 
-// ─── Config (tuned for smooth, enjoyable gameplay) ───────────
+const HISCORE_KEY = 'rag_runner_hiscore';
 
-const GROUND_Y = 32;
-const GRAVITY = 0.45; // gentler gravity = floatier jumps
-const JUMP_FORCE = -9.5; // lower = not too snappy
-const INITIAL_SPEED = 1.8; // slow start
-const MAX_SPEED = 5.5; // reasonable max
-const SPEED_INCREMENT = 0.0008; // very gradual ramp
+// ─── Tuning ──────────────────────────────────────────────────
 
-// Obstacle spacing — wide variance for unpredictable rhythm
-const GAP_MIN = 90;
-const GAP_MAX = 260;
+const GROUND_Y = 28;
+const BALL_RADIUS = 10;
+const GRAVITY = 0.38;
+const JUMP_FORCE = -8;
+const DUCK_SQUISH = 0.4; // how flat the ball gets when ducking
 
-const GROUND_OBSTACLES = ['🎲', '♟️', '🏆', '🧩', '🎯', '🎳'];
-const AIR_OBSTACLES = ['🎮', '🃏', '⭐', '🕹️'];
+const INITIAL_SPEED = 1.5;
+const MAX_SPEED = 5;
+const SPEED_INCREMENT = 0.0006;
 
-interface Obstacle {
+const GAP_MIN = 110;
+const GAP_MAX = 300;
+
+// ─── Types ───────────────────────────────────────────────────
+
+interface Spike {
   x: number;
-  type: 'ground' | 'air';
-  emoji: string;
+  type: 'ground' | 'ceiling';
   width: number;
   height: number;
-  y: number;
 }
+
+// ─── Component ───────────────────────────────────────────────
 
 export default function MeepleRunner() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -50,91 +55,78 @@ export default function MeepleRunner() {
   const scoreRef = useRef(0);
   const highScoreRef = useRef(0);
   const speedRef = useRef(INITIAL_SPEED);
-  const meepleY = useRef(0);
-  const meepleVY = useRef(0);
+  const ballY = useRef(0);
+  const ballVY = useRef(0);
   const isDucking = useRef(false);
-  const obstacles = useRef<Obstacle[]>([]);
+  const spikes = useRef<Spike[]>([]);
   const frameCount = useRef(0);
-  const nextObstacleIn = useRef(120);
+  const nextSpikeIn = useRef(150);
+  const squishFactor = useRef(1); // 1 = normal, <1 = squished, >1 = stretched
 
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [uiState, setUiState] = useState<'idle' | 'playing' | 'dead'>('idle');
+  const [displayScore, setDisplayScore] = useState(0);
+  const [displayHi, setDisplayHi] = useState(0);
 
-  // Load high score from localStorage on mount
+  // Load high score
   useEffect(() => {
     try {
       const saved = localStorage.getItem(HISCORE_KEY);
-      if (saved) highScoreRef.current = parseInt(saved, 10) || 0;
+      if (saved) {
+        highScoreRef.current = parseInt(saved, 10) || 0;
+        setDisplayHi(highScoreRef.current);
+      }
     } catch {}
   }, []);
 
   const startGame = useCallback(() => {
     gameState.current = 'playing';
-    setIsPlaying(true);
+    setUiState('playing');
     scoreRef.current = 0;
     speedRef.current = INITIAL_SPEED;
-    meepleY.current = 0;
-    meepleVY.current = 0;
+    ballY.current = 0;
+    ballVY.current = 0;
     isDucking.current = false;
-    obstacles.current = [];
+    spikes.current = [];
     frameCount.current = 0;
-    nextObstacleIn.current = 120;
+    nextSpikeIn.current = 150;
+    squishFactor.current = 1;
+    setDisplayScore(0);
   }, []);
 
   const die = useCallback(() => {
     gameState.current = 'dead';
-    setIsPlaying(false);
+    setUiState('dead');
+    setDisplayScore(scoreRef.current);
     if (scoreRef.current > highScoreRef.current) {
       highScoreRef.current = scoreRef.current;
-      // Persist high score to localStorage
+      setDisplayHi(highScoreRef.current);
       try { localStorage.setItem(HISCORE_KEY, String(highScoreRef.current)); } catch {}
     }
   }, []);
 
   const jump = useCallback(() => {
-    if (meepleY.current <= 0.1) {
-      meepleVY.current = JUMP_FORCE;
+    if (ballY.current <= 0.5) {
+      ballVY.current = JUMP_FORCE;
+      squishFactor.current = 1.3; // stretch on jump
     }
   }, []);
 
-  // Keyboard input
+  // Keyboard
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (gameState.current === 'idle' || gameState.current === 'dead') {
-        if (e.key === ' ' || e.key === 'ArrowUp') {
-          e.preventDefault();
-          startGame();
-        }
+    const down = (e: KeyboardEvent) => {
+      if (gameState.current !== 'playing') {
+        if (e.key === ' ' || e.key === 'ArrowUp') { e.preventDefault(); startGame(); }
         return;
       }
-      if (gameState.current === 'playing') {
-        if (e.key === 'ArrowUp' || e.key === ' ') {
-          e.preventDefault();
-          jump();
-        }
-        if (e.key === 'ArrowDown') {
-          e.preventDefault();
-          isDucking.current = true;
-        }
-      }
+      if (e.key === 'ArrowUp' || e.key === ' ') { e.preventDefault(); jump(); }
+      if (e.key === 'ArrowDown') { e.preventDefault(); isDucking.current = true; }
     };
-    const handleKeyUp = (e: KeyboardEvent) => {
+    const up = (e: KeyboardEvent) => {
       if (e.key === 'ArrowDown') isDucking.current = false;
     };
-
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
-    };
-  }, [startGame, jump]);
-
-  const handleInteract = useCallback(() => {
-    if (gameState.current === 'idle' || gameState.current === 'dead') {
-      startGame();
-    } else {
-      jump();
-    }
+    window.addEventListener('keydown', down);
+    window.addEventListener('keyup', up);
+    return () => { window.removeEventListener('keydown', down); window.removeEventListener('keyup', up); };
   }, [startGame, jump]);
 
   // Game loop
@@ -148,7 +140,6 @@ export default function MeepleRunner() {
     };
     resize();
     window.addEventListener('resize', resize);
-
     let animId: number;
 
     const loop = () => {
@@ -161,69 +152,104 @@ export default function MeepleRunner() {
       ctx.scale(2, 2);
       ctx.clearRect(0, 0, w, h);
 
-      const groundLineY = h - GROUND_Y;
+      const groundY = h - GROUND_Y;
+      const ballX = 60;
 
       // Ground line
-      ctx.strokeStyle = alpha(theme.palette.divider, 0.25);
+      ctx.strokeStyle = alpha(theme.palette.divider, 0.2);
       ctx.lineWidth = 1;
-      ctx.setLineDash([6, 6]);
       ctx.beginPath();
-      ctx.moveTo(0, groundLineY);
-      ctx.lineTo(w, groundLineY);
+      ctx.moveTo(0, groundY);
+      ctx.lineTo(w, groundY);
       ctx.stroke();
-      ctx.setLineDash([]);
 
-      // ─── Update (only when playing) ───
+      // ─── Update ───
       if (gameState.current === 'playing') {
         frameCount.current++;
         speedRef.current = Math.min(MAX_SPEED, speedRef.current + SPEED_INCREMENT);
-        scoreRef.current = Math.floor(frameCount.current / 8);
+        scoreRef.current = Math.floor(frameCount.current / 10);
+
+        // Update score display every 10 frames
+        if (frameCount.current % 10 === 0) setDisplayScore(scoreRef.current);
 
         // Physics
-        meepleVY.current += GRAVITY;
-        meepleY.current -= meepleVY.current;
-        if (meepleY.current < 0) {
-          meepleY.current = 0;
-          meepleVY.current = 0;
+        ballVY.current += GRAVITY;
+        ballY.current -= ballVY.current;
+
+        if (ballY.current < 0) {
+          ballY.current = 0;
+          ballVY.current = 0;
+          squishFactor.current = 0.6; // squish on land
         }
 
-        // Spawn obstacles with randomized gaps
-        nextObstacleIn.current--;
-        if (nextObstacleIn.current <= 0) {
-          const isAir = Math.random() < 0.25 && scoreRef.current > 15;
-          const emojis = isAir ? AIR_OBSTACLES : GROUND_OBSTACLES;
+        // Squish recovery (spring back to 1.0)
+        squishFactor.current += (1 - squishFactor.current) * 0.12;
 
-          obstacles.current.push({
-            x: w + 30,
-            type: isAir ? 'air' : 'ground',
-            emoji: emojis[Math.floor(Math.random() * emojis.length)],
-            width: 20,
-            height: isAir ? 16 : 22,
-            y: isAir ? 30 : 0,
+        // Duck
+        if (isDucking.current && ballY.current <= 0.5) {
+          squishFactor.current = DUCK_SQUISH;
+        }
+
+        // Spawn spikes
+        nextSpikeIn.current--;
+        if (nextSpikeIn.current <= 0) {
+          // 70% ground spikes, 30% ceiling (only after score 20)
+          const isCeiling = Math.random() < 0.3 && scoreRef.current > 20;
+          const spikeH = isCeiling
+            ? 18 + Math.random() * 14 // ceiling: 18-32px tall
+            : 14 + Math.random() * 16; // ground: 14-30px tall
+
+          spikes.current.push({
+            x: w + 20,
+            type: isCeiling ? 'ceiling' : 'ground',
+            width: 10 + Math.random() * 8,
+            height: spikeH,
           });
 
-          // Random gap — wider variance for interesting rhythm
-          nextObstacleIn.current = GAP_MIN +
-            Math.random() * (GAP_MAX - GAP_MIN) *
-            Math.max(0.5, INITIAL_SPEED / speedRef.current);
+          nextSpikeIn.current = GAP_MIN + Math.random() * (GAP_MAX - GAP_MIN);
         }
 
-        // Move obstacles
-        for (const obs of obstacles.current) obs.x -= speedRef.current;
-        obstacles.current = obstacles.current.filter((o) => o.x > -40);
+        // Move spikes
+        for (const s of spikes.current) s.x -= speedRef.current;
+        spikes.current = spikes.current.filter((s) => s.x > -30);
 
         // Collision
-        const mx = 50;
-        const mh = isDucking.current ? 12 : 22;
-        const mBottom = meepleY.current;
-        const mTop = mBottom + mh;
+        const bEffectiveR = BALL_RADIUS * (isDucking.current ? DUCK_SQUISH : 1);
+        const bBottom = ballY.current;
+        const bTop = ballY.current + bEffectiveR * 2;
 
-        for (const obs of obstacles.current) {
+        for (const s of spikes.current) {
+          const sLeft = s.x;
+          const sRight = s.x + s.width;
+          let sBottom: number, sTop: number;
+
+          if (s.type === 'ground') {
+            sBottom = 0;
+            sTop = s.height;
+          } else {
+            // Ceiling spike hangs from top of play area
+            sTop = groundY; // visual top
+            sBottom = groundY - s.height;
+            // Convert to ball coordinate space (ball Y is offset from ground)
+            const ceilHitBottom = (groundY - s.height) - (groundY - GROUND_Y);
+            const ceilHitTop = GROUND_Y;
+            if (
+              ballX + BALL_RADIUS > sLeft &&
+              ballX - BALL_RADIUS < sRight &&
+              bTop > (GROUND_Y - s.height) &&
+              bBottom < GROUND_Y
+            ) {
+              die();
+              break;
+            }
+            continue;
+          }
+
+          // Ground spike collision
           if (
-            mx + 16 > obs.x &&
-            mx + 4 < obs.x + obs.width &&
-            mTop > obs.y &&
-            mBottom < obs.y + obs.height
+            ballX + BALL_RADIUS > sLeft &&
+            ballX - BALL_RADIUS < sRight &&
+            bBottom < sTop
           ) {
             die();
             break;
@@ -233,70 +259,81 @@ export default function MeepleRunner() {
 
       // ─── Draw ───
 
-      const mx = 50;
-      const mDrawY = groundLineY - meepleY.current;
-      const ducking = isDucking.current && gameState.current === 'playing';
+      // Draw spikes
+      for (const s of spikes.current) {
+        ctx.fillStyle = alpha(theme.palette.text.primary, 0.6);
 
-      // Meeple character — mirrored to face right using canvas transform
-      ctx.save();
-      ctx.translate(mx, 0);
-      ctx.scale(-1, 1); // flip horizontally so runner faces right
-
-      ctx.font = `${ducking ? 16 : 22}px serif`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'bottom';
-
-      const runFrame = Math.floor(frameCount.current / 8) % 2;
-      const char = gameState.current === 'dead' ? '😵'
-        : ducking ? '🏃'
-        : meepleY.current > 2 ? '🦘'
-        : runFrame === 0 ? '🏃' : '🏃‍♂️';
-
-      ctx.fillText(char, 0, mDrawY);
-      ctx.restore();
-
-      // Obstacles
-      for (const obs of obstacles.current) {
-        ctx.font = `${obs.height}px serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'bottom';
-        ctx.fillText(obs.emoji, obs.x + obs.width / 2, groundLineY - obs.y);
+        if (s.type === 'ground') {
+          // Triangle pointing up (stalagmite)
+          ctx.beginPath();
+          ctx.moveTo(s.x, groundY);
+          ctx.lineTo(s.x + s.width / 2, groundY - s.height);
+          ctx.lineTo(s.x + s.width, groundY);
+          ctx.closePath();
+          ctx.fill();
+        } else {
+          // Triangle pointing down (stalactite) from ceiling
+          const ceilY = groundY - GROUND_Y - 10; // top of play area
+          ctx.beginPath();
+          ctx.moveTo(s.x, ceilY);
+          ctx.lineTo(s.x + s.width / 2, ceilY + s.height);
+          ctx.lineTo(s.x + s.width, ceilY);
+          ctx.closePath();
+          ctx.fill();
+        }
       }
 
-      // Score (top right)
-      ctx.font = '600 11px "DM Sans", sans-serif';
-      ctx.fillStyle = theme.palette.text.secondary;
-      ctx.textAlign = 'right';
-      ctx.textBaseline = 'top';
-      ctx.fillText(`${scoreRef.current}`, w - 12, 8);
+      // Draw ball with squish
+      const drawY = groundY - ballY.current;
+      const sq = squishFactor.current;
+      const rx = BALL_RADIUS * (1 / sq); // wider when squished
+      const ry = BALL_RADIUS * sq; // shorter when squished
 
-      if (highScoreRef.current > 0) {
-        ctx.fillStyle = alpha(theme.palette.text.secondary, 0.4);
-        ctx.font = '500 9px "DM Sans", sans-serif';
-        ctx.fillText(`HI ${highScoreRef.current}`, w - 12, 22);
-      }
+      // Ball shadow
+      ctx.fillStyle = alpha(theme.palette.text.primary, 0.08);
+      ctx.beginPath();
+      ctx.ellipse(ballX, groundY + 2, rx * 0.8, 2, 0, 0, Math.PI * 2);
+      ctx.fill();
 
-      // Idle / dead messages
-      if (gameState.current === 'idle') {
-        ctx.font = '600 11px "DM Sans", sans-serif';
-        ctx.fillStyle = theme.palette.text.secondary;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('Press SPACE or tap to play', w / 2, h / 2 - 6);
-        ctx.font = '400 9px "DM Sans", sans-serif';
-        ctx.fillStyle = alpha(theme.palette.text.secondary, 0.5);
-        ctx.fillText('↑ Jump  ·  ↓ Duck', w / 2, h / 2 + 10);
-      }
+      // Ball body
+      const ballGrad = ctx.createRadialGradient(
+        ballX - rx * 0.3, drawY - ry * 0.3, 0,
+        ballX, drawY, rx,
+      );
+      ballGrad.addColorStop(0, theme.palette.secondary.main);
+      ballGrad.addColorStop(1, theme.palette.secondary.dark ?? theme.palette.secondary.main);
 
-      if (gameState.current === 'dead') {
-        ctx.font = '700 13px "DM Sans", sans-serif';
-        ctx.fillStyle = theme.palette.secondary.main;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('GAME OVER', w / 2, h / 2 - 8);
-        ctx.font = '400 9px "DM Sans", sans-serif';
-        ctx.fillStyle = theme.palette.text.secondary;
-        ctx.fillText(`Score: ${scoreRef.current}  ·  SPACE to retry`, w / 2, h / 2 + 8);
+      ctx.fillStyle = ballGrad;
+      ctx.beginPath();
+      ctx.ellipse(ballX, drawY - ry, rx, ry, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Ball highlight
+      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.beginPath();
+      ctx.ellipse(ballX - rx * 0.25, drawY - ry * 1.3, rx * 0.3, ry * 0.25, -0.3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Ball eye (cute!)
+      if (gameState.current !== 'dead') {
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(ballX + rx * 0.25, drawY - ry * 1.1, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = theme.palette.text.primary;
+        ctx.beginPath();
+        ctx.arc(ballX + rx * 0.35, drawY - ry * 1.1, 1.5, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        // X eyes when dead
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 1.5;
+        const ex = ballX + rx * 0.2;
+        const ey = drawY - ry * 1.1;
+        ctx.beginPath();
+        ctx.moveTo(ex - 2, ey - 2); ctx.lineTo(ex + 2, ey + 2);
+        ctx.moveTo(ex + 2, ey - 2); ctx.lineTo(ex - 2, ey + 2);
+        ctx.stroke();
       }
 
       ctx.restore();
@@ -304,37 +341,103 @@ export default function MeepleRunner() {
     };
 
     animId = requestAnimationFrame(loop);
-    return () => {
-      cancelAnimationFrame(animId);
-      window.removeEventListener('resize', resize);
-    };
+    return () => { cancelAnimationFrame(animId); window.removeEventListener('resize', resize); };
   }, [theme, die]);
 
   return (
     <Box
       sx={{
-        // Fixed only while actively playing — otherwise scrolls with page
-        position: isPlaying ? 'fixed' : 'relative',
-        bottom: isPlaying ? 0 : 'auto',
+        position: uiState === 'playing' ? 'fixed' : 'relative',
+        bottom: uiState === 'playing' ? 0 : 'auto',
         left: 0,
         right: 0,
-        height: { xs: 80, md: 90 },
-        zIndex: isPlaying ? 50 : 1,
+        height: { xs: 90, md: 100 },
+        zIndex: uiState === 'playing' ? 50 : 1,
         borderTop: '1px solid',
         borderColor: 'divider',
-        bgcolor: alpha(theme.palette.background.default, isPlaying ? 0.92 : 0.6),
-        backdropFilter: isPlaying ? 'blur(12px)' : 'blur(4px)',
-        cursor: 'pointer',
+        bgcolor: alpha(theme.palette.background.default, uiState === 'playing' ? 0.95 : 0.7),
+        backdropFilter: uiState === 'playing' ? 'blur(12px)' : 'blur(4px)',
         overflow: 'hidden',
-        transition: 'background-color 300ms ease',
       }}
-      onClick={handleInteract}
-      onTouchStart={handleInteract}
     >
+      {/* Canvas (always renders) */}
       <canvas
         ref={canvasRef}
-        style={{ width: '100%', height: '100%', display: 'block' }}
+        onClick={() => { if (uiState === 'playing') jump(); }}
+        onTouchStart={() => { if (uiState === 'playing') jump(); }}
+        style={{ width: '100%', height: '100%', display: 'block', cursor: uiState === 'playing' ? 'pointer' : 'default' }}
       />
+
+      {/* Overlay UI for idle/dead states */}
+      <AnimatePresence>
+        {uiState !== 'playing' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 5,
+            }}
+          >
+            <Stack direction="row" spacing={3} alignItems="center">
+              {uiState === 'dead' && (
+                <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+                  Score: {displayScore}
+                </Typography>
+              )}
+
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={startGame}
+                sx={{
+                  borderRadius: 2,
+                  px: 3,
+                  fontWeight: 700,
+                  fontSize: '0.8rem',
+                  borderColor: 'secondary.main',
+                  color: 'secondary.main',
+                  '&:hover': { borderColor: 'secondary.dark', bgcolor: alpha(theme.palette.secondary.main, 0.08) },
+                }}
+              >
+                {uiState === 'dead' ? 'Play Again' : 'Start Game'}
+              </Button>
+
+              {displayHi > 0 && (
+                <Typography variant="caption" sx={{ color: 'text.disabled', fontWeight: 500 }}>
+                  Best: {displayHi}
+                </Typography>
+              )}
+
+              {uiState === 'idle' && (
+                <Typography variant="caption" sx={{ color: 'text.disabled', display: { xs: 'none', md: 'block' } }}>
+                  ↑ Jump · ↓ Duck
+                </Typography>
+              )}
+            </Stack>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Score display during gameplay */}
+      {uiState === 'playing' && (
+        <Box sx={{ position: 'absolute', top: 8, right: 16, zIndex: 5 }}>
+          <Typography variant="body2" sx={{ fontWeight: 700, color: 'text.secondary', fontFamily: 'monospace', fontSize: '0.85rem' }}>
+            {String(displayScore).padStart(5, '0')}
+          </Typography>
+          {displayHi > 0 && (
+            <Typography variant="caption" sx={{ color: 'text.disabled', fontFamily: 'monospace', fontSize: '0.65rem' }}>
+              HI {String(displayHi).padStart(5, '0')}
+            </Typography>
+          )}
+        </Box>
+      )}
     </Box>
   );
 }

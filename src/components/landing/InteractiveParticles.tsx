@@ -48,25 +48,36 @@ export default function InteractiveParticles({ count = 120 }: { count?: number }
       const dist = Math.sqrt(dx * dx + dy * dy);
       const interactRadius = 150;
 
-      // Push particles away from cursor
+      // Push particles away from cursor (gentler force)
       if (dist < interactRadius && dist > 0) {
         const force = (interactRadius - dist) / interactRadius;
         const angle = Math.atan2(dy, dx);
-        p.vx += Math.cos(angle) * force * 0.8;
-        p.vy += Math.sin(angle) * force * 0.8;
+        p.vx += Math.cos(angle) * force * 0.4;
+        p.vy += Math.sin(angle) * force * 0.4;
       }
+
+      // Gentle pull back toward original area (prevents all particles leaving)
+      const centerX = w / 2;
+      const centerY = h / 2;
+      p.vx += (centerX - p.x) * 0.00015;
+      p.vy += (centerY - p.y) * 0.00015;
+
+      // Cap velocity so particles don't fly off screen
+      const maxV = 3;
+      p.vx = Math.max(-maxV, Math.min(maxV, p.vx));
+      p.vy = Math.max(-maxV, Math.min(maxV, p.vy));
 
       // Drift + friction
       p.x += p.vx;
       p.y += p.vy;
-      p.vx *= 0.97;
-      p.vy *= 0.97;
+      p.vx *= 0.96;
+      p.vy *= 0.96;
 
       // Wrap edges
-      if (p.x < -10) p.x = w + 10;
-      if (p.x > w + 10) p.x = -10;
-      if (p.y < -10) p.y = h + 10;
-      if (p.y > h + 10) p.y = -10;
+      if (p.x < -20) p.x = w + 20;
+      if (p.x > w + 20) p.x = -20;
+      if (p.y < -20) p.y = h + 20;
+      if (p.y > h + 20) p.y = -20;
 
       // Glow when near mouse
       const glow = dist < interactRadius ? (interactRadius - dist) / interactRadius : 0;
