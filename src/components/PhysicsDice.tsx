@@ -3,27 +3,23 @@
 import { useRef, useEffect, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { type DiceSkin, type DiceSkinType, getSkin, getEmojiForFace, DEFAULT_SKIN_ID } from '@/lib/dice-skins';
+import { getShaderCode } from '@/lib/dice-shaders';
 
 /**
  * 3D D20 with physically correct rigid body rotation.
+ *
+ * Supports three material modes:
+ * - solid: MeshStandardMaterial with a flat color
+ * - shader: Custom GLSL ShaderMaterial with time-based animation
+ * - emoji: MeshStandardMaterial + emoji face labels instead of numbers
  *
  * Physics: A regular icosahedron is a "spherical top" — all three
  * principal moments of inertia are equal (I1 = I2 = I3). For a
  * torque-free spherical top, angular velocity omega is CONSTANT
  * in the world frame (conservation of angular momentum).
  *
- * This means: every frame we apply the exact same incremental
- * rotation quaternion. No direction changes, no wobble artifacts.
- * The die spins around a fixed axis in space, which has components
- * on all 3 coordinate axes for realistic multi-axis tumble.
- *
  * Integration: q(t+dt) = deltaQ * q(t)
- * where deltaQ = Quaternion.setFromAxisAngle(omega.normalized(), |omega| * dt)
- *
- * Sources:
- * - Ashwin Narayan, "How to Integrate Quaternions"
- * - Euler's equations for torque-free rigid body dynamics
- * - Three.js Quaternion.premultiply for world-frame rotation
  */
 
 // ─── Compute face data from icosahedron geometry ─────────────
@@ -66,7 +62,11 @@ const INITIAL_QUAT = new THREE.Quaternion().setFromUnitVectors(
 
 // ─── Create number texture via canvas ────────────────────────
 
-function createNumberTexture(num: number): THREE.CanvasTexture {
+function createNumberTexture(
+  num: number,
+  color = '#FFFFFF',
+  shadowColor = 'rgba(0,0,0,0.5)',
+): THREE.CanvasTexture {
   const size = 128;
   const canvas = document.createElement('canvas');
   canvas.width = size;
@@ -74,9 +74,9 @@ function createNumberTexture(num: number): THREE.CanvasTexture {
   const ctx = canvas.getContext('2d')!;
 
   ctx.clearRect(0, 0, size, size);
-  ctx.shadowColor = 'rgba(0,0,0,0.5)';
+  ctx.shadowColor = shadowColor;
   ctx.shadowBlur = 4;
-  ctx.fillStyle = '#FFFFFF';
+  ctx.fillStyle = color;
   ctx.font = `bold ${num > 9 ? 48 : 56}px Arial, sans-serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -87,12 +87,50 @@ function createNumberTexture(num: number): THREE.CanvasTexture {
   return tex;
 }
 
-// ─── Number labels on faces ──────────────────────────────────
+// ─── Create emoji texture via canvas ─────────────────────────
 
-function FaceLabels({ faces }: { faces: FaceData[] }) {
-  const textures = useMemo(() =>
-    Array.from({ length: 20 }, (_, i) => createNumberTexture(i + 1)),
-  []);
+function createEmojiTexture(num: number, skinId: string): THREE.CanvasTexture {
+  const size = 128;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d')!;
+
+  ctx.clearRect(0, 0, size, size);
+
+  // Emoji expression based on face value
+  const emoji = getEmojiForFace(num, skinId);
+  ctx.font = '52px serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(emoji, size / 2, size / 2 - 8);
+
+  // Small number below
+  ctx.shadowColor = 'rgba(0,0,0,0.5)';
+  ctx.shadowBlur = 3;
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = 'bold 20px Arial, sans-serif';
+  ctx.fillText(String(num), size / 2, size - 16);
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.needsUpdate = true;
+  return tex;
+}
+
+// ─── Face labels on the die ──────────────────────────────────
+
+function FaceLabels({ faces, skin }: {
+  faces: FaceData[];
+  skin: DiceSkin;
+}) {
+  const textures = useMemo(() => {
+    if (skin.type === 'emoji') {
+      return Array.from({ length: 20 }, (_, i) => createEmojiTexture(i + 1, skin.id));
+    }
+    return Array.from({ length: 20 }, (_, i) =>
+      createNumberTexture(i + 1, skin.label, skin.labelShadow),
+    );
+  }, [skin.id, skin.type, skin.label, skin.labelShadow]);
 
   return (
     <>
@@ -117,6 +155,33 @@ function FaceLabels({ faces }: { faces: FaceData[] }) {
   );
 }
 
+// ─── Shader material for animated skins ──────────────────────
+
+function ShaderDiceMaterial({ shaderKey }: { shaderKey: string }) {
+  const matRef = useRef<THREE.ShaderMaterial>(null!);
+
+  const material = useMemo(() => {
+    const code = getShaderCode(shaderKey);
+    if (!code) return null;
+    return new THREE.ShaderMaterial({
+      vertexShader: code.vertex,
+      fragmentShader: code.fragment,
+      uniforms: {
+        uTime: { value: 0 },
+      },
+    });
+  }, [shaderKey]);
+
+  useFrame((_, delta) => {
+    if (matRef.current) {
+      matRef.current.uniforms.uTime.value += delta;
+    }
+  });
+
+  if (!material) return null;
+  return <primitive ref={matRef} object={material} attach="material" />;
+}
+
 // ─── Animated D20 with rigid body physics ────────────────────
 
 type Phase = 'idle' | 'shrink' | 'flight' | 'decel' | 'settle' | 'present';
@@ -133,9 +198,11 @@ const TO_CAMERA = new THREE.Vector3(0, -0.2, 7).normalize();
 function AnimatedD20({
   rolling,
   onSettled,
+  skin,
 }: {
   rolling: boolean;
   onSettled: (value: number) => void;
+  skin: DiceSkin;
 }) {
   const groupRef = useRef<THREE.Group>(null);
 
@@ -149,21 +216,14 @@ function AnimatedD20({
   const state = useRef({
     phase: 'idle' as Phase,
     phaseStart: 0,
-    // Angular velocity vector (rad/s) — constant during flight
     omega: new THREE.Vector3(),
-    // Current omega magnitude (decays during decel phase)
     speed: 0,
-    // Spin axis (drifts slowly via precession)
     axis: new THREE.Vector3(0, 1, 0),
-    // Precession: axis around which the spin axis slowly rotates
     precessionAxis: new THREE.Vector3(1, 0, 0),
-    precessionRate: 0, // rad/s — how fast the spin axis drifts
-    // Reusable quaternion for incremental rotation
+    precessionRate: 0,
     deltaQ: new THREE.Quaternion(),
-    // Settle targets
     settleFrom: new THREE.Quaternion(),
     settleTo: new THREE.Quaternion(),
-    // Result
     resultValue: 1,
     resultReported: false,
   });
@@ -176,7 +236,6 @@ function AnimatedD20({
     state.current.phaseStart = 0;
   }
 
-  /** Find nearest face to camera and compute landing quaternion */
   function computeLanding(group: THREE.Group): { value: number; quat: THREE.Quaternion } {
     const worldNormal = new THREE.Vector3();
     let bestDot = -Infinity;
@@ -200,8 +259,6 @@ function AnimatedD20({
 
   useEffect(() => {
     if (rolling && !lastRolling.current) {
-      // Random angular velocity: all 3 axes for multi-axis tumble
-      // Magnitude 15-25 rad/s for a satisfying spin speed
       const omega = new THREE.Vector3(
         (Math.random() - 0.5) * 2,
         (Math.random() - 0.5) * 2,
@@ -212,20 +269,16 @@ function AnimatedD20({
       state.current.speed = omega.length();
       state.current.axis.copy(omega).normalize();
 
-      // Precession: the spin axis slowly rotates around a perpendicular axis.
-      // This makes the tumble direction evolve smoothly — like a top wobbling.
-      // Rate is gentle (0.8-1.5 rad/s) so it drifts gradually, never reverses.
       const precAxis = new THREE.Vector3(
         Math.random() - 0.5,
         Math.random() - 0.5,
         Math.random() - 0.5,
       ).normalize();
-      // Make it perpendicular to the spin axis
       precAxis.addScaledVector(state.current.axis, -precAxis.dot(state.current.axis));
       precAxis.normalize();
 
       state.current.precessionAxis.copy(precAxis);
-      state.current.precessionRate = 1.5 + Math.random() * 1.0; // 1.5-2.5 rad/s
+      state.current.precessionRate = 1.5 + Math.random() * 1.0;
       state.current.resultReported = false;
 
       if (scaleRef.current > 0.95) {
@@ -246,7 +299,6 @@ function AnimatedD20({
     const elapsed = (performance.now() - s.phaseStart) / 1000;
 
     switch (s.phase) {
-      // ── Shrink before re-roll ──
       case 'shrink': {
         const t = Math.min(elapsed / SHRINK_DUR, 1);
         scaleRef.current = 1.08 - t * 0.78;
@@ -259,33 +311,24 @@ function AnimatedD20({
         break;
       }
 
-      // ── Free flight: constant angular velocity (real physics) ──
       case 'flight': {
         const t = Math.min(elapsed / FLIGHT_DUR, 1);
 
-        // Scale back up at start
         if (scaleRef.current < 1) {
           const growT = Math.min(elapsed / 0.3, 1);
           scaleRef.current = 0.3 + 0.7 * (1 - Math.pow(1 - growT, 3));
           group.scale.setScalar(scaleRef.current);
         }
 
-        // Precess the spin axis: slowly rotate it around the precession axis.
-        // This makes the tumble direction evolve smoothly over time.
         const precAngle = s.precessionRate * dt;
         const precQ = new THREE.Quaternion().setFromAxisAngle(s.precessionAxis, precAngle);
         s.axis.applyQuaternion(precQ).normalize();
 
-        // Integrate rotation: q(t+dt) = deltaQ * q(t)
         const theta = s.speed * dt;
         s.deltaQ.setFromAxisAngle(s.axis, theta);
         group.quaternion.premultiply(s.deltaQ);
         group.quaternion.normalize();
 
-        // Bouncing ball physics: each bounce has a parabolic arc (gravity)
-        // and takes ~65% as long as the previous (coefficient of restitution)
-        // Heights: 0.55 → 0.30 → 0.16 → 0.08 → 0.03
-        // Durations: 0.35 → 0.23 → 0.15 → 0.10 → 0.06 (total ~0.89)
         const bounces = [
           { dur: 0.40, h: 1.1 },
           { dur: 0.30, h: 0.55 },
@@ -294,11 +337,9 @@ function AnimatedD20({
           { dur: 0.07, h: 0.03 },
         ];
         let bounceY = 0;
-        let bt = t; // time cursor
+        let bt = t;
         for (const b of bounces) {
           if (bt < b.dur) {
-            // Parabolic arc: rises and falls like real gravity
-            // y = 4h * x * (1-x) where x = bt/dur (peaks at x=0.5)
             const x = bt / b.dur;
             bounceY = 4 * b.h * x * (1 - x);
             break;
@@ -316,26 +357,20 @@ function AnimatedD20({
         break;
       }
 
-      // ── Deceleration: friction slowing the spin ──
       case 'decel': {
         const t = Math.min(elapsed / DECEL_DUR, 1);
-
-        // Exponential decay of speed (same axis direction, just slower)
         const decayedSpeed = s.speed * Math.exp(-3.0 * t);
 
-        // Precession continues but also decays (less drift as die slows)
         const precAngle = s.precessionRate * Math.exp(-2.0 * t) * dt;
         const precQ = new THREE.Quaternion().setFromAxisAngle(s.precessionAxis, precAngle);
         s.axis.applyQuaternion(precQ).normalize();
 
-        // Integrate rotation with decaying speed
         const theta = decayedSpeed * dt;
         s.deltaQ.setFromAxisAngle(s.axis, theta);
         group.quaternion.premultiply(s.deltaQ);
         group.quaternion.normalize();
 
         if (t >= 1) {
-          // Die is nearly stopped — find nearest face and settle
           const { value, quat } = computeLanding(group);
           s.settleFrom.copy(group.quaternion);
           s.settleTo.copy(quat);
@@ -345,10 +380,8 @@ function AnimatedD20({
         break;
       }
 
-      // ── Settle: tiny SLERP to exact flat face ──
       case 'settle': {
         const t = Math.min(elapsed / SETTLE_DUR, 1);
-        // Quadratic ease-out: gentle final adjustment
         const ease = t * (2 - t);
         group.quaternion.slerpQuaternions(s.settleFrom, s.settleTo, ease);
 
@@ -359,7 +392,6 @@ function AnimatedD20({
         break;
       }
 
-      // ── Present: grow slightly to highlight the result ──
       case 'present': {
         const t = Math.min(elapsed / PRESENT_DUR, 1);
         const spring = 1 + 0.08 * (1 - Math.pow(1 - t, 3)) + 0.04 * Math.sin(t * Math.PI);
@@ -381,18 +413,24 @@ function AnimatedD20({
     }
   });
 
+  const isShader = skin.type === 'shader' && skin.shaderKey;
+
   return (
     <group ref={groupRef}>
       <mesh castShadow>
         <icosahedronGeometry args={[0.85, 0]} />
-        <meshStandardMaterial
-          color="#5B4FDB"
-          metalness={0.3}
-          roughness={0.4}
-          flatShading
-        />
+        {isShader ? (
+          <ShaderDiceMaterial shaderKey={skin.shaderKey!} />
+        ) : (
+          <meshStandardMaterial
+            color={skin.body}
+            metalness={skin.metalness}
+            roughness={skin.roughness}
+            flatShading
+          />
+        )}
       </mesh>
-      <FaceLabels faces={globalFaces} />
+      <FaceLabels faces={globalFaces} skin={skin} />
     </group>
   );
 }
@@ -402,9 +440,13 @@ function AnimatedD20({
 interface PhysicsDiceProps {
   rolling: boolean;
   onSettled: (value: number) => void;
+  /** Full skin object — controls colors, material, and label style */
+  skin?: DiceSkin;
 }
 
-export default function PhysicsDice({ rolling, onSettled }: PhysicsDiceProps) {
+export default function PhysicsDice({ rolling, onSettled, skin }: PhysicsDiceProps) {
+  const activeSkin = skin ?? getSkin(DEFAULT_SKIN_ID);
+
   return (
     <div style={{ width: '100%', height: 300, cursor: 'pointer', borderRadius: 16, overflow: 'hidden' }}>
       <Canvas
@@ -414,8 +456,8 @@ export default function PhysicsDice({ rolling, onSettled }: PhysicsDiceProps) {
       >
         <ambientLight intensity={0.6} />
         <directionalLight position={[3, 5, 3]} intensity={1.2} />
-        <pointLight position={[-2, 3, -1]} intensity={0.3} color="#FF6D3F" />
-        <AnimatedD20 rolling={rolling} onSettled={onSettled} />
+        <pointLight position={[-2, 3, -1]} intensity={0.3} color={activeSkin.accent} />
+        <AnimatedD20 rolling={rolling} onSettled={onSettled} skin={activeSkin} />
       </Canvas>
     </div>
   );

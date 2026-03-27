@@ -193,6 +193,7 @@ export interface UserPreferencesRow {
   liked_mechanics: string[];
   disliked_mechanics: string[];
   preference_vector: number[] | null;
+  dice_skin: string | null;
   updated_at: string;
 }
 
@@ -210,6 +211,7 @@ export interface UserPreferencesInsert {
   liked_mechanics?: string[];
   disliked_mechanics?: string[];
   preference_vector?: number[] | null;
+  dice_skin?: string | null;
 }
 
 export type UserPreferencesUpdate = Partial<Omit<UserPreferencesInsert, 'id'>>;

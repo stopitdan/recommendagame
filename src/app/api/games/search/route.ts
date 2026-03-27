@@ -172,18 +172,8 @@ async function searchLocalDb(query: string, limit: number): Promise<Game[]> {
     return (rpcResults as GameRow[]).map(rowToGame);
   }
 
-  // Fallback: ILIKE search for partial matches
-  const { data: ilikeResults } = await supabase
-    .from('games')
-    .select('*')
-    .ilike('name', `%${query}%`)
-    .order('rating_count', { ascending: false, nullsFirst: false })
-    .limit(limit);
-
-  if (ilikeResults && ilikeResults.length > 0) {
-    return (ilikeResults as GameRow[]).map(rowToGame);
-  }
-
+  // Full-text search covers partial matches — no ILIKE fallback needed.
+  // (ILIKE '%query%' causes full table scans on 178k rows = 60+ seconds)
   return [];
 }
 

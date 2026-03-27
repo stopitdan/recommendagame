@@ -17,7 +17,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import type { GameRow } from '@/types/supabase';
-import { rowToGame } from '@/lib/supabase/games';
+import { rowToGame, GAME_SELECT_COLUMNS } from '@/lib/supabase/games';
 import { redisCache } from '@/lib/redis';
 import type { Game } from '@/types/game';
 
@@ -26,7 +26,7 @@ import type { Game } from '@/types/game';
 const REDIS_PREFIX = 'pop';
 const TTL_SECONDS = 86400; // 24 hours
 
-const GAME_COLUMNS = 'id,source,source_id,name,description,year_published,types,min_players,max_players,recommended_players,min_play_time,max_play_time,avg_play_time,complexity,rating,rating_count,categories,mechanics,themes,platforms,thumbnail_url,image_url,source_url';
+const GAME_COLUMNS = GAME_SELECT_COLUMNS;
 
 const POPULAR_CATEGORIES = [
   'Strategy', 'Family', 'Party', 'Cooperative', 'RPG', 'Adventure',

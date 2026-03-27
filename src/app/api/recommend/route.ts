@@ -18,7 +18,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import type { GameRow } from '@/types/supabase';
 import type { QuestionnaireState } from '@/types/questionnaire';
-import { rowToGame } from '@/lib/supabase/games';
+import { rowToGame, GAME_SELECT_COLUMNS } from '@/lib/supabase/games';
 import {
   scoreGames,
   DEFAULT_WEIGHTS,
@@ -133,13 +133,13 @@ export async function POST(request: NextRequest) {
     const allTags = collectSearchTags(body);
 
     const [ratingCandidates, vectorCandidates, textCandidates, tagCandidates] = await Promise.all([
-      fetchCandidates(supabase, body, popularity, extra),
-      fetchVectorCandidates(body, { limit: VECTOR_POOL_SIZE, columns: GAME_COLUMNS, supabaseClient: supabase }),
+      withTimeout(fetchCandidates(supabase, body, popularity, extra), 8000, []),
+      withTimeout(fetchVectorCandidates(body, { limit: VECTOR_POOL_SIZE, columns: GAME_COLUMNS, supabaseClient: supabase }), 8000, []),
       body.freeText && body.freeText.trim().length >= 3
-        ? fetchTextSearchCandidates(supabase, body.freeText)
+        ? withTimeout(fetchTextSearchCandidates(supabase, body.freeText), 5000, [])
         : Promise.resolve([]),
       allTags.length > 0
-        ? fetchTagCandidates(supabase, allTags)
+        ? withTimeout(fetchTagCandidates(supabase, allTags), 5000, [])
         : Promise.resolve([]),
     ]);
 
@@ -272,8 +272,8 @@ export async function POST(request: NextRequest) {
 
 // ─── Candidate Fetching ──────────────────────────────────────
 
-/** Column list for game queries */
-const GAME_COLUMNS = 'id,source,source_id,name,description,year_published,types,min_players,max_players,recommended_players,min_play_time,max_play_time,avg_play_time,complexity,rating,rating_count,categories,mechanics,themes,platforms,thumbnail_url,image_url,source_url';
+/** Column list for game queries — imported from shared constant */
+const GAME_COLUMNS = GAME_SELECT_COLUMNS;
 
 /**
  * Fetch candidates with MINIMAL hard constraints.
@@ -390,35 +390,21 @@ async function fetchTextSearchCandidates(
 }
 
 /**
- * Searches game descriptions for the top 2-3 meaningful keywords
- * from the user's free text. Uses ilike (no special index needed).
+ * Searches game descriptions using full-text search RPC (GIN-indexed).
+ * Replaces the old ILIKE approach that caused full table scans.
  */
 async function fetchDescriptionMatches(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabase: any,
   freeText: string,
 ): Promise<GameRow[]> {
-  // Extract the 2 longest non-stop-word keywords
-  const stopWords = new Set(['i', 'a', 'an', 'the', 'for', 'and', 'or', 'but', 'to', 'of', 'in', 'on', 'my', 'me', 'we', 'with', 'some', 'want', 'like', 'game', 'games', 'something', 'looking', 'that', 'not', 'too', 'very', 'just', 'really']);
-  const words = freeText.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/)
-    .filter((w) => w.length >= 4 && !stopWords.has(w))
-    .sort((a, b) => b.length - a.length)
-    .slice(0, 2);
+  const trimmed = freeText.trim();
+  if (trimmed.length < 3) return [];
 
-  if (words.length === 0) return [];
-
-  // Search description for each keyword
-  let query = supabase
-    .from('games')
-    .select(GAME_COLUMNS);
-
-  for (const word of words) {
-    query = query.ilike('description', `%${word}%`);
-  }
-
-  const { data, error } = await query
-    .order('rating', { ascending: false, nullsFirst: false })
-    .limit(30);
+  const { data, error } = await supabase.rpc('search_games_by_description', {
+    search_query: trimmed,
+    result_limit: 30,
+  });
 
   if (error || !data) return [];
   return data as GameRow[];
@@ -575,15 +561,15 @@ async function resolveSimilarToGames(
   const allTags: string[] = [];
 
   const lookups = similarTo.slice(0, 5).map(async (name) => {
-    const { data } = await supabase
-      .from('games')
-      .select('categories, mechanics, themes')
-      .ilike('name', `%${name}%`)
-      .limit(1)
-      .single();
+    // Use full-text search RPC instead of ILIKE (uses GIN index)
+    const { data } = await supabase.rpc('search_games_by_name', {
+      search_query: name,
+      result_limit: 1,
+    });
 
-    if (data) {
-      allTags.push(...(data.categories ?? []), ...(data.mechanics ?? []), ...(data.themes ?? []));
+    if (data && data.length > 0) {
+      const row = data[0];
+      allTags.push(...(row.categories ?? []), ...(row.mechanics ?? []), ...(row.themes ?? []));
     }
   });
 
@@ -592,6 +578,14 @@ async function resolveSimilarToGames(
 }
 
 // ─── Helpers ─────────────────────────────────────────────────
+
+/** Wraps a promise with a timeout — returns fallback if the promise doesn't resolve in time. */
+function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((resolve) => setTimeout(() => resolve(fallback), ms)),
+  ]);
+}
 
 function getWeightsForMode(popularity: PopularityMode): ScoringWeights {
   switch (popularity) {

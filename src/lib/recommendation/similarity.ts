@@ -14,7 +14,7 @@
 import { createClient } from '@supabase/supabase-js';
 import type { QuestionnaireState } from '@/types/questionnaire';
 import type { Game } from '@/types/game';
-import { rowToGame } from '@/lib/supabase/games';
+import { rowToGame, GAME_SELECT_COLUMNS } from '@/lib/supabase/games';
 import { preferencesToVector, enrichedPreferencesToVector, cosineSimilarity, gameToVector, normalize } from './embeddings';
 import { preferencesToText, embedText } from './semantic-embeddings';
 
@@ -80,7 +80,7 @@ export async function findSimilarToPreferences(
   const gameIds = data.map((d: { game_id: string }) => d.game_id);
   const { data: gameRows, error: gamesError } = await supabase
     .from('games')
-    .select('*')
+    .select(GAME_SELECT_COLUMNS)
     .in('id', gameIds);
 
   if (gamesError || !gameRows) return [];
@@ -228,7 +228,7 @@ export async function findSimilarToGame(
 
   const { data: gameRows, error: gamesError } = await supabase
     .from('games')
-    .select('*')
+    .select(GAME_SELECT_COLUMNS)
     .in('id', gameIds);
 
   if (gamesError || !gameRows) return [];

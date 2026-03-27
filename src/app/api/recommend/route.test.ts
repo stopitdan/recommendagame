@@ -23,10 +23,26 @@ vi.mock('@/lib/redis', () => ({
   },
 }));
 
+// --- Mock rejection learning (no real DB in tests) ---
+vi.mock('@/lib/recommendation/rejection', () => ({
+  buildRejectionProfile: vi.fn().mockResolvedValue(null),
+  computeRejectionPenalty: vi.fn().mockReturnValue(0),
+}));
+
+// --- Mock popularity cache (no real Redis in tests) ---
+vi.mock('@/lib/recommendation/popularity-cache', () => ({
+  getPopularFallback: vi.fn().mockResolvedValue([]),
+}));
+
+// --- Mock diversity (pass-through) ---
+vi.mock('@/lib/recommendation/diversity', () => ({
+  diversityRerank: vi.fn().mockImplementation((scored: unknown[]) => scored),
+}));
+
 // --- Mock Supabase with factory (no external refs) ---
 vi.mock('@supabase/supabase-js', () => {
   const chainable: Record<string, ReturnType<typeof vi.fn>> = {};
-  const methods = ['select', 'not', 'contains', 'gt', 'lt', 'gte', 'lte', 'order', 'limit', 'or', 'textSearch', 'ilike', 'single', 'eq'];
+  const methods = ['select', 'not', 'contains', 'gt', 'lt', 'gte', 'lte', 'order', 'limit', 'or', 'textSearch', 'ilike', 'single', 'eq', 'in', 'rpc'];
   for (const m of methods) {
     chainable[m] = vi.fn();
   }
@@ -35,12 +51,14 @@ vi.mock('@supabase/supabase-js', () => {
   }
 
   const mockFrom = vi.fn().mockReturnValue(chainable);
-  const mockClient = { from: mockFrom };
+  const mockRpc = vi.fn().mockResolvedValue({ data: [], error: null });
+  const mockClient = { from: mockFrom, rpc: mockRpc };
 
   return {
     createClient: vi.fn().mockReturnValue(mockClient),
     __chain: chainable,
     __from: mockFrom,
+    __rpc: mockRpc,
   };
 });
 
@@ -120,6 +138,8 @@ beforeEach(() => {
       fn.mockResolvedValue({ data: [], error: null });
     } else if (key === 'single') {
       fn.mockResolvedValue({ data: null, error: null });
+    } else if (key === 'rpc') {
+      fn.mockResolvedValue({ data: [], error: null });
     } else {
       fn.mockReturnValue(chain);
     }

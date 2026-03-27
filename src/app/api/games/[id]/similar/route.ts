@@ -8,7 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { rowToGame } from '@/lib/supabase/games';
+import { rowToGame, GAME_SELECT_COLUMNS } from '@/lib/supabase/games';
 import { gameToVector, normalize, cosineSimilarity } from '@/lib/recommendation/embeddings';
 import { similarGamesCache } from '@/lib/cache';
 import { redisCache } from '@/lib/redis';
@@ -46,7 +46,7 @@ export async function GET(
   // Get the source game
   const { data: sourceRow, error: sourceError } = await supabase
     .from('games')
-    .select('*')
+    .select(GAME_SELECT_COLUMNS)
     .eq('id', id)
     .single();
 
@@ -86,7 +86,7 @@ export async function GET(
   if (similarIds.length === 0) {
     let query = supabase
       .from('games')
-      .select('*')
+      .select(GAME_SELECT_COLUMNS)
       .neq('id', id)
       .not('rating', 'is', null)
       .order('rating', { ascending: false })
@@ -103,7 +103,7 @@ export async function GET(
     if (!catMatches || catMatches.length < 10) {
       const { data: broadMatches } = await supabase
         .from('games')
-        .select('*')
+        .select(GAME_SELECT_COLUMNS)
         .neq('id', id)
         .not('rating', 'is', null)
         .gte('rating_count', 5)
@@ -158,7 +158,7 @@ export async function GET(
   if (similarIds.length > 0) {
     const { data: gameRows } = await supabase
       .from('games')
-      .select('*')
+      .select(GAME_SELECT_COLUMNS)
       .in('id', similarIds);
 
     if (gameRows) {

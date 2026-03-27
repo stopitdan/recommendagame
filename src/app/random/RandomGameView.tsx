@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import Box from '@mui/material/Box';
@@ -16,6 +16,9 @@ import { motion, AnimatePresence } from 'motion/react';
 import type { Game } from '@/types/game';
 import AnimatedRating from '@/components/AnimatedRating';
 import { useAchievements } from '@/components/AchievementToast';
+import DiceCustomizer from '@/components/DiceCustomizer';
+import { getSkin, DEFAULT_SKIN_ID, type DiceSkin } from '@/lib/dice-skins';
+import { createClient } from '@/lib/supabase/client';
 
 // Dynamic import — Three.js can't SSR
 const PhysicsDice = dynamic(() => import('@/components/PhysicsDice'), {
@@ -195,6 +198,44 @@ export default function RandomGameView() {
   const [isNat20, setIsNat20] = useState(false);
   const [isNat1, setIsNat1] = useState(false);
   const [type, setType] = useState<string | null>(null);
+  const [activeSkin, setActiveSkin] = useState<DiceSkin>(getSkin(DEFAULT_SKIN_ID));
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // Load user's saved dice skin on mount
+  useEffect(() => {
+    async function loadSkin() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      setIsLoggedIn(!!user);
+
+      if (user) {
+        try {
+          const res = await fetch('/api/user/dice-skin');
+          if (res.ok) {
+            const { skinId } = await res.json();
+            setActiveSkin(getSkin(skinId));
+          }
+        } catch {
+          // Fall back to default skin silently
+        }
+      }
+    }
+    loadSkin();
+  }, []);
+
+  // Handle skin selection — save to server if logged in
+  function handleSkinSelect(skin: DiceSkin) {
+    setActiveSkin(skin);
+    if (isLoggedIn) {
+      fetch('/api/user/dice-skin', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ skinId: skin.id }),
+      }).catch(() => {
+        // Silently fail — local state already updated
+      });
+    }
+  }
 
   async function rollDice() {
     if (rolling) return;
@@ -304,8 +345,19 @@ export default function RandomGameView() {
 
         {/* 3D Physics Dice */}
         <Box sx={{ width: '100%', maxWidth: 400 }} onClick={() => !rolling && rollDice()}>
-          <PhysicsDice rolling={rolling} onSettled={handleDiceSettled} />
+          <PhysicsDice
+            rolling={rolling}
+            onSettled={handleDiceSettled}
+            skin={activeSkin}
+          />
         </Box>
+
+        {/* Dice skin customizer */}
+        <DiceCustomizer
+          activeSkinId={activeSkin.id}
+          isLoggedIn={isLoggedIn}
+          onSelect={handleSkinSelect}
+        />
 
         {/* Dice result */}
         <AnimatePresence mode="wait">

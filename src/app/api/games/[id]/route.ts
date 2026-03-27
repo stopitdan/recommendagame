@@ -5,7 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import type { GameRow } from '@/types/supabase';
-import { rowToGame } from '@/lib/supabase/games';
+import { rowToGame, GAME_SELECT_COLUMNS } from '@/lib/supabase/games';
 import { redisCache } from '@/lib/redis';
 
 function createDbClient() {
@@ -33,7 +33,7 @@ export async function GET(
 
   const { data, error } = await supabase
     .from('games')
-    .select('*')
+    .select(GAME_SELECT_COLUMNS)
     .eq('id', id)
     .single();
 
