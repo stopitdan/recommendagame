@@ -169,15 +169,19 @@ export default function MeepleRunner() {
 
         const rising = vy.current < 0;
 
-        if (rising && jumpHeld) {
-          // HOLDING + RISING: barely any deceleration, coast for a long time
-          vy.current *= 0.995; // very slow decay — ball floats at peak
-        } else if (rising && !jumpHeld) {
-          // RELEASED while rising: normal gravity, starts coming down
-          vy.current += GRAVITY;
+        if (jumpHeld && (rising || py.current > 0)) {
+          // HOLDING: freeze velocity. Ball stays exactly where it is.
+          // Only move upward on the initial jump impulse frames.
+          if (rising) {
+            // Still rising from jump impulse — let it rise but slow down
+            vy.current *= 0.85; // decelerate to 0 quickly, then hover
+          } else {
+            // At peak or would be falling — just hover
+            vy.current = 0;
+          }
         } else {
-          // FALLING: fast gravity for snappy landing
-          vy.current += FALL_GRAVITY;
+          // NOT HOLDING (or on ground): apply gravity
+          vy.current += py.current > 0 ? FALL_GRAVITY : 0;
         }
 
         py.current -= vy.current;
