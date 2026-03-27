@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -19,6 +20,13 @@ import {
   useSpring,
 } from "motion/react";
 import QuickCollections from "@/components/QuickCollections";
+import AnimatedHeadline from "@/components/landing/AnimatedHeadline";
+import MagneticButton from "@/components/landing/MagneticButton";
+
+// Lazy load heavy interactive components (canvas, game)
+const InteractiveParticles = dynamic(() => import("@/components/landing/InteractiveParticles"), { ssr: false });
+const MouseFollowers = dynamic(() => import("@/components/landing/MouseFollowers"), { ssr: false });
+const DiceCatcher = dynamic(() => import("@/components/landing/DiceCatcher"), { ssr: false });
 
 /* ─── reusable scroll-triggered section ─── */
 function Section({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
@@ -231,161 +239,162 @@ export default function Home() {
         sx={{
           position: "relative",
           overflow: "hidden",
-          minHeight: { xs: "85vh", md: "90vh" },
+          minHeight: { xs: "90vh", md: "100vh" },
           display: "flex",
           alignItems: "center",
+          // Animated gradient mesh background
           background: `
-            radial-gradient(ellipse 80% 60% at 50% 0%, ${alpha(theme.palette.info.light, 0.5)} 0%, transparent 70%),
-            radial-gradient(ellipse 60% 50% at 80% 100%, ${alpha(theme.palette.info.main, 0.15)} 0%, transparent 60%),
+            radial-gradient(ellipse 80% 50% at 20% 20%, ${alpha(theme.palette.primary.light, 0.15)} 0%, transparent 60%),
+            radial-gradient(ellipse 60% 40% at 80% 80%, ${alpha(theme.palette.secondary.main, 0.12)} 0%, transparent 50%),
+            radial-gradient(ellipse 70% 60% at 50% 0%, ${alpha(theme.palette.info.main, 0.2)} 0%, transparent 70%),
+            radial-gradient(ellipse 50% 50% at 90% 10%, ${alpha(theme.palette.info.light, 0.1)} 0%, transparent 50%),
             ${theme.palette.background.default}
           `,
+          // Subtle animated gradient shift via CSS animation
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            inset: 0,
+            background: `radial-gradient(ellipse 100% 80% at 50% 50%, ${alpha(theme.palette.primary.main, 0.04)} 0%, transparent 70%)`,
+            animation: 'gradientShift 8s ease-in-out infinite alternate',
+            pointerEvents: 'none',
+          },
+          '@keyframes gradientShift': {
+            '0%': { transform: 'translate(-5%, -5%) scale(1.1)' },
+            '100%': { transform: 'translate(5%, 5%) scale(0.9)' },
+          },
         }}
       >
-        {/* Floating dice */}
-        <Box sx={{ display: { xs: "none", md: "block" } }}>
-          <FloatingDice size={48} top="12%" left="8%" color={theme.palette.primary.main} delay={0.8} />
-          <FloatingDice size={36} top="20%" right="12%" color={theme.palette.info.main} delay={1.0} />
-          <FloatingDice size={28} bottom="22%" left="15%" color={theme.palette.secondary.main} delay={1.2} />
-          <FloatingDice size={42} bottom="28%" right="8%" color={theme.palette.primary.light} delay={1.4} />
+        {/* Interactive particle field (desktop only) */}
+        <Box sx={{ display: { xs: "none", md: "block" }, position: "absolute", inset: 0, zIndex: 0 }}>
+          <InteractiveParticles count={100} />
         </Box>
 
-        <Container maxWidth="md">
+        {/* Mouse-following game pieces (desktop only) */}
+        <Box sx={{ display: { xs: "none", md: "block" } }}>
+          <MouseFollowers />
+        </Box>
+
+        <Container maxWidth="lg" sx={{ position: "relative", zIndex: 1 }}>
           <motion.div style={{ y: smoothY, opacity: smoothOpacity }}>
-            <Stack spacing={4} alignItems="center" textAlign="center">
-              {/* Tagline */}
-              <motion.div
-                initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <Typography
-                  variant="h6"
-                  component="p"
-                  sx={{
-                    color: "secondary.main",
-                    fontWeight: 600,
-                    letterSpacing: "0.15em",
-                    textTransform: "uppercase",
-                    fontSize: { xs: "0.75rem", md: "0.85rem" },
-                  }}
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", md: "row" },
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: { xs: 4, md: 8 },
+              }}
+            >
+              {/* Left side: text content */}
+              <Stack spacing={3} sx={{ flex: 1, textAlign: { xs: "center", md: "left" }, alignItems: { xs: "center", md: "flex-start" } }}>
+                {/* Tagline */}
+                <motion.div
+                  initial={{ opacity: 0, x: -30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.6, delay: 0.1 }}
                 >
-                  Board Games · Video Games · Word Games
-                </Typography>
-              </motion.div>
+                  <Typography
+                    variant="h6"
+                    component="p"
+                    sx={{
+                      color: "secondary.main",
+                      fontWeight: 700,
+                      letterSpacing: "0.2em",
+                      textTransform: "uppercase",
+                      fontSize: { xs: "0.7rem", md: "0.8rem" },
+                    }}
+                  >
+                    Board Games · Video Games · Word Games
+                  </Typography>
+                </motion.div>
 
-              {/* Main headline */}
-              <motion.div
-                initial={{ opacity: 0, y: 30, filter: "blur(10px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                transition={{ duration: 0.9, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <Typography
-                  variant="h1"
-                  component="h1"
-                  sx={{
-                    fontWeight: 800,
-                    fontSize: { xs: "2.5rem", sm: "3.5rem", md: "4.5rem" },
-                    letterSpacing: "-0.04em",
-                    lineHeight: 1.05,
-                    color: "primary.main",
-                  }}
+                {/* Animated headline (word-by-word spring) */}
+                <AnimatedHeadline />
+
+                {/* Subhead */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.7, delay: 1.0, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  Find your next
-                  <br />
-                  <Box component="span" sx={{ color: "secondary.main", position: "relative" }}>
-                    favorite game
-                    <motion.span
-                      style={{
-                        position: "absolute",
-                        bottom: 2,
-                        left: 0,
-                        right: 0,
-                        height: "0.12em",
-                        background: `linear-gradient(90deg, ${theme.palette.secondary.main}, ${theme.palette.info.main})`,
-                        borderRadius: 2,
-                        display: "block",
-                        transformOrigin: "left",
-                      }}
-                      initial={{ scaleX: 0, opacity: 0 }}
-                      animate={{ scaleX: 1, opacity: 1 }}
-                      transition={{ duration: 0.8, delay: 1.0, ease: [0.22, 1, 0.36, 1] }}
-                    />
-                  </Box>
-                </Typography>
-              </motion.div>
+                  <Typography
+                    variant="h6"
+                    component="p"
+                    sx={{
+                      color: "text.secondary",
+                      fontWeight: 400,
+                      maxWidth: 480,
+                      lineHeight: 1.6,
+                      fontSize: { xs: "1rem", md: "1.1rem" },
+                    }}
+                  >
+                    Tell us what you&apos;re in the mood for and we&apos;ll match you with something great from our catalog of 178,000+ games.
+                  </Typography>
+                </motion.div>
 
-              {/* Subhead */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <Typography
-                  variant="h6"
-                  component="p"
-                  sx={{
-                    color: "text.secondary",
-                    fontWeight: 400,
-                    maxWidth: 520,
-                    lineHeight: 1.6,
-                    fontSize: { xs: "1rem", md: "1.15rem" },
-                  }}
+                {/* CTAs with magnetic effect */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ duration: 0.6, delay: 1.2 }}
                 >
-                  Tell us what you&apos;re in the mood for — players, complexity,
-                  genre, vibe — and we&apos;ll match you with something great to play.
-                </Typography>
-              </motion.div>
+                  <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
+                    <Link href="/find-a-game" style={{ textDecoration: "none" }}>
+                      <MagneticButton strength={0.25} radius={120}>
+                        <motion.div whileTap={{ scale: 0.95 }}>
+                          <Button
+                            variant="contained"
+                            size="large"
+                            sx={{
+                              px: { xs: 4, md: 6 },
+                              py: 1.8,
+                              fontSize: { xs: "1rem", md: "1.15rem" },
+                              borderRadius: 3,
+                              fontWeight: 700,
+                              boxShadow: `0 8px 32px ${alpha(theme.palette.secondary.main, 0.35)}`,
+                            }}
+                          >
+                            Find Me a Game
+                          </Button>
+                        </motion.div>
+                      </MagneticButton>
+                    </Link>
+                    <Link href="/browse" style={{ textDecoration: "none" }}>
+                      <MagneticButton strength={0.15} radius={100}>
+                        <motion.div whileTap={{ scale: 0.97 }}>
+                          <Button
+                            variant="outlined"
+                            size="large"
+                            sx={{
+                              px: { xs: 3, md: 4 },
+                              py: 1.8,
+                              fontSize: { xs: "1rem", md: "1.15rem" },
+                              borderRadius: 3,
+                              borderWidth: 2,
+                              "&:hover": { borderWidth: 2 },
+                            }}
+                          >
+                            Browse All
+                          </Button>
+                        </motion.div>
+                      </MagneticButton>
+                    </Link>
+                  </Stack>
+                </motion.div>
+              </Stack>
 
-              {/* CTAs */}
+              {/* Right side: mini dice catcher game (desktop only) */}
               <motion.div
-                initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{
-                  duration: 0.6,
-                  delay: 0.75,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
+                initial={{ opacity: 0, scale: 0.8, rotate: -5 }}
+                animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                transition={{ duration: 0.8, delay: 1.4, type: "spring", stiffness: 80, damping: 12 }}
               >
-                <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
-                  <Link href="/find-a-game" style={{ textDecoration: "none" }}>
-                    <motion.div whileHover={{ y: -3, scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                      <Button
-                        variant="contained"
-                        size="large"
-                        sx={{
-                          px: { xs: 4, md: 6 },
-                          py: 1.8,
-                          fontSize: { xs: "1rem", md: "1.15rem" },
-                          borderRadius: 3,
-                          fontWeight: 700,
-                          boxShadow: `0 8px 32px ${alpha(theme.palette.secondary.main, 0.35)}`,
-                        }}
-                      >
-                        Find Me a Game
-                      </Button>
-                    </motion.div>
-                  </Link>
-                  <Link href="/leaderboard" style={{ textDecoration: "none" }}>
-                    <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }}>
-                      <Button
-                        variant="outlined"
-                        size="large"
-                        sx={{
-                          px: { xs: 3, md: 4 },
-                          py: 1.8,
-                          fontSize: { xs: "1rem", md: "1.15rem" },
-                          borderRadius: 3,
-                          borderWidth: 2,
-                          "&:hover": { borderWidth: 2 },
-                        }}
-                      >
-                        Top Games
-                      </Button>
-                    </motion.div>
-                  </Link>
-                </Stack>
+                <Box sx={{ display: { xs: "none", md: "block" } }}>
+                  <DiceCatcher />
+                </Box>
               </motion.div>
-            </Stack>
+            </Box>
           </motion.div>
         </Container>
 
@@ -396,9 +405,10 @@ export default function Home() {
             bottom: 0,
             left: 0,
             right: 0,
-            height: 120,
+            height: 160,
             background: `linear-gradient(transparent, ${theme.palette.background.default})`,
             pointerEvents: "none",
+            zIndex: 2,
           }}
         />
       </Box>
