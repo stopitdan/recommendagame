@@ -54,8 +54,9 @@ Last updated: 2026-03-27
 - ✅ Layer 3: Collaborative Filtering
 - ✅ Layer 4: Feedback Loop
 - ✅ Hybrid Engine (rule-based 60% + similarity 40%)
-- ✅ Hybrid Candidate Fetching (250 vector + 250 rating + text search)
-- ✅ Progressive Fallback (never 0 results)
+- ✅ Hybrid Candidate Fetching (250 vector + 250 rating + tag + text search)
+- ✅ Tag-Based Candidate Retrieval (GIN index lookup by category/mechanic/theme)
+- ✅ Progressive Fallback (6 tiers deep, never 0 results)
 - ✅ SimilarTo Game Resolution (DB lookup from LLM output)
 - ✅ Diversity Re-ranking (MMR-based, prevents homogeneous results)
 - ✅ Rejection Learning (penalizes patterns from "Not This" feedback)
@@ -122,6 +123,7 @@ Last updated: 2026-03-27
 - ✅ Enriched LLM-Preference Vectors
 - ✅ Advanced LLM Prompt (tone detection, intensity, expanded genres)
 - ✅ Caching Layer (Redis via Upstash)
+- ✅ OpenAI Semantic Embeddings module (ready, needs generation)
 - 🔮 Conversational Recommendations
 - 🔮 Game Group Matching
 - 🔮 Trending / Seasonal Recommendations
@@ -129,7 +131,35 @@ Last updated: 2026-03-27
 - 🔮 Tech Stack Diagram
 - 🔮 FAQ / Tutorial Page
 
+## Phase 10: Performance — Partial
+- ✅ Kill all ILIKE queries (replaced with GIN-indexed tsvector RPCs)
+- ✅ Partial indexes for browse patterns (7 indexes)
+- ✅ Stored tsvector columns (name_tsv, description_tsv)
+- ✅ Shared GAME_SELECT_COLUMNS (23 cols vs 40+ from SELECT *)
+- ✅ Timeout guards on parallel queries (8s per source)
+- ✅ Pre-computed popularity cache in Redis (38 lists, 1390 games)
+- ✅ Redis caching on recommend (2min), browse (5min), detail (10min), similar (10min)
+- ✅ match_games RPC fix (removed WHERE clause defeating HNSW index)
+- 🔄 Hash embedding generation (39k/178k — 22% coverage, script running)
+- 📋 Semantic embedding generation (OpenAI text-embedding-3-small, ~$0.40)
+- 📋 Meilisearch for browse/search (sub-100ms, $5-15/mo self-hosted)
+- 📋 Finish tsvector column migration (Block 2 — needs re-run)
+
+## Bugs & Fixes Needed
+- 📋 Favorites RLS error ("violates row-level security policy") — needs UPDATE policy
+- 📋 Finish Block 2 of migration 011 (tsvector columns may not have been created)
+- 🔄 BGG API crawler still ingesting (at ~177k/400k IDs)
+
 ## Untracked / Ongoing
 - 📋 Shared component refactor audit
-- ✅ Test coverage (273 tests, 25 files)
-- 🔄 BGG API crawler (ingesting 400k games)
+- ✅ Test coverage (306 tests, 29 files)
+- 🔄 BGG API crawler (ingesting 400k games, ~12 hours remaining)
+
+## Scripts Reference
+- `source .env.local && npx tsx scripts/generate-embeddings.ts 200` — hash embeddings (re-run after BGG finishes)
+- `source .env.local && npx tsx scripts/generate-semantic-embeddings.ts` — OpenAI semantic embeddings (~$0.40)
+- `source .env.local && npx tsx scripts/populate-popularity-cache.ts` — refresh Redis popularity cache
+- `source .env.local && npx tsx scripts/check-embeddings.ts` — diagnostic: embedding coverage, RPC health
+- `source .env.local && npx tsx scripts/crawl-igdb.ts` — IGDB video game crawler
+- `source .env.local && npx tsx scripts/dedupe-rawg-igdb.ts` — remove RAWG dupes that exist in IGDB
+- `source .env.local && npx tsx scripts/sync-meilisearch.ts` — sync to Meilisearch (Phase 2, not yet built)
