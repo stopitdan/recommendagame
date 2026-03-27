@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { label: 'Find a Game', href: '/find-a-game', icon: '🎯', tip: 'Get personalized recommendations' },
   { label: 'Browse', href: '/browse', icon: '🔍', tip: 'Explore the full game catalog' },
   { label: 'Random', href: '/random', icon: '🎲', tip: 'Roll the d20 for a random pick' },
+  { label: 'Dice Gallery', href: '/dice-gallery', icon: '🎨', tip: 'Browse & create custom dice skins' },
   { label: 'Leaderboard', href: '/leaderboard', icon: '🏆', tip: 'See the most popular games' },
 ];
 

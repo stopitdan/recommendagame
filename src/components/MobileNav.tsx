@@ -24,6 +24,7 @@ const NAV_ITEMS = [
   { label: 'Find a Game', href: '/find-a-game', icon: '🎯' },
   { label: 'Browse', href: '/browse', icon: '🔍' },
   { label: 'Random Game', href: '/random', icon: '🎲' },
+  { label: 'Dice Gallery', href: '/dice-gallery', icon: '🎨' },
   { label: 'Leaderboard', href: '/leaderboard', icon: '🏆' },
 ];
 
