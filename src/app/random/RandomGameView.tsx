@@ -19,6 +19,7 @@ import { useAchievements } from '@/components/AchievementToast';
 import DiceCustomizer from '@/components/DiceCustomizer';
 import { getSkin, DEFAULT_SKIN_ID, type DiceSkin } from '@/lib/dice-skins';
 import { createClient } from '@/lib/supabase/client';
+import { triggerEpicNat20 } from '@/lib/nat20-celebration';
 
 // Dynamic import — Three.js can't SSR
 const PhysicsDice = dynamic(() => import('@/components/PhysicsDice'), {
@@ -140,54 +141,6 @@ function triggerNat1Blood() {
   setTimeout(() => container.remove(), 9000);
 }
 
-/** Fire confetti for a Natural 20! */
-async function triggerNat20Confetti() {
-  const confetti = (await import('canvas-confetti')).default;
-
-  // Big burst from center
-  confetti({
-    particleCount: 150,
-    spread: 100,
-    origin: { y: 0.5 },
-    colors: ['#FFD700', '#5B4FDB', '#FF6D3F', '#00E5A0', '#FF4081'],
-    startVelocity: 45,
-    gravity: 0.8,
-    ticks: 200,
-  });
-
-  // Left cannon
-  setTimeout(() => {
-    confetti({
-      particleCount: 60,
-      angle: 60,
-      spread: 55,
-      origin: { x: 0, y: 0.6 },
-      colors: ['#FFD700', '#5B4FDB', '#FF6D3F'],
-    });
-  }, 150);
-
-  // Right cannon
-  setTimeout(() => {
-    confetti({
-      particleCount: 60,
-      angle: 120,
-      spread: 55,
-      origin: { x: 1, y: 0.6 },
-      colors: ['#FFD700', '#5B4FDB', '#FF6D3F'],
-    });
-  }, 300);
-
-  // Second wave
-  setTimeout(() => {
-    confetti({
-      particleCount: 80,
-      spread: 120,
-      origin: { y: 0.4 },
-      colors: ['#FFD700', '#FF4081', '#00E5A0'],
-      startVelocity: 35,
-    });
-  }, 500);
-}
 
 export default function RandomGameView() {
   const router = useRouter();
@@ -287,7 +240,7 @@ export default function RandomGameView() {
     // Natural 20 / Natural 1
     if (value === 20) {
       setIsNat20(true);
-      triggerNat20Confetti();
+      triggerEpicNat20();
       unlock('natural_20');
     } else if (value === 1) {
       setIsNat1(true);
@@ -332,7 +285,27 @@ export default function RandomGameView() {
   ];
 
   return (
-    <Container maxWidth="md" sx={{ py: 4, textAlign: 'center', minHeight: '100vh' }}>
+    <Container maxWidth="md" sx={{
+      py: 4,
+      textAlign: 'center',
+      minHeight: '100vh',
+      position: 'relative',
+      ...(isNat20 ? {
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          inset: 0,
+          background: 'radial-gradient(ellipse at center, rgba(255,215,0,0.08), transparent 70%)',
+          pointerEvents: 'none',
+          zIndex: 0,
+          animation: 'nat20-bg-fade 4s ease-out forwards',
+          '@keyframes nat20-bg-fade': {
+            '0%': { opacity: 1 },
+            '100%': { opacity: 0 },
+          },
+        },
+      } : {}),
+    }}>
       <Stack spacing={3} alignItems="center">
         <Box>
           <Typography variant="h3" fontWeight={800} sx={{ mb: 1 }}>
@@ -370,6 +343,7 @@ export default function RandomGameView() {
               rolling={rolling}
               onSettled={handleDiceSettled}
               skin={activeSkin}
+              isNat20={isNat20}
             />
           </Box>
         </Box>
@@ -395,27 +369,41 @@ export default function RandomGameView() {
           >
               {isNat20 ? (
                 <Box>
-                  <Typography
-                    variant="h3"
-                    fontWeight={900}
-                    sx={{
-                      background: 'linear-gradient(135deg, #FFD700, #FF6D3F, #FF4081, #FFD700)',
-                      backgroundSize: '200% 200%',
-                      animation: 'shimmer 2s ease infinite',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                      '@keyframes shimmer': {
-                        '0%': { backgroundPosition: '0% 50%' },
-                        '50%': { backgroundPosition: '100% 50%' },
-                        '100%': { backgroundPosition: '0% 50%' },
-                      },
-                    }}
+                  <motion.div
+                    initial={{ scale: 3, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 15, duration: 0.6 }}
                   >
-                    NATURAL 20!
-                  </Typography>
-                  <Typography variant="h5" fontWeight={700} sx={{ color: 'warning.main', mt: 1 }}>
-                    CRITICAL SUCCESS!
-                  </Typography>
+                    <Typography
+                      variant="h3"
+                      fontWeight={900}
+                      sx={{
+                        background: 'linear-gradient(135deg, #FFD700, #FF6D3F, #FF4081, #FFD700)',
+                        backgroundSize: '200% 200%',
+                        animation: 'shimmer 1.5s ease infinite',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        textShadow: '0 0 30px rgba(255,215,0,0.4), 0 0 60px rgba(255,215,0,0.2)',
+                        filter: 'drop-shadow(0 0 12px rgba(255,215,0,0.5))',
+                        '@keyframes shimmer': {
+                          '0%': { backgroundPosition: '0% 50%' },
+                          '50%': { backgroundPosition: '100% 50%' },
+                          '100%': { backgroundPosition: '0% 50%' },
+                        },
+                      }}
+                    >
+                      NATURAL 20!
+                    </Typography>
+                  </motion.div>
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3, type: 'spring', stiffness: 200, damping: 12 }}
+                  >
+                    <Typography variant="h5" fontWeight={700} sx={{ color: 'warning.main', mt: 1 }}>
+                      CRITICAL SUCCESS!
+                    </Typography>
+                  </motion.div>
                 </Box>
               ) : isNat1 ? (
                 <Box>

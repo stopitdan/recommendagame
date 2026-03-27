@@ -199,10 +199,12 @@ function AnimatedD20({
   rolling,
   onSettled,
   skin,
+  isNat20,
 }: {
   rolling: boolean;
   onSettled: (value: number) => void;
   skin: DiceSkin;
+  isNat20?: boolean;
 }) {
   const groupRef = useRef<THREE.Group>(null);
 
@@ -394,13 +396,16 @@ function AnimatedD20({
 
       case 'present': {
         const t = Math.min(elapsed / PRESENT_DUR, 1);
-        const spring = 1 + 0.08 * (1 - Math.pow(1 - t, 3)) + 0.04 * Math.sin(t * Math.PI);
+        const presentMax = isNat20 ? 0.12 : 0.08;
+        const presentBounce = isNat20 ? 0.06 : 0.04;
+        const spring = 1 + presentMax * (1 - Math.pow(1 - t, 3)) + presentBounce * Math.sin(t * Math.PI);
         scaleRef.current = spring;
         group.scale.setScalar(spring);
 
         if (t >= 1) {
-          scaleRef.current = 1.08;
-          group.scale.setScalar(1.08);
+          const finalScale = isNat20 ? 1.12 : 1.08;
+          scaleRef.current = finalScale;
+          group.scale.setScalar(finalScale);
           s.phase = 'idle';
 
           if (!s.resultReported) {
@@ -437,14 +442,34 @@ function AnimatedD20({
 
 // ─── Main Component ──────────────────────────────────────────
 
+// ─── Pulsing gold light for Nat 20 ──────────────────────────
+
+function Nat20PulsingLight() {
+  const lightRef = useRef<THREE.PointLight>(null);
+
+  useFrame(({ clock }) => {
+    if (lightRef.current) {
+      lightRef.current.intensity = 0.6 + Math.sin(clock.elapsedTime * 3) * 0.4;
+    }
+  });
+
+  return (
+    <pointLight ref={lightRef} position={[0, 2, 2]} color="#FFD700" intensity={0.6} distance={10} />
+  );
+}
+
+// ─── Main Component ──────────────────────────────────────────
+
 interface PhysicsDiceProps {
   rolling: boolean;
   onSettled: (value: number) => void;
   /** Full skin object — controls colors, material, and label style */
   skin?: DiceSkin;
+  /** When true, adds pulsing gold light and larger present scale */
+  isNat20?: boolean;
 }
 
-export default function PhysicsDice({ rolling, onSettled, skin }: PhysicsDiceProps) {
+export default function PhysicsDice({ rolling, onSettled, skin, isNat20 }: PhysicsDiceProps) {
   const activeSkin = skin ?? getSkin(DEFAULT_SKIN_ID);
 
   return (
@@ -457,7 +482,8 @@ export default function PhysicsDice({ rolling, onSettled, skin }: PhysicsDicePro
         <ambientLight intensity={0.6} />
         <directionalLight position={[3, 5, 3]} intensity={1.2} />
         <pointLight position={[-2, 3, -1]} intensity={0.3} color={activeSkin.accent} />
-        <AnimatedD20 rolling={rolling} onSettled={onSettled} skin={activeSkin} />
+        {isNat20 && <Nat20PulsingLight />}
+        <AnimatedD20 rolling={rolling} onSettled={onSettled} skin={activeSkin} isNat20={isNat20} />
       </Canvas>
     </div>
   );
