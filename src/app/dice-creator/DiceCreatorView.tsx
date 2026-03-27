@@ -234,6 +234,7 @@ export default function DiceCreatorView() {
   const searchParams = useSearchParams();
   const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
   const [saving, setSaving] = useState(false);
+  const [spinning, setSpinning] = useState(false);
   const [snackbar, setSnackbar] = useState<{ message: string; severity: 'success' | 'error' } | null>(null);
 
   // Load existing skin if ?id=xxx is present
@@ -805,11 +806,16 @@ export default function DiceCreatorView() {
             borderColor: 'divider',
             bgcolor: 'background.paper',
           }}>
-            <PhysicsDice
-              rolling={false}
-              onSettled={NOOP}
-              skin={previewSkin}
-            />
+            <Box
+              onClick={() => { if (!spinning) setSpinning(true); }}
+              sx={{ cursor: 'pointer' }}
+            >
+              <PhysicsDice
+                rolling={spinning}
+                onSettled={() => setSpinning(false)}
+                skin={previewSkin}
+              />
+            </Box>
             <Box sx={{ p: 2, textAlign: 'center' }}>
               <Typography variant="h6" fontWeight={700}>
                 {state.emoji} {state.name || 'Untitled Dice'}
