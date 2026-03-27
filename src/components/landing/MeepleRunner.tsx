@@ -4,6 +4,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import { useTheme, alpha } from '@mui/material/styles';
 
+const HISCORE_KEY = 'rag_meeple_hiscore';
+
 /**
  * Meeple Runner — Chrome Dino-style side-scroller.
  *
@@ -57,6 +59,14 @@ export default function MeepleRunner() {
 
   const [isPlaying, setIsPlaying] = useState(false);
 
+  // Load high score from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(HISCORE_KEY);
+      if (saved) highScoreRef.current = parseInt(saved, 10) || 0;
+    } catch {}
+  }, []);
+
   const startGame = useCallback(() => {
     gameState.current = 'playing';
     setIsPlaying(true);
@@ -75,6 +85,8 @@ export default function MeepleRunner() {
     setIsPlaying(false);
     if (scoreRef.current > highScoreRef.current) {
       highScoreRef.current = scoreRef.current;
+      // Persist high score to localStorage
+      try { localStorage.setItem(HISCORE_KEY, String(highScoreRef.current)); } catch {}
     }
   }, []);
 
