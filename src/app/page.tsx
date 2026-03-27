@@ -236,7 +236,7 @@ export default function Home() {
   const smoothOpacity = useSpring(heroOpacity, { stiffness: 80, damping: 20 });
 
   return (
-    <Box component="main" sx={{ overflow: "hidden", pb: { xs: '70px', md: '80px' } }}>
+    <Box component="main" sx={{ overflow: "hidden", pb: { xs: '30px', md: '34px' } }}>
       {/* ═══════════ HERO ═══════════ */}
       <Box
         sx={{
