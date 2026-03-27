@@ -8,7 +8,7 @@ import { useTheme, alpha } from '@mui/material/styles';
 const LS_KEY = 'rag_runner_hi';
 
 // Physics for ~80px play area
-const BALL_R = 8;
+const BALL_R = 12;
 const JUMP_V = -3.5;     // initial upward velocity
 const GRAVITY = 0.15;     // normal gravity (always applied when key NOT held)
 const FALL_GRAVITY = 0.3; // faster fall after releasing
@@ -169,19 +169,20 @@ export default function MeepleRunner() {
 
         const rising = vy.current < 0;
 
-        if (jumpHeld && (rising || py.current > 0)) {
-          // HOLDING: freeze velocity. Ball stays exactly where it is.
-          // Only move upward on the initial jump impulse frames.
+        if (jumpHeld && py.current > 0) {
+          // HOLDING + airborne: rise normally, but once you'd start
+          // falling, just hover instead. Ball reaches full jump height
+          // then freezes there.
           if (rising) {
-            // Still rising from jump impulse — let it rise but slow down
-            vy.current *= 0.85; // decelerate to 0 quickly, then hover
+            // Still rising — apply gentle gravity so it arcs up naturally
+            vy.current += GRAVITY;
           } else {
-            // At peak or would be falling — just hover
+            // Would be falling — HOVER. Velocity = 0, ball stays put.
             vy.current = 0;
           }
-        } else {
-          // NOT HOLDING (or on ground): apply gravity
-          vy.current += py.current > 0 ? FALL_GRAVITY : 0;
+        } else if (py.current > 0) {
+          // NOT holding + airborne: fall fast
+          vy.current += FALL_GRAVITY;
         }
 
         py.current -= vy.current;
