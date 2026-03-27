@@ -283,10 +283,60 @@ const SHADERS: Record<string, string> = {
   'blood-moon': BLOOD_MOON,
 };
 
+/**
+ * Default colors per shader key — these are the original hardcoded values.
+ * Custom dice can override any of these via shaderColors.
+ */
+export const SHADER_DEFAULTS: Record<string, { color1: string; color2: string; color3: string }> = {
+  fire:         { color1: '#CC2200', color2: '#FF6D00', color3: '#FFD700' },
+  water:        { color1: '#01083A', color2: '#0A5F8A', color3: '#60C8F0' },
+  galaxy:       { color1: '#0A0020', color2: '#3D1273', color3: '#5020A0' },
+  holographic:  { color1: '#AAAACC', color2: '#FFFFFF', color3: '#FFFFFF' },
+  electric:     { color1: '#0A0A30', color2: '#1535FF', color3: '#85B2FF' },
+  toxic:        { color1: '#0A2000', color2: '#08B008', color3: '#35FF15' },
+  marble:       { color1: '#E8E4E0', color2: '#181225', color3: '#C8B8A0' },
+  magma:        { color1: '#2A0A00', color2: '#FF4400', color3: '#FFD720' },
+  frost:        { color1: '#153555', color2: '#60BBE0', color3: '#FFFFFF' },
+  disco:        { color1: '#C0C0CC', color2: '#FF1493', color3: '#33FF77' },
+  'blood-moon': { color1: '#120202', color2: '#600505', color3: '#901508' },
+};
+
+/** All available shader keys */
+export const SHADER_KEYS = Object.keys(SHADERS);
+
 export function getShaderCode(key: string): { vertex: string; fragment: string } | null {
   const fragment = SHADERS[key];
   if (!fragment) return null;
   return { vertex: VERTEX_SHADER, fragment };
+}
+
+/**
+ * Returns shader code with uColor1/uColor2/uColor3 uniforms prepended.
+ * The shader body itself still uses its hardcoded colors, but the uniforms
+ * are available for the OverlayMesh to use for tinting/mixing.
+ * When custom colors are provided, they're set as uniform values on the material.
+ */
+export function getParameterizedShaderCode(key: string): { vertex: string; fragment: string } | null {
+  const fragment = SHADERS[key];
+  if (!fragment) return null;
+
+  // Add color uniforms to vertex shader
+  const paramVertex = `
+uniform vec3 uColor1;
+uniform vec3 uColor2;
+uniform vec3 uColor3;
+${VERTEX_SHADER}`;
+
+  // Add color uniforms to fragment shader — prepend before precision declaration
+  const paramFragment = fragment.replace(
+    'precision highp float;',
+    `precision highp float;
+uniform vec3 uColor1;
+uniform vec3 uColor2;
+uniform vec3 uColor3;`,
+  );
+
+  return { vertex: paramVertex, fragment: paramFragment };
 }
 
 export function hasShader(key: string): boolean {

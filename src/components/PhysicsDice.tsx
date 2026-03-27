@@ -5,6 +5,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { type DiceSkin, type DiceSkinType, getSkin, getEmojiForFace, DEFAULT_SKIN_ID } from '@/lib/dice-skins';
 import { getShaderCode } from '@/lib/dice-shaders';
+import type { CustomDiceSkinConfig } from '@/types/custom-dice';
 
 /**
  * 3D D20 with physically correct rigid body rotation.
@@ -119,18 +120,25 @@ function createEmojiTexture(num: number, skinId: string): THREE.CanvasTexture {
 
 // ─── Face labels on the die ──────────────────────────────────
 
-function FaceLabels({ faces, skin }: {
+function FaceLabels({ faces, skin, labelStyle }: {
   faces: FaceData[];
   skin: DiceSkin;
+  /** Override label style — used by custom dice for 'hidden' mode */
+  labelStyle?: 'numbers' | 'emoji' | 'hidden';
 }) {
+  const effectiveStyle = labelStyle ?? (skin.type === 'emoji' ? 'emoji' : 'numbers');
+
   const textures = useMemo(() => {
-    if (skin.type === 'emoji') {
+    if (effectiveStyle === 'hidden') return null;
+    if (effectiveStyle === 'emoji') {
       return Array.from({ length: 20 }, (_, i) => createEmojiTexture(i + 1, skin.id));
     }
     return Array.from({ length: 20 }, (_, i) =>
       createNumberTexture(i + 1, skin.label, skin.labelShadow),
     );
-  }, [skin.id, skin.type, skin.label, skin.labelShadow]);
+  }, [effectiveStyle, skin.id, skin.label, skin.labelShadow]);
+
+  if (!textures) return null;
 
   return (
     <>
@@ -157,7 +165,50 @@ function FaceLabels({ faces, skin }: {
 
 // ─── Shader material for animated skins ──────────────────────
 
-function ShaderDiceMaterial({ shaderKey }: { shaderKey: string }) {
+function ShaderDiceMaterial({ shaderKey, shaderColors }: {
+  shaderKey: string;
+  /** Optional custom colors for parameterized shaders */
+  shaderColors?: { color1: string; color2: string; color3: string };
+}) {
+  const matRef = useRef<THREE.ShaderMaterial>(null!);
+
+  const material = useMemo(() => {
+    const code = getShaderCode(shaderKey);
+    if (!code) return null;
+
+    const uniforms: Record<string, { value: unknown }> = {
+      uTime: { value: 0 },
+    };
+
+    if (shaderColors) {
+      uniforms.uColor1 = { value: new THREE.Color(shaderColors.color1) };
+      uniforms.uColor2 = { value: new THREE.Color(shaderColors.color2) };
+      uniforms.uColor3 = { value: new THREE.Color(shaderColors.color3) };
+    }
+
+    return new THREE.ShaderMaterial({
+      vertexShader: code.vertex,
+      fragmentShader: code.fragment,
+      uniforms,
+    });
+  }, [shaderKey, shaderColors]);
+
+  useFrame((_, delta) => {
+    if (matRef.current) {
+      matRef.current.uniforms.uTime.value += delta;
+    }
+  });
+
+  if (!material) return null;
+  return <primitive ref={matRef} object={material} attach="material" />;
+}
+
+// ─── Overlay shader mesh (transparent layer on top of base) ───
+
+function OverlayMesh({ shaderKey, opacity }: {
+  shaderKey: string;
+  opacity: number;
+}) {
   const matRef = useRef<THREE.ShaderMaterial>(null!);
 
   const material = useMemo(() => {
@@ -169,8 +220,11 @@ function ShaderDiceMaterial({ shaderKey }: { shaderKey: string }) {
       uniforms: {
         uTime: { value: 0 },
       },
+      transparent: true,
+      opacity,
+      depthWrite: false,
     });
-  }, [shaderKey]);
+  }, [shaderKey, opacity]);
 
   useFrame((_, delta) => {
     if (matRef.current) {
@@ -179,7 +233,13 @@ function ShaderDiceMaterial({ shaderKey }: { shaderKey: string }) {
   });
 
   if (!material) return null;
-  return <primitive ref={matRef} object={material} attach="material" />;
+
+  return (
+    <mesh>
+      <icosahedronGeometry args={[0.851, 0]} />
+      <primitive ref={matRef} object={material} attach="material" />
+    </mesh>
+  );
 }
 
 // ─── Animated D20 with rigid body physics ────────────────────
@@ -420,12 +480,19 @@ function AnimatedD20({
 
   const isShader = skin.type === 'shader' && skin.shaderKey;
 
+  // Extract custom config if present (from resolveCustomSkin)
+  const customConfig = (skin as DiceSkin & { customConfig?: CustomDiceSkinConfig }).customConfig;
+  const labelStyle = customConfig?.labelStyle;
+
   return (
     <group ref={groupRef}>
       <mesh castShadow>
         <icosahedronGeometry args={[0.85, 0]} />
         {isShader ? (
-          <ShaderDiceMaterial shaderKey={skin.shaderKey!} />
+          <ShaderDiceMaterial
+            shaderKey={skin.shaderKey!}
+            shaderColors={customConfig?.shaderColors}
+          />
         ) : (
           <meshStandardMaterial
             color={skin.body}
@@ -435,7 +502,13 @@ function AnimatedD20({
           />
         )}
       </mesh>
-      <FaceLabels faces={globalFaces} skin={skin} />
+      {customConfig?.overlayShaderKey && (
+        <OverlayMesh
+          shaderKey={customConfig.overlayShaderKey}
+          opacity={customConfig.overlayOpacity ?? 0.5}
+        />
+      )}
+      <FaceLabels faces={globalFaces} skin={skin} labelStyle={labelStyle} />
     </group>
   );
 }
