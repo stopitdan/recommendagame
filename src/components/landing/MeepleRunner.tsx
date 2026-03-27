@@ -45,15 +45,22 @@ export default function MeepleRunner() {
   const [ui, setUi] = useState<'idle' | 'play' | 'dead'>('idle');
   const [uiSc, setUiSc] = useState(0);
   const [uiHi, setUiHi] = useState(0);
+  const [scrollOpacity, setScrollOpacity] = useState(1);
   const [nearTop, setNearTop] = useState(true);
 
   useEffect(() => {
     try { const v = parseInt(localStorage.getItem(LS_KEY) ?? '0'); if (v > 0) { hi.current = v; setUiHi(v); } } catch {}
   }, []);
 
-  // Track scroll position
+  // Track scroll — fade out as user scrolls away from top
   useEffect(() => {
-    const fn = () => setNearTop(window.scrollY < window.innerHeight * 1.2);
+    const fn = () => {
+      const y = window.scrollY;
+      // Fully visible at 0, fully gone at 200px
+      const opacity = Math.max(0, 1 - y / 200);
+      setScrollOpacity(opacity);
+      setNearTop(y < 100);
+    };
     window.addEventListener('scroll', fn, { passive: true });
     return () => window.removeEventListener('scroll', fn);
   }, []);
@@ -92,7 +99,7 @@ export default function MeepleRunner() {
     }
     // If scrolled past hero, go back to idle (will auto-hide)
     // Otherwise show death screen
-    setUi(window.scrollY > window.innerHeight * 1.2 ? 'idle' : 'dead');
+    setUi(window.scrollY > 100 ? 'idle' : 'dead');
   }, []);
 
   // Keyboard
@@ -326,9 +333,8 @@ export default function MeepleRunner() {
     return () => cancelAnimationFrame(anim);
   }, [theme, die]);
 
-  // Show when: near top of page OR actively playing
-  // Hide when: scrolled past hero AND not mid-game
-  if (!nearTop && ui !== 'play') return null;
+  // Unmount completely once fully faded AND not playing
+  if (scrollOpacity === 0 && ui !== 'play') return null;
 
   return (
     <Box
@@ -342,7 +348,9 @@ export default function MeepleRunner() {
         borderTop: ui === 'play' ? '1px solid' : 'none',
         borderColor: 'divider',
         overflow: 'hidden',
-        transition: 'height 250ms ease, background-color 250ms ease',
+        opacity: ui === 'play' ? 1 : scrollOpacity,
+        pointerEvents: (ui !== 'play' && scrollOpacity === 0) ? 'none' : 'auto',
+        transition: 'height 250ms ease, background-color 250ms ease, opacity 150ms ease',
         cursor: 'pointer',
       }}
       onMouseDown={pDown} onMouseUp={pUp}
