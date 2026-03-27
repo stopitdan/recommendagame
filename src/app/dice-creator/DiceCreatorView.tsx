@@ -808,7 +808,7 @@ export default function DiceCreatorView() {
           }}>
             <Box
               onClick={() => { if (!spinning) setSpinning(true); }}
-              sx={{ cursor: 'pointer' }}
+              sx={{ cursor: 'pointer', pt: 2 }}
             >
               <PhysicsDice
                 rolling={spinning}
@@ -816,7 +816,7 @@ export default function DiceCreatorView() {
                 skin={previewSkin}
               />
             </Box>
-            <Box sx={{ p: 2, textAlign: 'center' }}>
+            <Box sx={{ p: 2, textAlign: 'center', position: 'relative', bottom: 40 }}>
               <Typography variant="h6" fontWeight={700}>
                 {state.emoji} {state.name || 'Untitled Dice'}
               </Typography>
