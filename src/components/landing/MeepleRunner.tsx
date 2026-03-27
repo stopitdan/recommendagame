@@ -105,6 +105,8 @@ export default function MeepleRunner() {
   // Keyboard
   useEffect(() => {
     const kd = (e: KeyboardEvent) => {
+      // Only respond to keyboard if at the top of the page or mid-game
+      if (gs.current !== 'play' && window.scrollY > 50) return;
       if (e.key === ' ' || e.key === 'ArrowUp') {
         e.preventDefault();
         setJump(true);
