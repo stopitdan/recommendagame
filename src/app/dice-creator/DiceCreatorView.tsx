@@ -153,8 +153,9 @@ function ShaderSwatchGrid({ selected, onSelect }: {
 }
 
 // ─── Debounced color picker ─────────────────────────────────────
-// Uses local state so the native color wheel stays responsive,
-// only commits to the reducer after the user stops dragging.
+// Local state keeps the native color wheel smooth. A 350ms debounce
+// commits to the reducer so the 3D preview updates while dragging
+// without firing on every single pixel.
 
 function ColorPicker({ label, value, onChange }: {
   label: string;
@@ -162,20 +163,26 @@ function ColorPicker({ label, value, onChange }: {
   onChange: (hex: string) => void;
 }) {
   const [localValue, setLocalValue] = useState(value);
-  const committed = useRef(value);
+  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const latestRef = useRef(value);
 
   // Sync from parent on external changes (e.g. "Reset to defaults", fork preset)
   useEffect(() => {
     setLocalValue(value);
-    committed.current = value;
+    latestRef.current = value;
   }, [value]);
 
-  // Commit only on mouse-up / blur — NOT on every drag pixel
-  function commit() {
-    if (localValue !== committed.current) {
-      committed.current = localValue;
-      onChange(localValue);
-    }
+  function handleChange(hex: string) {
+    setLocalValue(hex);
+    latestRef.current = hex;
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => onChange(hex), 350);
+  }
+
+  // Flush on blur so the final value always commits
+  function handleBlur() {
+    clearTimeout(timerRef.current);
+    onChange(latestRef.current);
   }
 
   return (
@@ -184,10 +191,8 @@ function ColorPicker({ label, value, onChange }: {
       <input
         type="color"
         value={localValue.startsWith('#') ? localValue.slice(0, 7) : '#000000'}
-        onChange={(e) => setLocalValue(e.target.value)}
-        onBlur={commit}
-        onMouseUp={commit}
-        onTouchEnd={commit}
+        onChange={(e) => handleChange(e.target.value)}
+        onBlur={handleBlur}
         style={{
           width: 36,
           height: 36,
