@@ -25,8 +25,7 @@ import MagneticButton from "@/components/landing/MagneticButton";
 
 // Lazy load heavy interactive components (canvas, game)
 const InteractiveParticles = dynamic(() => import("@/components/landing/InteractiveParticles"), { ssr: false });
-const MouseFollowers = dynamic(() => import("@/components/landing/MouseFollowers"), { ssr: false });
-const DiceCatcher = dynamic(() => import("@/components/landing/DiceCatcher"), { ssr: false });
+const MeepleRunner = dynamic(() => import("@/components/landing/MeepleRunner"), { ssr: false });
 
 /* ─── reusable scroll-triggered section ─── */
 function Section({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
@@ -179,25 +178,29 @@ const FEATURES = [
     emoji: "♟",
     title: "Board Games",
     description:
-      "22,000+ titles from Catan to Gloomhaven. Rated, categorized, and ready to discover.",
+      "90,000+ titles from Catan to Gloomhaven. Rated, categorized, and ready to discover.",
+    href: "/browse?type=board",
   },
   {
     emoji: "🎮",
     title: "Video Games",
     description:
       "80,000+ titles across every platform. From indie gems to AAA blockbusters.",
+    href: "/browse?type=video",
   },
   {
     emoji: "🎉",
     title: "Party & Word Games",
     description:
       "Charades, 20 Questions, Wordle, and more. No-equipment games for any group size.",
+    href: "/browse?type=party",
   },
   {
     emoji: "🧠",
     title: "Smart Engine",
     description:
-      "4-layer recommendation engine that learns your taste. The more you use it, the better it gets.",
+      "10-dimension recommendation engine that learns your taste. The more you use it, the better it gets.",
+    href: "/find-a-game",
   },
 ];
 
@@ -233,7 +236,7 @@ export default function Home() {
   const smoothOpacity = useSpring(heroOpacity, { stiffness: 80, damping: 20 });
 
   return (
-    <Box component="main" sx={{ overflow: "hidden" }}>
+    <Box component="main" sx={{ overflow: "hidden", pb: { xs: '80px', md: '100px' } }}>
       {/* ═══════════ HERO ═══════════ */}
       <Box
         sx={{
@@ -270,131 +273,104 @@ export default function Home() {
           <InteractiveParticles count={100} />
         </Box>
 
-        {/* Mouse-following game pieces (desktop only) */}
-        <Box sx={{ display: { xs: "none", md: "block" } }}>
-          <MouseFollowers />
-        </Box>
-
-        <Container maxWidth="lg" sx={{ position: "relative", zIndex: 1 }}>
+        <Container maxWidth="md" sx={{ position: "relative", zIndex: 1 }}>
           <motion.div style={{ y: smoothY, opacity: smoothOpacity }}>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: { xs: "column", md: "row" },
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: { xs: 4, md: 8 },
-              }}
-            >
-              {/* Left side: text content */}
-              <Stack spacing={3} sx={{ flex: 1, textAlign: { xs: "center", md: "left" }, alignItems: { xs: "center", md: "flex-start" } }}>
-                {/* Tagline */}
-                <motion.div
-                  initial={{ opacity: 0, x: -30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.6, delay: 0.1 }}
-                >
-                  <Typography
-                    variant="h6"
-                    component="p"
-                    sx={{
-                      color: "secondary.main",
-                      fontWeight: 700,
-                      letterSpacing: "0.2em",
-                      textTransform: "uppercase",
-                      fontSize: { xs: "0.7rem", md: "0.8rem" },
-                    }}
-                  >
-                    Board Games · Video Games · Word Games
-                  </Typography>
-                </motion.div>
-
-                {/* Animated headline (word-by-word spring) */}
-                <AnimatedHeadline />
-
-                {/* Subhead */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.7, delay: 1.0, ease: [0.22, 1, 0.36, 1] }}
-                >
-                  <Typography
-                    variant="h6"
-                    component="p"
-                    sx={{
-                      color: "text.secondary",
-                      fontWeight: 400,
-                      maxWidth: 480,
-                      lineHeight: 1.6,
-                      fontSize: { xs: "1rem", md: "1.1rem" },
-                    }}
-                  >
-                    Tell us what you&apos;re in the mood for and we&apos;ll match you with something great from our catalog of 178,000+ games.
-                  </Typography>
-                </motion.div>
-
-                {/* CTAs with magnetic effect */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{ duration: 0.6, delay: 1.2 }}
-                >
-                  <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
-                    <Link href="/find-a-game" style={{ textDecoration: "none" }}>
-                      <MagneticButton strength={0.25} radius={120}>
-                        <motion.div whileTap={{ scale: 0.95 }}>
-                          <Button
-                            variant="contained"
-                            size="large"
-                            sx={{
-                              px: { xs: 4, md: 6 },
-                              py: 1.8,
-                              fontSize: { xs: "1rem", md: "1.15rem" },
-                              borderRadius: 3,
-                              fontWeight: 700,
-                              boxShadow: `0 8px 32px ${alpha(theme.palette.secondary.main, 0.35)}`,
-                            }}
-                          >
-                            Find Me a Game
-                          </Button>
-                        </motion.div>
-                      </MagneticButton>
-                    </Link>
-                    <Link href="/browse" style={{ textDecoration: "none" }}>
-                      <MagneticButton strength={0.15} radius={100}>
-                        <motion.div whileTap={{ scale: 0.97 }}>
-                          <Button
-                            variant="outlined"
-                            size="large"
-                            sx={{
-                              px: { xs: 3, md: 4 },
-                              py: 1.8,
-                              fontSize: { xs: "1rem", md: "1.15rem" },
-                              borderRadius: 3,
-                              borderWidth: 2,
-                              "&:hover": { borderWidth: 2 },
-                            }}
-                          >
-                            Browse All
-                          </Button>
-                        </motion.div>
-                      </MagneticButton>
-                    </Link>
-                  </Stack>
-                </motion.div>
-              </Stack>
-
-              {/* Right side: mini dice catcher game (desktop only) */}
+            <Stack spacing={3} alignItems="center" textAlign="center">
+              {/* Tagline */}
               <motion.div
-                initial={{ opacity: 0, scale: 0.8, rotate: -5 }}
-                animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                transition={{ duration: 0.8, delay: 1.4, type: "spring", stiffness: 80, damping: 12 }}
+                initial={{ opacity: 0, y: 20, filter: "blur(6px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                transition={{ duration: 0.6, delay: 0.1 }}
               >
-                <Box sx={{ display: { xs: "none", md: "block" } }}>
-                  <DiceCatcher />
-                </Box>
+                <Typography
+                  variant="h6"
+                  component="p"
+                  sx={{
+                    color: "secondary.main",
+                    fontWeight: 700,
+                    letterSpacing: "0.2em",
+                    textTransform: "uppercase",
+                    fontSize: { xs: "0.7rem", md: "0.8rem" },
+                  }}
+                >
+                  Board Games · Video Games · Word Games
+                </Typography>
               </motion.div>
-            </Box>
+
+              {/* Animated headline (word-by-word spring) */}
+              <AnimatedHeadline />
+
+              {/* Subhead */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 1.0, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <Typography
+                  variant="h6"
+                  component="p"
+                  sx={{
+                    color: "text.secondary",
+                    fontWeight: 400,
+                    maxWidth: 520,
+                    lineHeight: 1.6,
+                    fontSize: { xs: "1rem", md: "1.15rem" },
+                  }}
+                >
+                  Tell us what you&apos;re in the mood for and we&apos;ll match you with something great from our catalog of 178,000+ games.
+                </Typography>
+              </motion.div>
+
+              {/* CTAs with magnetic effect */}
+              <motion.div
+                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.6, delay: 1.2 }}
+              >
+                <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
+                  <Link href="/find-a-game" style={{ textDecoration: "none" }}>
+                    <MagneticButton strength={0.25} radius={120}>
+                      <motion.div whileTap={{ scale: 0.95 }}>
+                        <Button
+                          variant="contained"
+                          size="large"
+                          sx={{
+                            px: { xs: 4, md: 6 },
+                            py: 1.8,
+                            fontSize: { xs: "1rem", md: "1.15rem" },
+                            borderRadius: 3,
+                            fontWeight: 700,
+                            boxShadow: `0 8px 32px ${alpha(theme.palette.secondary.main, 0.35)}`,
+                          }}
+                        >
+                          Find Me a Game
+                        </Button>
+                      </motion.div>
+                    </MagneticButton>
+                  </Link>
+                  <Link href="/browse" style={{ textDecoration: "none" }}>
+                    <MagneticButton strength={0.15} radius={100}>
+                      <motion.div whileTap={{ scale: 0.97 }}>
+                        <Button
+                          variant="outlined"
+                          size="large"
+                          sx={{
+                            px: { xs: 3, md: 4 },
+                            py: 1.8,
+                            fontSize: { xs: "1rem", md: "1.15rem" },
+                            borderRadius: 3,
+                            borderWidth: 2,
+                            "&:hover": { borderWidth: 2 },
+                          }}
+                        >
+                          Browse All
+                        </Button>
+                      </motion.div>
+                    </MagneticButton>
+                  </Link>
+                </Stack>
+              </motion.div>
+            </Stack>
           </motion.div>
         </Container>
 
@@ -439,49 +415,52 @@ export default function Home() {
               {FEATURES.map((feat) => (
                 <Grid size={{ xs: 12, sm: 6, md: 3 }} key={feat.title}>
                   <motion.div variants={staggerChild}>
-                    <motion.div
-                      whileHover={{ y: -6, transition: { type: "spring", stiffness: 300, damping: 20 } }}
-                    >
-                      <Card
-                        variant="outlined"
-                        sx={{
-                          height: "100%",
-                          border: "1px solid",
-                          borderColor: "divider",
-                          bgcolor: "background.paper",
-                          transition: "border-color 200ms, box-shadow 300ms",
-                          "&:hover": {
-                            borderColor: "info.main",
-                            boxShadow: `0 12px 40px ${alpha(theme.palette.primary.main, 0.08)}`,
-                          },
-                        }}
+                    <Link href={feat.href} style={{ textDecoration: "none" }}>
+                      <motion.div
+                        whileHover={{ y: -6, transition: { type: "spring", stiffness: 300, damping: 20 } }}
                       >
-                        <CardContent sx={{ p: 3.5 }}>
-                          <motion.div
-                            initial={{ scale: 1 }}
-                            whileHover={{ scale: 1.15, rotate: [0, -5, 5, 0] }}
-                            transition={{ type: "spring", stiffness: 400 }}
-                            style={{ display: "inline-block" }}
-                          >
-                            <Typography sx={{ fontSize: "2.2rem", mb: 1.5, lineHeight: 1 }}>
-                              {feat.emoji}
+                        <Card
+                          variant="outlined"
+                          sx={{
+                            height: "100%",
+                            border: "1px solid",
+                            borderColor: "divider",
+                            bgcolor: "background.paper",
+                            cursor: "pointer",
+                            transition: "border-color 200ms, box-shadow 300ms",
+                            "&:hover": {
+                              borderColor: "info.main",
+                              boxShadow: `0 12px 40px ${alpha(theme.palette.primary.main, 0.08)}`,
+                            },
+                          }}
+                        >
+                          <CardContent sx={{ p: 3.5 }}>
+                            <motion.div
+                              initial={{ scale: 1 }}
+                              whileHover={{ scale: 1.15, rotate: [0, -5, 5, 0] }}
+                              transition={{ type: "spring", stiffness: 400 }}
+                              style={{ display: "inline-block" }}
+                            >
+                              <Typography sx={{ fontSize: "2.2rem", mb: 1.5, lineHeight: 1 }}>
+                                {feat.emoji}
+                              </Typography>
+                            </motion.div>
+                            <Typography
+                              variant="h6"
+                              sx={{ fontWeight: 700, mb: 1, color: "primary.main" }}
+                            >
+                              {feat.title}
                             </Typography>
-                          </motion.div>
-                          <Typography
-                            variant="h6"
-                            sx={{ fontWeight: 700, mb: 1, color: "primary.main" }}
-                          >
-                            {feat.title}
-                          </Typography>
-                          <Typography
-                            variant="body2"
-                            sx={{ color: "text.secondary", lineHeight: 1.6 }}
-                          >
-                            {feat.description}
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
+                            <Typography
+                              variant="body2"
+                              sx={{ color: "text.secondary", lineHeight: 1.6 }}
+                            >
+                              {feat.description}
+                            </Typography>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    </Link>
                   </motion.div>
                 </Grid>
               ))}
@@ -691,6 +670,9 @@ export default function Home() {
           </Section>
         </Container>
       </Box>
+
+      {/* ═══════════ MEEPLE RUNNER GAME (fixed bottom bar) ═══════════ */}
+      <MeepleRunner />
     </Box>
   );
 }
