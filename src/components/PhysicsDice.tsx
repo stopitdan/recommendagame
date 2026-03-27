@@ -588,9 +588,9 @@ export default function PhysicsDice({ rolling, onSettled, skin, isNat20 }: Physi
   const activeSkin = skin ?? getSkin(DEFAULT_SKIN_ID);
 
   return (
-    <div style={{ width: '100%', height: 300, cursor: 'pointer', borderRadius: 16, overflow: 'hidden' }}>
+    <div style={{ width: '100%', height: 220, cursor: 'pointer', borderRadius: 16, overflow: 'hidden' }}>
       <Canvas
-        camera={{ position: [0, -0.2, 7], fov: 30, near: 0.1 }}
+        camera={{ position: [0, 0.4, 7], fov: 30, near: 0.1 }}
         style={{ background: 'transparent' }}
         gl={{ alpha: true, antialias: true }}
       >
