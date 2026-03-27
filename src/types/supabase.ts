@@ -49,6 +49,18 @@ export interface Database {
         Update: never;
         Relationships: [];
       };
+      custom_dice_skins: {
+        Row: CustomDiceSkinRow;
+        Insert: CustomDiceSkinInsert;
+        Update: CustomDiceSkinUpdate;
+        Relationships: [];
+      };
+      custom_dice_votes: {
+        Row: CustomDiceVoteRow;
+        Insert: CustomDiceVoteInsert;
+        Update: never;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -252,4 +264,46 @@ export interface UserFavoriteRow {
 export interface UserFavoriteInsert {
   user_id: string;
   game_id: string;
+}
+
+// ---------------------------------------------------------------------------
+// Custom Dice Skins
+// ---------------------------------------------------------------------------
+
+export interface CustomDiceSkinRow {
+  id: string;
+  user_id: string;
+  name: string;
+  emoji: string;
+  config: Record<string, unknown>;
+  is_public: boolean;
+  vote_count: number;
+  thumbnail_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CustomDiceSkinInsert {
+  user_id: string;
+  name: string;
+  emoji?: string;
+  config: Record<string, unknown>;
+  is_public?: boolean;
+}
+
+export type CustomDiceSkinUpdate = Partial<Omit<CustomDiceSkinInsert, 'user_id'>>;
+
+// ---------------------------------------------------------------------------
+// Custom Dice Votes
+// ---------------------------------------------------------------------------
+
+export interface CustomDiceVoteRow {
+  id: number;
+  user_id: string;
+  skin_id: string;
+}
+
+export interface CustomDiceVoteInsert {
+  user_id: string;
+  skin_id: string;
 }
