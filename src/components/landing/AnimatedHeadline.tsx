@@ -27,6 +27,8 @@ function AnimatedWord({ word, index, color }: { word: string; index: number; col
         marginRight: '0.25em',
         color: color ?? 'inherit',
         perspective: 600,
+        position: 'relative',
+        zIndex: 1,
       }}
     >
       {word}
@@ -70,7 +72,7 @@ export default function AnimatedHeadline() {
         <motion.span
           style={{
             position: 'absolute',
-            bottom: 2,
+            bottom: -4,
             left: 0,
             right: 0,
             height: '0.1em',
@@ -78,6 +80,7 @@ export default function AnimatedHeadline() {
             borderRadius: 4,
             display: 'block',
             transformOrigin: 'left',
+            zIndex: 0,
           }}
           initial={{ scaleX: 0, opacity: 0 }}
           animate={{ scaleX: 1, opacity: 1 }}

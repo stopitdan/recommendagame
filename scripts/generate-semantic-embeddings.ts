@@ -37,7 +37,7 @@ async function main() {
   let totalSkipped = 0;
 
   while (true) {
-    // Fetch games that DON'T have semantic embeddings yet
+    // Fetch games ordered by ID with pagination
     const { data: rows, error } = await supabase
       .from('games')
       .select('*')
@@ -56,7 +56,27 @@ async function main() {
 
     // Convert to Game objects and build text representations
     const games = (rows as GameRow[]).map(rowToGame);
-    const texts = games.map(gameToText);
+
+    // Check which games already have semantic embeddings (skip them)
+    const gameIds = games.map((g) => g.id);
+    const { data: existingRows } = await supabase
+      .from('game_embeddings')
+      .select('game_id')
+      .in('game_id', gameIds)
+      .not('semantic_embedding', 'is', null);
+
+    const existingIds = new Set((existingRows ?? []).map((r) => r.game_id));
+    const gamesToEmbed = games.filter((g) => !existingIds.has(g.id));
+
+    if (gamesToEmbed.length === 0) {
+      totalProcessed += rows.length;
+      totalSkipped += rows.length;
+      offset += BATCH_SIZE;
+      console.log(`[Semantic] Progress: ${totalProcessed} processed | ${totalUpserted} upserted | ${totalSkipped} skipped | offset: ${offset} (all had embeddings)`);
+      continue;
+    }
+
+    const texts = gamesToEmbed.map(gameToText);
 
     // Generate embeddings via OpenAI batch API
     const embeddings = await embedBatch(texts);
@@ -64,10 +84,10 @@ async function main() {
     // Build upsert rows (skip games where embedding failed)
     const upsertRows: { game_id: string; semantic_embedding: string; semantic_model: string }[] = [];
 
-    for (let i = 0; i < games.length; i++) {
+    for (let i = 0; i < gamesToEmbed.length; i++) {
       if (embeddings[i]) {
         upsertRows.push({
-          game_id: games[i].id,
+          game_id: gamesToEmbed[i].id,
           semantic_embedding: `[${embeddings[i]!.join(',')}]`,
           semantic_model: 'text-embedding-3-small',
         });
@@ -77,19 +97,33 @@ async function main() {
     }
 
     if (upsertRows.length > 0) {
-      // Upsert in smaller sub-batches to avoid timeout
-      const SUB_BATCH = 25;
-      for (let i = 0; i < upsertRows.length; i += SUB_BATCH) {
-        const chunk = upsertRows.slice(i, i + SUB_BATCH);
-        const { error: upsertError } = await supabase
-          .from('game_embeddings')
-          .upsert(chunk, { onConflict: 'game_id' });
+      // Upsert one row at a time with retries to avoid HNSW index timeouts
+      for (let i = 0; i < upsertRows.length; i++) {
+        const row = upsertRows[i];
+        let success = false;
 
-        if (upsertError) {
-          console.error(`[Semantic] Upsert error at offset ${offset}:`, upsertError.message);
-        } else {
-          totalUpserted += chunk.length;
+        for (let attempt = 0; attempt < 3; attempt++) {
+          const { error: upsertError } = await supabase
+            .from('game_embeddings')
+            .upsert(row, { onConflict: 'game_id' });
+
+          if (!upsertError) {
+            totalUpserted++;
+            success = true;
+            break;
+          }
+
+          // On timeout, wait longer before retrying
+          console.warn(`[Semantic] Retry ${attempt + 1}/3 for ${row.game_id}: ${upsertError.message}`);
+          await new Promise((r) => setTimeout(r, 2000 * (attempt + 1)));
         }
+
+        if (!success) {
+          console.error(`[Semantic] Failed after 3 retries: ${row.game_id}`);
+        }
+
+        // Small delay between individual upserts to reduce index pressure
+        await new Promise((r) => setTimeout(r, 50));
       }
     }
 

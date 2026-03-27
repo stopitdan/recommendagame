@@ -53,8 +53,28 @@ async function main() {
       break;
     }
 
+    // Check which games already have hash embeddings (skip them)
+    const gameIds = (rows as GameRow[]).map((r) => r.id);
+    const { data: existingRows } = await supabase
+      .from('game_embeddings')
+      .select('game_id')
+      .in('game_id', gameIds)
+      .not('embedding', 'is', null);
+
+    const existingIds = new Set((existingRows ?? []).map((r: { game_id: string }) => r.game_id));
+    const newRows = (rows as GameRow[]).filter((r) => !existingIds.has(r.id));
+
+    if (newRows.length === 0) {
+      totalProcessed += rows.length;
+      offset += BATCH_SIZE;
+      if (totalProcessed % 2000 === 0) {
+        console.log(`[Embeddings] Progress: ${totalProcessed} processed | ${totalUpserted} upserted | ${totalFailed} failed (all had embeddings)`);
+      }
+      continue;
+    }
+
     // Generate embeddings
-    const embeddings = (rows as GameRow[]).map((row) => {
+    const embeddings = newRows.map((row) => {
       const game = rowToGame(row);
       const vector = normalize(gameToVector(game));
       return {
@@ -64,17 +84,32 @@ async function main() {
       };
     });
 
-    // Upsert one at a time (batch upserts of 768-dim vectors timeout)
+    // Upsert one at a time with retries (HNSW index causes timeouts at scale)
     for (const emb of embeddings) {
-      const { error: upsertError } = await supabase
-        .from('game_embeddings')
-        .upsert(emb, { onConflict: 'game_id' });
+      let success = false;
 
-      if (upsertError) {
-        totalFailed++;
-      } else {
-        totalUpserted++;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const { error: upsertError } = await supabase
+          .from('game_embeddings')
+          .upsert(emb, { onConflict: 'game_id' });
+
+        if (!upsertError) {
+          totalUpserted++;
+          success = true;
+          break;
+        }
+
+        console.warn(`[Embeddings] Retry ${attempt + 1}/3 for ${emb.game_id}: ${upsertError.message}`);
+        await new Promise((r) => setTimeout(r, 2000 * (attempt + 1)));
       }
+
+      if (!success) {
+        console.error(`[Embeddings] Failed after 3 retries: ${emb.game_id}`);
+        totalFailed++;
+      }
+
+      // Small delay between rows to reduce HNSW index pressure
+      await new Promise((r) => setTimeout(r, 50));
     }
 
     totalProcessed += rows.length;
