@@ -4,7 +4,7 @@ import { useRef, useEffect, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { type DiceSkin, type DiceSkinType, getSkin, getEmojiForFace, DEFAULT_SKIN_ID } from '@/lib/dice-skins';
-import { getShaderCode } from '@/lib/dice-shaders';
+import { getShaderCode, SHADER_DEFAULTS } from '@/lib/dice-shaders';
 import type { CustomDiceSkinConfig } from '@/types/custom-dice';
 
 /**
@@ -167,35 +167,41 @@ function FaceLabels({ faces, skin, labelStyle }: {
 
 function ShaderDiceMaterial({ shaderKey, shaderColors }: {
   shaderKey: string;
-  /** Optional custom colors for parameterized shaders */
+  /** Optional custom colors — falls back to SHADER_DEFAULTS for this key */
   shaderColors?: { color1: string; color2: string; color3: string };
 }) {
   const matRef = useRef<THREE.ShaderMaterial>(null!);
 
+  // Resolve colors: custom → defaults → white fallback
+  const defaults = SHADER_DEFAULTS[shaderKey];
+  const c1 = shaderColors?.color1 ?? defaults?.color1 ?? '#FFFFFF';
+  const c2 = shaderColors?.color2 ?? defaults?.color2 ?? '#FFFFFF';
+  const c3 = shaderColors?.color3 ?? defaults?.color3 ?? '#FFFFFF';
+
+  // Only recreate the material when the shader KEY changes (different GLSL program)
   const material = useMemo(() => {
     const code = getShaderCode(shaderKey);
     if (!code) return null;
-
-    const uniforms: Record<string, { value: unknown }> = {
-      uTime: { value: 0 },
-    };
-
-    if (shaderColors) {
-      uniforms.uColor1 = { value: new THREE.Color(shaderColors.color1) };
-      uniforms.uColor2 = { value: new THREE.Color(shaderColors.color2) };
-      uniforms.uColor3 = { value: new THREE.Color(shaderColors.color3) };
-    }
-
     return new THREE.ShaderMaterial({
       vertexShader: code.vertex,
       fragmentShader: code.fragment,
-      uniforms,
+      uniforms: {
+        uTime: { value: 0 },
+        uColor1: { value: new THREE.Color(c1) },
+        uColor2: { value: new THREE.Color(c2) },
+        uColor3: { value: new THREE.Color(c3) },
+      },
     });
-  }, [shaderKey, shaderColors]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shaderKey]);
 
+  // Update color uniforms reactively without recreating the material
   useFrame((_, delta) => {
     if (matRef.current) {
       matRef.current.uniforms.uTime.value += delta;
+      matRef.current.uniforms.uColor1.value.set(c1);
+      matRef.current.uniforms.uColor2.value.set(c2);
+      matRef.current.uniforms.uColor3.value.set(c3);
     }
   });
 

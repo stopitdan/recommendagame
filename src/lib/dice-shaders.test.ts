@@ -22,17 +22,33 @@ describe('getShaderCode', () => {
   });
 
   it('all registered shaders have uTime uniform', () => {
-    const keys = ['fire', 'water', 'galaxy', 'holographic', 'electric', 'toxic', 'marble', 'magma', 'frost', 'disco', 'blood-moon'];
-    for (const key of keys) {
+    for (const key of SHADER_KEYS) {
       const code = getShaderCode(key);
       expect(code).not.toBeNull();
       expect(code!.fragment).toContain('uTime');
     }
   });
 
+  it('all registered shaders have color uniforms', () => {
+    for (const key of SHADER_KEYS) {
+      const code = getShaderCode(key);
+      expect(code!.fragment).toContain('uniform vec3 uColor1');
+      expect(code!.fragment).toContain('uniform vec3 uColor2');
+      expect(code!.fragment).toContain('uniform vec3 uColor3');
+    }
+  });
+
+  it('all registered shaders reference at least uColor1 in their body', () => {
+    for (const key of SHADER_KEYS) {
+      const code = getShaderCode(key)!;
+      // The main() body should use at least uColor1 (not just the declaration)
+      const mainBody = code.fragment.split('void main()')[1];
+      expect(mainBody).toContain('uColor1');
+    }
+  });
+
   it('all registered shaders use vPosition and vNormal', () => {
-    const keys = ['fire', 'water', 'galaxy', 'holographic', 'electric', 'toxic', 'marble', 'magma', 'frost', 'disco', 'blood-moon'];
-    for (const key of keys) {
+    for (const key of SHADER_KEYS) {
       const code = getShaderCode(key);
       expect(code!.vertex).toContain('vPosition');
       expect(code!.vertex).toContain('vNormal');
@@ -73,27 +89,13 @@ describe('SHADER_KEYS', () => {
 });
 
 describe('getParameterizedShaderCode', () => {
-  it('returns code with color uniforms in fragment shader', () => {
-    const code = getParameterizedShaderCode('fire');
-    expect(code).not.toBeNull();
-    expect(code!.fragment).toContain('uniform vec3 uColor1');
-    expect(code!.fragment).toContain('uniform vec3 uColor2');
-    expect(code!.fragment).toContain('uniform vec3 uColor3');
-  });
-
-  it('returns code with color uniforms in vertex shader', () => {
-    const code = getParameterizedShaderCode('water');
-    expect(code).not.toBeNull();
-    expect(code!.vertex).toContain('uniform vec3 uColor1');
+  it('is an alias for getShaderCode', () => {
+    const standard = getShaderCode('fire');
+    const parameterized = getParameterizedShaderCode('fire');
+    expect(parameterized).toEqual(standard);
   });
 
   it('returns null for unknown keys', () => {
     expect(getParameterizedShaderCode('nonexistent')).toBeNull();
-  });
-
-  it('preserves original shader functionality', () => {
-    const code = getParameterizedShaderCode('galaxy');
-    expect(code!.fragment).toContain('uTime');
-    expect(code!.fragment).toContain('gl_FragColor');
   });
 });
