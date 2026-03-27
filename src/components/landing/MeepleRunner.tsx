@@ -31,6 +31,7 @@ export default function MeepleRunner() {
   const spd = useRef(SPEED0);
   const py = useRef(0); const vy = useRef(0);
   const sqT = useRef(0);
+  const hoverFrames = useRef(0); // counts how long we've been hovering
   const spikes = useRef<Spike[]>([]);
   const fr = useRef(0); const nxt = useRef(40);
 
@@ -77,12 +78,13 @@ export default function MeepleRunner() {
     sc.current = 0; spd.current = SPEED0;
     py.current = 0; vy.current = JUMP_V; // start with a jump!
     setDuck(false);
-    sqT.current = 0; spikes.current = [];
+    sqT.current = 0; hoverFrames.current = 0; spikes.current = [];
     fr.current = 0; nxt.current = 40; setUiSc(0);
   }, []);
 
   const die = useCallback(() => {
     gs.current = 'dead'; setUi('dead'); setUiSc(sc.current);
+    spikes.current = []; // clear spikes for clean death screen
     if (sc.current > hi.current) {
       hi.current = sc.current; setUiHi(sc.current);
       try { localStorage.setItem(LS_KEY, String(sc.current)); } catch {}
@@ -169,21 +171,22 @@ export default function MeepleRunner() {
 
         const rising = vy.current < 0;
 
-        if (jumpHeld && py.current > 0) {
-          // HOLDING + airborne: rise normally, but once you'd start
-          // falling, just hover instead. Ball reaches full jump height
-          // then freezes there.
+        if (jumpHeld && py.current > 0 && hoverFrames.current < 40) {
+          // HOLDING + airborne + haven't hovered too long
           if (rising) {
-            // Still rising — apply gentle gravity so it arcs up naturally
+            // Still rising — normal gravity arc
             vy.current += GRAVITY;
           } else {
-            // Would be falling — HOVER. Velocity = 0, ball stays put.
+            // At peak — HOVER (max ~1 second = 60 frames)
             vy.current = 0;
+            hoverFrames.current++;
           }
         } else if (py.current > 0) {
-          // NOT holding + airborne: fall fast
+          // NOT holding, or hover time expired — fall
           vy.current += FALL_GRAVITY;
         }
+        // Reset hover counter when back on ground
+        if (py.current <= 0) hoverFrames.current = 0;
 
         py.current -= vy.current;
 
@@ -213,56 +216,75 @@ export default function MeepleRunner() {
         for (const s of spikes.current) s.x -= spd.current;
         spikes.current = spikes.current.filter(s => s.x > -15);
 
-        // Collision
+        // Collision — use tighter hitbox (70% of visual radius)
         const duck = duckHeld && py.current < 0.5;
-        const eH = duck ? BALL_R : BALL_R * 2;
+        const hitR = BALL_R * 0.65; // smaller than visual for forgiving feel
+        const hitH = duck ? hitR * 0.5 : hitR * 2;
         const lx = 35;
+        const ballBottom = py.current;
+        const ballTop = py.current + hitH;
         for (const s of spikes.current) {
-          if (lx + BALL_R < s.x || lx - BALL_R > s.x + s.w) continue;
-          if (s.gnd) { if (py.current < s.h) { die(); break; } }
-          else { if (py.current + eH > playH - s.h) { die(); break; } }
+          // Horizontal overlap check (tight)
+          if (lx + hitR < s.x || lx - hitR > s.x + s.w) continue;
+          if (s.gnd) {
+            if (ballBottom < s.h) { die(); break; }
+          } else {
+            const tipY = playH - s.h;
+            if (ballTop > tipY) { die(); break; }
+          }
         }
       }
 
-      // ═══ DRAW ═══
-      ctx.fillStyle = alpha(theme.palette.text.primary, 0.3);
-      for (const s of spikes.current) {
-        const sx = ox + s.x;
-        ctx.beginPath();
-        if (s.gnd) { ctx.moveTo(sx, gnd); ctx.lineTo(sx + s.w / 2, gnd - s.h); ctx.lineTo(sx + s.w, gnd); }
-        else { ctx.moveTo(sx, 4); ctx.lineTo(sx + s.w / 2, 4 + s.h); ctx.lineTo(sx + s.w, 4); }
-        ctx.closePath(); ctx.fill();
-      }
+      // ═══ DRAW (only when playing) ═══
+      if (gs.current === 'play') {
+        // Spikes
+        ctx.fillStyle = alpha(theme.palette.text.primary, 0.3);
+        for (const s of spikes.current) {
+          const sx = ox + s.x;
+          ctx.beginPath();
+          if (s.gnd) {
+            // Ground spike — base sits exactly ON the ground line
+            ctx.moveTo(sx, gnd);
+            ctx.lineTo(sx + s.w / 2, gnd - s.h);
+            ctx.lineTo(sx + s.w, gnd);
+          } else {
+            ctx.moveTo(sx, 4);
+            ctx.lineTo(sx + s.w / 2, 4 + s.h);
+            ctx.lineTo(sx + s.w, 4);
+          }
+          ctx.closePath(); ctx.fill();
+        }
 
-      // Ball
-      const ballCenterY = gnd - py.current - BALL_R;
-      const duck = duckHeld && py.current < 0.5 && gs.current === 'play';
-      const sq = sqT.current > 0;
-      let rx = BALL_R, ry = BALL_R;
-      if (duck) { rx = BALL_R * 1.3; ry = BALL_R * 0.45; }
-      else if (sq) { const t = sqT.current / 6; rx = BALL_R * (1 + t * 0.25); ry = BALL_R * (1 - t * 0.2); }
+        // Ball
+        const duck = duckHeld && py.current < 0.5;
+        const sq = sqT.current > 0;
+        let rx = BALL_R, ry = BALL_R;
+        if (duck) { rx = BALL_R * 1.4; ry = BALL_R * 0.4; }
+        else if (sq) { const t = sqT.current / 6; rx = BALL_R * (1 + t * 0.25); ry = BALL_R * (1 - t * 0.2); }
 
-      ctx.fillStyle = alpha(theme.palette.text.primary, 0.04);
-      ctx.beginPath(); ctx.ellipse(bx, gnd + 1, rx * 0.5, 1, 0, 0, Math.PI * 2); ctx.fill();
+        // Anchor bottom of ball to ground (gnd - py is where bottom of ball should be)
+        const ballCenterY = gnd - py.current - ry;
 
-      const gr = ctx.createRadialGradient(bx - 2, ballCenterY - 2, 0, bx, ballCenterY, Math.max(rx, ry));
-      gr.addColorStop(0, theme.palette.secondary.main);
-      gr.addColorStop(1, theme.palette.secondary.dark ?? theme.palette.secondary.main);
-      ctx.fillStyle = gr;
-      ctx.beginPath(); ctx.ellipse(bx, ballCenterY, rx, ry, 0, 0, Math.PI * 2); ctx.fill();
+        // Shadow
+        ctx.fillStyle = alpha(theme.palette.text.primary, 0.04);
+        ctx.beginPath(); ctx.ellipse(bx, gnd + 1, rx * 0.5, 1, 0, 0, Math.PI * 2); ctx.fill();
 
-      ctx.fillStyle = 'rgba(255,255,255,0.22)';
-      ctx.beginPath(); ctx.ellipse(bx - rx * 0.15, ballCenterY - ry * 0.4, rx * 0.2, ry * 0.15, 0, 0, Math.PI * 2); ctx.fill();
+        // Body
+        const gr = ctx.createRadialGradient(bx - 2, ballCenterY - 2, 0, bx, ballCenterY, Math.max(rx, ry));
+        gr.addColorStop(0, theme.palette.secondary.main);
+        gr.addColorStop(1, theme.palette.secondary.dark ?? theme.palette.secondary.main);
+        ctx.fillStyle = gr;
+        ctx.beginPath(); ctx.ellipse(bx, ballCenterY, rx, ry, 0, 0, Math.PI * 2); ctx.fill();
 
-      if (gs.current !== 'dead') {
+        // Highlight
+        ctx.fillStyle = 'rgba(255,255,255,0.22)';
+        ctx.beginPath(); ctx.ellipse(bx - rx * 0.15, ballCenterY - ry * 0.4, rx * 0.2, ry * 0.15, 0, 0, Math.PI * 2); ctx.fill();
+
+        // Eye
         ctx.fillStyle = '#fff';
         ctx.beginPath(); ctx.arc(bx + rx * 0.25, ballCenterY - ry * 0.15, 2, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = theme.palette.text.primary;
         ctx.beginPath(); ctx.arc(bx + rx * 0.35, ballCenterY - ry * 0.15, 0.8, 0, Math.PI * 2); ctx.fill();
-      } else {
-        ctx.strokeStyle = theme.palette.text.primary; ctx.lineWidth = 1;
-        const ex = bx + rx * 0.25, ey = ballCenterY - ry * 0.15;
-        ctx.beginPath(); ctx.moveTo(ex - 2, ey - 2); ctx.lineTo(ex + 2, ey + 2); ctx.moveTo(ex + 2, ey - 2); ctx.lineTo(ex - 2, ey + 2); ctx.stroke();
       }
 
       // Score
