@@ -154,6 +154,7 @@ export default function RandomGameView() {
   const [isNat1, setIsNat1] = useState(false);
   const [type, setType] = useState<string | null>(null);
   const [activeSkin, setActiveSkin] = useState<DiceSkin>(getSkin(DEFAULT_SKIN_ID));
+  const [skinReady, setSkinReady] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [customSkins, setCustomSkins] = useState<CustomDiceSkinSummary[]>([]);
 
@@ -195,6 +196,8 @@ export default function RandomGameView() {
           // Fall back to default skin silently
         }
       }
+      // Always mark ready — logged-out users just get the default skin immediately
+      setSkinReady(true);
     }
     loadSkin();
   }, []);
@@ -361,14 +364,18 @@ export default function RandomGameView() {
             />
           </Box>
 
-          {/* 3D Physics Dice — always centered */}
+          {/* 3D Physics Dice — hidden until skin is resolved to avoid flash */}
           <Box sx={{ width: '100%', maxWidth: 400 }} onClick={() => !rolling && rollDice()}>
-            <PhysicsDice
-              rolling={rolling}
-              onSettled={handleDiceSettled}
-              skin={activeSkin}
-              isNat20={isNat20}
-            />
+            {skinReady ? (
+              <PhysicsDice
+                rolling={rolling}
+                onSettled={handleDiceSettled}
+                skin={activeSkin}
+                isNat20={isNat20}
+              />
+            ) : (
+              <Box sx={{ width: '100%', height: 300 }} />
+            )}
           </Box>
         </Box>
 
