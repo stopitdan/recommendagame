@@ -27,28 +27,28 @@ export async function GET() {
 
   const health: Record<string, unknown> = {};
 
-  // Game counts
+  // Game counts (use estimated count — exact is too slow on 100k+ rows)
   const { count: totalGames } = await supabase
     .from('games')
-    .select('*', { count: 'exact', head: true });
+    .select('*', { count: 'estimated', head: true });
   health.totalGames = totalGames ?? 0;
 
   const { count: ratedGames } = await supabase
     .from('games')
-    .select('*', { count: 'exact', head: true })
+    .select('*', { count: 'estimated', head: true })
     .not('rating', 'is', null);
   health.ratedGames = ratedGames ?? 0;
 
-  // Embedding counts
+  // Embedding counts (estimated)
   const { count: hashEmbeddings } = await supabase
     .from('game_embeddings')
-    .select('*', { count: 'exact', head: true });
+    .select('*', { count: 'estimated', head: true });
   health.hashEmbeddings = hashEmbeddings ?? 0;
   health.hashCoverage = totalGames ? `${Math.round(((hashEmbeddings ?? 0) / totalGames) * 100)}%` : '0%';
 
   const { count: semanticEmbeddings } = await supabase
     .from('game_embeddings')
-    .select('*', { count: 'exact', head: true })
+    .select('*', { count: 'estimated', head: true })
     .not('semantic_embedding', 'is', null);
   health.semanticEmbeddings = semanticEmbeddings ?? 0;
   health.semanticCoverage = totalGames ? `${Math.round(((semanticEmbeddings ?? 0) / totalGames) * 100)}%` : '0%';
