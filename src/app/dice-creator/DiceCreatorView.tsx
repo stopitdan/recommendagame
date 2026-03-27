@@ -13,6 +13,8 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import MenuItem from '@mui/material/MenuItem';
 import Slider from '@mui/material/Slider';
 import TextField from '@mui/material/TextField';
+import Switch from '@mui/material/Switch';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Tooltip from '@mui/material/Tooltip';
@@ -43,12 +45,14 @@ interface CreatorState {
   config: CustomDiceSkinConfig;
   /** Existing skin ID when editing */
   editId: string | null;
+  isPublic: boolean;
 }
 
 type CreatorAction =
   | { type: 'SET_NAME'; name: string }
   | { type: 'SET_EMOJI'; emoji: string }
   | { type: 'SET_EDIT_ID'; editId: string }
+  | { type: 'SET_PUBLIC'; isPublic: boolean }
   | { type: 'UPDATE_CONFIG'; patch: Partial<CustomDiceSkinConfig> }
   | { type: 'LOAD_STATE'; state: CreatorState };
 
@@ -74,6 +78,8 @@ function reducer(state: CreatorState, action: CreatorAction): CreatorState {
       return { ...state, emoji: action.emoji };
     case 'SET_EDIT_ID':
       return { ...state, editId: action.editId };
+    case 'SET_PUBLIC':
+      return { ...state, isPublic: action.isPublic };
     case 'UPDATE_CONFIG':
       return { ...state, config: { ...state.config, ...action.patch } };
     case 'LOAD_STATE':
@@ -88,6 +94,7 @@ const INITIAL_STATE: CreatorState = {
   emoji: '🎲',
   config: DEFAULT_CONFIG,
   editId: null,
+  isPublic: false,
 };
 
 // ─── Common emoji grid ──────────────────────────────────────────
@@ -254,6 +261,7 @@ export default function DiceCreatorView() {
             emoji: skin.emoji,
             config: skin.config,
             editId: skin.id,
+            isPublic: skin.is_public ?? false,
           },
         });
       } catch {
@@ -299,7 +307,7 @@ export default function DiceCreatorView() {
         name: state.name.trim(),
         emoji: state.emoji,
         config: state.config,
-        // is_public: false — public feature commented out for now
+        is_public: state.isPublic,
       };
 
       const url = state.editId ? `/api/dice-skins/${state.editId}` : '/api/dice-skins';
@@ -753,7 +761,6 @@ export default function DiceCreatorView() {
               </AccordionSummary>
               <AccordionDetails>
                 <Stack spacing={2}>
-                  {/* Public toggle — commented out for now, no gallery to show them in
                   <FormControlLabel
                     control={
                       <Switch
@@ -766,7 +773,6 @@ export default function DiceCreatorView() {
                   <Typography variant="caption" color="text.secondary" sx={{ mt: -1 }}>
                     Public skins appear in the Dice Gallery for others to use and vote on.
                   </Typography>
-                  */}
 
                   <TextField
                     select
