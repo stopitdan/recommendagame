@@ -222,21 +222,37 @@ export default function MeepleRunner() {
         for (const s of spikes.current) s.x -= spd.current;
         spikes.current = spikes.current.filter(s => s.x > -15);
 
-        // Collision — use tighter hitbox (70% of visual radius)
+        // Collision — triangular spike hitbox (narrow at tip, wide at base)
         const duck = duckHeld && py.current < 0.5;
-        const hitR = BALL_R * 0.65; // smaller than visual for forgiving feel
+        const hitR = BALL_R * 0.6;
         const hitH = duck ? hitR * 0.5 : hitR * 2;
         const lx = 35;
         const ballBottom = py.current;
         const ballTop = py.current + hitH;
+        const ballCx = lx; // ball center X in game coords
+
         for (const s of spikes.current) {
-          // Horizontal overlap check (tight)
-          if (lx + hitR < s.x || lx - hitR > s.x + s.w) continue;
+          const spikeCx = s.x + s.w / 2; // spike center X
+
           if (s.gnd) {
-            if (ballBottom < s.h) { die(); break; }
+            // Ground spike: triangle from (x, 0) base to (cx, h) tip
+            // At ball's Y position, how wide is the spike?
+            if (ballBottom >= s.h) continue; // ball is above spike tip
+            const ratio = 1 - (ballBottom / s.h); // 1 at base, 0 at tip
+            const spikeWidthAtBall = s.w * ratio * 0.5; // half-width
+            if (Math.abs(ballCx - spikeCx) < spikeWidthAtBall + hitR) {
+              die(); break;
+            }
           } else {
-            const tipY = playH - s.h;
-            if (ballTop > tipY) { die(); break; }
+            // Ceiling spike: triangle from top down
+            const tipY = playH - s.h; // tip Y in ball coords
+            if (ballTop <= tipY) continue; // ball is below spike tip
+            const penetration = ballTop - tipY;
+            const ratio = 1 - (penetration / s.h); // 1 at base, 0 at tip
+            const spikeWidthAtBall = s.w * Math.max(ratio, 0) * 0.5;
+            if (Math.abs(ballCx - spikeCx) < spikeWidthAtBall + hitR) {
+              die(); break;
+            }
           }
         }
       }
