@@ -268,8 +268,10 @@ export default function BrowseView() {
             size="medium"
             onClick={() => {
               if (filtersOpen) {
-                // Closing the panel — apply any pending filter changes
-                applyFilters();
+                // Only refetch if filters actually changed
+                if (JSON.stringify(filters) !== JSON.stringify(appliedFilters)) {
+                  applyFilters();
+                }
               }
               setFiltersOpen(!filtersOpen);
             }}

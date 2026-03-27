@@ -5,9 +5,10 @@
  * attribute-based encoder, and upserts them into game_embeddings.
  *
  * Usage:
- *   npx tsx scripts/generate-embeddings.ts [batch-size]
+ *   npx tsx scripts/generate-embeddings.ts [batch-size] [start-offset]
  *
- * Default batch size is 500 (how many games to process per DB call).
+ * Default batch size is 200 (how many games to process per DB call).
+ * Optional start-offset skips ahead (e.g. 84000 to resume from that point).
  * Safe to re-run — uses upsert so existing embeddings get updated.
  */
 
@@ -21,6 +22,7 @@ import { rowToGame } from '../src/lib/supabase/games';
 import type { GameRow } from '../src/types/supabase';
 
 const BATCH_SIZE = parseInt(process.argv[2] ?? '200', 10);
+const START_OFFSET = parseInt(process.argv[3] ?? '0', 10);
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -28,9 +30,9 @@ const supabase = createClient(
 );
 
 async function main() {
-  console.log(`[Embeddings] Starting generation (batch size: ${BATCH_SIZE})`);
+  console.log(`[Embeddings] Starting generation (batch size: ${BATCH_SIZE}, offset: ${START_OFFSET})`);
 
-  let offset = 0;
+  let offset = START_OFFSET;
   let totalProcessed = 0;
   let totalUpserted = 0;
   let totalFailed = 0;

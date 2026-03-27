@@ -103,9 +103,16 @@ async function main() {
         let success = false;
 
         for (let attempt = 0; attempt < 3; attempt++) {
-          const { error: upsertError } = await supabase
+          const upsertPromise = supabase
             .from('game_embeddings')
             .upsert(row, { onConflict: 'game_id' });
+
+          // Abort if Supabase doesn't respond within 30s
+          const timeout = new Promise<{ error: { message: string } }>((resolve) =>
+            setTimeout(() => resolve({ error: { message: 'client timeout after 30s' } }), 30_000),
+          );
+
+          const { error: upsertError } = await Promise.race([upsertPromise, timeout]);
 
           if (!upsertError) {
             totalUpserted++;

@@ -466,8 +466,20 @@ export default function ResultsView() {
             size="small"
             onClick={() => {
               if (filtersOpen) {
-                // Closing — apply pending filter changes
-                applyRefineFilters();
+                // Only refetch if filters actually changed
+                const pending = {
+                  playerCount: filterPlayers,
+                  time: filterTime,
+                  complexity: filterComplexity,
+                  minRating: filterMinRating,
+                  categories: filterCategories,
+                  mechanics: filterMechanics,
+                  themes: filterThemes,
+                  platforms: filterPlatforms,
+                };
+                if (JSON.stringify(pending) !== JSON.stringify(appliedRefine)) {
+                  applyRefineFilters();
+                }
               }
               setFiltersOpen(!filtersOpen);
             }}
