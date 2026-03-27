@@ -18,8 +18,10 @@ import AnimatedRating from '@/components/AnimatedRating';
 import { useAchievements } from '@/components/AchievementToast';
 import DiceCustomizer from '@/components/DiceCustomizer';
 import { getSkin, DEFAULT_SKIN_ID, type DiceSkin } from '@/lib/dice-skins';
+import { resolveCustomSkin } from '@/lib/custom-dice-utils';
 import { createClient } from '@/lib/supabase/client';
 import { triggerEpicNat20 } from '@/lib/nat20-celebration';
+import type { CustomDiceSkinSummary } from '@/types/custom-dice';
 
 // Dynamic import — Three.js can't SSR
 const PhysicsDice = dynamic(() => import('@/components/PhysicsDice'), {
@@ -153,8 +155,9 @@ export default function RandomGameView() {
   const [type, setType] = useState<string | null>(null);
   const [activeSkin, setActiveSkin] = useState<DiceSkin>(getSkin(DEFAULT_SKIN_ID));
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [customSkins, setCustomSkins] = useState<CustomDiceSkinSummary[]>([]);
 
-  // Load user's saved dice skin on mount
+  // Load user's saved dice skin and custom skins on mount
   useEffect(() => {
     async function loadSkin() {
       const supabase = createClient();
@@ -163,10 +166,30 @@ export default function RandomGameView() {
 
       if (user) {
         try {
-          const res = await fetch('/api/user/dice-skin');
-          if (res.ok) {
-            const { skinId } = await res.json();
-            setActiveSkin(getSkin(skinId));
+          // Load saved skin preference + custom skins in parallel
+          const [skinRes, customRes] = await Promise.all([
+            fetch('/api/user/dice-skin'),
+            fetch('/api/dice-skins'),
+          ]);
+
+          if (customRes.ok) {
+            const { skins } = await customRes.json();
+            setCustomSkins(skins ?? []);
+          }
+
+          if (skinRes.ok) {
+            const data = await skinRes.json();
+            if (data.customSkin) {
+              // Custom skin — resolve from config
+              setActiveSkin(resolveCustomSkin(
+                data.customSkin.id,
+                data.customSkin.name,
+                data.customSkin.emoji,
+                data.customSkin.config,
+              ));
+            } else {
+              setActiveSkin(getSkin(data.skinId));
+            }
           }
         } catch {
           // Fall back to default skin silently
@@ -333,6 +356,7 @@ export default function RandomGameView() {
               activeSkinId={activeSkin.id}
               isLoggedIn={isLoggedIn}
               onSelect={handleSkinSelect}
+              customSkins={customSkins}
               vertical
             />
           </Box>
@@ -354,6 +378,7 @@ export default function RandomGameView() {
             activeSkinId={activeSkin.id}
             isLoggedIn={isLoggedIn}
             onSelect={handleSkinSelect}
+            customSkins={customSkins}
           />
         </Box>
 

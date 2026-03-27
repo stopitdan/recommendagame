@@ -11,7 +11,10 @@ import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { motion, AnimatePresence } from 'motion/react';
+import Divider from '@mui/material/Divider';
 import { DICE_SKINS, type DiceSkin } from '@/lib/dice-skins';
+import type { CustomDiceSkinSummary } from '@/types/custom-dice';
+import { resolveCustomSkin } from '@/lib/custom-dice-utils';
 
 /** CSS keyframes for animated swatch previews — injected once */
 const SWATCH_KEYFRAMES = `
@@ -64,6 +67,8 @@ interface DiceCustomizerProps {
   onSelect: (skin: DiceSkin) => void;
   /** When true, renders as a narrow vertical strip (2-3 columns) instead of a wide row */
   vertical?: boolean;
+  /** User's custom dice skins */
+  customSkins?: CustomDiceSkinSummary[];
 }
 
 /**
@@ -71,7 +76,7 @@ interface DiceCustomizerProps {
  * Animated swatches preview the shader effects.
  * Locked skins show a lock icon and prompt signup for guests.
  */
-export default function DiceCustomizer({ activeSkinId, isLoggedIn, onSelect, vertical }: DiceCustomizerProps) {
+export default function DiceCustomizer({ activeSkinId, isLoggedIn, onSelect, vertical, customSkins }: DiceCustomizerProps) {
   const router = useRouter();
   const [signupOpen, setSignupOpen] = useState(false);
 
@@ -173,6 +178,85 @@ export default function DiceCustomizer({ activeSkinId, isLoggedIn, onSelect, ver
             );
           })}
         </Box>
+
+        {/* Custom skins section */}
+        {isLoggedIn && (customSkins?.length || 0) > 0 && (
+          <>
+            <Divider sx={{ my: 1 }} />
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ mb: 0.5, display: 'block', textAlign: vertical ? 'center' : undefined }}
+            >
+              Your Custom Dice
+            </Typography>
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: vertical ? 'repeat(3, 34px)' : 'repeat(auto-fill, 34px)',
+                gap: 0.8,
+                justifyContent: 'center',
+                justifyItems: 'center',
+              }}
+            >
+              {customSkins!.map((cs) => {
+                const resolved = resolveCustomSkin(cs.id, cs.name, cs.emoji, cs.config);
+                const isActive = cs.id === activeSkinId;
+                return (
+                  <Tooltip key={cs.id} title={`${cs.emoji} ${cs.name}`}>
+                    <IconButton
+                      onClick={() => onSelect(resolved)}
+                      sx={{
+                        width: 34,
+                        height: 34,
+                        p: 0,
+                        border: isActive ? '2.5px solid' : '2px solid transparent',
+                        borderColor: isActive ? 'primary.main' : 'transparent',
+                        borderRadius: '50%',
+                        transition: 'all 150ms ease',
+                        '&:hover': { transform: 'scale(1.2)' },
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: 24,
+                          height: 24,
+                          borderRadius: '50%',
+                          background: resolved.swatchBg,
+                        }}
+                      />
+                    </IconButton>
+                  </Tooltip>
+                );
+              })}
+            </Box>
+          </>
+        )}
+
+        {/* Create New button */}
+        {isLoggedIn && (
+          <Box sx={{ mt: 1, textAlign: 'center' }}>
+            <Tooltip title="Create a custom dice skin">
+              <IconButton
+                onClick={() => router.push('/dice-creator')}
+                sx={{
+                  width: 34,
+                  height: 34,
+                  border: '2px dashed',
+                  borderColor: 'divider',
+                  borderRadius: '50%',
+                  fontSize: '1rem',
+                  '&:hover': {
+                    borderColor: 'primary.main',
+                    transform: 'scale(1.1)',
+                  },
+                }}
+              >
+                +
+              </IconButton>
+            </Tooltip>
+          </Box>
+        )}
       </Box>
 
       {/* Signup prompt dialog for guests trying to use premium skins */}

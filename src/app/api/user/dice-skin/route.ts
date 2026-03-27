@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { SKIN_MAP, DEFAULT_SKIN_ID } from '@/lib/dice-skins';
+import { isCustomSkinId } from '@/lib/custom-dice-utils';
 
 /**
  * GET /api/user/dice-skin — Returns the current user's dice skin preference.
@@ -23,7 +24,24 @@ export async function GET() {
     return NextResponse.json({ skinId: DEFAULT_SKIN_ID });
   }
 
-  return NextResponse.json({ skinId: data.dice_skin ?? DEFAULT_SKIN_ID });
+  const skinId = data.dice_skin ?? DEFAULT_SKIN_ID;
+
+  // If it's a custom skin UUID, also return the full config
+  if (isCustomSkinId(skinId)) {
+    const { data: customSkin } = await supabase
+      .from('custom_dice_skins')
+      .select('id, name, emoji, config')
+      .eq('id', skinId)
+      .single();
+
+    if (customSkin) {
+      return NextResponse.json({ skinId, customSkin });
+    }
+    // Custom skin was deleted — fall back to default
+    return NextResponse.json({ skinId: DEFAULT_SKIN_ID });
+  }
+
+  return NextResponse.json({ skinId });
 }
 
 /**
@@ -41,7 +59,8 @@ export async function PUT(request: NextRequest) {
   const body = await request.json();
   const skinId = body?.skinId;
 
-  if (typeof skinId !== 'string' || !SKIN_MAP.has(skinId)) {
+  // Accept both built-in skin IDs and custom UUID skin IDs
+  if (typeof skinId !== 'string' || (!SKIN_MAP.has(skinId) && !isCustomSkinId(skinId))) {
     return NextResponse.json({ error: 'Invalid skin ID' }, { status: 400 });
   }
 
