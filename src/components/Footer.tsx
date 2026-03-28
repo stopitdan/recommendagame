@@ -13,6 +13,8 @@ const LINKS = {
     { label: 'Browse Games', href: '/browse' },
     { label: 'Leaderboard', href: '/leaderboard' },
     { label: 'How It Works', href: '/about' },
+    { label: 'Blog', href: '/blog' },
+    { label: 'Compare Games', href: '/compare' },
   ],
   Account: [
     { label: 'Sign Up', href: '/signup' },

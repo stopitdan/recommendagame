@@ -22,6 +22,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: '/future-roadmap', changeFrequency: 'weekly' as const, priority: 0.3 },
     { url: '/login', changeFrequency: 'yearly' as const, priority: 0.2 },
     { url: '/signup', changeFrequency: 'yearly' as const, priority: 0.2 },
+    { url: '/blog', changeFrequency: 'daily' as const, priority: 0.8 },
+    { url: '/compare', changeFrequency: 'monthly' as const, priority: 0.5 },
     { url: '/faq', changeFrequency: 'monthly' as const, priority: 0.4 },
     { url: '/contact', changeFrequency: 'yearly' as const, priority: 0.3 },
     { url: '/privacy', changeFrequency: 'yearly' as const, priority: 0.1 },
