@@ -19,6 +19,7 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Dice5, Puzzle, Gamepad2, Type, PartyPopper } from 'lucide-react';
+import SearchAutocomplete from '@/components/SearchAutocomplete';
 import GameCard from '@/components/GameCard';
 import { GameCardSkeletonList } from '@/components/GameCardSkeleton';
 import GameLoader from '@/components/GameLoader';
@@ -244,13 +245,10 @@ export default function BrowseView() {
 
         {/* Search + Sort + Filter toggle */}
         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
-          <TextField
-            size="small"
-            placeholder="Search games..."
+          <SearchAutocomplete
             value={filters.q}
-            onChange={(e) => updateFilter({ q: e.target.value })}
-            onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
-            sx={{ flex: 1, minWidth: 200 }}
+            onChange={(q) => updateFilter({ q })}
+            onSubmit={applyFilters}
           />
           <FormControl size="small" sx={{ minWidth: 150 }}>
             <InputLabel>Sort by</InputLabel>

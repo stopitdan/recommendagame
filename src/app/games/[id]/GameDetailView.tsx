@@ -19,7 +19,7 @@ import SimilarGames from '@/components/SimilarGames';
 import type { Game } from '@/types/game';
 import { formatGameType } from '@/lib/utils/format';
 import JsonLd from '@/components/JsonLd';
-import { Users, Clock, Brain, Calendar, BarChart3 } from 'lucide-react';
+import { Users, Clock, Brain, Calendar, BarChart3, ExternalLink, ShoppingCart } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 export default function GameDetailView() {
@@ -202,7 +202,7 @@ export default function GameDetailView() {
             ))}
           </Box>
 
-          {/* Action buttons */}
+          {/* Where to buy / links */}
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
             {game.sourceUrl && (
               <Button
@@ -212,8 +212,9 @@ export default function GameDetailView() {
                 target="_blank"
                 rel="noopener noreferrer"
                 component="a"
+                startIcon={<ExternalLink size={14} />}
               >
-                View on {game.source === 'bgg' ? 'BoardGameGeek' : game.source === 'rawg' ? 'RAWG' : game.source}
+                {game.source === 'bgg' ? 'BoardGameGeek' : game.source === 'rawg' ? 'RAWG' : game.source}
               </Button>
             )}
             <Button
@@ -223,10 +224,39 @@ export default function GameDetailView() {
               target="_blank"
               rel="noopener noreferrer"
               component="a"
+              startIcon={<ShoppingCart size={14} />}
               sx={{ textTransform: 'none', fontWeight: 600 }}
             >
-              Buy on Amazon
+              Amazon
             </Button>
+            {isVideoGame && (
+              <Button
+                variant="outlined"
+                size="small"
+                href={`https://store.steampowered.com/search/?term=${encodeURIComponent(game.name)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                component="a"
+                startIcon={<ExternalLink size={14} />}
+                sx={{ textTransform: 'none' }}
+              >
+                Steam
+              </Button>
+            )}
+            {!isVideoGame && (
+              <Button
+                variant="outlined"
+                size="small"
+                href={`https://www.target.com/s?searchTerm=${encodeURIComponent(game.name)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                component="a"
+                startIcon={<ExternalLink size={14} />}
+                sx={{ textTransform: 'none' }}
+              >
+                Target
+              </Button>
+            )}
           </Box>
         </Stack>
       </Box>

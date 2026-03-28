@@ -11,6 +11,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import type { Game } from '@/types/game';
 import { formatGameType } from '@/lib/utils/format';
+import { ShoppingCart } from 'lucide-react';
 import AnimatedRating from './AnimatedRating';
 import FavoriteButton from './FavoriteButton';
 import GameCardActions from './GameCardActions';
@@ -143,13 +144,26 @@ export default function GameCard({ game, showFavorite = true, isFavorited = fals
             </Typography>
           )}
 
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5, alignItems: 'center' }}>
             {game.types.map((t) => (
               <Chip key={t} label={formatGameType(t)} size="small" variant="outlined" />
             ))}
             {game.categories.slice(0, 3).map((c) => (
               <Chip key={c} label={c} size="small" />
             ))}
+            <Chip
+              component="a"
+              href={`https://www.amazon.com/s?k=${encodeURIComponent(game.name)}&tag=boredgame-20`}
+              target="_blank"
+              rel="noopener noreferrer"
+              icon={<ShoppingCart size={12} /> as React.ReactElement}
+              label="Buy"
+              size="small"
+              color="secondary"
+              variant="outlined"
+              clickable
+              sx={{ ml: 'auto' }}
+            />
           </Box>
         </Stack>
       </CardContent>

@@ -24,6 +24,7 @@ import AnimatedHeadline from "@/components/landing/AnimatedHeadline";
 import MagneticButton from "@/components/landing/MagneticButton";
 import JsonLd from "@/components/JsonLd";
 import NewsletterSignup from "@/components/NewsletterSignup";
+import DailyPick from "@/components/DailyPick";
 import { Puzzle, Gamepad2, PartyPopper, Brain } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -516,6 +517,13 @@ export default function Home() {
       <Box sx={{ py: { xs: 4, md: 6 }, bgcolor: "background.default" }}>
         <Section>
           <QuickCollections />
+        </Section>
+      </Box>
+
+      {/* ═══════════ DAILY PICK ═══════════ */}
+      <Box sx={{ py: { xs: 4, md: 6 }, bgcolor: "background.default" }}>
+        <Section>
+          <DailyPick />
         </Section>
       </Box>
 
