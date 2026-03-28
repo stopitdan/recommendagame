@@ -91,7 +91,7 @@ export async function parsePreferencesWithLLM(
     if (!raw) return null;
 
     const parsed = JSON.parse(raw);
-    return validateAndClean(parsed);
+    return validateAndClean(parsed, text);
   } catch (error) {
     console.error('[LLM] Parse error:', error instanceof Error ? error.message : error);
     return null;
@@ -108,8 +108,8 @@ const VALID_TIME_PRESETS = new Set(['quick', 'short', 'medium', 'long', 'epic'])
  * Validates and cleans LLM output, ensuring all fields have correct types
  * and values are from known enums where applicable.
  */
-function validateAndClean(raw: Record<string, unknown>): ParsedPreferences {
-  return {
+function validateAndClean(raw: Record<string, unknown>, originalText: string): ParsedPreferences {
+  const result: ParsedPreferences = {
     gameTypes: filterArray(raw.gameTypes, (v) => VALID_GAME_TYPES.has(v)),
     genres: toStringArray(raw.genres),
     mechanics: toStringArray(raw.mechanics),
@@ -124,6 +124,39 @@ function validateAndClean(raw: Record<string, unknown>): ParsedPreferences {
     maxMinutes: typeof raw.maxMinutes === 'number' && raw.maxMinutes > 0 ? raw.maxMinutes : null,
     timeStrictness: raw.timeStrictness === 'hard' || raw.timeStrictness === 'soft' ? raw.timeStrictness : null,
   };
+
+  // Post-processing: extract time from original text if LLM missed it
+  if (!result.maxMinutes) {
+    const lower = originalText.toLowerCase();
+    const timeMatch = lower.match(/(\d+)\s*(?:min|minutes|mins)/);
+    if (timeMatch) {
+      result.maxMinutes = parseInt(timeMatch[1], 10);
+      // Detect strictness from surrounding words
+      const beforeTime = lower.slice(0, timeMatch.index ?? 0);
+      if (/(?:under|less than|no more than|no longer than|max|within|fewer than)\s*$/.test(beforeTime)) {
+        result.timeStrictness = 'hard';
+      } else if (/(?:about|around|roughly|approximately|~)\s*$/.test(beforeTime)) {
+        result.timeStrictness = 'soft';
+      } else {
+        result.timeStrictness = 'soft'; // Default to soft if ambiguous
+      }
+    }
+  }
+
+  // Post-processing: board game mechanics should default gameType to "board"
+  const BOARD_GAME_MECHANICS = ['deck building', 'worker placement', 'area control',
+    'tile placement', 'engine building', 'hand management', 'set collection',
+    'dice rolling', 'route building', 'trick taking', 'drafting', 'auction'];
+  if (result.gameTypes.length === 0 && result.mechanics.length > 0) {
+    const hasBoardMechanic = result.mechanics.some((m) =>
+      BOARD_GAME_MECHANICS.some((bm) => m.toLowerCase().includes(bm))
+    );
+    if (hasBoardMechanic) {
+      result.gameTypes = ['board'];
+    }
+  }
+
+  return result;
 }
 
 function toStringArray(val: unknown): string[] {
