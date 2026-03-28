@@ -656,9 +656,9 @@ async function fetchDirectMechanicMatches(
       .select(GAME_COLUMNS)
       .contains('mechanics', [mech])
       .eq('is_expansion', false)
-      .gte('rating_count', 50)
-      .order('rating', { ascending: false, nullsFirst: false })
-      .limit(30)
+      .gte('rating_count', 100)
+      .order('rating_count', { ascending: false })
+      .limit(50)
   );
 
   const results = await Promise.all(queries);
