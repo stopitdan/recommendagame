@@ -413,6 +413,23 @@ function applyHardFilters(
     });
   }
 
+  // If user specified a single specific mechanic, hard-filter to games with that mechanic.
+  // "deck building game" = they want ONLY deck builders, not a mix.
+  if (prefs.llmParsed?.mechanics?.length === 1) {
+    const targetMechanic = prefs.llmParsed.mechanics[0].toLowerCase();
+    const aliases = BGG_MECHANIC_ALIASES[targetMechanic] ?? [prefs.llmParsed.mechanics[0]];
+    const beforeMechFilter = filtered.length;
+    const mechFiltered = filtered.filter((g) => {
+      const gameMechanics = g.mechanics.map((m) => m.toLowerCase());
+      return aliases.some((alias) => gameMechanics.some((gm) => gm.includes(alias.toLowerCase())));
+    });
+    // Only apply if it doesn't eliminate too many (keep at least 10)
+    if (mechFiltered.length >= 10) {
+      filtered = mechFiltered;
+      console.log(`[Recommend] Strict mechanic filter: ${beforeMechFilter} → ${filtered.length} (${prefs.llmParsed.mechanics[0]})`);
+    }
+  }
+
   // Excluded genres/mechanics from LLM parsing (e.g., "no war games")
   const excluded = prefs.llmParsed;
   if (excluded?.excludedGenres?.length || excluded?.excludedMechanics?.length) {

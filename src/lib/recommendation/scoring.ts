@@ -63,15 +63,15 @@ export interface ScoringWeights {
 // ─── Default Weights ─────────────────────────────────────────
 
 export const DEFAULT_WEIGHTS: ScoringWeights = {
-  typeMatch: 0.12,       // Hard-filtered already, this is for partial matches
-  playerCountFit: 0.10,  // Hard-filtered already, this scores fit quality
-  timeFit: 0.08,         // Hard-filtered already, this scores fit quality
-  complexityFit: 0.08,   // Hard-filtered already, this scores fit quality
+  typeMatch: 0.10,       // Hard-filtered already, this is for partial matches
+  playerCountFit: 0.08,  // Hard-filtered already, this scores fit quality
+  timeFit: 0.07,         // Hard-filtered already, this scores fit quality
+  complexityFit: 0.07,   // Hard-filtered already, this scores fit quality
   genreMatch: 0.20,      // Primary relevance signal — genres/mechanics drive taste
-  moodAlignment: 0.10,   // Important soft signal — vibes matter
+  moodAlignment: 0.08,   // Soft signal — vibes
   freeTextMatch: 0.14,   // Keywords from user's description are highly relevant
-  qualitySignal: 0.05,   // Tiebreaker only — relevance beats ratings
-  popularitySignal: 0.10, // Community validation — users expect recognizable games
+  qualitySignal: 0.03,   // Minor tiebreaker — rating score matters very little
+  popularitySignal: 0.20, // Community engagement — how many people own/play/rate this game
   recencyBoost: 0.03,    // Mild freshness boost
 };
 
@@ -85,9 +85,9 @@ export const HIDDEN_GEMS_WEIGHTS: ScoringWeights = {
 
 export const POPULAR_WEIGHTS: ScoringWeights = {
   ...DEFAULT_WEIGHTS,
-  popularitySignal: 0.14,
-  qualitySignal: 0.08,
-  genreMatch: 0.18,
+  popularitySignal: 0.25,
+  qualitySignal: 0.05,
+  genreMatch: 0.16,
   moodAlignment: 0.06,
   recencyBoost: 0.02,
 };
