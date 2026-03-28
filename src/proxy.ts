@@ -55,7 +55,7 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Run on all routes except static files, images, and favicon
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    // Run on all routes except static files, images, favicon, and cron endpoints
+    '/((?!_next/static|_next/image|favicon.ico|api/blog/generate|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };
