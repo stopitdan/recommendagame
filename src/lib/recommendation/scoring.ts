@@ -617,11 +617,30 @@ function scoreRecency(game: Game): number {
 }
 
 /**
- * Quality signal: normalized 0-10 rating to 0-1.
+ * Quality signal: Bayesian-adjusted rating normalized to 0-1.
+ *
+ * Raw rating/10 is unreliable for games with few votes. A game rated
+ * 9.5 by 12 people is less trustworthy than one rated 7.6 by 50,000.
+ * We use a Bayesian average (IMDB-style) that pulls low-vote ratings
+ * toward the global mean:
+ *
+ *   adjusted = (votes * rating + C * globalMean) / (votes + C)
+ *
+ * where C = minimum votes for full confidence (1000).
+ * This means a game needs ~1000 ratings before its score is fully
+ * trusted; below that, it's dampened toward 6.5/10.
  */
 function scoreQuality(game: Game): number {
   if (game.rating == null) return 0.3; // Unknown = slightly below average
-  return game.rating / 10;
+
+  const CONFIDENCE_THRESHOLD = 1000; // Votes needed for full rating confidence
+  const GLOBAL_MEAN = 6.5; // Approximate average rating across all games
+
+  const votes = game.ratingCount ?? 0;
+  const bayesian = (votes * game.rating + CONFIDENCE_THRESHOLD * GLOBAL_MEAN)
+    / (votes + CONFIDENCE_THRESHOLD);
+
+  return bayesian / 10;
 }
 
 /**

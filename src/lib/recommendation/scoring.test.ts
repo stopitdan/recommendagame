@@ -381,9 +381,11 @@ describe('scoreGame — mood alignment', () => {
 // ─── Quality Signal ──────────────────────────────────────────
 
 describe('scoreGame — quality signal', () => {
-  it('normalizes rating to 0-1 scale', () => {
+  it('uses Bayesian-adjusted rating (dampened toward mean for low-vote games)', () => {
+    // With 5000 votes (default makeGame), rating 8.0:
+    // bayesian = (5000*8 + 1000*6.5) / 6000 = 7.75 → 0.775
     const result = scoreGame(makeGame({ rating: 8.0 }), makePrefs());
-    expect(result.breakdown.qualitySignal).toBe(0.8);
+    expect(result.breakdown.qualitySignal).toBeCloseTo(0.775, 2);
   });
 
   it('scores 0.3 for unknown rating', () => {
@@ -391,9 +393,20 @@ describe('scoreGame — quality signal', () => {
     expect(result.breakdown.qualitySignal).toBe(0.3);
   });
 
-  it('scores 1.0 for perfect rating', () => {
-    const result = scoreGame(makeGame({ rating: 10.0 }), makePrefs());
-    expect(result.breakdown.qualitySignal).toBe(1.0);
+  it('high-vote games approach raw rating', () => {
+    // With 50000 votes, rating 10.0:
+    // bayesian = (50000*10 + 1000*6.5) / 51000 ≈ 9.931 → 0.993
+    const result = scoreGame(makeGame({ rating: 10.0, ratingCount: 50000 }), makePrefs());
+    expect(result.breakdown.qualitySignal).toBeGreaterThan(0.99);
+  });
+
+  it('low-vote games are dampened toward global mean', () => {
+    // With 50 votes, rating 9.5:
+    // bayesian = (50*9.5 + 1000*6.5) / 1050 ≈ 6.643 → 0.664
+    const lowVote = scoreGame(makeGame({ rating: 9.5, ratingCount: 50 }), makePrefs());
+    const highVote = scoreGame(makeGame({ rating: 9.5, ratingCount: 50000 }), makePrefs());
+    expect(lowVote.breakdown.qualitySignal).toBeLessThan(highVote.breakdown.qualitySignal);
+    expect(lowVote.breakdown.qualitySignal).toBeCloseTo(0.664, 2);
   });
 });
 
