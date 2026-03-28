@@ -63,24 +63,24 @@ export interface ScoringWeights {
 // ─── Default Weights ─────────────────────────────────────────
 
 export const DEFAULT_WEIGHTS: ScoringWeights = {
-  typeMatch: 0.17,       // Most important — wrong type = wrong game
-  playerCountFit: 0.16,  // Critical — can't play a 5p game with 2 people
-  timeFit: 0.10,         // Important — but flexible
-  complexityFit: 0.09,   // Nice to have
-  genreMatch: 0.14,      // Strong signal — genres drive taste
-  moodAlignment: 0.09,   // Soft signal — vibes
-  freeTextMatch: 0.08,   // Keyword matching from free text input
-  qualitySignal: 0.06,   // Tiebreaker
-  popularitySignal: 0.06, // Tiebreaker
-  recencyBoost: 0.05,    // Mild freshness boost for newer games
+  typeMatch: 0.12,       // Hard-filtered already, this is for partial matches
+  playerCountFit: 0.10,  // Hard-filtered already, this scores fit quality
+  timeFit: 0.08,         // Hard-filtered already, this scores fit quality
+  complexityFit: 0.08,   // Hard-filtered already, this scores fit quality
+  genreMatch: 0.22,      // Primary relevance signal — genres/mechanics drive taste
+  moodAlignment: 0.12,   // Important soft signal — vibes matter
+  freeTextMatch: 0.15,   // Keywords from user's description are highly relevant
+  qualitySignal: 0.05,   // Tiebreaker only — relevance beats ratings
+  popularitySignal: 0.04, // Tiebreaker only — niche games should surface
+  recencyBoost: 0.04,    // Mild freshness boost
 };
 
 export const HIDDEN_GEMS_WEIGHTS: ScoringWeights = {
   ...DEFAULT_WEIGHTS,
-  qualitySignal: 0.10,
-  popularitySignal: 0.02,
-  genreMatch: 0.15,
-  recencyBoost: 0.06,    // Hidden gems benefit more from recency
+  qualitySignal: 0.08,
+  popularitySignal: 0.01,
+  genreMatch: 0.24,
+  recencyBoost: 0.05,
 };
 
 export const POPULAR_WEIGHTS: ScoringWeights = {

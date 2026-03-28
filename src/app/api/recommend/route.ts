@@ -18,6 +18,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import type { GameRow } from '@/types/supabase';
 import type { QuestionnaireState } from '@/types/questionnaire';
+import { TIME_PRESETS } from '@/types/questionnaire';
+import type { ParsedPreferences } from '@/lib/llm/types';
 import { rowToGame, GAME_SELECT_COLUMNS } from '@/lib/supabase/games';
 import {
   scoreGames,
@@ -206,7 +208,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Step 2: Rule-based scoring (fast, in-memory)
+    // Step 2a: Hard constraint filtering — eliminate games that clearly violate preferences
+    const beforeFilter = candidates.length;
+    candidates = applyHardFilters(candidates, body);
+    console.log(`[Recommend] Hard filters: ${beforeFilter} → ${candidates.length} candidates`);
+
+    // Step 2b: Rule-based scoring (fast, in-memory)
     const weights = getWeightsForMode(popularity);
     const scored = scoreGames(candidates, body, weights);
 
@@ -272,6 +279,75 @@ export async function POST(request: NextRequest) {
     console.error('[Recommend] Error:', error);
     return NextResponse.json({ error: 'Recommendation failed' }, { status: 500 });
   }
+}
+
+// ─── Hard Constraint Filtering ──────────────────────────────
+
+/**
+ * Eliminate games that clearly violate user's explicit preferences.
+ * These are dealbreakers: a 900-minute game when someone asked for 30 min
+ * should never appear, regardless of how high it scores on other dimensions.
+ *
+ * We use generous margins (50% buffer) to avoid being too aggressive.
+ */
+function applyHardFilters(
+  candidates: ReturnType<typeof rowToGame>[],
+  prefs: QuestionnaireState & { llmParsed?: ParsedPreferences | null },
+): ReturnType<typeof rowToGame>[] {
+  let filtered = candidates;
+
+  // Player count: eliminate games that can't support the user's group
+  if (prefs.playerCount && (prefs.playerCount.min > 1 || prefs.playerCount.max < 10)) {
+    filtered = filtered.filter((g) => {
+      if (!g.playerCount) return true; // Unknown = keep
+      return g.playerCount.max >= prefs.playerCount.min &&
+             g.playerCount.min <= prefs.playerCount.max;
+    });
+  }
+
+  // Time: eliminate games way outside the user's time range
+  if (prefs.timePresets.length > 0) {
+    const minTime = Math.min(...prefs.timePresets.map((tp) => TIME_PRESETS[tp].minMinutes));
+    const maxTime = Math.max(...prefs.timePresets.map((tp) => TIME_PRESETS[tp].maxMinutes));
+    // Allow 50% buffer on max for flexibility (60 min preset allows up to 90 min games)
+    const hardMax = maxTime < 999 ? maxTime * 1.5 : Infinity;
+    filtered = filtered.filter((g) => {
+      const gameTime = g.playTime?.average ?? g.playTime?.min;
+      if (!gameTime) return true; // Unknown = keep
+      return gameTime <= hardMax;
+    });
+  }
+
+  // Complexity: eliminate games outside the user's range (with 0.5 buffer)
+  if (prefs.complexity && (prefs.complexity.min > 1 || prefs.complexity.max < 5)) {
+    const minC = Math.max(0, prefs.complexity.min - 0.5);
+    const maxC = Math.min(5, prefs.complexity.max + 0.5);
+    filtered = filtered.filter((g) => {
+      if (!g.complexity) return true; // Unknown = keep
+      return g.complexity >= minC && g.complexity <= maxC;
+    });
+  }
+
+  // Game type: if specified, eliminate wrong types
+  if (prefs.gameTypes.length > 0) {
+    filtered = filtered.filter((g) => {
+      return g.types.some((t) => prefs.gameTypes.includes(t));
+    });
+  }
+
+  // If filtering removed too many candidates, keep at least the ones that pass
+  // player count (the hardest constraint) and relax the others
+  if (filtered.length < 5 && candidates.length >= 5) {
+    // Fall back to just player count filtering
+    filtered = candidates.filter((g) => {
+      if (!prefs.playerCount || (prefs.playerCount.min <= 1 && prefs.playerCount.max >= 10)) return true;
+      if (!g.playerCount) return true;
+      return g.playerCount.max >= prefs.playerCount.min &&
+             g.playerCount.min <= prefs.playerCount.max;
+    });
+  }
+
+  return filtered;
 }
 
 // ─── Candidate Fetching ──────────────────────────────────────
