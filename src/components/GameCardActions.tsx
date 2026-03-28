@@ -1,36 +1,59 @@
 'use client';
 
 import { useState } from 'react';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Chip from '@mui/material/Chip';
 import IconButton from '@mui/material/IconButton';
+import Popover from '@mui/material/Popover';
+import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 import { motion } from 'motion/react';
 
 export interface GameCardActionsProps {
   gameId: string;
-  /** Called when user clicks "Not This" — parent should remove the card */
   onDismiss?: (gameId: string) => void;
-  /** Called when user clicks "More Like This" — parent should trigger search */
   onMoreLikeThis?: (gameId: string) => void;
 }
 
-/**
- * Thumbs-down and "More Like This" action buttons for game cards.
- * Sits alongside the existing FavoriteButton in the card header.
- */
+const DISMISS_REASONS = [
+  'Wrong genre',
+  'Too complex',
+  'Too simple',
+  'Wrong player count',
+  'Too long',
+  'Already own it',
+  'Already played it',
+  'Not interested',
+];
+
 export default function GameCardActions({ gameId, onDismiss, onMoreLikeThis }: GameCardActionsProps) {
   const [dismissed, setDismissed] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [reasonText, setReasonText] = useState('');
 
-  function handleDismiss() {
+  function handleDismissClick(e: React.MouseEvent<HTMLElement>) {
+    setAnchorEl(e.currentTarget);
+  }
+
+  function submitDismiss(reason?: string) {
     setDismissed(true);
+    setAnchorEl(null);
 
-    // Fire-and-forget feedback API (don't block UI for guest users)
+    const context = reason || reasonText.trim() || 'not-this';
+
     fetch('/api/feedback', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ gameId, rating: -1, context: 'not-this' }),
+      body: JSON.stringify({ gameId, rating: -1, context }),
     }).catch(() => {});
 
     onDismiss?.(gameId);
+  }
+
+  function handleSkipReason() {
+    submitDismiss('not-this');
   }
 
   function handleMoreLikeThis() {
@@ -41,7 +64,7 @@ export default function GameCardActions({ gameId, onDismiss, onMoreLikeThis }: G
     <>
       <Tooltip title="Not this">
         <IconButton
-          onClick={handleDismiss}
+          onClick={handleDismissClick}
           disabled={dismissed}
           size="small"
           aria-label="Not this game"
@@ -58,6 +81,58 @@ export default function GameCardActions({ gameId, onDismiss, onMoreLikeThis }: G
           </motion.div>
         </IconButton>
       </Tooltip>
+
+      {/* Why did you dislike this? popover */}
+      <Popover
+        open={Boolean(anchorEl)}
+        anchorEl={anchorEl}
+        onClose={handleSkipReason}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'center' }}
+        slotProps={{ paper: { sx: { p: 2, maxWidth: 280, borderRadius: 2 } } }}
+      >
+        <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1 }}>
+          What was wrong?
+        </Typography>
+        <Typography variant="caption" color="text.secondary" sx={{ mb: 1.5, display: 'block' }}>
+          This helps us give you better recommendations.
+        </Typography>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 1.5 }}>
+          {DISMISS_REASONS.map((reason) => (
+            <Chip
+              key={reason}
+              label={reason}
+              size="small"
+              variant="outlined"
+              onClick={() => submitDismiss(reason)}
+              sx={{ cursor: 'pointer', '&:hover': { borderColor: 'error.main' } }}
+            />
+          ))}
+        </Box>
+        <TextField
+          size="small"
+          placeholder="Other reason..."
+          value={reasonText}
+          onChange={(e) => setReasonText(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && submitDismiss()}
+          fullWidth
+          sx={{ mb: 1 }}
+        />
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+          <Button size="small" onClick={handleSkipReason} sx={{ textTransform: 'none' }}>
+            Skip
+          </Button>
+          <Button
+            size="small"
+            variant="contained"
+            onClick={() => submitDismiss()}
+            disabled={!reasonText.trim()}
+            sx={{ textTransform: 'none' }}
+          >
+            Submit
+          </Button>
+        </Box>
+      </Popover>
 
       <Tooltip title="More like this">
         <IconButton
