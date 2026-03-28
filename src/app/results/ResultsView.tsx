@@ -31,6 +31,7 @@ import { CATEGORY_OPTIONS, MECHANIC_OPTIONS, THEME_OPTIONS, PLATFORM_OPTIONS } f
 import { createClient } from '@/lib/supabase/client';
 import { Save, Dice5, Puzzle, Gamepad2, Type, PartyPopper } from 'lucide-react';
 import ShareResultsButton from '@/components/ShareResultsButton';
+import LoginPromptBanner from '@/components/LoginPromptBanner';
 
 type PopularityMode = 'popular' | 'any' | 'hidden-gems';
 
@@ -334,6 +335,8 @@ export default function ResultsView() {
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Stack spacing={3}>
+        <LoginPromptBanner />
+
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
           <Box>
             <Typography variant="h4" fontWeight={700}>
