@@ -36,6 +36,7 @@ import { diversityRerank } from '@/lib/recommendation/diversity';
 import { buildRejectionProfile, computeRejectionPenalty } from '@/lib/recommendation/rejection';
 import { getPopularFallback } from '@/lib/recommendation/popularity-cache';
 import { llmRerank } from '@/lib/recommendation/llm-rerank';
+import { expandQuery } from '@/lib/recommendation/llm-query-expand';
 import { getCollaborativeSignals } from '@/lib/recommendation/collaborative';
 
 // ─── Config ──────────────────────────────────────────────────
@@ -145,6 +146,12 @@ export async function POST(request: NextRequest) {
       maxTime: body.maxTime,
     };
 
+    // LLM query expansion: creatively expand the user's intent into additional search terms
+    // This runs in parallel with everything else and adds to the candidate pool
+    const queryExpansion = body.freeText
+      ? expandQuery(body.freeText)
+      : Promise.resolve({ searchTerms: [], categories: [], mechanics: [], themes: [] });
+
     // Collect tags from LLM parsing + user genres for tag-based search
     const allTags = collectSearchTags(body);
 
@@ -184,7 +191,34 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log(`[Recommend] Hybrid pool: ${ratingCandidates.length} rating + ${mechanicCandidates.length} mechanic + ${vectorCandidates.length} vector + ${tagCandidates.length} tag + ${textCandidates.length} text = ${candidates.length} unique`);
+    // Merge in LLM-expanded query results (creative search terms)
+    const expanded = await queryExpansion;
+    let expandedCount = 0;
+    if (expanded.themes.length > 0 || expanded.categories.length > 0 || expanded.mechanics.length > 0) {
+      const expandedTags = [...expanded.categories, ...expanded.mechanics, ...expanded.themes];
+      const expandedCandidates = await withTimeout(
+        fetchTagCandidates(supabase, expandTagsWithAliases(expandedTags), body),
+        3000,
+        [],
+      );
+      for (const g of expandedCandidates) {
+        if (!seen.has(g.id)) { candidates.push(g); seen.add(g.id); expandedCount++; }
+      }
+    }
+    // Also do a description text search for the expanded search terms
+    if (expanded.searchTerms.length > 0) {
+      const searchText = expanded.searchTerms.join(' ');
+      const expandedText = await withTimeout(
+        fetchTextSearchCandidates(supabase, searchText),
+        3000,
+        [],
+      );
+      for (const g of expandedText) {
+        if (!seen.has(g.id)) { candidates.push(g); seen.add(g.id); expandedCount++; }
+      }
+    }
+
+    console.log(`[Recommend] Hybrid pool: ${ratingCandidates.length} rating + ${mechanicCandidates.length} mechanic + ${vectorCandidates.length} vector + ${tagCandidates.length} tag + ${textCandidates.length} text + ${expandedCount} expanded = ${candidates.length} unique`);
 
     // Progressive fallbacks (only if hybrid produced nothing)
     if (candidates.length === 0) {
