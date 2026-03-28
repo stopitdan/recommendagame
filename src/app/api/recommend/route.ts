@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
         ? withTimeout(fetchTextSearchCandidates(supabase, body.freeText), 5000, [])
         : Promise.resolve([]),
       allTags.length > 0
-        ? withTimeout(fetchTagCandidates(supabase, allTags), 5000, [])
+        ? withTimeout(fetchTagCandidates(supabase, allTags, body), 5000, [])
         : Promise.resolve([]),
     ]);
 
@@ -560,33 +560,41 @@ async function fetchTagCandidates(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabase: any,
   tags: string[],
+  prefs?: QuestionnaireState,
 ): Promise<ReturnType<typeof rowToGame>[]> {
   if (tags.length === 0) return [];
 
-  const limitedTags = tags.slice(0, 8);
+  // Separate mechanic tags from genre/theme tags for more targeted queries
+  const mechanicTags = prefs?.llmParsed?.mechanics
+    ? expandTagsWithAliases(prefs.llmParsed.mechanics)
+    : [];
+  const genreTags = tags.filter((t) => !mechanicTags.includes(t)).slice(0, 8);
+  const limitedMechanics = mechanicTags.slice(0, 8);
 
-  // Split into 3 parallel queries (one per column) instead of one giant OR
-  // across all columns. Postgres handles 3 simple GIN queries much better
-  // than 1 query with 24 OR conditions.
+  // Use all tags as fallback if separation yields nothing
+  const catTags = genreTags.length > 0 ? genreTags : tags.slice(0, 8);
+  const mechTags = limitedMechanics.length > 0 ? limitedMechanics : tags.slice(0, 8);
+
+  // Split into 3 parallel queries (one per column)
   const [catResult, mechResult, themeResult] = await Promise.all([
-    supabase
+    catTags.length > 0 ? supabase
       .from('games')
       .select(GAME_COLUMNS)
-      .overlaps('categories', limitedTags)
+      .overlaps('categories', catTags)
       .eq('is_expansion', false)
       .order('rating', { ascending: false, nullsFirst: false })
-      .limit(50),
-    supabase
+      .limit(50) : Promise.resolve({ data: [], error: null }),
+    mechTags.length > 0 ? supabase
       .from('games')
       .select(GAME_COLUMNS)
-      .overlaps('mechanics', limitedTags)
+      .overlaps('mechanics', mechTags)
       .eq('is_expansion', false)
       .order('rating', { ascending: false, nullsFirst: false })
-      .limit(50),
+      .limit(50) : Promise.resolve({ data: [], error: null }),
     supabase
       .from('games')
       .select(GAME_COLUMNS)
-      .overlaps('themes', limitedTags)
+      .overlaps('themes', catTags)
       .eq('is_expansion', false)
       .order('rating', { ascending: false, nullsFirst: false })
       .limit(50),
