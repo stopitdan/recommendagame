@@ -67,12 +67,12 @@ export const DEFAULT_WEIGHTS: ScoringWeights = {
   playerCountFit: 0.10,  // Hard-filtered already, this scores fit quality
   timeFit: 0.08,         // Hard-filtered already, this scores fit quality
   complexityFit: 0.08,   // Hard-filtered already, this scores fit quality
-  genreMatch: 0.22,      // Primary relevance signal — genres/mechanics drive taste
-  moodAlignment: 0.12,   // Important soft signal — vibes matter
-  freeTextMatch: 0.15,   // Keywords from user's description are highly relevant
+  genreMatch: 0.20,      // Primary relevance signal — genres/mechanics drive taste
+  moodAlignment: 0.10,   // Important soft signal — vibes matter
+  freeTextMatch: 0.14,   // Keywords from user's description are highly relevant
   qualitySignal: 0.05,   // Tiebreaker only — relevance beats ratings
-  popularitySignal: 0.04, // Tiebreaker only — niche games should surface
-  recencyBoost: 0.04,    // Mild freshness boost
+  popularitySignal: 0.10, // Community validation — users expect recognizable games
+  recencyBoost: 0.03,    // Mild freshness boost
 };
 
 export const HIDDEN_GEMS_WEIGHTS: ScoringWeights = {
@@ -85,10 +85,11 @@ export const HIDDEN_GEMS_WEIGHTS: ScoringWeights = {
 
 export const POPULAR_WEIGHTS: ScoringWeights = {
   ...DEFAULT_WEIGHTS,
-  popularitySignal: 0.10,
+  popularitySignal: 0.14,
   qualitySignal: 0.08,
+  genreMatch: 0.18,
   moodAlignment: 0.06,
-  recencyBoost: 0.04,
+  recencyBoost: 0.02,
 };
 
 // ─── Main Scoring Function ───────────────────────────────────
@@ -624,13 +625,33 @@ function scoreQuality(game: Game): number {
 }
 
 /**
- * Popularity signal: log-scaled rating count.
- * 10 ratings = ~0.2, 1000 = ~0.6, 100000 = ~1.0
+ * Popularity signal: log-scaled rating count with notability tiers.
+ *
+ * The base log scale rewards community validation, but we add tier
+ * bonuses to ensure well-known games meaningfully outscore obscure ones:
+ *   - 10,000+ ratings: universally known (Catan, Dominion) → bonus +0.15
+ *   - 1,000+ ratings:  well-known in hobby → bonus +0.08
+ *   - 100+ ratings:    community-validated → bonus +0.03
+ *   - <100 ratings:    obscure, no bonus
+ *
+ * This prevents a game with 47 ratings and a 9.2 average from
+ * outranking Dominion (50k ratings, 7.6 average) when someone
+ * asks for "deck building games".
  */
 function scorePopularity(game: Game): number {
   const count = game.ratingCount ?? 0;
   if (count === 0) return 0;
-  return Math.min(Math.log10(count) / 5, 1.0);
+
+  // Base: log-scaled (10→0.2, 100→0.4, 1000→0.6, 10000→0.8, 100000→1.0)
+  const base = Math.min(Math.log10(count) / 5, 1.0);
+
+  // Notability tier bonus
+  let bonus = 0;
+  if (count >= 10_000) bonus = 0.15;
+  else if (count >= 1_000) bonus = 0.08;
+  else if (count >= 100) bonus = 0.03;
+
+  return Math.min(base + bonus, 1.0);
 }
 
 // ─── Reason Generation ───────────────────────────────────────

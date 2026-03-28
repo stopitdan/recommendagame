@@ -42,6 +42,8 @@ import { getCollaborativeSignals } from '@/lib/recommendation/collaborative';
 
 /** Per-source candidate limits (rating-based + vector-based) */
 const RATING_POOL_SIZE = 250;
+const RATING_BY_QUALITY_SIZE = 125;
+const RATING_BY_POPULARITY_SIZE = 125;
 const VECTOR_POOL_SIZE = 250;
 const DEFAULT_RESULT_LIMIT = 100;
 const MAX_RESULT_LIMIT = 200;
@@ -483,18 +485,67 @@ async function fetchCandidates(
   // Time, complexity, genres are NOT filtered at DB level.
   // The scoring engine handles them as weighted preferences.
 
-  query = query
+  // Blend two strategies: half by rating (quality), half by rating_count (popularity).
+  // This prevents obscure games with inflated ratings from dominating the pool
+  // and ensures well-known games (Dominion, Ticket to Ride) always appear.
+  const qualityQuery = query
     .order('rating', { ascending: false })
-    .limit(RATING_POOL_SIZE);
+    .limit(RATING_BY_QUALITY_SIZE);
 
-  const { data, error } = await query;
+  // Clone the base filters for the popularity query by rebuilding it
+  let popQuery = supabase
+    .from('games')
+    .select(GAME_COLUMNS)
+    .not('rating', 'is', null)
+    .eq('is_expansion', false);
 
-  if (error) {
-    console.error('[Recommend] DB query error:', error);
-    return [];
+  if (popularity === 'popular') {
+    popQuery = popQuery.gte('rating_count', 50).gte('rating', 4.5);
+  } else if (popularity === 'hidden-gems') {
+    popQuery = popQuery.lt('rating_count', 5000).gte('rating_count', 10).gte('rating', 5.5);
+  } else {
+    popQuery = popQuery.gte('rating_count', 25);
   }
 
-  return ((data ?? []) as GameRow[]).map(rowToGame);
+  if (prefs.playerCount) {
+    popQuery = popQuery.lte('min_players', prefs.playerCount.max);
+    popQuery = popQuery.gte('max_players', prefs.playerCount.min);
+  }
+
+  if (extra?.minRating && extra.minRating > 0) popQuery = popQuery.gte('rating', extra.minRating);
+  if (extra?.minTime && extra.minTime > 0) popQuery = popQuery.gte('avg_play_time', extra.minTime);
+  if (extra?.maxTime && extra.maxTime < 300) popQuery = popQuery.lte('avg_play_time', extra.maxTime);
+
+  if (prefs.gameTypes.length === 1) {
+    popQuery = popQuery.contains('types', [prefs.gameTypes[0]]);
+  } else if (prefs.gameTypes.length > 1) {
+    popQuery = popQuery.or(prefs.gameTypes.map((t: string) => `types.cs.{${t}}`).join(','));
+  }
+
+  popQuery = popQuery
+    .order('rating_count', { ascending: false })
+    .limit(RATING_BY_POPULARITY_SIZE);
+
+  const [qualityResult, popularityResult] = await Promise.all([qualityQuery, popQuery]);
+
+  if (qualityResult.error) {
+    console.error('[Recommend] DB quality query error:', qualityResult.error);
+  }
+  if (popularityResult.error) {
+    console.error('[Recommend] DB popularity query error:', popularityResult.error);
+  }
+
+  // Merge and deduplicate (quality first, then popularity fills gaps)
+  const seen = new Set<string>();
+  const merged: GameRow[] = [];
+  for (const row of ((qualityResult.data ?? []) as GameRow[])) {
+    if (!seen.has(row.id)) { seen.add(row.id); merged.push(row); }
+  }
+  for (const row of ((popularityResult.data ?? []) as GameRow[])) {
+    if (!seen.has(row.id)) { seen.add(row.id); merged.push(row); }
+  }
+
+  return merged.map(rowToGame);
 }
 
 /**
