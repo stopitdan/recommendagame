@@ -36,8 +36,8 @@ export interface CollaborativeSignal {
 // ─── Config ──────────────────────────────────────────────────
 
 /** Minimum reviews/feedback needed before collaborative filtering activates */
-const MIN_FEEDBACK_FOR_ITEM_CF = 10;
-const MIN_FEEDBACK_FOR_USER_CF = 5;
+const MIN_FEEDBACK_FOR_ITEM_CF = 3;
+const MIN_FEEDBACK_FOR_USER_CF = 3;
 
 // ─── DB Client ───────────────────────────────────────────────
 

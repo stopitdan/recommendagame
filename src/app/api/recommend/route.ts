@@ -36,6 +36,7 @@ import { diversityRerank } from '@/lib/recommendation/diversity';
 import { buildRejectionProfile, computeRejectionPenalty } from '@/lib/recommendation/rejection';
 import { getPopularFallback } from '@/lib/recommendation/popularity-cache';
 import { llmRerank } from '@/lib/recommendation/llm-rerank';
+import { getCollaborativeSignals } from '@/lib/recommendation/collaborative';
 
 // ─── Config ──────────────────────────────────────────────────
 
@@ -232,6 +233,36 @@ export async function POST(request: NextRequest) {
       }
       scored.sort((a, b) => b.score - a.score);
       engineVersion = vectorCandidates.length > 0 ? 'hybrid-vector-v2' : 'hybrid-inmemory-v1';
+    }
+
+    // Step 3.5: Collaborative filtering boost (if user has feedback history)
+    if (body.userId) {
+      try {
+        // Get user's liked game IDs from feedback
+        const { data: positiveFeedback } = await supabase
+          .from('user_game_feedback')
+          .select('game_id')
+          .eq('user_id', body.userId)
+          .eq('rating', 1);
+
+        const likedIds = (positiveFeedback ?? []).map((f: { game_id: string }) => f.game_id);
+        if (likedIds.length > 0) {
+          const cfSignals = await getCollaborativeSignals(body.userId, likedIds);
+          if (cfSignals.size > 0) {
+            for (const item of scored) {
+              const cf = cfSignals.get(item.game.id);
+              if (cf) {
+                item.score += cf.score * 0.15; // 15% CF boost
+                item.reasons.push(cf.reason);
+              }
+            }
+            scored.sort((a, b) => b.score - a.score);
+            console.log(`[Recommend] CF signals applied: ${cfSignals.size} game boosts`);
+          }
+        }
+      } catch (err) {
+        console.error('[Recommend] CF error (non-fatal):', err);
+      }
     }
 
     // Step 4: Apply rejection penalties (if user has negative feedback)
