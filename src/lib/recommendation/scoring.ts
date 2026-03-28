@@ -288,7 +288,19 @@ function scoreGenreMatch(game: Game, preferredGenres: string[]): number {
   for (const genre of preferredGenres) {
     const lowerGenre = genre.toLowerCase();
     // Check for substring matches (e.g. "Strategy" matches "Abstract Strategy")
-    if (gameTags.some((tag) => tag.includes(lowerGenre) || lowerGenre.includes(tag))) {
+    // Also check tokenized word overlap for BGG's compound mechanic names
+    // (e.g. "Deck Building" should match "Deck, Bag, and Pool Building")
+    const genreWords = lowerGenre.split(/[\s,]+/).filter((w) => w.length > 2);
+    if (gameTags.some((tag) => {
+      if (tag.includes(lowerGenre) || lowerGenre.includes(tag)) return true;
+      // Tokenized match: if all significant words from the genre appear in the tag
+      if (genreWords.length >= 2) {
+        const tagWords = tag.split(/[\s,]+/);
+        const wordMatches = genreWords.filter((gw) => tagWords.some((tw) => tw.includes(gw) || gw.includes(tw)));
+        return wordMatches.length >= genreWords.length * 0.6; // 60% word overlap
+      }
+      return false;
+    })) {
       matches++;
     }
   }

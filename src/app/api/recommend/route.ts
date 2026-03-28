@@ -210,6 +210,13 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Step 1d: Expand genres with BGG mechanic aliases for better scoring
+    // (e.g., "Deck Building" also matches "Deck, Bag, and Pool Building")
+    if (body.llmParsed?.mechanics?.length) {
+      const expanded = expandTagsWithAliases(body.llmParsed.mechanics);
+      body.genres = [...new Set([...body.genres, ...expanded])];
+    }
+
     // Step 2a: Hard constraint filtering — eliminate games that clearly violate preferences
     const beforeFilter = candidates.length;
     candidates = applyHardFilters(candidates, body);
@@ -609,6 +616,50 @@ async function fetchTagCandidates(
  * Collects all meaningful tags from user preferences and LLM parsing.
  * Used to drive tag-based candidate retrieval.
  */
+// BGG uses non-standard mechanic names. This map expands common LLM terms
+// to the actual BGG mechanic strings so tag-based candidate fetching works.
+const BGG_MECHANIC_ALIASES: Record<string, string[]> = {
+  'deck building': ['Deck, Bag, and Pool Building', 'Deck Building'],
+  'bag building': ['Deck, Bag, and Pool Building', 'Bag Building'],
+  'pool building': ['Deck, Bag, and Pool Building'],
+  'worker placement': ['Worker Placement', 'Worker Placement, Different Worker Types'],
+  'area control': ['Area Control / Area Influence', 'Area Majority / Influence'],
+  'area majority': ['Area Majority / Influence', 'Area Control / Area Influence'],
+  'hand management': ['Hand Management'],
+  'set collection': ['Set Collection'],
+  'tile placement': ['Tile Placement'],
+  'card drafting': ['Card Drafting', 'Drafting'],
+  'drafting': ['Drafting', 'Card Drafting', 'Open Drafting'],
+  'push your luck': ['Push Your Luck'],
+  'engine building': ['Income', 'Increase Value of Unchosen Resources'],
+  'trick taking': ['Trick-taking'],
+  'social deduction': ['Hidden Roles', 'Traitor Game', 'Voting'],
+  'hidden role': ['Hidden Roles', 'Traitor Game'],
+  'route building': ['Route/Network Building', 'Network and Route Building'],
+  'roll and write': ['Roll-and-Write', 'Roll / Spin and Move'],
+  'action points': ['Action Points', 'Action/Event'],
+  'modular board': ['Modular Board'],
+  'variable player powers': ['Variable Player Powers'],
+  'legacy': ['Legacy Game', 'Campaign / Battle Card Driven'],
+  'campaign': ['Campaign / Battle Card Driven', 'Legacy Game'],
+  'cooperative': ['Cooperative Game', 'Semi-Cooperative Game'],
+  'auction': ['Auction/Bidding', 'Auction: English'],
+  'negotiation': ['Negotiation', 'Trading'],
+  'pattern building': ['Pattern Building', 'Pattern Recognition'],
+};
+
+function expandTagsWithAliases(tags: string[]): string[] {
+  const expanded = new Set<string>();
+  for (const tag of tags) {
+    expanded.add(tag);
+    const aliases = BGG_MECHANIC_ALIASES[tag.toLowerCase()];
+    if (aliases) {
+      for (const alias of aliases) expanded.add(alias);
+    }
+  }
+  return [...expanded];
+}
+
 function collectSearchTags(prefs: QuestionnaireState): string[] {
   const tags = new Set<string>();
 
@@ -619,10 +670,10 @@ function collectSearchTags(prefs: QuestionnaireState): string[] {
   if (prefs.llmParsed) {
     for (const g of prefs.llmParsed.genres) tags.add(g);
     for (const m of prefs.llmParsed.mechanics) tags.add(m);
-    // Keywords are too vague for exact tag matching — skip them
   }
 
-  return [...tags];
+  // Expand with BGG aliases so tag search actually finds the right games
+  return expandTagsWithAliases([...tags]);
 }
 
 /**
