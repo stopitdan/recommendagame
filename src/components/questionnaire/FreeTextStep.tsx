@@ -8,17 +8,26 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import type { PlayerCountRange } from '@/types/questionnaire';
+import type { GameType } from '@/types/game';
+import { Puzzle, Gamepad2, Type, PartyPopper, Dice5 } from 'lucide-react';
+
+const GAME_TYPE_OPTIONS: { label: string; value: GameType | null; icon: React.ReactNode }[] = [
+  { label: 'All', value: null, icon: <Dice5 size={16} /> },
+  { label: 'Board', value: 'board', icon: <Puzzle size={16} /> },
+  { label: 'Video', value: 'video', icon: <Gamepad2 size={16} /> },
+  { label: 'Word', value: 'word', icon: <Type size={16} /> },
+  { label: 'Party', value: 'party', icon: <PartyPopper size={16} /> },
+];
 
 export interface FreeTextStepProps {
   value: string;
   onChange: (value: string) => void;
   playerCount: PlayerCountRange;
   onPlayerCountChange: (value: PlayerCountRange) => void;
-  /** Called when user wants to go straight to results */
+  gameTypes: GameType[];
+  onGameTypesChange: (value: GameType[]) => void;
   onQuickSubmit?: () => void;
-  /** Called when user wants to customize further */
   onCustomize?: () => void;
-  /** Whether the LLM is currently parsing */
   isParsing?: boolean;
 }
 
@@ -27,6 +36,8 @@ export default function FreeTextStep({
   onChange,
   playerCount,
   onPlayerCountChange,
+  gameTypes,
+  onGameTypesChange,
   onQuickSubmit,
   onCustomize,
   isParsing,
@@ -35,6 +46,37 @@ export default function FreeTextStep({
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      {/* Game type — quick filter */}
+      <Box sx={{ width: '100%', mb: 3 }}>
+        <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+          What type of game?
+        </Typography>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center' }}>
+          {GAME_TYPE_OPTIONS.map((opt) => {
+            const isSelected = opt.value === null
+              ? gameTypes.length === 0
+              : gameTypes.includes(opt.value);
+            return (
+              <Chip
+                key={opt.label}
+                icon={opt.icon as React.ReactElement}
+                label={opt.label}
+                onClick={() => {
+                  if (opt.value === null) {
+                    onGameTypesChange([]);
+                  } else {
+                    onGameTypesChange([opt.value]);
+                  }
+                }}
+                color={isSelected ? 'primary' : 'default'}
+                variant={isSelected ? 'filled' : 'outlined'}
+                sx={{ transition: 'all 200ms ease' }}
+              />
+            );
+          })}
+        </Box>
+      </Box>
+
       {/* Player count — simple number picker */}
       <Box sx={{ width: '100%', mb: 3 }}>
         <Typography variant="subtitle1" fontWeight={600} gutterBottom>

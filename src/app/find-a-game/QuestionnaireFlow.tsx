@@ -310,6 +310,8 @@ export default function QuestionnaireFlow() {
             onChange={(v) => update({ freeText: v })}
             playerCount={state.playerCount}
             onPlayerCountChange={(v) => update({ playerCount: v })}
+            gameTypes={state.gameTypes}
+            onGameTypesChange={(v) => update({ gameTypes: v })}
             onQuickSubmit={quickSubmit}
             onCustomize={next}
             isParsing={isParsing}
