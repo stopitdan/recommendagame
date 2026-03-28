@@ -490,25 +490,28 @@ function applyHardFilters(
     });
   }
 
-  // Deprioritize likely expansions/variants: games with ":" in the name
-  // where the base name also exists in the candidate pool.
-  // e.g., "Dominion: Intrigue" gets pushed below "Dominion"
+  // REMOVE expansions/variants: games with ":" in the name where the
+  // base name also exists in the candidate pool. Users don't want to
+  // see "Dominion: Intrigue" when "Dominion" is right there.
+  // Also remove "Second Edition", "Revised Edition" etc. duplicates.
   const baseNames = new Set(
     filtered.filter((g) => !g.name.includes(':')).map((g) => g.name.toLowerCase())
   );
-  const baseGames: typeof filtered = [];
-  const variants: typeof filtered = [];
-  for (const g of filtered) {
-    if (g.name.includes(':')) {
-      const baseName = g.name.split(':')[0].trim().toLowerCase();
-      if (baseNames.has(baseName)) {
-        variants.push(g);
-        continue;
-      }
+  filtered = filtered.filter((g) => {
+    if (!g.name.includes(':')) return true; // Base game, keep
+    const baseName = g.name.split(':')[0].trim().toLowerCase();
+    return !baseNames.has(baseName); // Remove if base game exists
+  });
+  // Also remove "X: Second Edition" when "X" exists
+  const allNames = new Set(filtered.map((g) => g.name.toLowerCase()));
+  filtered = filtered.filter((g) => {
+    const lower = g.name.toLowerCase();
+    if (lower.includes('second edition') || lower.includes('revised edition') || lower.includes('new edition')) {
+      const stripped = lower.replace(/[:\-–]\s*(second|revised|new)\s*edition.*$/i, '').trim();
+      if (allNames.has(stripped) && stripped !== lower) return false;
     }
-    baseGames.push(g);
-  }
-  filtered = [...baseGames, ...variants];
+    return true;
+  });
 
   return filtered;
 }
