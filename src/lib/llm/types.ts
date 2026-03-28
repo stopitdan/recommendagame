@@ -39,6 +39,12 @@ export interface ParsedPreferences {
 
   /** Mechanics the user explicitly does NOT want */
   excludedMechanics: string[];
+
+  /** Exact max time in minutes if user specified (e.g., "under 30 minutes" = 30) */
+  maxMinutes: number | null;
+
+  /** How strict the time limit is: "hard" for "under/less than/no more than", "soft" for "about/around" */
+  timeStrictness: 'hard' | 'soft' | null;
 }
 
 /** Empty parsed preferences (used as default/fallback) */
@@ -54,4 +60,6 @@ export const EMPTY_PARSED: ParsedPreferences = {
   keywords: [],
   excludedGenres: [],
   excludedMechanics: [],
+  maxMinutes: null,
+  timeStrictness: null,
 };

@@ -371,15 +371,27 @@ function applyHardFilters(
     });
   }
 
-  // Time: eliminate games way outside the user's time range
-  if (prefs.timePresets.length > 0) {
-    const minTime = Math.min(...prefs.timePresets.map((tp) => TIME_PRESETS[tp].minMinutes));
+  // Time: eliminate games outside the user's time range.
+  // Use exact maxMinutes from LLM parsing when available (more precise than presets).
+  // Buffer depends on strictness: "hard" (under/less than) = 15 min grace,
+  // "soft" (about/around) = 50% grace.
+  const llmMaxMin = prefs.llmParsed?.maxMinutes;
+  const llmStrictness = prefs.llmParsed?.timeStrictness;
+
+  if (llmMaxMin) {
+    const buffer = llmStrictness === 'hard' ? 15 : llmMaxMin * 0.5;
+    const hardMax = llmMaxMin + buffer;
+    filtered = filtered.filter((g) => {
+      const gameTime = g.playTime?.average ?? g.playTime?.min;
+      if (!gameTime) return true;
+      return gameTime <= hardMax;
+    });
+  } else if (prefs.timePresets.length > 0) {
     const maxTime = Math.max(...prefs.timePresets.map((tp) => TIME_PRESETS[tp].maxMinutes));
-    // Allow 50% buffer on max for flexibility (60 min preset allows up to 90 min games)
     const hardMax = maxTime < 999 ? maxTime * 1.5 : Infinity;
     filtered = filtered.filter((g) => {
       const gameTime = g.playTime?.average ?? g.playTime?.min;
-      if (!gameTime) return true; // Unknown = keep
+      if (!gameTime) return true;
       return gameTime <= hardMax;
     });
   }

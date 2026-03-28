@@ -22,6 +22,8 @@ Return a JSON object with these fields:
 - "complexity": object with "min" (1-5) and "max" (1-5), or null if not mentioned. 1=very simple/casual, 2=light, 3=medium, 4=heavy, 5=very complex.
 - "playerCount": object with "min" and "max", or null if not mentioned. "solo" = {min:1, max:1}. "with my partner" = {min:2, max:2}. "group" = {min:3, max:6}.
 - "timePresets": array from ONLY these values: "quick" (under 15min), "short" (15-30min), "medium" (30-60min), "long" (1-2hr), "epic" (2+hr). Empty array if not mentioned.
+- "maxMinutes": if the user specifies an exact time limit in minutes, extract the number. "under 30 minutes" = 30, "about an hour" = 60, "quick 20 minute game" = 20. null if not mentioned.
+- "timeStrictness": how strict is the time limit? "hard" if they say "under", "less than", "no more than", "no longer than", "max", "within". "soft" if they say "about", "around", "roughly", "approximately", "ish". null if not mentioned or if no specific time given.
 - "similarTo": array of specific game names the user mentioned or compared to (e.g. "Catan", "Slay the Spire", "Wordle", "Hollow Knight"). Empty array if none. Include both board AND video games.
 - "keywords": array of other relevant keywords that don't fit above but help find games (e.g. "replayable", "solo", "legacy", "campaign", "miniatures", "pixel art", "hand-drawn", "atmospheric", "procedural", "permadeath", "base-building", "exploration", "loot").
 
@@ -119,6 +121,8 @@ function validateAndClean(raw: Record<string, unknown>): ParsedPreferences {
     keywords: toStringArray(raw.keywords),
     excludedGenres: toStringArray(raw.excludedGenres),
     excludedMechanics: toStringArray(raw.excludedMechanics),
+    maxMinutes: typeof raw.maxMinutes === 'number' && raw.maxMinutes > 0 ? raw.maxMinutes : null,
+    timeStrictness: raw.timeStrictness === 'hard' || raw.timeStrictness === 'soft' ? raw.timeStrictness : null,
   };
 }
 
