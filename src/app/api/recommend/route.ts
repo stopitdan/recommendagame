@@ -148,11 +148,17 @@ export async function POST(request: NextRequest) {
     // Collect tags from LLM parsing + user genres for tag-based search
     const allTags = collectSearchTags(body);
 
-    // Direct mechanic search: when LLM extracted specific mechanics, search for them directly
-    // This is the most reliable way to find "deck building" games since it queries the actual
-    // mechanic strings in the DB without relying on tag overlap matching
-    const mechanicSearchPromise = body.llmParsed?.mechanics?.length
-      ? withTimeout(fetchDirectMechanicMatches(supabase, body.llmParsed.mechanics), 5000, [])
+    // Direct mechanic search: search for games with specific mechanics.
+    // Works with LLM-parsed mechanics OR genre names that happen to be mechanics
+    // (e.g., "Deck Building" appears in both genres and mechanics arrays)
+    const mechanicTerms = [
+      ...(body.llmParsed?.mechanics ?? []),
+      // Also check genres for mechanic-like terms (the LLM puts them in both)
+      ...body.genres.filter((g: string) => BGG_MECHANIC_ALIASES[g.toLowerCase()]),
+    ];
+    const uniqueMechanicTerms = [...new Set(mechanicTerms)];
+    const mechanicSearchPromise = uniqueMechanicTerms.length > 0
+      ? withTimeout(fetchDirectMechanicMatches(supabase, uniqueMechanicTerms), 5000, [])
       : Promise.resolve([]);
 
     const [ratingCandidates, vectorCandidates, textCandidates, tagCandidates, mechanicCandidates] = await Promise.all([
@@ -178,7 +184,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log(`[Recommend] Hybrid pool: ${ratingCandidates.length} rating + ${vectorCandidates.length} vector + ${tagCandidates.length} tag + ${textCandidates.length} text = ${candidates.length} unique`);
+    console.log(`[Recommend] Hybrid pool: ${ratingCandidates.length} rating + ${mechanicCandidates.length} mechanic + ${vectorCandidates.length} vector + ${tagCandidates.length} tag + ${textCandidates.length} text = ${candidates.length} unique`);
 
     // Progressive fallbacks (only if hybrid produced nothing)
     if (candidates.length === 0) {
