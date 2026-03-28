@@ -458,7 +458,7 @@ function applyHardFilters(
       return aliases.some((alias) => gameMechanics.some((gm) => gm.includes(alias.toLowerCase())));
     });
     // Only apply if it doesn't eliminate too many (keep at least 10)
-    if (mechFiltered.length >= 10) {
+    if (mechFiltered.length >= 5) {
       filtered = mechFiltered;
       console.log(`[Recommend] Strict mechanic filter: ${beforeMechFilter} → ${filtered.length} (${prefs.llmParsed.mechanics[0]})`);
     }

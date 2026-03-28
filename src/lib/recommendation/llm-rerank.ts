@@ -90,7 +90,7 @@ Return ONLY a JSON object: {"ids": ["game-id-1", "game-id-2", ...]} with the ${l
     const openai = new OpenAI({ apiKey, timeout: RERANK_TIMEOUT_MS });
 
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: 'gpt-4o',
       temperature: 0,
       max_tokens: 300,
       response_format: { type: 'json_object' },
