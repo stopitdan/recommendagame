@@ -18,6 +18,7 @@ import ReviewList from '@/components/ReviewList';
 import SimilarGames from '@/components/SimilarGames';
 import type { Game } from '@/types/game';
 import { formatGameType } from '@/lib/utils/format';
+import JsonLd from '@/components/JsonLd';
 
 export default function GameDetailView() {
   const { id } = useParams<{ id: string }>();
@@ -61,6 +62,35 @@ export default function GameDetailView() {
     );
   }
 
+  // JSON-LD structured data for rich Google results
+  const isVideoGame = game.types?.includes('video');
+  const jsonLd: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': isVideoGame ? 'VideoGame' : 'BoardGame',
+    name: game.name,
+    description: game.description,
+    url: `https://recommendagame.com/games/${game.id}`,
+    ...(game.imageUrl && { image: game.imageUrl }),
+    ...(game.yearPublished && { datePublished: String(game.yearPublished) }),
+    ...(game.rating && {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: game.rating.toFixed(1),
+        bestRating: '10',
+        worstRating: '1',
+        ...(game.ratingCount && { ratingCount: game.ratingCount }),
+      },
+    }),
+    ...(game.categories?.length && { genre: game.categories }),
+    ...(game.playerCount && {
+      numberOfPlayers: {
+        '@type': 'QuantitativeValue',
+        minValue: game.playerCount.min,
+        maxValue: game.playerCount.max,
+      },
+    }),
+  };
+
   const details: { label: string; value: string; emoji: string }[] = [];
   if (game.playerCount) {
     const { min, max, recommended } = game.playerCount;
@@ -89,6 +119,7 @@ export default function GameDetailView() {
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
+      <JsonLd data={jsonLd} />
       <Button variant="text" onClick={() => router.back()} sx={{ mb: 2 }}>
         &larr; Back
       </Button>

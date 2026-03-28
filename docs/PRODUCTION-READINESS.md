@@ -33,7 +33,7 @@ Tracking all items needed to make Recommend a Game a public, monetized app with 
 | # | Item | Status | Notes |
 |---|------|--------|-------|
 | 17 | About page refresh | ⬜ TODO | Tell the story, build brand identity |
-| 18 | JSON-LD structured data | ⬜ TODO | Rich search results (star ratings, game info) |
+| 18 | JSON-LD structured data | ✅ DONE | WebSite+SearchAction on homepage, VideoGame/BoardGame with ratings on game pages, FAQPage on /faq |
 | 19 | User onboarding tour | ⬜ TODO | First-time users may not understand questionnaire |
 | 20 | Share results / social sharing | ⬜ TODO | Viral growth |
 | 21 | Newsletter / email capture | ⬜ TODO | Retain users, announce features |

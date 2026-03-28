@@ -22,6 +22,7 @@ import {
 import QuickCollections from "@/components/QuickCollections";
 import AnimatedHeadline from "@/components/landing/AnimatedHeadline";
 import MagneticButton from "@/components/landing/MagneticButton";
+import JsonLd from "@/components/JsonLd";
 
 // Lazy load heavy interactive components (canvas, game)
 const InteractiveParticles = dynamic(() => import("@/components/landing/InteractiveParticles"), { ssr: false });
@@ -237,6 +238,21 @@ export default function Home() {
 
   return (
     <Box component="main" sx={{ overflow: "hidden", pb: { xs: '30px', md: '34px' } }}>
+      <JsonLd data={{
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: 'Recommend a Game',
+        url: 'https://recommendagame.com',
+        description: 'Smart game recommendation engine for board games, video games, word games, and party games. 100,000+ games.',
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: 'https://recommendagame.com/browse?q={search_term_string}',
+          },
+          'query-input': 'required name=search_term_string',
+        },
+      }} />
       {/* ═══════════ HERO ═══════════ */}
       <Box
         sx={{
