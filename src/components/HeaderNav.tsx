@@ -5,7 +5,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import { motion } from 'motion/react';
-import { Crosshair, Search, Dice5, Palette, Trophy } from 'lucide-react';
+import { Crosshair, Search, Dice5, Palette, Trophy, BookOpen } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 const NAV_ITEMS: { label: string; href: string; Icon: LucideIcon; tip: string }[] = [
@@ -14,6 +14,7 @@ const NAV_ITEMS: { label: string; href: string; Icon: LucideIcon; tip: string }[
   { label: 'Roll the Dice', href: '/random', Icon: Dice5, tip: 'Roll the d20 for a random pick' },
   { label: 'Dice Gallery', href: '/dice-gallery', Icon: Palette, tip: 'Browse & create custom dice skins' },
   { label: 'Leaderboard', href: '/leaderboard', Icon: Trophy, tip: 'See the most popular games' },
+  { label: 'Blog', href: '/blog', Icon: BookOpen, tip: 'Game guides and recommendations' },
 ];
 
 export default function HeaderNav() {

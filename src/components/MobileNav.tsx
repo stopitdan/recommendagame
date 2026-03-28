@@ -12,7 +12,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Typography from '@mui/material/Typography';
 import {
-  Crosshair, Search, Dice5, Palette, Trophy,
+  Crosshair, Search, Dice5, Palette, Trophy, BookOpen,
   User, Heart, ClipboardList, Settings,
   LogIn, Sparkles, LogOut, Sun, Moon,
 } from 'lucide-react';
@@ -31,6 +31,7 @@ const NAV_ITEMS: { label: string; href: string; icon: ReactNode }[] = [
   { label: 'Roll the Dice', href: '/random', icon: <Dice5 size={18} /> },
   { label: 'Dice Gallery', href: '/dice-gallery', icon: <Palette size={18} /> },
   { label: 'Leaderboard', href: '/leaderboard', icon: <Trophy size={18} /> },
+  { label: 'Blog', href: '/blog', icon: <BookOpen size={18} /> },
 ];
 
 const USER_ITEMS: { label: string; href: string; icon: ReactNode }[] = [
