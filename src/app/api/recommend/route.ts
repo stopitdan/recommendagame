@@ -370,6 +370,20 @@ function applyHardFilters(
     });
   }
 
+  // Excluded genres/mechanics from LLM parsing (e.g., "no war games")
+  const excluded = prefs.llmParsed;
+  if (excluded?.excludedGenres?.length || excluded?.excludedMechanics?.length) {
+    const exGenres = (excluded.excludedGenres ?? []).map((g) => g.toLowerCase());
+    const exMechanics = (excluded.excludedMechanics ?? []).map((m) => m.toLowerCase());
+    filtered = filtered.filter((g) => {
+      const gameTags = [...g.categories, ...g.mechanics, ...g.themes].map((t) => t.toLowerCase());
+      const hasExcluded = gameTags.some((t) =>
+        exGenres.some((ex) => t.includes(ex)) || exMechanics.some((ex) => t.includes(ex))
+      );
+      return !hasExcluded;
+    });
+  }
+
   // If filtering removed too many candidates, keep at least the ones that pass
   // player count (the hardest constraint) and relax the others
   if (filtered.length < 5 && candidates.length >= 5) {

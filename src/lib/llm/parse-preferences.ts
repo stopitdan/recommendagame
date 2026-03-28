@@ -42,6 +42,17 @@ Understand intensity and tone:
 - "something super easy" → complexity: {min:1, max:1.5}
 - "kind of strategic" → genres: ["Strategy"], complexity: {min:2.5, max:4}
 
+CRITICAL: Extract negative preferences. If the user says "NOT", "don't want", "no", "except", "without", or similar:
+- "excludedGenres": genres/categories to AVOID
+- "excludedMechanics": mechanics to AVOID
+
+Examples of negative extraction:
+- "strategy game but not area control" → genres: ["Strategy"], excludedMechanics: ["Area Control"]
+- "something like Catan but less random" → similarTo: ["Catan"], excludedMechanics: ["Dice Rolling"], keywords: ["less luck"]
+- "no war games or fighting" → excludedGenres: ["Wargame", "Fighting"]
+- "vegetarian, no chicken" → This is NOT a game request, return mostly empty with keywords: ["vegetarian", "food"]
+- "party game that isn't Cards Against Humanity" → genres: ["Party"], excludedGenres: ["Adult", "Crude Humor"]
+
 Only include fields you can reasonably infer. Return empty arrays and null for unmentioned fields.`;
 
 /** Timeout for OpenAI API calls */
@@ -64,9 +75,9 @@ export async function parsePreferencesWithLLM(
 
   try {
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: 'gpt-4o',
       temperature: 0,
-      max_tokens: 500,
+      max_tokens: 600,
       response_format: { type: 'json_object' },
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
@@ -106,6 +117,8 @@ function validateAndClean(raw: Record<string, unknown>): ParsedPreferences {
     timePresets: filterArray(raw.timePresets, (v) => VALID_TIME_PRESETS.has(v)),
     similarTo: toStringArray(raw.similarTo),
     keywords: toStringArray(raw.keywords),
+    excludedGenres: toStringArray(raw.excludedGenres),
+    excludedMechanics: toStringArray(raw.excludedMechanics),
   };
 }
 

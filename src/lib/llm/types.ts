@@ -33,6 +33,12 @@ export interface ParsedPreferences {
 
   /** Additional keywords that don't fit other categories */
   keywords: string[];
+
+  /** Genres/categories the user explicitly does NOT want */
+  excludedGenres: string[];
+
+  /** Mechanics the user explicitly does NOT want */
+  excludedMechanics: string[];
 }
 
 /** Empty parsed preferences (used as default/fallback) */
@@ -46,4 +52,6 @@ export const EMPTY_PARSED: ParsedPreferences = {
   timePresets: [],
   similarTo: [],
   keywords: [],
+  excludedGenres: [],
+  excludedMechanics: [],
 };
