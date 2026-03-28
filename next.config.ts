@@ -20,7 +20,7 @@ const securityHeaders = [
     value: [
       "default-src 'self'",
       // Scripts: self + inline (MUI/Next.js needs it) + eval (MUI styled-components) + Google tags
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://pagead2.googlesyndication.com https://adservice.google.com",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://pagead2.googlesyndication.com https://adservice.google.com https://static.cloudflareinsights.com",
       // Styles: self + inline (MUI injects styles)
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       // Images: self + data URIs (inline icons) + Supabase storage + game cover images
@@ -28,7 +28,7 @@ const securityHeaders = [
       // Fonts: self + Google Fonts
       "font-src 'self' https://fonts.gstatic.com",
       // Connect: self + Supabase + analytics + OpenAI + Upstash
-      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://analytics.google.com https://pagead2.googlesyndication.com https://api.openai.com https://*.upstash.io",
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://www.googletagmanager.com https://analytics.google.com https://pagead2.googlesyndication.com https://api.openai.com https://*.upstash.io https://cf.geekdo-images.com https://media.rawg.io https://images.igdb.com https://static.cloudflareinsights.com",
       // Frames: Google Ads may use iframes
       "frame-src https://pagead2.googlesyndication.com https://www.google.com",
       // Object/base restrictions

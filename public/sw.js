@@ -29,9 +29,10 @@ self.addEventListener('activate', (event) => {
 
 // Fetch: network-first with cache fallback
 self.addEventListener('fetch', (event) => {
-  // Only cache GET requests, skip API calls
+  // Only cache same-origin GET requests, skip API calls and external resources
   if (event.request.method !== 'GET') return;
   if (event.request.url.includes('/api/')) return;
+  if (!event.request.url.startsWith(self.location.origin)) return;
 
   event.respondWith(
     fetch(event.request)
