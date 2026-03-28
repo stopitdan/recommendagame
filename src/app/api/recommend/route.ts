@@ -490,6 +490,26 @@ function applyHardFilters(
     });
   }
 
+  // Deprioritize likely expansions/variants: games with ":" in the name
+  // where the base name also exists in the candidate pool.
+  // e.g., "Dominion: Intrigue" gets pushed below "Dominion"
+  const baseNames = new Set(
+    filtered.filter((g) => !g.name.includes(':')).map((g) => g.name.toLowerCase())
+  );
+  const baseGames: typeof filtered = [];
+  const variants: typeof filtered = [];
+  for (const g of filtered) {
+    if (g.name.includes(':')) {
+      const baseName = g.name.split(':')[0].trim().toLowerCase();
+      if (baseNames.has(baseName)) {
+        variants.push(g);
+        continue;
+      }
+    }
+    baseGames.push(g);
+  }
+  filtered = [...baseGames, ...variants];
+
   return filtered;
 }
 

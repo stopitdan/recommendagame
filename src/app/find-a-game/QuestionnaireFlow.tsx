@@ -184,11 +184,16 @@ export default function QuestionnaireFlow() {
         const data = await res.json();
         if (data.parsed) {
           // Merge parsed data into state, then submit immediately
+          // Merge LLM parsed data with user selections.
+          // User selections (chips) take priority over LLM output when both exist.
+          // LLM output only fills in what the user didn't explicitly set.
+          const parsedTypes = (data.parsed.gameTypes ?? []).filter((t: string) => VALID_GAME_TYPES.has(t)) as GameType[];
+          const parsedTime = (data.parsed.timePresets ?? []).filter((t: string) => VALID_TIME_PRESETS.has(t)) as TimePreset[];
           const merged = {
             ...state,
-            gameTypes: data.parsed.gameTypes?.filter((t: string) => VALID_GAME_TYPES.has(t)) as GameType[] ?? state.gameTypes,
+            gameTypes: state.gameTypes.length > 0 ? state.gameTypes : parsedTypes,
             playerCount: data.parsed.playerCount ?? state.playerCount,
-            timePresets: data.parsed.timePresets?.filter((t: string) => VALID_TIME_PRESETS.has(t)) as TimePreset[] ?? state.timePresets,
+            timePresets: state.timePresets.length > 0 ? state.timePresets : parsedTime,
             complexity: data.parsed.complexity ?? state.complexity,
             llmParsed: data.parsed,
           };
