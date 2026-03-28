@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Dice5 } from 'lucide-react';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Divider from '@mui/material/Divider';
@@ -50,8 +51,8 @@ export default function Footer() {
         <Grid container spacing={4}>
           {/* Brand */}
           <Grid size={{ xs: 12, md: 4 }}>
-            <Typography variant="h6" fontWeight={800} sx={{ mb: 1 }}>
-              🎲 boredgame.lol
+            <Typography variant="h6" fontWeight={800} sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Dice5 size={20} /> boredgame.lol
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 280, lineHeight: 1.6 }}>
               Find your next favorite game. 100,000+ board games, video games,

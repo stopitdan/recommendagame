@@ -3,6 +3,7 @@
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { motion } from 'motion/react';
+import { Dice5, Search } from 'lucide-react';
 
 type LoaderVariant = 'dice' | 'cards' | 'search';
 
@@ -53,9 +54,9 @@ function DiceLoader({ size }: { size: number }) {
         repeat: Infinity,
         ease: 'easeInOut',
       }}
-      style={{ fontSize: size * 0.8, lineHeight: 1 }}
+      style={{ lineHeight: 1, color: '#5B4FDB' }}
     >
-      🎲
+      <Dice5 size={size * 0.7} />
     </motion.div>
   );
 }
@@ -117,9 +118,9 @@ function SearchLoader({ size }: { size: number }) {
         repeat: Infinity,
         ease: 'easeInOut',
       }}
-      style={{ fontSize: size * 0.7, lineHeight: 1 }}
+      style={{ lineHeight: 1, color: '#0EC6C6' }}
     >
-      🔍
+      <Search size={size * 0.6} />
     </motion.div>
   );
 }

@@ -5,13 +5,15 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import { motion } from 'motion/react';
+import { Crosshair, Search, Dice5, Palette, Trophy } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
-const NAV_ITEMS = [
-  { label: 'Find a Game', href: '/find-a-game', icon: '🎯', tip: 'Get personalized recommendations' },
-  { label: 'Browse', href: '/browse', icon: '🔍', tip: 'Explore the full game catalog' },
-  { label: 'Random', href: '/random', icon: '🎲', tip: 'Roll the d20 for a random pick' },
-  { label: 'Dice Gallery', href: '/dice-gallery', icon: '🎨', tip: 'Browse & create custom dice skins' },
-  { label: 'Leaderboard', href: '/leaderboard', icon: '🏆', tip: 'See the most popular games' },
+const NAV_ITEMS: { label: string; href: string; Icon: LucideIcon; tip: string }[] = [
+  { label: 'Find a Game', href: '/find-a-game', Icon: Crosshair, tip: 'Get personalized recommendations' },
+  { label: 'Browse', href: '/browse', Icon: Search, tip: 'Explore the full game catalog' },
+  { label: 'Roll the Dice', href: '/random', Icon: Dice5, tip: 'Roll the d20 for a random pick' },
+  { label: 'Dice Gallery', href: '/dice-gallery', Icon: Palette, tip: 'Browse & create custom dice skins' },
+  { label: 'Leaderboard', href: '/leaderboard', Icon: Trophy, tip: 'See the most popular games' },
 ];
 
 export default function HeaderNav() {
@@ -20,7 +22,7 @@ export default function HeaderNav() {
 
   return (
     <Box sx={{ display: 'flex', gap: 0.5 }}>
-      {NAV_ITEMS.map(({ label, href, icon, tip }) => {
+      {NAV_ITEMS.map(({ label, href, Icon, tip }) => {
         const isActive = pathname === href || pathname.startsWith(href + '/');
         return (
           <Tooltip key={href} title={tip}>
@@ -34,20 +36,10 @@ export default function HeaderNav() {
                   fontWeight: isActive ? 600 : 400,
                   position: 'relative',
                   px: 1.5,
-                  gap: 0.5,
+                  gap: 0.75,
                   '&:hover': {
                     color: '#FFFFFF',
                     backgroundColor: 'rgba(255,255,255,0.08)',
-                  },
-                  '&:hover .nav-emoji': {
-                    animation: 'navWiggle 0.4s ease',
-                  },
-                  '@keyframes navWiggle': {
-                    '0%': { transform: 'rotate(0) scale(1)' },
-                    '25%': { transform: 'rotate(-12deg) scale(1.2)' },
-                    '50%': { transform: 'rotate(12deg) scale(1.2)' },
-                    '75%': { transform: 'rotate(-6deg) scale(1.1)' },
-                    '100%': { transform: 'rotate(0) scale(1)' },
                   },
                   '&::after': isActive ? {
                     content: '""',
@@ -62,13 +54,7 @@ export default function HeaderNav() {
                   transition: 'all 200ms ease',
                 }}
               >
-                <Box
-                  component="span"
-                  className="nav-emoji"
-                  sx={{ fontSize: '0.85rem', display: 'inline-block' }}
-                >
-                  {icon}
-                </Box>
+                <Icon size={16} />
                 {label}
               </Button>
             </motion.div>

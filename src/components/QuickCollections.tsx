@@ -1,5 +1,6 @@
 'use client';
 
+import { type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -7,15 +8,16 @@ import CardActionArea from '@mui/material/CardActionArea';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import { motion } from 'motion/react';
+import { Heart, Zap, PartyPopper, Brain, Users, TreePine } from 'lucide-react';
 
 /**
  * Quick-access collection cards that link to pre-filtered
  * questionnaire results. Each represents a common game scenario.
  */
 
-const COLLECTIONS = [
+const COLLECTIONS: { icon: ReactNode; title: string; subtitle: string; params: string; gradient: string; border: string }[] = [
   {
-    emoji: '👫',
+    icon: <Heart size={28} />,
     title: 'Date Night',
     subtitle: '2-player games',
     params: 'type=board&minPlayers=2&maxPlayers=2&time=medium&moods=chill',
@@ -23,7 +25,7 @@ const COLLECTIONS = [
     border: '#FF6D3F',
   },
   {
-    emoji: '⚡',
+    icon: <Zap size={28} />,
     title: 'Quick Play',
     subtitle: 'Under 15 minutes',
     params: 'time=quick&minPlayers=1&maxPlayers=8',
@@ -31,7 +33,7 @@ const COLLECTIONS = [
     border: '#FFB020',
   },
   {
-    emoji: '🎉',
+    icon: <PartyPopper size={28} />,
     title: 'Party Night',
     subtitle: '5+ players, social',
     params: 'type=party&minPlayers=5&maxPlayers=10&moods=social',
@@ -39,7 +41,7 @@ const COLLECTIONS = [
     border: '#5B4FDB',
   },
   {
-    emoji: '🧠',
+    icon: <Brain size={28} />,
     title: 'Brain Burner',
     subtitle: 'Complex strategy',
     params: 'type=board&minComplexity=3.5&maxComplexity=5&genres=Strategy&moods=brain-teaser',
@@ -47,7 +49,7 @@ const COLLECTIONS = [
     border: '#0EC6C6',
   },
   {
-    emoji: '👨‍👩‍👧‍👦',
+    icon: <Users size={28} />,
     title: 'Family Fun',
     subtitle: 'Easy & accessible',
     params: 'genres=Family&minComplexity=1&maxComplexity=2.5&moods=chill',
@@ -55,7 +57,7 @@ const COLLECTIONS = [
     border: '#22C55E',
   },
   {
-    emoji: '🏕️',
+    icon: <TreePine size={28} />,
     title: 'No Equipment',
     subtitle: 'Just yourselves',
     params: 'type=party&minPlayers=3&maxPlayers=10',
@@ -102,7 +104,7 @@ export default function QuickCollections() {
                 onClick={() => router.push(`/results?${col.params}`)}
                 sx={{ p: 2, textAlign: 'center' }}
               >
-                <Typography sx={{ fontSize: '2rem', mb: 0.5 }}>{col.emoji}</Typography>
+                <Box sx={{ mb: 0.5, color: col.border, display: 'flex', justifyContent: 'center' }}>{col.icon}</Box>
                 <Typography variant="subtitle2" fontWeight={700} sx={{ lineHeight: 1.2 }}>
                   {col.title}
                 </Typography>

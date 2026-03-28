@@ -23,6 +23,8 @@ import QuickCollections from "@/components/QuickCollections";
 import AnimatedHeadline from "@/components/landing/AnimatedHeadline";
 import MagneticButton from "@/components/landing/MagneticButton";
 import JsonLd from "@/components/JsonLd";
+import { Puzzle, Gamepad2, PartyPopper, Brain } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 // Lazy load heavy interactive components (canvas, game)
 const InteractiveParticles = dynamic(() => import("@/components/landing/InteractiveParticles"), { ssr: false });
@@ -174,30 +176,30 @@ function AnimatedCount({ target, suffix = "" }: { target: number; suffix?: strin
 }
 
 /* ─── feature card data ─── */
-const FEATURES = [
+const FEATURES: { Icon: LucideIcon; title: string; description: string; href: string }[] = [
   {
-    emoji: "♟",
+    Icon: Puzzle,
     title: "Board Games",
     description:
       "90,000+ titles from Catan to Gloomhaven. Rated, categorized, and ready to discover.",
     href: "/browse?type=board",
   },
   {
-    emoji: "🎮",
+    Icon: Gamepad2,
     title: "Video Games",
     description:
       "80,000+ titles across every platform. From indie gems to AAA blockbusters.",
     href: "/browse?type=video",
   },
   {
-    emoji: "🎉",
+    Icon: PartyPopper,
     title: "Party & Word Games",
     description:
       "Charades, 20 Questions, Wordle, and more. No-equipment games for any group size.",
     href: "/browse?type=party",
   },
   {
-    emoji: "🧠",
+    Icon: Brain,
     title: "Smart Engine",
     description:
       "10-dimension recommendation engine that learns your taste. The more you use it, the better it gets.",
@@ -481,9 +483,9 @@ export default function Home() {
                               transition={{ type: "spring", stiffness: 400 }}
                               style={{ display: "inline-block" }}
                             >
-                              <Typography sx={{ fontSize: "2.2rem", mb: 1.5, lineHeight: 1 }}>
-                                {feat.emoji}
-                              </Typography>
+                              <Box sx={{ mb: 1.5, color: "secondary.main" }}>
+                                <feat.Icon size={36} strokeWidth={1.5} />
+                              </Box>
                             </motion.div>
                             <Typography
                               variant="h6"

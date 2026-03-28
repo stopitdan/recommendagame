@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
+import { Share2, Check } from 'lucide-react';
 import { useAchievements } from './AchievementToast';
 
 export default function ShareInviteButton({ gameId, gameName }: { gameId: string; gameName: string }) {
@@ -39,7 +40,7 @@ export default function ShareInviteButton({ gameId, gameName }: { gameId: string
         onClick={share}
         sx={{ minWidth: 0, px: 1.5 }}
       >
-        {copied ? '✓' : '📤'}
+        {copied ? <Check size={16} /> : <Share2 size={16} />}
       </Button>
     </Tooltip>
   );

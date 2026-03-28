@@ -18,6 +18,7 @@ import Slider from '@mui/material/Slider';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import { Dice5, Puzzle, Gamepad2, Type, PartyPopper } from 'lucide-react';
 import GameCard from '@/components/GameCard';
 import { GameCardSkeletonList } from '@/components/GameCardSkeleton';
 import GameLoader from '@/components/GameLoader';
@@ -222,16 +223,17 @@ export default function BrowseView() {
 
         {/* Quick type filters */}
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-          {[
-            { label: 'All', value: null, emoji: '🎲' },
-            { label: 'Board Games', value: 'board', emoji: '♟️' },
-            { label: 'Video Games', value: 'video', emoji: '🎮' },
-            { label: 'Word Games', value: 'word', emoji: '🔤' },
-            { label: 'Party Games', value: 'party', emoji: '🎉' },
-          ].map((t) => (
+          {([
+            { label: 'All', value: null, icon: <Dice5 size={14} /> },
+            { label: 'Board Games', value: 'board', icon: <Puzzle size={14} /> },
+            { label: 'Video Games', value: 'video', icon: <Gamepad2 size={14} /> },
+            { label: 'Word Games', value: 'word', icon: <Type size={14} /> },
+            { label: 'Party Games', value: 'party', icon: <PartyPopper size={14} /> },
+          ] as const).map((t) => (
             <Chip
               key={t.label}
-              label={`${t.emoji} ${t.label}`}
+              icon={t.icon as React.ReactElement}
+              label={t.label}
               onClick={() => updateAndApply({ type: t.value })}
               color={af.type === t.value || (!af.type && !t.value) ? 'primary' : 'default'}
               variant={af.type === t.value || (!af.type && !t.value) ? 'filled' : 'outlined'}

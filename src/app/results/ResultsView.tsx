@@ -29,6 +29,7 @@ import { incrementRecommendCount } from '@/lib/guest';
 import { useAchievements } from '@/components/AchievementToast';
 import { CATEGORY_OPTIONS, MECHANIC_OPTIONS, THEME_OPTIONS, PLATFORM_OPTIONS } from '@/lib/filter-options';
 import { createClient } from '@/lib/supabase/client';
+import { Save, Dice5, Puzzle, Gamepad2, Type, PartyPopper } from 'lucide-react';
 import ShareResultsButton from '@/components/ShareResultsButton';
 
 type PopularityMode = 'popular' | 'any' | 'hidden-gems';
@@ -354,7 +355,7 @@ export default function ResultsView() {
               size="small"
               onClick={() => setSaveDialogOpen(true)}
             >
-              💾 Save Preset
+              <Save size={14} /> Save Preset
             </Button>
             <ShareResultsButton gameNames={games.map((g) => g.name)} />
             <Button variant="outlined" size="small" onClick={() => router.push('/find-a-game')}>
@@ -397,13 +398,13 @@ export default function ResultsView() {
 
         {/* Game type quick filters */}
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-          {[
-            { label: '🎲 All', value: null },
-            { label: '♟️ Board', value: 'board' },
-            { label: '🎮 Video', value: 'video' },
-            { label: '🔤 Word', value: 'word' },
-            { label: '🎉 Party', value: 'party' },
-          ].map((t) => {
+          {([
+            { label: 'All', value: null, icon: <Dice5 size={14} /> },
+            { label: 'Board', value: 'board', icon: <Puzzle size={14} /> },
+            { label: 'Video', value: 'video', icon: <Gamepad2 size={14} /> },
+            { label: 'Word', value: 'word', icon: <Type size={14} /> },
+            { label: 'Party', value: 'party', icon: <PartyPopper size={14} /> },
+          ] as const).map((t) => {
             const currentTypes = searchParams.get('types')?.split(',') ?? [];
             const isActive = t.value === null
               ? currentTypes.length === 0
@@ -411,6 +412,7 @@ export default function ResultsView() {
             return (
               <Chip
                 key={t.label}
+                icon={t.icon as React.ReactElement}
                 label={t.label}
                 onClick={() => {
                   const params = new URLSearchParams(searchParams.toString());
@@ -705,7 +707,7 @@ export default function ResultsView() {
 
       {/* Save as Preset Dialog */}
       <Dialog open={saveDialogOpen} onClose={() => setSaveDialogOpen(false)} maxWidth="xs" fullWidth>
-        <DialogTitle sx={{ fontWeight: 700 }}>💾 Save as Preset</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 700 }}>Save as Preset</DialogTitle>
         <DialogContent>
           {saveStatus === 'saved' && (
             <Alert severity="success" sx={{ mb: 2 }}>Preset saved! Find it in your profile.</Alert>

@@ -19,6 +19,8 @@ import SimilarGames from '@/components/SimilarGames';
 import type { Game } from '@/types/game';
 import { formatGameType } from '@/lib/utils/format';
 import JsonLd from '@/components/JsonLd';
+import { Users, Clock, Brain, Calendar, BarChart3 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 export default function GameDetailView() {
   const { id } = useParams<{ id: string }>();
@@ -91,30 +93,30 @@ export default function GameDetailView() {
     }),
   };
 
-  const details: { label: string; value: string; emoji: string }[] = [];
+  const details: { label: string; value: string; Icon: LucideIcon }[] = [];
   if (game.playerCount) {
     const { min, max, recommended } = game.playerCount;
     const range = min === max ? `${min}` : `${min}–${max}`;
-    details.push({ label: 'Players', value: recommended ? `${range} (best at ${recommended})` : range, emoji: '👥' });
+    details.push({ label: 'Players', value: recommended ? `${range} (best at ${recommended})` : range, Icon: Users });
   }
   if (game.playTime) {
     const { min, max, average } = game.playTime;
     if (average) {
-      details.push({ label: 'Play Time', value: `~${average} min`, emoji: '⏱️' });
+      details.push({ label: 'Play Time', value: `~${average} min`, Icon: Clock });
     } else if (min && max) {
-      details.push({ label: 'Play Time', value: `${min}–${max} min`, emoji: '⏱️' });
+      details.push({ label: 'Play Time', value: `${min}–${max} min`, Icon: Clock });
     }
   }
   if (game.complexity) {
     const labels = ['', 'Chill', 'Casual', 'Medium', 'Complex', 'Brain Burner'];
     const label = labels[Math.round(game.complexity)] ?? '';
-    details.push({ label: 'Complexity', value: `${game.complexity.toFixed(1)}/5 (${label})`, emoji: '🧠' });
+    details.push({ label: 'Complexity', value: `${game.complexity.toFixed(1)}/5 (${label})`, Icon: Brain });
   }
   if (game.yearPublished) {
-    details.push({ label: 'Year', value: String(game.yearPublished), emoji: '📅' });
+    details.push({ label: 'Year', value: String(game.yearPublished), Icon: Calendar });
   }
   if (game.ratingCount) {
-    details.push({ label: 'Ratings', value: game.ratingCount.toLocaleString(), emoji: '📊' });
+    details.push({ label: 'Ratings', value: game.ratingCount.toLocaleString(), Icon: BarChart3 });
   }
 
   return (
@@ -189,7 +191,7 @@ export default function GameDetailView() {
                   '&:hover': { borderColor: 'primary.main', bgcolor: 'rgba(91, 79, 219, 0.04)' },
                 }}
               >
-                <Typography sx={{ fontSize: '1.2rem', mb: 0.25 }}>{d.emoji}</Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'center', mb: 0.25, color: 'primary.main' }}><d.Icon size={20} /></Box>
                 <Typography variant="body2" fontWeight={600}>
                   {d.value}
                 </Typography>

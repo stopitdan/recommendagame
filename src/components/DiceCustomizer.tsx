@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { Palette } from 'lucide-react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -209,7 +210,7 @@ export default function DiceCustomizer({ activeSkinId, isLoggedIn, onSelect, ver
         <Box
           sx={{
             display: 'grid',
-            gridTemplateColumns: vertical ? 'repeat(3, 34px)' : 'repeat(auto-fill, 34px)',
+            gridTemplateColumns: vertical ? 'repeat(5, 34px)' : 'repeat(auto-fill, 34px)',
             gap: 0.8,
             justifyContent: 'center',
             justifyItems: 'center',
@@ -292,7 +293,7 @@ export default function DiceCustomizer({ activeSkinId, isLoggedIn, onSelect, ver
             <Box
               sx={{
                 display: 'grid',
-                gridTemplateColumns: vertical ? 'repeat(3, 34px)' : 'repeat(auto-fill, 34px)',
+                gridTemplateColumns: vertical ? 'repeat(5, 34px)' : 'repeat(auto-fill, 34px)',
                 gap: 0.8,
                 justifyContent: 'center',
                 justifyItems: 'center',
@@ -359,7 +360,7 @@ export default function DiceCustomizer({ activeSkinId, isLoggedIn, onSelect, ver
           >
             <DialogContent sx={{ p: 4, textAlign: 'center' }}>
               <Stack spacing={2.5} alignItems="center">
-                <Typography sx={{ fontSize: '3.5rem' }}>🎨</Typography>
+                <Box sx={{ color: 'primary.main' }}><Palette size={48} strokeWidth={1.5} /></Box>
                 <Typography variant="h5" fontWeight={800}>
                   Unlock Custom Dice Skins
                 </Typography>

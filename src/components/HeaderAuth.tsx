@@ -12,6 +12,7 @@ import ListItemText from '@mui/material/ListItemText';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
+import { User, Heart, ClipboardList, Settings, LogOut } from 'lucide-react';
 import { logout } from '@/app/actions/auth';
 
 export interface HeaderAuthProps {
@@ -101,22 +102,22 @@ export default function HeaderAuth({ isLoggedIn, email, displayName }: HeaderAut
           <Divider />
 
           <MenuItem onClick={() => router.push('/profile')}>
-            <ListItemIcon sx={{ fontSize: '1.1rem', minWidth: 32 }}>👤</ListItemIcon>
+            <ListItemIcon sx={{ minWidth: 32 }}><User size={18} /></ListItemIcon>
             <ListItemText>My Profile</ListItemText>
           </MenuItem>
 
           <MenuItem onClick={() => router.push('/favorites')}>
-            <ListItemIcon sx={{ fontSize: '1.1rem', minWidth: 32 }}>❤️</ListItemIcon>
+            <ListItemIcon sx={{ minWidth: 32 }}><Heart size={18} /></ListItemIcon>
             <ListItemText>Favorites</ListItemText>
           </MenuItem>
 
           <MenuItem onClick={() => router.push('/presets')}>
-            <ListItemIcon sx={{ fontSize: '1.1rem', minWidth: 32 }}>📋</ListItemIcon>
+            <ListItemIcon sx={{ minWidth: 32 }}><ClipboardList size={18} /></ListItemIcon>
             <ListItemText>Saved Presets</ListItemText>
           </MenuItem>
 
           <MenuItem onClick={() => router.push('/settings')}>
-            <ListItemIcon sx={{ fontSize: '1.1rem', minWidth: 32 }}>⚙️</ListItemIcon>
+            <ListItemIcon sx={{ minWidth: 32 }}><Settings size={18} /></ListItemIcon>
             <ListItemText>Settings</ListItemText>
           </MenuItem>
 
@@ -132,7 +133,7 @@ export default function HeaderAuth({ isLoggedIn, email, displayName }: HeaderAut
               logout();
             }}
           >
-            <ListItemIcon sx={{ fontSize: '1.1rem', minWidth: 32 }}>🚪</ListItemIcon>
+            <ListItemIcon sx={{ minWidth: 32 }}><LogOut size={18} /></ListItemIcon>
             <ListItemText>Log Out</ListItemText>
           </MenuItem>
         </Menu>

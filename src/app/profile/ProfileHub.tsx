@@ -16,6 +16,8 @@ import Stack from '@mui/material/Stack';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Typography from '@mui/material/Typography';
+import { Heart, Star, ClipboardList } from 'lucide-react';
+import type { ReactNode } from 'react';
 import GameCard from '@/components/GameCard';
 import type { Game } from '@/types/game';
 
@@ -124,9 +126,9 @@ export default function ProfileHub() {
       {/* Stats cards */}
       <Grid container spacing={2} sx={{ mb: 4 }}>
         {[
-          { value: data.favoriteCount, label: 'Favorites', emoji: '❤️', color: '#FF6D3F' },
-          { value: data.reviewCount, label: 'Reviews', emoji: '⭐', color: '#FFB020' },
-          { value: data.presetCount, label: 'Presets', emoji: '📋', color: '#5B4FDB' },
+          { value: data.favoriteCount, label: 'Favorites', icon: <Heart size={24} /> as ReactNode, color: '#FF6D3F' },
+          { value: data.reviewCount, label: 'Reviews', icon: <Star size={24} /> as ReactNode, color: '#FFB020' },
+          { value: data.presetCount, label: 'Presets', icon: <ClipboardList size={24} /> as ReactNode, color: '#5B4FDB' },
         ].map((stat) => (
           <Grid size={{ xs: 4 }} key={stat.label}>
             <Card
@@ -139,7 +141,7 @@ export default function ProfileHub() {
                 '&:hover': { borderColor: stat.color, boxShadow: `0 4px 16px ${stat.color}20` },
               }}
             >
-              <Typography sx={{ fontSize: '1.5rem', mb: 0.5 }}>{stat.emoji}</Typography>
+              <Box sx={{ mb: 0.5, color: stat.color, display: 'flex', justifyContent: 'center' }}>{stat.icon}</Box>
               <Typography variant="h4" fontWeight={800} sx={{ color: stat.color }}>
                 {stat.value}
               </Typography>

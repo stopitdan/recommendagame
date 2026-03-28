@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
+import { Heart } from 'lucide-react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
@@ -196,7 +197,7 @@ function DiceSkinCard({ skin, onVote, onClick }: {
               e.stopPropagation();
               onVote();
             }}
-            icon={<span>{skin.has_voted ? '❤️' : '🤍'}</span>}
+            icon={<Heart size={14} fill={skin.has_voted ? 'currentColor' : 'none'} /> as React.ReactElement}
           />
 
           <Typography variant="caption" color="text.secondary">

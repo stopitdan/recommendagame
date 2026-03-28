@@ -22,6 +22,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import { Moon, Sun } from 'lucide-react';
 
 type PopularityMode = 'popular' | 'any' | 'hidden-gems';
 
@@ -332,7 +333,8 @@ export default function SettingsView() {
                 </Typography>
               </Box>
               <Chip
-                label={mode === 'dark' ? '🌙 Dark' : '☀️ Light'}
+                icon={mode === 'dark' ? <Moon size={14} /> as React.ReactElement : <Sun size={14} /> as React.ReactElement}
+                label={mode === 'dark' ? 'Dark' : 'Light'}
                 onClick={() => {
                   toggleMode();
                   unlock('dark_side');

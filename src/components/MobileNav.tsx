@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
@@ -11,6 +11,11 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Typography from '@mui/material/Typography';
+import {
+  Crosshair, Search, Dice5, Palette, Trophy,
+  User, Heart, ClipboardList, Settings,
+  LogIn, Sparkles, LogOut, Sun, Moon,
+} from 'lucide-react';
 import { logout } from '@/app/actions/auth';
 import { useColorMode } from './ThemeRegistry';
 
@@ -20,19 +25,19 @@ interface MobileNavProps {
   displayName?: string;
 }
 
-const NAV_ITEMS = [
-  { label: 'Find a Game', href: '/find-a-game', icon: '🎯' },
-  { label: 'Browse', href: '/browse', icon: '🔍' },
-  { label: 'Random Game', href: '/random', icon: '🎲' },
-  { label: 'Dice Gallery', href: '/dice-gallery', icon: '🎨' },
-  { label: 'Leaderboard', href: '/leaderboard', icon: '🏆' },
+const NAV_ITEMS: { label: string; href: string; icon: ReactNode }[] = [
+  { label: 'Find a Game', href: '/find-a-game', icon: <Crosshair size={18} /> },
+  { label: 'Browse', href: '/browse', icon: <Search size={18} /> },
+  { label: 'Roll the Dice', href: '/random', icon: <Dice5 size={18} /> },
+  { label: 'Dice Gallery', href: '/dice-gallery', icon: <Palette size={18} /> },
+  { label: 'Leaderboard', href: '/leaderboard', icon: <Trophy size={18} /> },
 ];
 
-const USER_ITEMS = [
-  { label: 'My Profile', href: '/profile', icon: '👤' },
-  { label: 'Favorites', href: '/favorites', icon: '❤️' },
-  { label: 'Saved Presets', href: '/presets', icon: '📋' },
-  { label: 'Settings', href: '/settings', icon: '⚙️' },
+const USER_ITEMS: { label: string; href: string; icon: ReactNode }[] = [
+  { label: 'My Profile', href: '/profile', icon: <User size={18} /> },
+  { label: 'Favorites', href: '/favorites', icon: <Heart size={18} /> },
+  { label: 'Saved Presets', href: '/presets', icon: <ClipboardList size={18} /> },
+  { label: 'Settings', href: '/settings', icon: <Settings size={18} /> },
 ];
 
 export default function MobileNav({ isLoggedIn, email, displayName }: MobileNavProps) {
@@ -74,7 +79,7 @@ export default function MobileNav({ isLoggedIn, email, displayName }: MobileNavP
         {/* Header */}
         <Box sx={{ p: 3, pb: 2 }}>
           <Typography variant="h6" fontWeight={800} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            🎲 boredgame.lol
+            <Dice5 size={20} /> boredgame.lol
           </Typography>
           {isLoggedIn && (
             <Typography variant="body2" sx={{ mt: 1, opacity: 0.7 }}>
@@ -102,7 +107,7 @@ export default function MobileNav({ isLoggedIn, email, displayName }: MobileNavP
                 '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' },
               }}
             >
-              <ListItemIcon sx={{ minWidth: 36, fontSize: '1.1rem' }}>{icon}</ListItemIcon>
+              <ListItemIcon sx={{ minWidth: 36, color: 'inherit' }}>{icon}</ListItemIcon>
               <ListItemText
                 primary={label}
                 primaryTypographyProps={{ fontWeight: pathname === href ? 600 : 400, color: 'white' }}
@@ -127,7 +132,7 @@ export default function MobileNav({ isLoggedIn, email, displayName }: MobileNavP
                     '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' },
                   }}
                 >
-                  <ListItemIcon sx={{ minWidth: 36, fontSize: '1.1rem' }}>{icon}</ListItemIcon>
+                  <ListItemIcon sx={{ minWidth: 36, color: 'inherit' }}>{icon}</ListItemIcon>
                   <ListItemText
                     primary={label}
                     primaryTypographyProps={{ fontWeight: pathname === href ? 600 : 400, color: 'white' }}
@@ -150,7 +155,7 @@ export default function MobileNav({ isLoggedIn, email, displayName }: MobileNavP
           {!isLoggedIn ? (
             <>
               <ListItemButton onClick={() => navigate('/login')} sx={{ borderRadius: 2, mb: 0.5, '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' } }}>
-                <ListItemIcon sx={{ minWidth: 36, fontSize: '1.1rem' }}>🔑</ListItemIcon>
+                <ListItemIcon sx={{ minWidth: 36, color: 'inherit' }}><LogIn size={18} /></ListItemIcon>
                 <ListItemText primary="Log In" primaryTypographyProps={{ color: 'white' }} />
               </ListItemButton>
               <ListItemButton
@@ -161,7 +166,7 @@ export default function MobileNav({ isLoggedIn, email, displayName }: MobileNavP
                   '&:hover': { background: 'linear-gradient(135deg, rgba(255, 109, 63, 0.4), rgba(255, 109, 63, 0.2))' },
                 }}
               >
-                <ListItemIcon sx={{ minWidth: 36, fontSize: '1.1rem' }}>✨</ListItemIcon>
+                <ListItemIcon sx={{ minWidth: 36, color: 'inherit' }}><Sparkles size={18} /></ListItemIcon>
                 <ListItemText primary="Sign Up" primaryTypographyProps={{ fontWeight: 600, color: 'white' }} />
               </ListItemButton>
             </>
@@ -170,7 +175,7 @@ export default function MobileNav({ isLoggedIn, email, displayName }: MobileNavP
               onClick={() => { setOpen(false); logout(); }}
               sx={{ borderRadius: 2, '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' } }}
             >
-              <ListItemIcon sx={{ minWidth: 36, fontSize: '1.1rem' }}>🚪</ListItemIcon>
+              <ListItemIcon sx={{ minWidth: 36, color: 'inherit' }}><LogOut size={18} /></ListItemIcon>
               <ListItemText primary="Log Out" primaryTypographyProps={{ color: 'rgba(255,255,255,0.7)' }} />
             </ListItemButton>
           )}
@@ -184,8 +189,8 @@ function MobileDarkModeToggle() {
   const { mode, toggleMode } = useColorMode();
   return (
     <ListItemButton onClick={toggleMode} sx={{ borderRadius: 2, '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' } }}>
-      <ListItemIcon sx={{ minWidth: 36, fontSize: '1.1rem' }}>
-        {mode === 'dark' ? '☀️' : '🌙'}
+      <ListItemIcon sx={{ minWidth: 36, color: 'inherit' }}>
+        {mode === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
       </ListItemIcon>
       <ListItemText
         primary={mode === 'dark' ? 'Light Mode' : 'Dark Mode'}

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { Crosshair } from 'lucide-react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -64,7 +65,7 @@ export default function SignupPrompt() {
         >
           <DialogContent sx={{ p: 4, textAlign: 'center' }}>
             <Stack spacing={2.5} alignItems="center">
-              <Typography sx={{ fontSize: '3.5rem' }}>🎯</Typography>
+              <Box sx={{ color: 'primary.main' }}><Crosshair size={48} strokeWidth={1.5} /></Box>
               <Typography variant="h5" fontWeight={800}>
                 Enjoying the recommendations?
               </Typography>

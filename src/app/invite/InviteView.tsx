@@ -2,6 +2,7 @@
 
 import { useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import { Dice5, Users, Clock } from 'lucide-react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
@@ -59,7 +60,7 @@ export default function InviteView() {
       >
         {/* Invite header */}
         <Box sx={{ mb: 3 }}>
-          <Typography sx={{ fontSize: '3rem', mb: 1 }}>🎲</Typography>
+          <Box sx={{ mb: 1, color: 'primary.main' }}><Dice5 size={40} strokeWidth={1.5} /></Box>
           <Typography variant="h4" fontWeight={800}>
             Game Night!
           </Typography>
@@ -96,17 +97,18 @@ export default function InviteView() {
                 <Chip key={t} label={formatGameType(t)} size="small" variant="outlined" />
               ))}
               {game.rating && (
-                <Chip label={<AnimatedRating value={game.rating} prefix="⭐ " delay={400} />} size="small" sx={{ fontWeight: 600 }} />
+                <Chip label={<AnimatedRating value={game.rating} delay={400} />} size="small" sx={{ fontWeight: 600 }} />
               )}
               {game.playerCount && (
                 <Chip
-                  label={`👥 ${game.playerCount.min}${game.playerCount.max !== game.playerCount.min ? `–${game.playerCount.max}` : ''} players`}
+                  icon={<Users size={14} /> as React.ReactElement}
+                  label={`${game.playerCount.min}${game.playerCount.max !== game.playerCount.min ? `–${game.playerCount.max}` : ''} players`}
                   size="small"
                   variant="outlined"
                 />
               )}
               {game.playTime?.average && (
-                <Chip label={`⏱️ ${game.playTime.average} min`} size="small" variant="outlined" />
+                <Chip icon={<Clock size={14} /> as React.ReactElement} label={`${game.playTime.average} min`} size="small" variant="outlined" />
               )}
             </Box>
 

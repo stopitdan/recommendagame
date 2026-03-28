@@ -1,3 +1,4 @@
+import { Mail } from 'lucide-react';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Stack from '@mui/material/Stack';
@@ -22,7 +23,7 @@ export default function ConfirmEmailPage() {
     >
       <Container maxWidth="xs">
         <Stack spacing={3} alignItems="center" textAlign="center">
-          <Typography sx={{ fontSize: '4rem' }}>📧</Typography>
+          <Box sx={{ color: 'primary.main', display: 'flex', justifyContent: 'center' }}><Mail size={56} strokeWidth={1.5} /></Box>
           <Typography variant="h4" fontWeight={800}>
             Check Your Email
           </Typography>

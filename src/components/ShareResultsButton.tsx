@@ -6,7 +6,7 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import Typography from '@mui/material/Typography';
+import { Link2, ClipboardCopy, Share2, MessageCircle, Globe } from 'lucide-react';
 
 interface ShareResultsButtonProps {
   /** Names of the top games to include in share text */
@@ -68,24 +68,24 @@ export default function ShareResultsButton({ gameNames }: ShareResultsButtonProp
 
   return (
     <>
-      <Button variant="outlined" size="small" onClick={handleClick}>
-        {copied ? 'Link Copied!' : '🔗 Share'}
+      <Button variant="outlined" size="small" onClick={handleClick} startIcon={<Share2 size={16} />}>
+        {copied ? 'Link Copied!' : 'Share'}
       </Button>
       <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
         <MenuItem onClick={handleCopyLink}>
-          <ListItemIcon><Typography>📋</Typography></ListItemIcon>
+          <ListItemIcon><ClipboardCopy size={18} /></ListItemIcon>
           <ListItemText>Copy Link</ListItemText>
         </MenuItem>
         <MenuItem onClick={handleTwitter}>
-          <ListItemIcon><Typography>𝕏</Typography></ListItemIcon>
+          <ListItemIcon><MessageCircle size={18} /></ListItemIcon>
           <ListItemText>Share on X / Twitter</ListItemText>
         </MenuItem>
         <MenuItem onClick={handleFacebook}>
-          <ListItemIcon><Typography>📘</Typography></ListItemIcon>
+          <ListItemIcon><Globe size={18} /></ListItemIcon>
           <ListItemText>Share on Facebook</ListItemText>
         </MenuItem>
         <MenuItem onClick={handleReddit}>
-          <ListItemIcon><Typography>🤖</Typography></ListItemIcon>
+          <ListItemIcon><Link2 size={18} /></ListItemIcon>
           <ListItemText>Share on Reddit</ListItemText>
         </MenuItem>
       </Menu>

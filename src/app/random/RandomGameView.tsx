@@ -12,6 +12,7 @@ import Chip from '@mui/material/Chip';
 import Container from '@mui/material/Container';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import { Dice5, Puzzle, Gamepad2, Type, PartyPopper, Users, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import type { Game } from '@/types/game';
 import AnimatedRating from '@/components/AnimatedRating';
@@ -303,11 +304,11 @@ export default function RandomGameView() {
   }, [unlock]);
 
   const typeOptions = [
-    { label: 'Any Game', value: null, emoji: '🎲' },
-    { label: 'Board Game', value: 'board', emoji: '♟️' },
-    { label: 'Video Game', value: 'video', emoji: '🎮' },
-    { label: 'Word Game', value: 'word', emoji: '🔤' },
-    { label: 'Party Game', value: 'party', emoji: '🎉' },
+    { label: 'Any Game', value: null, icon: <Dice5 size={14} /> },
+    { label: 'Board Game', value: 'board', icon: <Puzzle size={14} /> },
+    { label: 'Video Game', value: 'video', icon: <Gamepad2 size={14} /> },
+    { label: 'Word Game', value: 'word', icon: <Type size={14} /> },
+    { label: 'Party Game', value: 'party', icon: <PartyPopper size={14} /> },
   ];
 
   return (
@@ -475,7 +476,8 @@ export default function RandomGameView() {
           {typeOptions.map((opt) => (
             <Chip
               key={opt.label}
-              label={`${opt.emoji} ${opt.label}`}
+              icon={opt.icon as React.ReactElement}
+              label={opt.label}
               onClick={() => setType(opt.value)}
               color={type === opt.value ? 'primary' : 'default'}
               variant={type === opt.value ? 'filled' : 'outlined'}
@@ -564,14 +566,16 @@ export default function RandomGameView() {
                     )}
                     {(game as any).min_players && (
                       <Chip
-                        label={`👥 ${(game as any).min_players}${(game as any).max_players && (game as any).max_players !== (game as any).min_players ? `–${(game as any).max_players}` : ''} players`}
+                        icon={<Users size={14} /> as React.ReactElement}
+                        label={`${(game as any).min_players}${(game as any).max_players && (game as any).max_players !== (game as any).min_players ? `–${(game as any).max_players}` : ''} players`}
                         size="small"
                         variant="outlined"
                       />
                     )}
                     {(game as any).avg_play_time && (
                       <Chip
-                        label={`⏱️ ${(game as any).avg_play_time} min`}
+                        icon={<Clock size={14} /> as React.ReactElement}
+                        label={`${(game as any).avg_play_time} min`}
                         size="small"
                         variant="outlined"
                       />
