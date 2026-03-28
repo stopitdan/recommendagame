@@ -57,7 +57,7 @@ type PopularityMode = 'popular' | 'any' | 'hidden-gems';
 // ─── Caching ─────────────────────────────────────────────────
 
 /** Cache recommendation results for identical preferences (2 min TTL) */
-const recommendCache = new MemoryCache<unknown>(600, 50);
+const recommendCache = new MemoryCache<unknown>(120, 50);
 
 /** Generate a cache key from preferences */
 function cacheKey(prefs: QuestionnaireState, popularity: string): string {
@@ -115,15 +115,21 @@ export async function POST(request: NextRequest) {
   const key = cacheKey(body, popularity);
   const redisKey = `rec:${key}`;
 
-  const memoryCached = recommendCache.get(key);
-  if (memoryCached) {
-    return NextResponse.json(memoryCached);
-  }
+  // Skip cache if ?nocache=1 is in the request URL (for testing)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const skipCache = (body as any)._nocache === true;
 
-  const redisCached = await redisCache.get<unknown>(redisKey);
-  if (redisCached) {
-    recommendCache.set(key, redisCached); // Warm the in-memory cache
-    return NextResponse.json(redisCached);
+  if (!skipCache) {
+    const memoryCached = recommendCache.get(key);
+    if (memoryCached) {
+      return NextResponse.json(memoryCached);
+    }
+
+    const redisCached = await redisCache.get<unknown>(redisKey);
+    if (redisCached) {
+      recommendCache.set(key, redisCached);
+      return NextResponse.json(redisCached);
+    }
   }
 
   const startTime = Date.now();
@@ -325,7 +331,7 @@ export async function POST(request: NextRequest) {
     // Cache responses with results in both layers
     if (topResults.length > 0) {
       recommendCache.set(key, response);
-      redisCache.set(redisKey, response, 600); // 10 min TTL in Redis
+      redisCache.set(redisKey, response, 120); // 2 min TTL in Redis
     }
 
     return NextResponse.json(response);
