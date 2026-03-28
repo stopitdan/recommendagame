@@ -55,6 +55,7 @@ export async function llmRerank(
     if (g.playerCount) parts.push(`${g.playerCount.min}-${g.playerCount.max}p`);
     if (g.complexity) parts.push(`complexity:${g.complexity.toFixed(1)}/5`);
     if (g.rating) parts.push(`rating:${g.rating.toFixed(1)}`);
+    if (g.ratingCount) parts.push(`votes:${g.ratingCount >= 1000 ? `${Math.round(g.ratingCount / 1000)}k` : g.ratingCount}`);
     if (g.categories.length > 0) parts.push(`categories:[${g.categories.slice(0, 5).join(',')}]`);
     if (g.mechanics.length > 0) parts.push(`mechanics:[${g.mechanics.slice(0, 5).join(',')}]`);
     if (g.description) {
@@ -77,7 +78,8 @@ Pick the ${limit} games that BEST match what this user is looking for. Be strict
 - If they said "deck building", a game without deck building mechanics is a BAD match
 - If they said "2 players", a game that requires 4+ is a BAD match
 - Prefer games that match the most preferences simultaneously
-- When in doubt, prefer well-rated games that fit the request over obscure ones that partially fit
+- STRONGLY prefer well-known games (high vote count) over obscure ones when both fit the request
+- A game with 20,000+ votes that matches most criteria is ALWAYS better than a game with 50 votes that matches all criteria
 
 Return ONLY a JSON object: {"ids": ["game-id-1", "game-id-2", ...]} with the ${limit} best game IDs in order from best to worst match. No explanation needed.`;
 
