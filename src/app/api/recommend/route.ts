@@ -561,13 +561,13 @@ async function fetchTextSearchCandidates(
   const trimmed = freeText.trim();
 
   const [nameResults, descResults] = await Promise.all([
-    // Full-text search on game name
+    // Full-text search on game name — sort by popularity to surface well-known games
     supabase
       .from('games')
       .select(GAME_COLUMNS)
       .textSearch('name', trimmed, { type: 'websearch' })
       .eq('is_expansion', false)
-      .order('rating', { ascending: false, nullsFirst: false })
+      .order('rating_count', { ascending: false, nullsFirst: false })
       .limit(30),
     // Description keyword search (top 2 meaningful words)
     fetchDescriptionMatches(supabase, trimmed),
@@ -635,27 +635,30 @@ async function fetchTagCandidates(
   const mechTags = limitedMechanics.length > 0 ? limitedMechanics : tags.slice(0, 8);
 
   // Split into 3 parallel queries (one per column)
+  // Sort by rating_count (popularity) instead of rating — when we already know
+  // the game matches by tag, we want the most well-known examples first.
+  // This ensures Dominion appears before obscure deck builders with higher ratings.
   const [catResult, mechResult, themeResult] = await Promise.all([
     catTags.length > 0 ? supabase
       .from('games')
       .select(GAME_COLUMNS)
       .overlaps('categories', catTags)
       .eq('is_expansion', false)
-      .order('rating', { ascending: false, nullsFirst: false })
+      .order('rating_count', { ascending: false, nullsFirst: false })
       .limit(50) : Promise.resolve({ data: [], error: null }),
     mechTags.length > 0 ? supabase
       .from('games')
       .select(GAME_COLUMNS)
       .overlaps('mechanics', mechTags)
       .eq('is_expansion', false)
-      .order('rating', { ascending: false, nullsFirst: false })
+      .order('rating_count', { ascending: false, nullsFirst: false })
       .limit(50) : Promise.resolve({ data: [], error: null }),
     supabase
       .from('games')
       .select(GAME_COLUMNS)
       .overlaps('themes', catTags)
       .eq('is_expansion', false)
-      .order('rating', { ascending: false, nullsFirst: false })
+      .order('rating_count', { ascending: false, nullsFirst: false })
       .limit(50),
   ]);
 
