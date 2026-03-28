@@ -13,8 +13,12 @@ import { createClient } from '@supabase/supabase-js';
 import { parsePreferencesWithLLM } from '@/lib/llm/parse-preferences';
 import { getCachedParse, setCachedParse } from '@/lib/llm/cache';
 import type { ParsedPreferences } from '@/lib/llm/types';
+import { rateLimit, LIMITS } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
+  const blocked = await rateLimit(request, LIMITS.expensive);
+  if (blocked) return blocked;
+
   let body: { text?: string };
 
   try {
@@ -98,29 +102,13 @@ async function enrichFromSimilarGames(
   const supabase = createClient(url, key);
   const enriched = { ...parsed };
 
-  // Look up each similar game
+  // Look up each similar game using tsvector search (GIN-indexed, fast)
   for (const gameName of parsed.similarTo.slice(0, 3)) {
-    const { data } = await supabase
-      .from('games')
-      .select('min_players, max_players, avg_play_time, complexity, categories, mechanics, themes, types')
-      .ilike('name', gameName) // Exact match first
-      .limit(1)
-      .single();
+    const { data: rpcResults } = await supabase
+      .rpc('search_games_by_name', { search_query: gameName, result_limit: 1 });
 
-    if (!data) {
-      // Try fuzzy match
-      const { data: fuzzy } = await supabase
-        .from('games')
-        .select('min_players, max_players, avg_play_time, complexity, categories, mechanics, themes, types')
-        .ilike('name', `%${gameName}%`)
-        .order('rating_count', { ascending: false })
-        .limit(1)
-        .single();
-
-      if (!fuzzy) continue;
-      Object.assign(data ?? {}, fuzzy);
-      if (!data) continue;
-    }
+    const data = rpcResults?.[0];
+    if (!data) continue;
 
     // Fill in player count if LLM didn't infer it
     if (!enriched.playerCount && data.min_players && data.max_players) {

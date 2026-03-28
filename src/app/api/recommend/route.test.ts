@@ -42,7 +42,7 @@ vi.mock('@/lib/recommendation/diversity', () => ({
 // --- Mock Supabase with factory (no external refs) ---
 vi.mock('@supabase/supabase-js', () => {
   const chainable: Record<string, ReturnType<typeof vi.fn>> = {};
-  const methods = ['select', 'not', 'contains', 'gt', 'lt', 'gte', 'lte', 'order', 'limit', 'or', 'textSearch', 'ilike', 'single', 'eq', 'in', 'rpc'];
+  const methods = ['select', 'not', 'contains', 'gt', 'lt', 'gte', 'lte', 'order', 'limit', 'or', 'textSearch', 'ilike', 'single', 'eq', 'in', 'rpc', 'overlaps'];
   for (const m of methods) {
     chainable[m] = vi.fn();
   }

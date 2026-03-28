@@ -22,6 +22,7 @@ import { createClient } from '@supabase/supabase-js';
 import type { GameRow } from '@/types/supabase';
 import { rowToGame } from '@/lib/supabase/games';
 import { redisCache } from '@/lib/redis';
+import { rateLimit, LIMITS } from '@/lib/rate-limit';
 
 function createDbClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -31,6 +32,9 @@ function createDbClient() {
 }
 
 export async function GET(request: NextRequest) {
+  const blocked = await rateLimit(request, LIMITS.medium);
+  if (blocked) return blocked;
+
   const { searchParams } = request.nextUrl;
   const supabase = createDbClient();
 
@@ -67,18 +71,15 @@ export async function GET(request: NextRequest) {
   const cached = await redisCache.get<unknown>(browseKey);
   if (cached) return NextResponse.json(cached);
 
-  // Only request exact count when filters are applied (full table count is slow on free tier)
-  const hasFilters = category || mechanic || theme || platform || designer || publisher ||
-    type || textQuery ||
-    minPlayers || maxPlayers || minTime || maxTime || minComplexity || maxComplexity ||
-    minRating || yearFrom || yearTo;
-
   const selectColumns = 'id,source,source_id,name,description,year_published,types,min_players,max_players,recommended_players,min_play_time,max_play_time,avg_play_time,complexity,rating,rating_count,categories,mechanics,themes,platforms,thumbnail_url,image_url,source_url';
 
   let query = supabase.from('games').select(
     selectColumns,
-    hasFilters ? { count: 'exact' } : { count: 'estimated' },
+    { count: 'estimated' },
   );
+
+  // Exclude expansions — they clutter results and bloat scans
+  query = query.eq('is_expansion', false);
 
   // Array containment filters
   if (category) query = query.contains('categories', [category]);
@@ -108,9 +109,20 @@ export async function GET(request: NextRequest) {
   if (yearFrom) query = query.gte('year_published', parseInt(yearFrom, 10));
   if (yearTo) query = query.lte('year_published', parseInt(yearTo, 10));
 
-  // Text search — use full-text search index (fast) instead of ilike (full scan)
+  // Text search — two-step approach: get matching IDs via GIN-indexed RPC first,
+  // then filter by ID. This prevents Postgres from combining GIN text search
+  // with GIN array containment + ORDER BY in one poorly-optimized plan.
   if (textQuery) {
-    query = query.textSearch('name', textQuery.trim(), { type: 'websearch' });
+    const { data: nameMatches } = await supabase
+      .rpc('search_games_by_name', { search_query: textQuery.trim(), result_limit: 200 });
+    const matchedIds = (nameMatches ?? []).map((g: { id: string }) => g.id);
+    if (matchedIds.length === 0) {
+      // No text matches — return empty immediately
+      const emptyResponse = { games: [], total: 0, limit, offset, filters: { category, mechanic, theme, platform, type, q: textQuery, popularity, sort } };
+      redisCache.set(browseKey, emptyResponse, 900);
+      return NextResponse.json(emptyResponse);
+    }
+    query = query.in('id', matchedIds);
   }
 
   // Popularity filter
@@ -155,7 +167,7 @@ export async function GET(request: NextRequest) {
   };
 
   // Cache for 5 minutes (browse data changes slowly)
-  redisCache.set(browseKey, response, 300);
+  redisCache.set(browseKey, response, 900); // 15 min — browse data changes slowly
 
   return NextResponse.json(response);
 }

@@ -8,6 +8,8 @@ import PageTransition from "@/components/PageTransition";
 import { AchievementProvider } from "@/components/AchievementToast";
 import ScrollProgress from "@/components/ScrollProgress";
 import Footer from "@/components/Footer";
+import CookieConsent from "@/components/CookieConsent";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 import "./globals.css";
 
 const roboto = Roboto({
@@ -49,6 +51,9 @@ export const metadata: Metadata = {
   icons: {
     icon: '/favicon.svg',
   },
+  alternates: {
+    canonical: './',
+  },
   robots: {
     index: true,
     follow: true,
@@ -62,6 +67,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={roboto.variable}>
+      <GoogleAnalytics />
       <body className={roboto.className}>
         <AppRouterCacheProvider>
           <ThemeRegistry>
@@ -76,6 +82,7 @@ export default function RootLayout({
               </main>
             </ErrorBoundary>
             <Footer />
+            <CookieConsent />
             </AchievementProvider>
           </ThemeRegistry>
         </AppRouterCacheProvider>

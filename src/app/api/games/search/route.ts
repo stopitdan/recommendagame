@@ -29,6 +29,8 @@ import { bggAdapter } from '@/lib/adapters/bgg';
 import { rawgAdapter } from '@/lib/adapters/rawg';
 import { localAdapter } from '@/lib/adapters/local';
 import { syncSearchResults } from '@/lib/sync/game-sync';
+import { rateLimit, LIMITS } from '@/lib/rate-limit';
+import { redisCache } from '@/lib/redis';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -57,6 +59,9 @@ function createSearchClient() {
 // ---------------------------------------------------------------------------
 
 export async function GET(request: NextRequest) {
+  const blocked = await rateLimit(request, LIMITS.medium);
+  if (blocked) return blocked;
+
   const { searchParams } = request.nextUrl;
 
   // Parse query params
@@ -98,6 +103,11 @@ export async function GET(request: NextRequest) {
   const maxComplexity = parseFloatParam(searchParams.get('maxComplexity'));
   const limit = Math.min(parseIntParam(searchParams.get('limit')) ?? 20, 100);
 
+  // Check Redis cache first
+  const searchKey = `search:${searchParams.toString()}`;
+  const cached = await redisCache.get<{ query: string; count: number; popularity: string; results: Game[] }>(searchKey);
+  if (cached) return NextResponse.json(cached);
+
   try {
     // Step 1: Search local DB first (fast, no rate limits)
     let results = await searchLocalDb(query, limit * 3); // Fetch extra for post-filtering
@@ -138,12 +148,17 @@ export async function GET(request: NextRequest) {
     // Step 5: Limit
     results = results.slice(0, limit);
 
-    return NextResponse.json({
+    const response = {
       query,
       count: results.length,
       popularity,
       results,
-    });
+    };
+
+    // Cache for 5 minutes
+    redisCache.set(searchKey, response, 300);
+
+    return NextResponse.json(response);
   } catch (error) {
     console.error('[Search] Error:', error);
     return NextResponse.json(

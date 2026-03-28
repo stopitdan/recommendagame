@@ -15,6 +15,11 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import Slider from '@mui/material/Slider';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
@@ -49,6 +54,9 @@ export default function SettingsView() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const fetchSettings = useCallback(async () => {
     setLoading(true);
@@ -98,6 +106,38 @@ export default function SettingsView() {
       setError('Failed to save settings');
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleExportData() {
+    setExporting(true);
+    try {
+      const res = await fetch('/api/account/export');
+      if (!res.ok) throw new Error('Export failed');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'recommendagame-data.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      setError('Failed to export data');
+    } finally {
+      setExporting(false);
+    }
+  }
+
+  async function handleDeleteAccount() {
+    setDeleting(true);
+    try {
+      const res = await fetch('/api/account/delete', { method: 'DELETE' });
+      if (!res.ok) throw new Error('Deletion failed');
+      router.push('/');
+    } catch {
+      setError('Failed to delete account. Please contact support.');
+      setDeleting(false);
+      setDeleteDialogOpen(false);
     }
   }
 
@@ -312,6 +352,77 @@ export default function SettingsView() {
         >
           {saving ? 'Saving...' : 'Save Settings'}
         </Button>
+
+        <Divider sx={{ my: 2 }} />
+
+        {/* Data & Privacy */}
+        <Card variant="outlined">
+          <CardContent>
+            <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
+              Data &amp; Privacy
+            </Typography>
+
+            <Stack spacing={2}>
+              <Box>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                  Download a copy of all your data (profile, preferences, favorites, reviews,
+                  feedback, achievements, and dice skins) as a JSON file.
+                </Typography>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={handleExportData}
+                  disabled={exporting}
+                  sx={{ textTransform: 'none' }}
+                >
+                  {exporting ? 'Exporting...' : 'Export My Data'}
+                </Button>
+              </Box>
+
+              <Divider />
+
+              <Box>
+                <Typography variant="body2" color="error.main" sx={{ mb: 1 }}>
+                  Permanently delete your account and all associated data. This action cannot be
+                  undone.
+                </Typography>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  size="small"
+                  onClick={() => setDeleteDialogOpen(true)}
+                  sx={{ textTransform: 'none' }}
+                >
+                  Delete My Account
+                </Button>
+              </Box>
+            </Stack>
+          </CardContent>
+        </Card>
+
+        {/* Delete confirmation dialog */}
+        <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+          <DialogTitle>Delete Account?</DialogTitle>
+          <DialogContent>
+            <Typography variant="body2" color="text.secondary">
+              This will permanently delete your account, preferences, favorites, reviews, feedback,
+              achievements, and all custom dice skins. This action cannot be undone.
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setDeleteDialogOpen(false)} disabled={deleting}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleDeleteAccount}
+              color="error"
+              variant="contained"
+              disabled={deleting}
+            >
+              {deleting ? 'Deleting...' : 'Delete Everything'}
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Stack>
     </Container>
   );

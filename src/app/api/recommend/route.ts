@@ -28,6 +28,7 @@ import {
 import type { ScoringWeights } from '@/lib/recommendation/scoring';
 import { computeSimilarityInMemory, fetchVectorCandidates } from '@/lib/recommendation/similarity';
 import { MemoryCache } from '@/lib/cache';
+import { rateLimit, LIMITS } from '@/lib/rate-limit';
 import { redisCache } from '@/lib/redis';
 import { diversityRerank } from '@/lib/recommendation/diversity';
 import { buildRejectionProfile, computeRejectionPenalty } from '@/lib/recommendation/rejection';
@@ -50,7 +51,7 @@ type PopularityMode = 'popular' | 'any' | 'hidden-gems';
 // ─── Caching ─────────────────────────────────────────────────
 
 /** Cache recommendation results for identical preferences (2 min TTL) */
-const recommendCache = new MemoryCache<unknown>(120, 50);
+const recommendCache = new MemoryCache<unknown>(600, 50);
 
 /** Generate a cache key from preferences */
 function cacheKey(prefs: QuestionnaireState, popularity: string): string {
@@ -78,6 +79,9 @@ function createDbClient() {
 // ─── Route Handler ───────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
+  const blocked = await rateLimit(request, LIMITS.expensive);
+  if (blocked) return blocked;
+
   let body: QuestionnaireState & {
     limit?: number;
     popularity?: PopularityMode;
@@ -260,7 +264,7 @@ export async function POST(request: NextRequest) {
     // Cache responses with results in both layers
     if (topResults.length > 0) {
       recommendCache.set(key, response);
-      redisCache.set(redisKey, response, 120); // 2 min TTL in Redis
+      redisCache.set(redisKey, response, 600); // 10 min TTL in Redis
     }
 
     return NextResponse.json(response);
@@ -295,7 +299,8 @@ async function fetchCandidates(
   let query = supabase
     .from('games')
     .select(GAME_COLUMNS)
-    .not('rating', 'is', null);
+    .not('rating', 'is', null)
+    .eq('is_expansion', false);
 
   // ── Quality floor (always applied) ──
   if (popularity === 'popular') {
@@ -370,6 +375,7 @@ async function fetchTextSearchCandidates(
       .from('games')
       .select(GAME_COLUMNS)
       .textSearch('name', trimmed, { type: 'websearch' })
+      .eq('is_expansion', false)
       .order('rating', { ascending: false, nullsFirst: false })
       .limit(30),
     // Description keyword search (top 2 meaningful words)
@@ -425,28 +431,53 @@ async function fetchTagCandidates(
 ): Promise<ReturnType<typeof rowToGame>[]> {
   if (tags.length === 0) return [];
 
-  // Build OR conditions for each tag across categories, mechanics, and themes
-  const conditions = tags
-    .slice(0, 8) // Limit to avoid huge queries
-    .flatMap((tag) => [
-      `categories.cs.{${tag}}`,
-      `mechanics.cs.{${tag}}`,
-      `themes.cs.{${tag}}`,
-    ]);
+  const limitedTags = tags.slice(0, 8);
 
-  const { data, error } = await supabase
-    .from('games')
-    .select(GAME_COLUMNS)
-    .or(conditions.join(','))
-    .order('rating', { ascending: false, nullsFirst: false })
-    .limit(100);
+  // Split into 3 parallel queries (one per column) instead of one giant OR
+  // across all columns. Postgres handles 3 simple GIN queries much better
+  // than 1 query with 24 OR conditions.
+  const [catResult, mechResult, themeResult] = await Promise.all([
+    supabase
+      .from('games')
+      .select(GAME_COLUMNS)
+      .overlaps('categories', limitedTags)
+      .eq('is_expansion', false)
+      .order('rating', { ascending: false, nullsFirst: false })
+      .limit(50),
+    supabase
+      .from('games')
+      .select(GAME_COLUMNS)
+      .overlaps('mechanics', limitedTags)
+      .eq('is_expansion', false)
+      .order('rating', { ascending: false, nullsFirst: false })
+      .limit(50),
+    supabase
+      .from('games')
+      .select(GAME_COLUMNS)
+      .overlaps('themes', limitedTags)
+      .eq('is_expansion', false)
+      .order('rating', { ascending: false, nullsFirst: false })
+      .limit(50),
+  ]);
 
-  if (error) {
-    console.error('[Recommend] Tag search error:', error);
-    return [];
+  // Merge and deduplicate
+  const seen = new Set<string>();
+  const merged: ReturnType<typeof rowToGame>[] = [];
+  for (const { data, error } of [catResult, mechResult, themeResult]) {
+    if (error) {
+      console.error('[Recommend] Tag search error:', error);
+      continue;
+    }
+    for (const row of (data ?? []) as GameRow[]) {
+      const game = rowToGame(row);
+      if (!seen.has(game.id)) {
+        seen.add(game.id);
+        merged.push(game);
+      }
+    }
   }
 
-  return ((data ?? []) as GameRow[]).map(rowToGame);
+  return merged;
 }
 
 /**
@@ -482,7 +513,8 @@ async function fetchCandidatesNoType(
 ) {
   let query = supabase
     .from('games')
-    .select(GAME_COLUMNS);
+    .select(GAME_COLUMNS)
+    .eq('is_expansion', false);
 
   // Soft quality floor (no hard NOT NULL filter — let unrated games through)
   if (popularity === 'popular') {
@@ -514,7 +546,8 @@ async function fetchCandidatesFallback(
 ) {
   let query = supabase
     .from('games')
-    .select(GAME_COLUMNS);
+    .select(GAME_COLUMNS)
+    .eq('is_expansion', false);
 
   // Minimal quality floor
   if (popularity === 'popular') {

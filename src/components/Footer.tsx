@@ -25,6 +25,12 @@ const LINKS = {
     { label: 'Word Games', href: '/browse?type=word' },
     { label: 'Party Games', href: '/browse?type=party' },
   ],
+  Legal: [
+    { label: 'Privacy Policy', href: '/privacy' },
+    { label: 'Terms of Service', href: '/terms' },
+    { label: 'FAQ', href: '/faq' },
+    { label: 'Contact Us', href: '/contact' },
+  ],
 };
 
 export default function Footer() {
