@@ -35,6 +35,7 @@ import { redisCache } from '@/lib/redis';
 import { diversityRerank } from '@/lib/recommendation/diversity';
 import { buildRejectionProfile, computeRejectionPenalty } from '@/lib/recommendation/rejection';
 import { getPopularFallback } from '@/lib/recommendation/popularity-cache';
+import { llmRerank } from '@/lib/recommendation/llm-rerank';
 
 // ─── Config ──────────────────────────────────────────────────
 
@@ -245,10 +246,13 @@ export async function POST(request: NextRequest) {
       scored.sort((a, b) => b.score - a.score);
     }
 
-    // Step 5: Diversity re-ranking (prevent 20 strategy games in a row)
-    const diversified = diversityRerank(scored);
+    // Step 5: LLM reranking — ask GPT-4o to pick the best matches from top candidates
+    const reranked = await llmRerank(scored, body, Math.min(limit, 15));
 
-    // Step 6: Take top N
+    // Step 6: Diversity re-ranking (prevent 20 strategy games in a row)
+    const diversified = diversityRerank(reranked);
+
+    // Step 7: Take top N
     const topResults = diversified.slice(0, limit);
 
     const latencyMs = Date.now() - startTime;

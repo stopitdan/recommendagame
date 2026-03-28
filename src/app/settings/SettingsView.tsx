@@ -21,8 +21,9 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { Moon, Sun } from 'lucide-react';
+import { Moon, Sun, Puzzle } from 'lucide-react';
 
 type PopularityMode = 'popular' | 'any' | 'hidden-gems';
 
@@ -58,6 +59,9 @@ export default function SettingsView() {
   const [exporting, setExporting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [bggUsername, setBggUsername] = useState('');
+  const [bggSyncing, setBggSyncing] = useState(false);
+  const [bggResult, setBggResult] = useState<string | null>(null);
 
   const fetchSettings = useCallback(async () => {
     setLoading(true);
@@ -107,6 +111,26 @@ export default function SettingsView() {
       setError('Failed to save settings');
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleBggSync() {
+    if (!bggUsername.trim()) return;
+    setBggSyncing(true);
+    setBggResult(null);
+    try {
+      const res = await fetch('/api/bgg/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: bggUsername.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Sync failed');
+      setBggResult(data.message);
+    } catch (err) {
+      setBggResult(err instanceof Error ? err.message : 'Sync failed');
+    } finally {
+      setBggSyncing(false);
     }
   }
 
@@ -343,6 +367,44 @@ export default function SettingsView() {
                 variant="outlined"
               />
             </Box>
+          </CardContent>
+        </Card>
+
+        {/* BGG Account Integration */}
+        <Card variant="outlined">
+          <CardContent>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+              <Puzzle size={20} />
+              <Typography variant="h6" fontWeight={700}>
+                BoardGameGeek Account
+              </Typography>
+            </Box>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              Connect your BGG account to import your collection and ratings.
+              This makes your recommendations way more personal.
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
+              <TextField
+                size="small"
+                placeholder="Your BGG username"
+                value={bggUsername}
+                onChange={(e) => setBggUsername(e.target.value)}
+                sx={{ flex: 1 }}
+              />
+              <Button
+                variant="contained"
+                onClick={handleBggSync}
+                disabled={bggSyncing || !bggUsername.trim()}
+                sx={{ textTransform: 'none', fontWeight: 600, whiteSpace: 'nowrap' }}
+              >
+                {bggSyncing ? 'Syncing...' : 'Sync Collection'}
+              </Button>
+            </Box>
+            {bggResult && (
+              <Alert severity={bggResult.includes('Imported') ? 'success' : 'error'} sx={{ mt: 2 }}>
+                {bggResult}
+              </Alert>
+            )}
           </CardContent>
         </Card>
 
