@@ -24,7 +24,7 @@ Tracking all items needed to make boredgame.lol a public, monetized app with Goo
 | 11 | Error tracking (Sentry) | ⬜ TODO | Can't fix bugs you don't know about in prod |
 | 12 | GDPR data export/deletion | ✅ DONE | Export JSON + account deletion in Settings, covers all 9 user tables + storage |
 | 13 | Email verification enforcement | ✅ DONE | Supabase confirm email enabled, branded templates for signup/reset/change |
-| 14 | Accessibility audit | ⬜ TODO | Missing alt text, ARIA labels, skip-nav — liability risk |
+| 14 | Accessibility audit | ✅ DONE | Skip-nav link, aria-labels on all IconButtons, form a11y verified |
 | 15 | OpenGraph images / social cards | ✅ DONE | Dynamic OG + Twitter images via Next.js ImageResponse, matches landing page hero |
 | 16 | Canonical URLs | ✅ DONE | `alternates.canonical` in root layout metadata |
 
@@ -34,10 +34,10 @@ Tracking all items needed to make boredgame.lol a public, monetized app with Goo
 |---|------|--------|-------|
 | 17 | About page refresh | ⬜ TODO | Tell the story, build brand identity |
 | 18 | JSON-LD structured data | ✅ DONE | WebSite+SearchAction on homepage, VideoGame/BoardGame with ratings on game pages, FAQPage on /faq |
-| 19 | User onboarding tour | ⬜ TODO | First-time users may not understand questionnaire |
+| 19 | User onboarding tour | ✅ DONE | Welcome dialog on first visit to questionnaire, 3-step walkthrough |
 | 20 | Share results / social sharing | ✅ DONE | Web Share API (mobile) + menu with Copy Link, Twitter/X, Facebook, Reddit |
-| 21 | Newsletter / email capture | ⬜ TODO | Retain users, announce features |
-| 22 | PWA support | ⬜ TODO | "Add to home screen" for mobile |
+| 21 | Newsletter / email capture | ✅ DONE | Email signup on landing page, Supabase table, API route |
+| 22 | PWA support | ✅ DONE | Manifest, service worker, PWA icons, add-to-homescreen ready |
 | 23 | Feedback widget | ⬜ TODO | Beyond thumbs up/down |
 | 24 | Admin dashboard | ⬜ TODO | Monitor rec quality, user stats, errors |
 | 25 | API documentation | ⬜ TODO | If opening the API or attracting developers |

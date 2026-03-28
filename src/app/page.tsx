@@ -23,6 +23,7 @@ import QuickCollections from "@/components/QuickCollections";
 import AnimatedHeadline from "@/components/landing/AnimatedHeadline";
 import MagneticButton from "@/components/landing/MagneticButton";
 import JsonLd from "@/components/JsonLd";
+import NewsletterSignup from "@/components/NewsletterSignup";
 import { Puzzle, Gamepad2, PartyPopper, Brain } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -644,6 +645,13 @@ export default function Home() {
             </Grid>
           </StaggerGroup>
         </Container>
+      </Box>
+
+      {/* ═══════════ NEWSLETTER ═══════════ */}
+      <Box sx={{ py: { xs: 2, md: 4 }, bgcolor: "background.default" }}>
+        <Section>
+          <NewsletterSignup />
+        </Section>
       </Box>
 
       {/* ═══════════ BOTTOM CTA ═══════════ */}

@@ -29,6 +29,7 @@ import FreeTextStep from '@/components/questionnaire/FreeTextStep';
 import { getFilteredMoods, getFilteredGenres, getMoodDescription } from '@/lib/questionnaire-context';
 import { useAchievements } from '@/components/AchievementToast';
 import { motion, AnimatePresence } from 'motion/react';
+import OnboardingDialog from '@/components/OnboardingDialog';
 
 // Free text is now FIRST — LLM parses it to pre-fill subsequent steps
 const STEPS = [
@@ -338,6 +339,7 @@ export default function QuestionnaireFlow() {
 
   return (
     <Box sx={{ minHeight: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column' }}>
+      <OnboardingDialog />
       <Container maxWidth="sm" sx={{ flex: 1, display: 'flex', flexDirection: 'column', pt: { xs: 3, md: 8, lg: 10 }, pb: 12 }}>
         {/* Progress — hidden on free text step, shows steps 1-6 for the filter steps */}
         {!isFreeTextStep && (

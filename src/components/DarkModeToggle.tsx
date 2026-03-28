@@ -19,6 +19,7 @@ export default function DarkModeToggle() {
       <IconButton
         onClick={handleToggle}
         size="small"
+        aria-label={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
         sx={{
           color: '#FFFFFF',
           opacity: 0.8,

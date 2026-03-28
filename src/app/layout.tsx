@@ -10,6 +10,8 @@ import ScrollProgress from "@/components/ScrollProgress";
 import Footer from "@/components/Footer";
 import CookieConsent from "@/components/CookieConsent";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
+import SkipNav from "@/components/SkipNav";
+import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
 import "./globals.css";
 
 const roboto = Roboto({
@@ -50,7 +52,9 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: '/favicon.svg',
+    apple: '/icon-192.png',
   },
+  manifest: '/manifest.json',
   alternates: {
     canonical: './',
   },
@@ -71,11 +75,12 @@ export default function RootLayout({
       <body className={roboto.className}>
         <AppRouterCacheProvider>
           <ThemeRegistry>
+            <SkipNav />
             <ScrollProgress />
             <Header />
             <AchievementProvider>
             <ErrorBoundary>
-              <main style={{ flex: 1 }}>
+              <main id="main-content" style={{ flex: 1 }}>
                 <PageTransition>
                   {children}
                 </PageTransition>
@@ -83,6 +88,7 @@ export default function RootLayout({
             </ErrorBoundary>
             <Footer />
             <CookieConsent />
+            <ServiceWorkerRegistration />
             </AchievementProvider>
           </ThemeRegistry>
         </AppRouterCacheProvider>

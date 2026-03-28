@@ -39,6 +39,7 @@ export default function HeaderAuth({ isLoggedIn, email, displayName }: HeaderAut
         <IconButton
           onClick={(e) => setAnchorEl(e.currentTarget)}
           size="small"
+          aria-label="User menu"
           sx={{
             ml: 1,
             border: '2px solid rgba(255,255,255,0.2)',

@@ -109,6 +109,7 @@ export default function FavoriteButton({ gameId, initialFavorited = false, onTog
         onClick={toggle}
         disabled={loading}
         size="small"
+        aria-label={favorited ? 'Remove from favorites' : 'Add to favorites'}
         sx={{
           position: 'relative',
           color: favorited ? 'secondary.main' : 'divider',

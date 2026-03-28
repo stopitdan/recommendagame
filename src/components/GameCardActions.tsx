@@ -44,6 +44,7 @@ export default function GameCardActions({ gameId, onDismiss, onMoreLikeThis }: G
           onClick={handleDismiss}
           disabled={dismissed}
           size="small"
+          aria-label="Not this game"
           sx={{
             color: 'text.disabled',
             transition: 'color 200ms ease',
@@ -62,6 +63,7 @@ export default function GameCardActions({ gameId, onDismiss, onMoreLikeThis }: G
         <IconButton
           onClick={handleMoreLikeThis}
           size="small"
+          aria-label="More like this game"
           sx={{
             color: 'text.disabled',
             transition: 'color 200ms ease',
