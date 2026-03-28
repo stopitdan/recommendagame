@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     description: "Smart game recommendation engine. Board games, video games, word games, and party games.",
   },
   icons: {
-    icon: '/favicon.svg',
+    icon: '/favicon.png',
     apple: '/icon-192.png',
   },
   manifest: '/manifest.json',
