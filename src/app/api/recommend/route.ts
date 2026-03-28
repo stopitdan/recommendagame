@@ -140,7 +140,14 @@ export async function POST(request: NextRequest) {
     // Collect tags from LLM parsing + user genres for tag-based search
     const allTags = collectSearchTags(body);
 
-    const [ratingCandidates, vectorCandidates, textCandidates, tagCandidates] = await Promise.all([
+    // Direct mechanic search: when LLM extracted specific mechanics, search for them directly
+    // This is the most reliable way to find "deck building" games since it queries the actual
+    // mechanic strings in the DB without relying on tag overlap matching
+    const mechanicSearchPromise = body.llmParsed?.mechanics?.length
+      ? withTimeout(fetchDirectMechanicMatches(supabase, body.llmParsed.mechanics), 5000, [])
+      : Promise.resolve([]);
+
+    const [ratingCandidates, vectorCandidates, textCandidates, tagCandidates, mechanicCandidates] = await Promise.all([
       withTimeout(fetchCandidates(supabase, body, popularity, extra), 8000, []),
       withTimeout(fetchVectorCandidates(body, { limit: VECTOR_POOL_SIZE, columns: GAME_COLUMNS, supabaseClient: supabase }), 8000, []),
       body.freeText && body.freeText.trim().length >= 3
@@ -149,6 +156,7 @@ export async function POST(request: NextRequest) {
       allTags.length > 0
         ? withTimeout(fetchTagCandidates(supabase, allTags, body), 5000, [])
         : Promise.resolve([]),
+      mechanicSearchPromise,
     ]);
 
     // Deduplicate: rating-based first, then merge in vector + text + tag matches
@@ -156,7 +164,7 @@ export async function POST(request: NextRequest) {
     let candidates = [...ratingCandidates];
     for (const g of candidates) seen.add(g.id);
 
-    for (const source of [vectorCandidates, tagCandidates, textCandidates]) {
+    for (const source of [mechanicCandidates, vectorCandidates, tagCandidates, textCandidates]) {
       for (const g of source) {
         if (!seen.has(g.id)) { candidates.push(g); seen.add(g.id); }
       }
@@ -443,7 +451,7 @@ async function fetchCandidates(
     query = query.gte('rating_count', 10);
     query = query.gte('rating', 5.5);
   } else {
-    query = query.gte('rating_count', 5);
+    query = query.gte('rating_count', 25);
   }
 
   // ── Player count: HARD constraint ──
@@ -624,6 +632,54 @@ async function fetchTagCandidates(
  * Collects all meaningful tags from user preferences and LLM parsing.
  * Used to drive tag-based candidate retrieval.
  */
+/**
+ * Direct mechanic match: finds games that have specific mechanics by
+ * querying each BGG alias directly. This is the most reliable way to
+ * get actual deck builders when someone asks for "deck building".
+ */
+async function fetchDirectMechanicMatches(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+  mechanics: string[],
+): Promise<ReturnType<typeof rowToGame>[]> {
+  if (mechanics.length === 0) return [];
+
+  // Expand mechanics to BGG names
+  const bggMechanics = expandTagsWithAliases(mechanics);
+
+  // Query games that contain any of these exact mechanic strings
+  // Use multiple parallel queries for each unique BGG mechanic name
+  const uniqueMechanics = [...new Set(bggMechanics)].slice(0, 6);
+  const queries = uniqueMechanics.map((mech) =>
+    supabase
+      .from('games')
+      .select(GAME_COLUMNS)
+      .contains('mechanics', [mech])
+      .eq('is_expansion', false)
+      .gte('rating_count', 50)
+      .order('rating', { ascending: false, nullsFirst: false })
+      .limit(30)
+  );
+
+  const results = await Promise.all(queries);
+  const seen = new Set<string>();
+  const merged: ReturnType<typeof rowToGame>[] = [];
+
+  for (const { data, error } of results) {
+    if (error) continue;
+    for (const row of (data ?? []) as GameRow[]) {
+      const game = rowToGame(row);
+      if (!seen.has(game.id)) {
+        seen.add(game.id);
+        merged.push(game);
+      }
+    }
+  }
+
+  console.log(`[Recommend] Direct mechanic search: ${merged.length} games for [${uniqueMechanics.join(', ')}]`);
+  return merged;
+}
+
 // BGG uses non-standard mechanic names. This map expands common LLM terms
 // to the actual BGG mechanic strings so tag-based candidate fetching works.
 const BGG_MECHANIC_ALIASES: Record<string, string[]> = {
