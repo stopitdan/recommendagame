@@ -25,6 +25,7 @@ export function useAchievements() {
 export function AchievementProvider({ children }: { children: React.ReactNode }) {
   const [toast, setToast] = useState<Achievement | null>(null);
   const [unlockedSet, setUnlockedSet] = useState<Set<string>>(new Set());
+  const isLoggedIn = useRef(false);
 
   // Konami code listener: ↑↑↓↓←→←→BA
   const konamiBuffer = useRef<string[]>([]);
@@ -59,6 +60,7 @@ export function AchievementProvider({ children }: { children: React.ReactNode })
 
         // Veteran + Founding Member (check account age)
         fetch('/api/profile').then((r) => r.json()).then((profile) => {
+          isLoggedIn.current = !!profile.created_at;
           if (profile.created_at) {
             const created = new Date(profile.created_at).getTime();
             const now = Date.now();
@@ -98,6 +100,9 @@ export function AchievementProvider({ children }: { children: React.ReactNode })
   const sessionFeatures = useRef(new Set<string>());
 
   const unlock = useCallback((achievementId: string) => {
+    // Not logged in? Skip entirely
+    if (!isLoggedIn.current) return;
+
     // Already unlocked? Skip
     if (unlockedSet.has(achievementId)) return;
 
