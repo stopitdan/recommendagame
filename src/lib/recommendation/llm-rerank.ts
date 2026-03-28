@@ -73,13 +73,16 @@ Here are ${Math.min(candidates.length, 25)} candidate games from our database:
 
 ${gameSummaries}
 
-Pick the ${limit} games that BEST match what this user is looking for. Be strict:
-- If they said "under 30 minutes", a 120-minute game is a BAD match
-- If they said "deck building", a game without deck building mechanics is a BAD match
-- If they said "2 players", a game that requires 4+ is a BAD match
-- Prefer games that match the most preferences simultaneously
-- STRONGLY prefer well-known games (high vote count) over obscure ones when both fit the request
-- A game with 20,000+ votes that matches most criteria is ALWAYS better than a game with 50 votes that matches all criteria
+Pick the ${limit} games that BEST match what this user is looking for.
+
+Rules (follow these strictly):
+1. RELEVANCE IS KING. If they asked for "deck building", only include games where deck building is a PRIMARY mechanic, not a minor side feature. Read the description to verify.
+2. BASE GAMES FIRST. Never rank an expansion or variant above its base game. "Dominion" should always beat "Dominion: Intrigue". If both appear, only include the base game.
+3. TIME LIMITS MATTER. If they said "under 30 minutes", exclude anything listed above 35 minutes.
+4. PLAYER COUNT MATTERS. If they said "2 players", a game requiring 5+ is irrelevant.
+5. WELL-KNOWN GAMES WIN TIES. Between two games that equally match the request, prefer the one with more votes. A 50,000-vote classic beats a 200-vote obscure game every time.
+6. USE YOUR KNOWLEDGE. You know board games. If a game is famous for being a great deck builder (Dominion, Star Realms, Clank, Ascension, Shards of Infinity, Hero Realms), prioritize it even if the metadata doesn't perfectly highlight that.
+7. EXCLUDE IRRELEVANT GAMES. If a game clearly doesn't match what the user asked for (e.g., a trick-taking game when they asked for deck building), leave it out entirely.
 
 Return ONLY a JSON object: {"ids": ["game-id-1", "game-id-2", ...]} with the ${limit} best game IDs in order from best to worst match. No explanation needed.`;
 
