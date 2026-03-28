@@ -237,8 +237,10 @@ export async function POST(request: NextRequest) {
     const scored = scoreGames(candidates, body, weights);
 
     // Step 3: In-memory similarity on top candidates only (skip if too few)
+    // Use scored results (sorted by rule-based score) to pick the best candidates
+    // for similarity re-ranking, not the arbitrary pool insertion order
     let engineVersion = vectorCandidates.length > 0 ? 'hybrid-vector-v2' : 'rule-based-v1';
-    const topCandidates = candidates.slice(0, SIMILARITY_CANDIDATES);
+    const topCandidates = scored.slice(0, SIMILARITY_CANDIDATES).map((s) => s.game);
     if (topCandidates.length >= 5) {
       const inMemory = computeSimilarityInMemory(body, topCandidates, topCandidates.length);
       const similarityMap = new Map(inMemory.map((s) => [s.game.id, s.similarity]));
