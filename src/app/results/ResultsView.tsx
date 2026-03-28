@@ -29,6 +29,7 @@ import { incrementRecommendCount } from '@/lib/guest';
 import { useAchievements } from '@/components/AchievementToast';
 import { CATEGORY_OPTIONS, MECHANIC_OPTIONS, THEME_OPTIONS, PLATFORM_OPTIONS } from '@/lib/filter-options';
 import { createClient } from '@/lib/supabase/client';
+import ShareResultsButton from '@/components/ShareResultsButton';
 
 type PopularityMode = 'popular' | 'any' | 'hidden-gems';
 
@@ -49,7 +50,6 @@ export default function ResultsView() {
   const [popularity, setPopularity] = useState<PopularityMode>('popular');
   const [engine, setEngine] = useState<string>('');
   const [totalCandidates, setTotalCandidates] = useState(0);
-  const [shareCopied, setShareCopied] = useState(false);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [presetName, setPresetName] = useState('');
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
@@ -356,19 +356,7 @@ export default function ResultsView() {
             >
               💾 Save Preset
             </Button>
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={() => {
-                const url = window.location.href;
-                navigator.clipboard.writeText(url).then(() => {
-                  setShareCopied(true);
-                  setTimeout(() => setShareCopied(false), 2000);
-                });
-              }}
-            >
-              {shareCopied ? 'Link Copied!' : '🔗 Share'}
-            </Button>
+            <ShareResultsButton gameNames={games.map((g) => g.name)} />
             <Button variant="outlined" size="small" onClick={() => router.push('/find-a-game')}>
               Start Over
             </Button>

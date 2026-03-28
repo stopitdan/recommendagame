@@ -23,7 +23,7 @@ Tracking all items needed to make boredgame.lol a public, monetized app with Goo
 | 10 | FAQ page | ✅ DONE | `/faq` — 10 questions covering recs, data, accounts, dice, feedback |
 | 11 | Error tracking (Sentry) | ⬜ TODO | Can't fix bugs you don't know about in prod |
 | 12 | GDPR data export/deletion | ✅ DONE | Export JSON + account deletion in Settings, covers all 9 user tables + storage |
-| 13 | Email verification enforcement | ⬜ TODO | Prevents spam accounts inflating feedback data |
+| 13 | Email verification enforcement | ✅ DONE | Supabase confirm email enabled, branded templates for signup/reset/change |
 | 14 | Accessibility audit | ⬜ TODO | Missing alt text, ARIA labels, skip-nav — liability risk |
 | 15 | OpenGraph images / social cards | ✅ DONE | Dynamic OG + Twitter images via Next.js ImageResponse, matches landing page hero |
 | 16 | Canonical URLs | ✅ DONE | `alternates.canonical` in root layout metadata |
@@ -35,7 +35,7 @@ Tracking all items needed to make boredgame.lol a public, monetized app with Goo
 | 17 | About page refresh | ⬜ TODO | Tell the story, build brand identity |
 | 18 | JSON-LD structured data | ✅ DONE | WebSite+SearchAction on homepage, VideoGame/BoardGame with ratings on game pages, FAQPage on /faq |
 | 19 | User onboarding tour | ⬜ TODO | First-time users may not understand questionnaire |
-| 20 | Share results / social sharing | ⬜ TODO | Viral growth |
+| 20 | Share results / social sharing | ✅ DONE | Web Share API (mobile) + menu with Copy Link, Twitter/X, Facebook, Reddit |
 | 21 | Newsletter / email capture | ⬜ TODO | Retain users, announce features |
 | 22 | PWA support | ⬜ TODO | "Add to home screen" for mobile |
 | 23 | Feedback widget | ⬜ TODO | Beyond thumbs up/down |
