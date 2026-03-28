@@ -674,4 +674,102 @@ describe('recommendation quality', () => {
     expect(results[0].game.id).toBe('great');
     expect(results[results.length - 1].game.id).toBe('bad');
   });
+
+  it('fast deck building game: well-known deck builders outrank obscure ones', () => {
+    // This is the core scenario: "fast deck building game under 30 minutes"
+    // Dominion and Star Realms should rank above obscure games with higher ratings
+    const prefs = makePrefs({
+      gameTypes: ['board'],
+      playerCount: { min: 2, max: 4 },
+      timePresets: ['short'],
+      complexity: { min: 1, max: 3 },
+      genres: ['Deck Building'],
+      moods: ['competitive'],
+      freeText: 'fast deck building game',
+      llmParsed: {
+        gameTypes: [],
+        genres: ['Deck Building'],
+        mechanics: ['Deck Building'],
+        moods: [],
+        complexity: null,
+        playerCount: null,
+        timePresets: [],
+        similarTo: [],
+        keywords: ['fast', 'deck building'],
+        excludedGenres: [],
+        excludedMechanics: [],
+      },
+    });
+
+    const games = [
+      makeGame({
+        id: 'dominion',
+        name: 'Dominion',
+        types: ['board'],
+        categories: ['Card Game'],
+        mechanics: ['Deck, Bag, and Pool Building', 'Hand Management'],
+        themes: ['Medieval'],
+        playerCount: { min: 2, max: 4 },
+        playTime: { min: 30, max: 30, average: 30 },
+        complexity: 2.35,
+        rating: 7.6,
+        ratingCount: 55000,
+      }),
+      makeGame({
+        id: 'star-realms',
+        name: 'Star Realms',
+        types: ['board'],
+        categories: ['Card Game', 'Science Fiction'],
+        mechanics: ['Deck, Bag, and Pool Building'],
+        themes: ['Space'],
+        playerCount: { min: 2, max: 2 },
+        playTime: { min: 20, max: 20, average: 20 },
+        complexity: 1.95,
+        rating: 7.5,
+        ratingCount: 25000,
+      }),
+      makeGame({
+        id: 'obscure-deckbuilder',
+        name: 'Niche Card Battler Extreme',
+        types: ['board'],
+        categories: ['Card Game'],
+        mechanics: ['Deck, Bag, and Pool Building'],
+        themes: ['Fantasy'],
+        playerCount: { min: 2, max: 4 },
+        playTime: { min: 25, max: 35, average: 30 },
+        complexity: 2.0,
+        rating: 8.5,
+        ratingCount: 47,
+      }),
+      makeGame({
+        id: 'wrong-genre',
+        name: 'Epic War Simulation',
+        types: ['board'],
+        categories: ['Wargame'],
+        mechanics: ['Hex-and-Counter'],
+        themes: ['World War II'],
+        playerCount: { min: 2, max: 2 },
+        playTime: { min: 180, max: 360, average: 240 },
+        complexity: 4.5,
+        rating: 8.2,
+        ratingCount: 3000,
+      }),
+    ];
+
+    const results = scoreGames(games, prefs);
+
+    // Well-known deck builders must outrank the obscure one despite lower raw rating
+    const dominionScore = results.find((r) => r.game.id === 'dominion')!.score;
+    const starRealmsScore = results.find((r) => r.game.id === 'star-realms')!.score;
+    const obscureScore = results.find((r) => r.game.id === 'obscure-deckbuilder')!.score;
+    const wrongGenreScore = results.find((r) => r.game.id === 'wrong-genre')!.score;
+
+    // Dominion should be top 2 (it's THE deck builder, 55k ratings)
+    expect(dominionScore).toBeGreaterThan(obscureScore);
+    // Star Realms should also beat the obscure one
+    expect(starRealmsScore).toBeGreaterThan(obscureScore);
+    // Both deck builders should crush the wrong-genre game
+    expect(dominionScore).toBeGreaterThan(wrongGenreScore);
+    expect(starRealmsScore).toBeGreaterThan(wrongGenreScore);
+  });
 });
