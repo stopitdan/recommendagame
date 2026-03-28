@@ -32,7 +32,7 @@ Tracking all items needed to make boredgame.lol a public, monetized app with Goo
 
 | # | Item | Status | Notes |
 |---|------|--------|-------|
-| 17 | About page refresh | ⬜ TODO | Tell the story, build brand identity |
+| 17 | About page refresh | ✅ DONE | Story-driven copy, problem/solution framing, CTA at bottom |
 | 18 | JSON-LD structured data | ✅ DONE | WebSite+SearchAction on homepage, VideoGame/BoardGame with ratings on game pages, FAQPage on /faq |
 | 19 | User onboarding tour | ✅ DONE | Welcome dialog on first visit to questionnaire, 3-step walkthrough |
 | 20 | Share results / social sharing | ✅ DONE | Web Share API (mobile) + menu with Copy Link, Twitter/X, Facebook, Reddit |

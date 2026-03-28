@@ -70,10 +70,9 @@ export default function ResultsView() {
   }, []);
 
   // Refine filters — editing state (not applied until user clicks Apply or closes panel)
-  const [filterPlayers, setFilterPlayers] = useState<[number, number]>([
-    parseInt(searchParams.get('minPlayers') ?? '1', 10),
-    parseInt(searchParams.get('maxPlayers') ?? '10', 10),
-  ]);
+  // Player slider always starts wide (1-10) since the API already filters by the user's
+  // declared group size. The refine slider is for further narrowing, not restating group size.
+  const [filterPlayers, setFilterPlayers] = useState<[number, number]>([1, 10]);
   const [filterTime, setFilterTime] = useState<[number, number]>([0, 300]);
   const [filterComplexity, setFilterComplexity] = useState<[number, number]>([
     parseFloat(searchParams.get('minComplexity') ?? '1'),
@@ -87,10 +86,7 @@ export default function ResultsView() {
 
   // Applied filters — what was last fetched (triggers re-fetch)
   const [appliedRefine, setAppliedRefine] = useState({
-    playerCount: [
-      parseInt(searchParams.get('minPlayers') ?? '1', 10),
-      parseInt(searchParams.get('maxPlayers') ?? '10', 10),
-    ] as [number, number],
+    playerCount: [1, 10] as [number, number],
     time: [0, 300] as [number, number],
     complexity: [
       parseFloat(searchParams.get('minComplexity') ?? '1'),
