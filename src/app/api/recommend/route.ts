@@ -823,7 +823,8 @@ async function fetchCandidatesNoType(
     query = query.gte('max_players', prefs.playerCount.min);
   }
 
-  query = query.order('rating', { ascending: false, nullsFirst: false }).limit(RATING_POOL_SIZE);
+  // In fallback mode, prefer well-known games (popularity) over raw rating
+  query = query.order('rating_count', { ascending: false, nullsFirst: false }).limit(RATING_POOL_SIZE);
   const { data, error } = await query;
   if (error) return [];
   return ((data ?? []) as GameRow[]).map(rowToGame);
@@ -848,7 +849,8 @@ async function fetchCandidatesFallback(
     query = query.gte('rating_count', 5);
   }
 
-  query = query.order('rating', { ascending: false, nullsFirst: false }).limit(RATING_POOL_SIZE);
+  // In fallback mode, prefer well-known games (popularity) over raw rating
+  query = query.order('rating_count', { ascending: false, nullsFirst: false }).limit(RATING_POOL_SIZE);
   const { data, error } = await query;
   if (error) return [];
   return ((data ?? []) as GameRow[]).map(rowToGame);
