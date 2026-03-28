@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
-export const alt = 'Recommend a Game — Find Your Next Favorite Game';
+export const alt = 'boredgame.lol — Find Your Next Favorite Game';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -129,7 +129,7 @@ export default async function Image() {
             color: 'rgba(255,255,255,0.5)',
           }}
         >
-          recommendagame.com
+          boredgame.lol
         </div>
       </div>
     ),

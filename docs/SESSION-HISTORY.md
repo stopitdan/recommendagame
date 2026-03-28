@@ -1,4 +1,4 @@
-# Recommend a Game — Complete Session History
+# boredgame.lol — Complete Session History
 
 **Date:** March 25-26, 2026
 **Session:** ~18 hours of continuous development
@@ -7,10 +7,10 @@
 
 ## Project Overview
 
-**Recommend a Game** is a smart game recommendation engine that helps users find board games, video games, word games, and party games. Users answer questions, describe what they want in natural language, or browse a catalog of 100k+ games. An AI-powered recommendation engine scores and ranks games across multiple dimensions.
+**boredgame.lol** is a smart game recommendation engine that helps users find board games, video games, word games, and party games. Users answer questions, describe what they want in natural language, or browse a catalog of 100k+ games. An AI-powered recommendation engine scores and ranks games across multiple dimensions.
 
-**Live at:** https://recommendagame.vercel.app
-**Repo:** https://github.com/stopitdan/recommendagame
+**Live at:** https://boredgame.vercel.app
+**Repo:** https://github.com/stopitdan/boredgame
 **Branch:** main
 
 ### Tech Stack

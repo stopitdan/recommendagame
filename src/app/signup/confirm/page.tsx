@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography';
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'Check Your Email | Recommend a Game',
+  title: 'Check Your Email | boredgame.lol',
 };
 
 export default function ConfirmEmailPage() {

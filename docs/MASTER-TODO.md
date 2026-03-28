@@ -1,4 +1,4 @@
-# Recommend a Game — Master TODO
+# boredgame.lol — Master TODO
 
 Last updated: 2026-03-27
 

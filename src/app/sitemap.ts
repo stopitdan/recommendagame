@@ -8,7 +8,7 @@ import type { MetadataRoute } from 'next';
  * separate sitemap index with paginated game sitemaps generated via a cron job.
  */
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = 'https://recommendagame.com';
+  const base = 'https://boredgame.lol';
 
   const staticPages = [
     { url: '/', changeFrequency: 'weekly' as const, priority: 1.0 },

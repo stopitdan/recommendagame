@@ -44,7 +44,7 @@ const FAQS: FAQItem[] = [
     ),
   },
   {
-    question: 'Is Recommend a Game free to use?',
+    question: 'Is boredgame.lol free to use?',
     answer: (
       <>
         Yes! All core features are completely free: getting recommendations, browsing games, saving
@@ -104,8 +104,8 @@ const FAQS: FAQItem[] = [
     answer: (
       <>
         Yes. You can request account deletion and data removal by contacting us at{' '}
-        <a href="mailto:contact@recommendagame.com" style={{ color: 'inherit', textDecoration: 'underline' }}>
-          contact@recommendagame.com
+        <a href="mailto:contact@boredgame.lol" style={{ color: 'inherit', textDecoration: 'underline' }}>
+          contact@boredgame.lol
         </a>
         . We will process your request within 30 days as outlined in our{' '}
         <Link href="/privacy" style={{ color: 'inherit', textDecoration: 'underline' }}>
@@ -176,7 +176,7 @@ export default function FAQView() {
         Frequently Asked Questions
       </Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-        Everything you need to know about Recommend a Game.
+        Everything you need to know about boredgame.lol.
       </Typography>
 
       <Divider sx={{ mb: 4 }} />

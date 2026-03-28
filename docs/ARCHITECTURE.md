@@ -1,6 +1,6 @@
 # Architecture
 
-System architecture and technical decisions for Recommend a Game.
+System architecture and technical decisions for boredgame.lol.
 
 ---
 

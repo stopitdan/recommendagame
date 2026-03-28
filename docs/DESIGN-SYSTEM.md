@@ -1,6 +1,6 @@
 # Design System
 
-Visual identity and component guidelines for Recommend a Game.
+Visual identity and component guidelines for boredgame.lol.
 
 ---
 

@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import PresetsView from './PresetsView';
 
 export const metadata: Metadata = {
-  title: 'My Presets | Recommend a Game',
+  title: 'My Presets | boredgame.lol',
   description: 'Your saved game preference presets.',
 };
 

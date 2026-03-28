@@ -241,14 +241,14 @@ export default function Home() {
       <JsonLd data={{
         '@context': 'https://schema.org',
         '@type': 'WebSite',
-        name: 'Recommend a Game',
-        url: 'https://recommendagame.com',
+        name: 'boredgame.lol',
+        url: 'https://boredgame.lol',
         description: 'Smart game recommendation engine for board games, video games, word games, and party games. 100,000+ games.',
         potentialAction: {
           '@type': 'SearchAction',
           target: {
             '@type': 'EntryPoint',
-            urlTemplate: 'https://recommendagame.com/browse?q={search_term_string}',
+            urlTemplate: 'https://boredgame.lol/browse?q={search_term_string}',
           },
           'query-input': 'required name=search_term_string',
         },

@@ -2,7 +2,7 @@ import { createTheme, type PaletteMode } from "@mui/material/styles";
 import { type ColorPreset, getPreset, DEFAULT_PRESET_ID } from "@/lib/color-presets";
 
 /**
- * Recommend a Game — MUI Theme Factory
+ * boredgame.lol — MUI Theme Factory
  *
  * Reads from the color preset system. To change colors:
  * 1. Edit or add a preset in src/lib/color-presets.ts

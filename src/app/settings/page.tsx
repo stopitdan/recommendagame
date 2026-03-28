@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import SettingsView from './SettingsView';
 
 export const metadata: Metadata = {
-  title: 'Settings | Recommend a Game',
+  title: 'Settings | boredgame.lol',
   description: 'Customize your recommendation preferences.',
 };
 

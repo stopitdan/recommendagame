@@ -69,7 +69,7 @@ export default function GameDetailView() {
     '@type': isVideoGame ? 'VideoGame' : 'BoardGame',
     name: game.name,
     description: game.description,
-    url: `https://recommendagame.com/games/${game.id}`,
+    url: `https://boredgame.lol/games/${game.id}`,
     ...(game.imageUrl && { image: game.imageUrl }),
     ...(game.yearPublished && { datePublished: String(game.yearPublished) }),
     ...(game.rating && {
@@ -200,9 +200,9 @@ export default function GameDetailView() {
             ))}
           </Box>
 
-          {/* Source link */}
-          {game.sourceUrl && (
-            <Box>
+          {/* Action buttons */}
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            {game.sourceUrl && (
               <Button
                 variant="outlined"
                 size="small"
@@ -213,8 +213,19 @@ export default function GameDetailView() {
               >
                 View on {game.source === 'bgg' ? 'BoardGameGeek' : game.source === 'rawg' ? 'RAWG' : game.source}
               </Button>
-            </Box>
-          )}
+            )}
+            <Button
+              variant="contained"
+              size="small"
+              href={`https://www.amazon.com/s?k=${encodeURIComponent(game.name)}&tag=boredgame-20`}
+              target="_blank"
+              rel="noopener noreferrer"
+              component="a"
+              sx={{ textTransform: 'none', fontWeight: 600 }}
+            >
+              Buy on Amazon
+            </Button>
+          </Box>
         </Stack>
       </Box>
 

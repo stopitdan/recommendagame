@@ -19,7 +19,7 @@ This project uses **Next.js 16** which has breaking changes from earlier version
 
 ## Architecture
 
-**Recommend a Game** is a smart game recommendation engine built with Next.js 16 (App Router), React 19, MUI 7, Supabase (PostgreSQL + pgvector + Auth), Redis, and OpenAI.
+**boredgame.lol** is a smart game recommendation engine built with Next.js 16 (App Router), React 19, MUI 7, Supabase (PostgreSQL + pgvector + Auth), Redis, and OpenAI.
 
 ### Recommendation Engine (4-layer stack)
 

@@ -1,6 +1,6 @@
-# Recommend a Game — Project Documentation
+# boredgame.lol — Project Documentation
 
-This folder contains all planning, tracking, and architectural documentation for the Recommend a Game project.
+This folder contains all planning, tracking, and architectural documentation for the boredgame.lol project.
 
 ## Contents
 

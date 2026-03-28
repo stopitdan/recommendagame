@@ -1,6 +1,6 @@
 # Recommendation Engine — Design & Roadmap
 
-How Recommend a Game evolves from basic filtering to a true ML-powered recommendation engine.
+How boredgame.lol evolves from basic filtering to a true ML-powered recommendation engine.
 
 ---
 

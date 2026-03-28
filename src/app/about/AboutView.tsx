@@ -100,7 +100,7 @@ export default function AboutView() {
             How It Works
           </Typography>
           <Typography variant="h6" color="text.secondary" fontWeight={400} sx={{ maxWidth: 520, mx: 'auto', lineHeight: 1.6 }}>
-            Recommend a Game uses a 4-layer recommendation engine to match you
+            boredgame.lol uses a 4-layer recommendation engine to match you
             with games you&apos;ll actually enjoy — not just popular picks.
           </Typography>
         </Box>

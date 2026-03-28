@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 import BrowseView from './BrowseView';
 
 export const metadata: Metadata = {
-  title: 'Browse Games | Recommend a Game',
+  title: 'Browse Games | boredgame.lol',
   description: 'Browse and filter games by category, mechanic, theme, and more.',
 };
 

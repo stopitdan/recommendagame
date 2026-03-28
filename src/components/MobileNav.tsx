@@ -74,7 +74,7 @@ export default function MobileNav({ isLoggedIn, email, displayName }: MobileNavP
         {/* Header */}
         <Box sx={{ p: 3, pb: 2 }}>
           <Typography variant="h6" fontWeight={800} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            🎲 Recommend a Game
+            🎲 boredgame.lol
           </Typography>
           {isLoggedIn && (
             <Typography variant="body2" sx={{ mt: 1, opacity: 0.7 }}>

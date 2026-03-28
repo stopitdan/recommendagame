@@ -3,7 +3,7 @@ import ContactView from './ContactView';
 
 export const metadata: Metadata = {
   title: 'Contact Us',
-  description: 'Get in touch with the Recommend a Game team — report issues, ask questions, or share feedback.',
+  description: 'Get in touch with the boredgame.lol team — report issues, ask questions, or share feedback.',
 };
 
 export default function ContactPage() {

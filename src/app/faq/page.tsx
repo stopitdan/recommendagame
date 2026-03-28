@@ -3,7 +3,7 @@ import FAQView from './FAQView';
 
 export const metadata: Metadata = {
   title: 'FAQ',
-  description: 'Frequently asked questions about Recommend a Game — how recommendations work, data privacy, and more.',
+  description: 'Frequently asked questions about boredgame.lol — how recommendations work, data privacy, and more.',
 };
 
 export default function FAQPage() {

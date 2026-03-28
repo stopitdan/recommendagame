@@ -2,7 +2,7 @@ import Container from '@mui/material/Container';
 import RoadmapView from './RoadmapView';
 
 export const metadata = {
-  title: 'Roadmap | Recommend a Game',
+  title: 'Roadmap | boredgame.lol',
   robots: 'noindex, nofollow',
 };
 

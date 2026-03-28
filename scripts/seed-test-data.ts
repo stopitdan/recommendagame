@@ -5,7 +5,7 @@
  * them with favorites, reviews, and presets for development/testing.
  *
  * All test users use the password: TestPassword123!
- * All test emails follow: test_123_{name}@recommendagame.test
+ * All test emails follow: test_123_{name}@boredgame.test
  *
  * Usage:
  *   npx tsx scripts/seed-test-data.ts
@@ -36,7 +36,7 @@ const TEST_USERS = [
 ];
 
 function email(name: string) {
-  return `test_123_${name}@recommendagame.test`;
+  return `test_123_${name}@boredgame.test`;
 }
 
 async function getRandomGames(count: number, source?: string) {

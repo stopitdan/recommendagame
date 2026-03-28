@@ -8,7 +8,7 @@ import Divider from '@mui/material/Divider';
 import Paper from '@mui/material/Paper';
 import Link from 'next/link';
 
-const CONTACT_EMAIL = 'contact@recommendagame.com';
+const CONTACT_EMAIL = 'contact@boredgame.lol';
 
 export default function ContactView() {
   return (

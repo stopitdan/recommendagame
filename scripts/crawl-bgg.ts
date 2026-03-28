@@ -21,7 +21,7 @@ dotenv.config({ path: '.env.local' });
 // ---------------------------------------------------------------------------
 
 const BGG_BASE_URL = 'https://boardgamegeek.com/xmlapi2';
-const USER_AGENT = 'RecommendAGame/1.0 (https://recommendagame.com)';
+const USER_AGENT = 'BoredGame/1.0 (https://boredgame.lol)';
 const BATCH_SIZE = 20;
 const THROTTLE_MS = 5500; // 5.5s to be safe
 const MAX_RETRIES = 3;

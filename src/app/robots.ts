@@ -18,6 +18,6 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: 'https://recommendagame.com/sitemap.xml',
+    sitemap: 'https://boredgame.lol/sitemap.xml',
   };
 }

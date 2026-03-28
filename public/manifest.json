@@ -1,6 +1,6 @@
 {
-  "name": "Recommend a Game",
-  "short_name": "RecAGame",
+  "name": "boredgame.lol",
+  "short_name": "boredgame",
   "description": "Find your next favorite game. 100,000+ board games, video games, word games, and party games.",
   "start_url": "/",
   "display": "standalone",

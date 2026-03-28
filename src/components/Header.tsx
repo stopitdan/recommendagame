@@ -36,7 +36,7 @@ export default async function Header() {
           >
             <Box component="span" sx={{ fontSize: '1.3rem' }}>🎲</Box>
             <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
-              Recommend a Game
+              boredgame.lol
             </Box>
             <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>
               RAG

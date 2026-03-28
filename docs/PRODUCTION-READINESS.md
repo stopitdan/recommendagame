@@ -1,6 +1,6 @@
 # Production Readiness Checklist
 
-Tracking all items needed to make Recommend a Game a public, monetized app with Google Ads.
+Tracking all items needed to make boredgame.lol a public, monetized app with Google Ads.
 
 ## Tier 1 — Must-Have Before Ads
 

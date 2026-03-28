@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 import ResultsView from './ResultsView';
 
 export const metadata: Metadata = {
-  title: 'Your Recommendations | Recommend a Game',
+  title: 'Your Recommendations | boredgame.lol',
   description: 'Games we think you\'ll love based on your preferences.',
 };
 

@@ -1,6 +1,6 @@
 # Roadmap
 
-High-level phases for Recommend a Game. Each phase builds on the last — order matters.
+High-level phases for boredgame.lol. Each phase builds on the last — order matters.
 
 ---
 

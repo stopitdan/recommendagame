@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import FavoritesView from './FavoritesView';
 
 export const metadata: Metadata = {
-  title: 'My Favorites | Recommend a Game',
+  title: 'My Favorites | boredgame.lol',
   description: 'Your saved favorite games.',
 };
 

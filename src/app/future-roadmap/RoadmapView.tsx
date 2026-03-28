@@ -432,7 +432,7 @@ export default function RoadmapView() {
         Roadmap
       </Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-        The full plan for Recommend a Game — what&apos;s done, what&apos;s in progress, and what&apos;s coming.
+        The full plan for boredgame.lol — what&apos;s done, what&apos;s in progress, and what&apos;s coming.
       </Typography>
 
       {/* Clickable filter stats */}

@@ -118,7 +118,7 @@ export default function SettingsView() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'recommendagame-data.json';
+      a.download = 'boredgame-data.json';
       a.click();
       URL.revokeObjectURL(url);
     } catch {

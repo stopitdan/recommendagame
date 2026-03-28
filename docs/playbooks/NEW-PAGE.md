@@ -23,7 +23,7 @@ Use this when creating a new route/page in the Next.js app.
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Page Title | Recommend a Game',
+  title: 'Page Title | boredgame.lol',
   description: 'Brief description for SEO',
 };
 

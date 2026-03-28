@@ -51,7 +51,7 @@ export default function Footer() {
           {/* Brand */}
           <Grid size={{ xs: 12, md: 4 }}>
             <Typography variant="h6" fontWeight={800} sx={{ mb: 1 }}>
-              🎲 Recommend a Game
+              🎲 boredgame.lol
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 280, lineHeight: 1.6 }}>
               Find your next favorite game. 100,000+ board games, video games,
@@ -93,7 +93,7 @@ export default function Footer() {
 
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
           <Typography variant="caption" color="text.secondary">
-            &copy; {new Date().getFullYear()} Recommend a Game. Built with Next.js, Supabase, and a love for games.
+            &copy; {new Date().getFullYear()} boredgame.lol. Built with Next.js, Supabase, and a love for games.
           </Typography>
           <Typography variant="caption" color="text.secondary">
             Data from BoardGameGeek &amp; RAWG

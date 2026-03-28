@@ -63,7 +63,7 @@ export async function GET() {
     status: 200,
     headers: {
       'Content-Type': 'application/json',
-      'Content-Disposition': `attachment; filename="recommendagame-data-${userId}.json"`,
+      'Content-Disposition': `attachment; filename="boredgame-data-${userId}.json"`,
     },
   });
 }

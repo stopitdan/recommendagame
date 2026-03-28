@@ -49,10 +49,10 @@ export default function PrivacyView() {
       <Stack spacing={4}>
         <Section title="1. Introduction">
           <P>
-            Welcome to Recommend a Game (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;). We are
+            Welcome to boredgame.lol (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;). We are
             committed to protecting your privacy and being transparent about how we collect, use, and
             share your information. This Privacy Policy explains our practices when you use our
-            website at recommendagame.com (the &quot;Service&quot;).
+            website at boredgame.lol (the &quot;Service&quot;).
           </P>
           <P>
             By using the Service, you agree to the collection and use of information in accordance
@@ -196,8 +196,8 @@ export default function PrivacyView() {
           </Box>
           <P>
             To exercise any of these rights, please contact us at{' '}
-            <a href="mailto:contact@recommendagame.com" style={{ color: 'inherit' }}>
-              contact@recommendagame.com
+            <a href="mailto:contact@boredgame.lol" style={{ color: 'inherit' }}>
+              contact@boredgame.lol
             </a>
             . We will respond within 30 days.
           </P>
@@ -232,8 +232,8 @@ export default function PrivacyView() {
         <Section title="11. Contact Us">
           <P>
             If you have questions about this Privacy Policy, please contact us at:{' '}
-            <a href="mailto:contact@recommendagame.com" style={{ color: 'inherit' }}>
-              contact@recommendagame.com
+            <a href="mailto:contact@boredgame.lol" style={{ color: 'inherit' }}>
+              contact@boredgame.lol
             </a>
           </P>
         </Section>

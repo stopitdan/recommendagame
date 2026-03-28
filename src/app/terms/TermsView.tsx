@@ -49,7 +49,7 @@ export default function TermsView() {
       <Stack spacing={4}>
         <Section title="1. Acceptance of Terms">
           <P>
-            By accessing or using Recommend a Game (&quot;the Service&quot;), you agree to be bound
+            By accessing or using boredgame.lol (&quot;the Service&quot;), you agree to be bound
             by these Terms of Service (&quot;Terms&quot;). If you do not agree to these Terms, you
             may not use the Service.
           </P>
@@ -62,7 +62,7 @@ export default function TermsView() {
 
         <Section title="2. Description of Service">
           <P>
-            Recommend a Game is a game recommendation platform that helps users discover board games,
+            boredgame.lol is a game recommendation platform that helps users discover board games,
             video games, word games, and party games based on their preferences. The Service includes
             personalized recommendations, game browsing, user reviews, favorites, a dice roller, and
             community features such as the Dice Gallery.
@@ -129,7 +129,7 @@ export default function TermsView() {
         <Section title="6. Intellectual Property">
           <P>
             The Service, including its design, code, logos, and original content, is owned by
-            Recommend a Game and protected by intellectual property laws. You may not copy, modify,
+            boredgame.lol and protected by intellectual property laws. You may not copy, modify,
             distribute, or create derivative works from the Service without our written permission.
           </P>
           <P>
@@ -158,7 +158,7 @@ export default function TermsView() {
 
         <Section title="9. Limitation of Liability">
           <P>
-            To the maximum extent permitted by law, Recommend a Game and its operators shall not be
+            To the maximum extent permitted by law, boredgame.lol and its operators shall not be
             liable for any indirect, incidental, special, consequential, or punitive damages arising
             from your use of the Service. This includes, but is not limited to, loss of data,
             profits, or goodwill.
@@ -172,7 +172,7 @@ export default function TermsView() {
 
         <Section title="10. Indemnification">
           <P>
-            You agree to indemnify and hold harmless Recommend a Game, its operators, and affiliates
+            You agree to indemnify and hold harmless boredgame.lol, its operators, and affiliates
             from any claims, damages, losses, or expenses (including legal fees) arising from your
             use of the Service, your User Content, or your violation of these Terms.
           </P>
@@ -199,8 +199,8 @@ export default function TermsView() {
         <Section title="13. Contact Us">
           <P>
             If you have questions about these Terms of Service, please contact us at:{' '}
-            <a href="mailto:contact@recommendagame.com" style={{ color: 'inherit' }}>
-              contact@recommendagame.com
+            <a href="mailto:contact@boredgame.lol" style={{ color: 'inherit' }}>
+              contact@boredgame.lol
             </a>
           </P>
         </Section>

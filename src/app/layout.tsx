@@ -21,12 +21,12 @@ const roboto = Roboto({
 
 export const metadata: Metadata = {
   title: {
-    default: "Recommend a Game — Find Your Next Favorite Game",
-    template: "%s | Recommend a Game",
+    default: "boredgame.lol — Find Your Next Favorite Game",
+    template: "%s | boredgame.lol",
   },
   description:
     "Smart game recommendation engine for board games, video games, word games, and party games. 100,000+ games scored by a 4-layer AI recommendation engine.",
-  metadataBase: new URL("https://recommendagame.com"),
+  metadataBase: new URL("https://boredgame.lol"),
   keywords: [
     "game recommendations",
     "board game finder",
@@ -39,13 +39,13 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     type: "website",
-    title: "Recommend a Game — Find Your Next Favorite Game",
+    title: "boredgame.lol — Find Your Next Favorite Game",
     description: "Tell us what you're in the mood for and we'll match you with something great to play. 100,000+ games.",
-    siteName: "Recommend a Game",
+    siteName: "boredgame.lol",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Recommend a Game",
+    title: "boredgame.lol",
     description: "Smart game recommendation engine. Board games, video games, word games, and party games.",
   },
   icons: {

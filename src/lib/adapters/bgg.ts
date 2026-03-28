@@ -35,7 +35,7 @@ import { stripHtml, ensureArray, parseOptionalInt, parseOptionalFloat } from '@/
 // ---------------------------------------------------------------------------
 
 const BGG_BASE_URL = 'https://boardgamegeek.com/xmlapi2';
-const USER_AGENT = 'RecommendAGame/1.0 (https://recommendagame.com)';
+const USER_AGENT = 'RecommendAGame/1.0 (https://boredgame.lol)';
 
 /** Minimum ms between API requests to respect BGG rate limits */
 const THROTTLE_MS = 5000;

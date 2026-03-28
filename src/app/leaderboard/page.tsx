@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import LeaderboardView from './LeaderboardView';
 
 export const metadata: Metadata = {
-  title: 'Leaderboard | Recommend a Game',
+  title: 'Leaderboard | boredgame.lol',
   description: 'The top-rated games across board games, video games, and word games.',
 };
 
