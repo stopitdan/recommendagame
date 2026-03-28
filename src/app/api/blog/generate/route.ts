@@ -108,33 +108,51 @@ export async function GET(request: NextRequest) {
   const year = new Date().getFullYear();
   const titleHint = topic.template.replace('{category}', topic.category ?? 'Board');
 
-  const prompt = `Write a blog post for boredgame.lol, a game recommendation website.
+  const prompt = `You are a blog writer for boredgame.lol, a game recommendation website with 100,000+ board games and video games.
 
-Topic: "${titleHint} (${year})"
+Write an authoritative, well-researched blog post that would rank well on Google.
 
-Here are some real games from our database you can reference (use their exact names and IDs for links):
+## Topic
+"${titleHint} (${year})"
+
+## Real Games From Our Database
+Reference these actual games (use their exact names and IDs for internal links):
 ${gameContext}
 
-Requirements:
-- Write a compelling title (can differ from the topic hint above)
-- Write a meta description under 155 characters
-- Write 800-1200 words of engaging content
-- Mention 4-6 specific games from the list above, with brief descriptions of why they're good
-- For each game mentioned, include a markdown link like: [Game Name](/games/GAME_ID_HERE)
-- Include an Amazon affiliate link for each game: [Buy on Amazon](https://www.amazon.com/s?k=GAME+NAME&tag=boredgame-20)
-- End with a call to action linking to /find-a-game
-- Tone: casual, knowledgeable, like a friend who plays a lot of games. NOT corporate or AI-sounding.
-- Do NOT use emdashes. Use commas, periods, or parentheses instead.
-- Do NOT use phrases like "dive into", "elevate your", "game-changer", "whether you're a"
-- Use short paragraphs. Web readers skim.
-- Include 3-5 relevant tags as a comma-separated list
+## SEO & Structure Requirements
+- Title: compelling, includes the primary keyword naturally. 50-65 characters ideal.
+- Meta description: under 155 characters, includes primary keyword, has a call to action.
+- Structure the article with clear H2 headings (## in markdown). At least 3-4 sections.
+- Open with a hook that addresses the reader's problem or question directly. No fluff intro.
+- Write 1000-1500 words. Longer content ranks better, but every sentence must earn its place.
+- Include the primary keyword in the first 100 words naturally.
+- Use related keywords throughout (LSI terms). If the topic is "strategy games", also use "tactical", "planning", "competitive", etc.
 
+## Game References & Links
+- Feature 4-6 games from the list above. For each one, write 2-3 sentences about what makes it special and who it's for.
+- Internal links: [Game Name](/games/GAME_ID_HERE) for each featured game.
+- Affiliate links: [Check price on Amazon](https://www.amazon.com/s?k=GAME+NAME+board+game&tag=boredgame-20) for each game.
+- Link to our recommendation tool naturally: "If you want personalized picks, [try our game finder](/find-a-game)."
+- Link to our browse page where relevant: "[Browse all strategy games](/browse?category=Strategy)"
+
+## Tone & Style
+- Write like an experienced gamer talking to a friend. Casual but knowledgeable.
+- Have opinions. Say "this is one of the best" not "this is considered good by many."
+- Share specific details that show expertise: mention player count sweet spots, common complaints, who a game is NOT for.
+- Short paragraphs (2-3 sentences max). Web readers skim.
+- Use bullet lists for comparisons or quick info.
+- NO emdashes. Use commas, periods, or parentheses.
+- NO generic AI phrases: "dive into", "elevate your", "game-changer", "whether you're a seasoned veteran or a newcomer", "in the world of", "look no further", "without further ado"
+- NO starting paragraphs with "So," or "Now,"
+- End with a brief conclusion and CTA to /find-a-game
+
+## Output Format
 Respond in this exact JSON format:
 {
   "title": "The blog post title",
-  "description": "Meta description under 155 chars",
-  "content": "Full markdown content of the article",
-  "tags": ["tag1", "tag2", "tag3"]
+  "description": "Meta description under 155 chars with keyword and CTA",
+  "content": "Full markdown content with ## headings, links, and formatting",
+  "tags": ["tag1", "tag2", "tag3", "tag4"]
 }`;
 
   try {
@@ -143,7 +161,7 @@ Respond in this exact JSON format:
       messages: [{ role: 'user', content: prompt }],
       response_format: { type: 'json_object' },
       temperature: 0.8,
-      max_tokens: 3000,
+      max_tokens: 4000,
     });
 
     const raw = completion.choices[0]?.message?.content;
