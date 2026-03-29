@@ -653,11 +653,13 @@ function scoreRecency(game: Game): number {
  * trusted; below that, it's dampened toward 6.5/10.
  */
 function scoreQuality(game: Game): number {
-  if (game.rating == null) return 0.3; // Unknown = slightly below average
+  // Use BGG's own Bayesian average if available (already dampened toward global mean)
+  if (game.bayesAvgRating) return game.bayesAvgRating / 10;
+  if (game.rating == null) return 0.3;
 
-  const CONFIDENCE_THRESHOLD = 1000; // Votes needed for full rating confidence
-  const GLOBAL_MEAN = 6.5; // Approximate average rating across all games
-
+  // Fallback: our own Bayesian dampening for non-BGG games
+  const CONFIDENCE_THRESHOLD = 1000;
+  const GLOBAL_MEAN = 6.5;
   const votes = game.ratingCount ?? 0;
   const bayesian = (votes * game.rating + CONFIDENCE_THRESHOLD * GLOBAL_MEAN)
     / (votes + CONFIDENCE_THRESHOLD);
@@ -686,11 +688,26 @@ function scorePopularity(game: Game): number {
   // Base: log-scaled (10→0.2, 100→0.4, 1000→0.6, 10000→0.8, 100000→1.0)
   const base = Math.min(Math.log10(count) / 5, 1.0);
 
-  // Notability tier bonus
+  // Notability tier bonus from rating count
   let bonus = 0;
   if (count >= 10_000) bonus = 0.15;
   else if (count >= 1_000) bonus = 0.08;
   else if (count >= 100) bonus = 0.03;
+
+  // BGG rank bonus: games ranked highly on BGG get a significant boost
+  // Rank #1-100 = +0.20, #101-500 = +0.15, #501-1000 = +0.10, #1001-2000 = +0.05
+  const rank = game.rankOverall;
+  if (rank && rank > 0) {
+    if (rank <= 100) bonus += 0.20;
+    else if (rank <= 500) bonus += 0.15;
+    else if (rank <= 1000) bonus += 0.10;
+    else if (rank <= 2000) bonus += 0.05;
+  }
+
+  // Ownership bonus: games owned by many people are proven hits
+  const owned = game.numOwned ?? 0;
+  if (owned >= 50_000) bonus += 0.10;
+  else if (owned >= 10_000) bonus += 0.05;
 
   return Math.min(base + bonus, 1.0);
 }

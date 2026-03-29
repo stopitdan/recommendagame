@@ -116,6 +116,9 @@ export interface GameRow {
   thumbnail_url: string | null;
   image_url: string | null;
   source_url: string | null;
+  rank_overall: number | null;
+  num_owned: number | null;
+  bayes_avg_rating: number | null;
   created_at: string;
   updated_at: string;
 }

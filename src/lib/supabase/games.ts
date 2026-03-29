@@ -19,7 +19,7 @@ import type { GameInsert, GameRow } from '@/types/supabase';
  * columns (ranks, ownership counts, age recs, etc.) that inflate transfer size.
  * Use this everywhere instead of SELECT * to reduce data transfer by ~50%.
  */
-export const GAME_SELECT_COLUMNS = 'id,source,source_id,name,description,year_published,types,min_players,max_players,recommended_players,min_play_time,max_play_time,avg_play_time,complexity,rating,rating_count,categories,mechanics,themes,platforms,thumbnail_url,image_url,source_url';
+export const GAME_SELECT_COLUMNS = 'id,source,source_id,name,description,year_published,types,min_players,max_players,recommended_players,min_play_time,max_play_time,avg_play_time,complexity,rating,rating_count,categories,mechanics,themes,platforms,thumbnail_url,image_url,source_url,rank_overall,num_owned,bayes_avg_rating';
 
 // ---------------------------------------------------------------------------
 // Adapter Game → Database Row
@@ -96,5 +96,8 @@ export function rowToGame(row: GameRow): Game {
     thumbnailUrl: row.thumbnail_url ?? undefined,
     imageUrl: row.image_url ?? undefined,
     sourceUrl: row.source_url ?? undefined,
+    rankOverall: row.rank_overall ?? undefined,
+    numOwned: row.num_owned ?? undefined,
+    bayesAvgRating: row.bayes_avg_rating ?? undefined,
   };
 }

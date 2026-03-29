@@ -84,6 +84,15 @@ export interface Game {
 
   /** Link to the game's page on the source site */
   sourceUrl?: string;
+
+  /** BGG overall rank (lower = better, e.g. #1 = best game on BGG) */
+  rankOverall?: number;
+
+  /** Number of people who own this game (BGG) */
+  numOwned?: number;
+
+  /** BGG's Bayesian-adjusted rating (dampened toward global mean) */
+  bayesAvgRating?: number;
 }
 
 /**
