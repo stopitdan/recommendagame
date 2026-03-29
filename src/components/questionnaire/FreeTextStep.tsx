@@ -89,7 +89,7 @@ export default function FreeTextStep({
               <Chip
                 key={n}
                 label={n}
-                onClick={() => onPlayerCountChange({ min: n, max: n })}
+                onClick={() => onPlayerCountChange(isSelected ? { min: 1, max: 10 } : { min: n, max: n })}
                 color={isSelected ? 'primary' : 'default'}
                 variant={isSelected ? 'filled' : 'outlined'}
                 sx={{
@@ -107,7 +107,7 @@ export default function FreeTextStep({
           })}
           <Chip
             label="9+"
-            onClick={() => onPlayerCountChange({ min: 9, max: 99 })}
+            onClick={() => onPlayerCountChange(playerCount.min >= 9 ? { min: 1, max: 10 } : { min: 9, max: 99 })}
             color={playerCount.min >= 9 ? 'primary' : 'default'}
             variant={playerCount.min >= 9 ? 'filled' : 'outlined'}
             sx={{
