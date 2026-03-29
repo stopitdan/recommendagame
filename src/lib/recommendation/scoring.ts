@@ -285,8 +285,30 @@ function scoreGenreMatch(game: Game, preferredGenres: string[]): number {
     ...game.themes,
   ].map((t) => t.toLowerCase());
 
-  let matches = 0;
+  // Genre aliases: user vocabulary -> BGG taxonomy terms
+  // "Dungeon Crawler" isn't a BGG tag, but maps to these categories/mechanics
+  const GENRE_EXPANSION: Record<string, string[]> = {
+    'dungeon crawler': ['adventure', 'fantasy', 'miniatures', 'cooperative game', 'modular board'],
+    'dungeon crawl': ['adventure', 'fantasy', 'miniatures', 'cooperative game', 'modular board'],
+    'roguelike': ['adventure', 'variable player powers', 'modular board'],
+    'roguelite': ['adventure', 'variable player powers'],
+    'tower defense': ['strategy'],
+    'city builder': ['economic', 'city building'],
+    '4x': ['exploration', 'economic', 'civilization'],
+    'battle royale': ['player elimination', 'fighting'],
+    'survival': ['adventure', 'horror'],
+    'crafting': ['hand management', 'set collection'],
+  };
+
+  // Expand preferred genres with aliases
+  const expandedGenres = [...preferredGenres];
   for (const genre of preferredGenres) {
+    const expansion = GENRE_EXPANSION[genre.toLowerCase()];
+    if (expansion) expandedGenres.push(...expansion);
+  }
+
+  let matches = 0;
+  for (const genre of expandedGenres) {
     const lowerGenre = genre.toLowerCase();
     // Check for substring matches (e.g. "Strategy" matches "Abstract Strategy")
     // Also check tokenized word overlap for BGG's compound mechanic names
@@ -308,7 +330,7 @@ function scoreGenreMatch(game: Game, preferredGenres: string[]): number {
 
   // At least 1 match = good, more = better, diminishing returns
   if (matches === 0) return 0.1;
-  const ratio = matches / preferredGenres.length;
+  const ratio = Math.min(matches / preferredGenres.length, 1.0);
   return 0.4 + ratio * 0.6; // 1 match out of 3 = 0.6, all match = 1.0
 }
 

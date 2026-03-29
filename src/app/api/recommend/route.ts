@@ -864,6 +864,21 @@ const BGG_MECHANIC_ALIASES: Record<string, string[]> = {
   'auction': ['Auction/Bidding', 'Auction: English'],
   'negotiation': ['Negotiation', 'Trading'],
   'pattern building': ['Pattern Building', 'Pattern Recognition'],
+  'dungeon crawler': ['Scenario / Mission / Campaign Game', 'Modular Board', 'Variable Player Powers'],
+  'dungeon crawl': ['Scenario / Mission / Campaign Game', 'Modular Board', 'Variable Player Powers'],
+  'dice combat': ['Dice Rolling'],
+  'dice-based combat': ['Dice Rolling'],
+  'co-op': ['Cooperative Game', 'Semi-Cooperative Game'],
+  'coop': ['Cooperative Game', 'Semi-Cooperative Game'],
+  'exploration': ['Modular Board', 'Scenario / Mission / Campaign Game'],
+  'combat': ['Take That', 'Player Elimination'],
+  'resource management': ['Income', 'Increase Value of Unchosen Resources'],
+  'bluffing': ['Bluffing'],
+  'deduction': ['Deduction'],
+  'pick up and deliver': ['Pick-up and Deliver'],
+  'asymmetric': ['Variable Player Powers'],
+  'tableau building': ['Tableau Building'],
+  'betting': ['Auction/Bidding', 'Betting and Bluffing'],
 };
 
 function expandTagsWithAliases(tags: string[]): string[] {
