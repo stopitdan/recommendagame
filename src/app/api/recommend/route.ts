@@ -490,19 +490,30 @@ function applyHardFilters(
     });
   }
 
-  // REMOVE expansions/variants: games with ":" in the name where the
-  // base name also exists in the candidate pool. Users don't want to
-  // see "Dominion: Intrigue" when "Dominion" is right there.
-  // Also remove "Second Edition", "Revised Edition" etc. duplicates.
-  const baseNames = new Set(
-    filtered.filter((g) => !g.name.includes(':')).map((g) => g.name.toLowerCase())
-  );
+  // Remove clear variants/editions when the base game exists.
+  // Only remove if the variant has FEWER ratings than the base (indicating
+  // it's a secondary version, not a standalone hit).
+  // This keeps "Zombicide: Black Plague" (17k ratings) alongside "Zombicide"
+  // (20k ratings) since both are popular standalone games, but removes
+  // "Dominion: Intrigue" (35k) when "Dominion" (96k) is present.
+  const baseGameMap = new Map<string, number>(); // base name -> max rating count
+  for (const g of filtered) {
+    if (!g.name.includes(':')) {
+      const key = g.name.toLowerCase();
+      baseGameMap.set(key, Math.max(baseGameMap.get(key) ?? 0, g.ratingCount ?? 0));
+    }
+  }
   filtered = filtered.filter((g) => {
-    if (!g.name.includes(':')) return true; // Base game, keep
+    if (!g.name.includes(':')) return true;
     const baseName = g.name.split(':')[0].trim().toLowerCase();
-    return !baseNames.has(baseName); // Remove if base game exists
+    const baseRatings = baseGameMap.get(baseName);
+    if (baseRatings === undefined) return true; // No base game in pool, keep
+    // Only remove if the variant has less than 60% of the base game's ratings
+    // This keeps genuinely popular standalone sequels
+    const myRatings = g.ratingCount ?? 0;
+    return myRatings >= baseRatings * 0.6;
   });
-  // Also remove "X: Second Edition" when "X" exists
+  // Remove "X: Second Edition" when "X" exists
   const allNames = new Set(filtered.map((g) => g.name.toLowerCase()));
   filtered = filtered.filter((g) => {
     const lower = g.name.toLowerCase();
