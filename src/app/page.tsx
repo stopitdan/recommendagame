@@ -361,7 +361,7 @@ export default function Home() {
                     fontSize: { xs: "1rem", md: "1.15rem" },
                   }}
                 >
-                  Tell us what you&apos;re in the mood for and we&apos;ll match you with something great from our catalog of 178,000+ games.
+                  Tell us what you&apos;re in the mood for and we&apos;ll match you with something great from our catalog of 150,000+ games.
                 </Typography>
               </motion.div>
 
@@ -623,7 +623,7 @@ export default function Home() {
           <StaggerGroup stagger={0.15}>
             <Grid container spacing={4} justifyContent="center">
               {[
-                { value: 100000, suffix: "+", label: "Games in our database" },
+                { value: 150000, suffix: "+", label: "Games in our database" },
                 { value: 4, suffix: "", label: "Game categories" },
                 { value: 200, suffix: "+", label: "Genres & mechanics" },
               ].map((stat) => (
