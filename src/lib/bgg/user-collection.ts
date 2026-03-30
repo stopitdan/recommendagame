@@ -41,15 +41,24 @@ export async function fetchBggCollection(
 
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     try {
-      const res = await fetch(url, {
-        headers: { 'User-Agent': USER_AGENT },
-      });
+      const headers: Record<string, string> = { 'User-Agent': USER_AGENT };
+      const bggApiKey = process.env.BGG_API_KEY;
+      if (bggApiKey) {
+        headers['Authorization'] = `Bearer ${bggApiKey}`;
+      }
+
+      const res = await fetch(url, { headers });
 
       // 202 = BGG is generating the collection, retry after delay
       if (res.status === 202) {
         console.log(`[BGG Collection] 202 received for ${username}, retrying in ${RETRY_DELAY_MS}ms...`);
         await new Promise((r) => setTimeout(r, RETRY_DELAY_MS));
         continue;
+      }
+
+      if (res.status === 401) {
+        console.error('[BGG Collection] 401 Unauthorized. BGG_API_KEY may be missing or invalid.');
+        return null;
       }
 
       if (!res.ok) {
