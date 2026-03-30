@@ -178,34 +178,46 @@ function AnimatedCount({ target, suffix = "" }: { target: number; suffix?: strin
 }
 
 /* ─── feature card data ─── */
-const FEATURES: { Icon: LucideIcon; title: string; description: string; href: string }[] = [
+const FEATURES: { Icon: LucideIcon; title: string; description: string; href: string; stat: string; statLabel: string; iconColor: string }[] = [
   {
     Icon: Puzzle,
     title: "Board Games",
     description:
-      "90,000+ titles from Catan to Gloomhaven. Rated, categorized, and ready to discover.",
+      "From Catan to Gloomhaven. Rated, categorized, and ready to discover.",
     href: "/browse?type=board",
+    stat: "90,000+",
+    statLabel: "titles indexed",
+    iconColor: "primary.main",
   },
   {
     Icon: Gamepad2,
     title: "Video Games",
     description:
-      "80,000+ titles across every platform. From indie gems to AAA blockbusters.",
+      "Every platform covered. From indie gems to AAA blockbusters.",
     href: "/browse?type=video",
+    stat: "80,000+",
+    statLabel: "titles indexed",
+    iconColor: "secondary.main",
   },
   {
     Icon: PartyPopper,
     title: "Party & Word Games",
     description:
-      "Charades, 20 Questions, Wordle, and more. No-equipment games for any group size.",
+      "Charades, 20 Questions, Wordle, and more. No equipment needed.",
     href: "/browse?type=party",
+    stat: "50+",
+    statLabel: "no-equipment games",
+    iconColor: "info.main",
   },
   {
     Icon: Brain,
     title: "Smart Engine",
     description:
-      "10-dimension recommendation engine that learns your taste. The more you use it, the better it gets.",
+      "Learns your taste across every dimension. The more you use it, the better it gets.",
     href: "/find-a-game",
+    stat: "4 layers",
+    statLabel: "of recommendation AI",
+    iconColor: "success.main",
   },
 ];
 
@@ -456,58 +468,99 @@ export default function Home() {
 
           <StaggerGroup stagger={0.12}>
             <Grid container spacing={3}>
-              {FEATURES.map((feat) => (
-                <Grid size={{ xs: 12, sm: 6, md: 3 }} key={feat.title}>
-                  <motion.div variants={staggerChild}>
-                    <Link href={feat.href} style={{ textDecoration: "none" }}>
-                      <motion.div
-                        whileHover={{ y: -6, transition: { type: "spring", stiffness: 300, damping: 20 } }}
-                      >
-                        <Card
-                          variant="outlined"
-                          sx={{
-                            height: "100%",
-                            border: "1px solid",
-                            borderColor: "divider",
-                            bgcolor: "background.paper",
-                            cursor: "pointer",
-                            transition: "border-color 200ms, box-shadow 300ms",
-                            "&:hover": {
-                              borderColor: "info.main",
-                              boxShadow: `0 12px 40px ${alpha(theme.palette.primary.main, 0.08)}`,
-                            },
-                          }}
+              {FEATURES.map((feat) => {
+                // Resolve the icon color token to an actual value for the gradient
+                const iconColorValue =
+                  feat.iconColor === "primary.main" ? theme.palette.primary.main
+                  : feat.iconColor === "secondary.main" ? theme.palette.secondary.main
+                  : feat.iconColor === "info.main" ? theme.palette.info.main
+                  : theme.palette.success.main;
+
+                return (
+                  <Grid size={{ xs: 12, sm: 6, md: 3 }} key={feat.title}>
+                    <motion.div variants={staggerChild}>
+                      <Link href={feat.href} style={{ textDecoration: "none" }}>
+                        <motion.div
+                          whileHover={{ y: -6, transition: { type: "spring", stiffness: 300, damping: 20 } }}
                         >
-                          <CardContent sx={{ p: 3.5 }}>
-                            <motion.div
-                              initial={{ scale: 1 }}
-                              whileHover={{ scale: 1.15, rotate: [0, -5, 5, 0] }}
-                              transition={{ type: "spring", stiffness: 400 }}
-                              style={{ display: "inline-block" }}
-                            >
-                              <Box sx={{ mb: 1.5, color: "secondary.main" }}>
-                                <feat.Icon size={36} strokeWidth={1.5} />
+                          <Card
+                            variant="outlined"
+                            sx={{
+                              height: "100%",
+                              border: "1px solid",
+                              borderColor: "divider",
+                              background: `linear-gradient(135deg, ${alpha(iconColorValue, 0.04)} 0%, ${alpha(iconColorValue, 0)} 60%), ${theme.palette.background.paper}`,
+                              cursor: "pointer",
+                              transition: "border-color 200ms, box-shadow 300ms",
+                              "&:hover": {
+                                borderColor: "info.main",
+                                boxShadow: `0 12px 40px ${alpha(iconColorValue, 0.12)}`,
+                              },
+                            }}
+                          >
+                            <CardContent sx={{ p: 3.5 }}>
+                              <motion.div
+                                initial={{ scale: 1 }}
+                                whileHover={{ scale: 1.15, rotate: [0, -5, 5, 0] }}
+                                transition={{ type: "spring", stiffness: 400 }}
+                                style={{ display: "inline-block" }}
+                              >
+                                <Box
+                                  sx={{
+                                    mb: 1.5,
+                                    color: feat.iconColor,
+                                    width: 56,
+                                    height: 56,
+                                    borderRadius: "50%",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    bgcolor: alpha(iconColorValue, 0.12),
+                                  }}
+                                >
+                                  <feat.Icon size={28} strokeWidth={1.5} />
+                                </Box>
+                              </motion.div>
+                              <Typography
+                                variant="h6"
+                                sx={{ fontWeight: 700, mb: 0.5, color: "primary.main" }}
+                              >
+                                {feat.title}
+                              </Typography>
+                              <Typography
+                                variant="body2"
+                                sx={{ color: "text.secondary", lineHeight: 1.6, mb: 1.5 }}
+                              >
+                                {feat.description}
+                              </Typography>
+                              <Box
+                                sx={{
+                                  pt: 1.5,
+                                  borderTop: "1px solid",
+                                  borderColor: "divider",
+                                }}
+                              >
+                                <Typography
+                                  variant="h6"
+                                  sx={{ fontWeight: 800, color: feat.iconColor, lineHeight: 1 }}
+                                >
+                                  {feat.stat}
+                                </Typography>
+                                <Typography
+                                  variant="caption"
+                                  sx={{ color: "text.secondary" }}
+                                >
+                                  {feat.statLabel}
+                                </Typography>
                               </Box>
-                            </motion.div>
-                            <Typography
-                              variant="h6"
-                              sx={{ fontWeight: 700, mb: 1, color: "primary.main" }}
-                            >
-                              {feat.title}
-                            </Typography>
-                            <Typography
-                              variant="body2"
-                              sx={{ color: "text.secondary", lineHeight: 1.6 }}
-                            >
-                              {feat.description}
-                            </Typography>
-                          </CardContent>
-                        </Card>
-                      </motion.div>
-                    </Link>
-                  </motion.div>
-                </Grid>
-              ))}
+                            </CardContent>
+                          </Card>
+                        </motion.div>
+                      </Link>
+                    </motion.div>
+                  </Grid>
+                );
+              })}
             </Grid>
           </StaggerGroup>
         </Container>
@@ -551,83 +604,114 @@ export default function Home() {
           </Section>
 
           <StaggerGroup stagger={0.2}>
-            <Stack spacing={{ xs: 4, md: 6 }}>
-              {STEPS.map((step, i) => (
-                <motion.div key={step.number} variants={staggerChild}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: { xs: "flex-start", md: "center" },
-                      gap: { xs: 2.5, md: 4 },
-                    }}
-                  >
-                    <motion.div
-                      whileHover={{ scale: 1.1, rotate: 5 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 15 }}
+            <Box sx={{ position: "relative" }}>
+              {/* Vertical connecting line between step circles */}
+              <Box
+                sx={{
+                  display: { xs: "none", md: "block" },
+                  position: "absolute",
+                  left: 36, // center of the 72px circle
+                  top: 72, // below first circle
+                  bottom: 72, // above last circle
+                  width: 2,
+                  background: `linear-gradient(180deg, ${alpha(theme.palette.primary.main, 0.3)}, ${alpha(theme.palette.secondary.main, 0.3)}, ${alpha(theme.palette.primary.main, 0.3)})`,
+                  zIndex: 0,
+                }}
+              />
+              <Box
+                sx={{
+                  display: { xs: "block", md: "none" },
+                  position: "absolute",
+                  left: 28, // center of the 56px circle
+                  top: 56,
+                  bottom: 56,
+                  width: 2,
+                  background: `linear-gradient(180deg, ${alpha(theme.palette.primary.main, 0.2)}, ${alpha(theme.palette.secondary.main, 0.2)}, ${alpha(theme.palette.primary.main, 0.2)})`,
+                  zIndex: 0,
+                }}
+              />
+              <Stack spacing={{ xs: 4, md: 6 }}>
+                {STEPS.map((step, i) => (
+                  <motion.div key={step.number} variants={staggerChild}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: { xs: "flex-start", md: "center" },
+                        gap: { xs: 2.5, md: 4 },
+                        position: "relative",
+                        zIndex: 1,
+                      }}
                     >
-                      <Box
-                        sx={{
-                          flexShrink: 0,
-                          width: { xs: 56, md: 72 },
-                          height: { xs: 56, md: 72 },
-                          borderRadius: "50%",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          bgcolor: i === 1 ? "secondary.main" : "primary.main",
-                          color: "primary.contrastText",
-                          boxShadow: `0 4px 20px ${alpha(
-                            i === 1
-                              ? theme.palette.secondary.main
-                              : theme.palette.primary.main,
-                            0.3
-                          )}`,
-                        }}
+                      <motion.div
+                        whileHover={{ scale: 1.1, rotate: 5 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 15 }}
                       >
-                        <Typography
+                        <Box
                           sx={{
-                            fontWeight: 800,
-                            fontSize: { xs: "1.1rem", md: "1.4rem" },
-                            letterSpacing: "-0.02em",
+                            flexShrink: 0,
+                            width: { xs: 56, md: 72 },
+                            height: { xs: 56, md: 72 },
+                            borderRadius: "50%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            bgcolor: i === 1 ? "secondary.main" : "primary.main",
+                            color: "primary.contrastText",
+                            boxShadow: `0 4px 20px ${alpha(
+                              i === 1
+                                ? theme.palette.secondary.main
+                                : theme.palette.primary.main,
+                              0.3
+                            )}`,
                           }}
                         >
-                          {step.number}
+                          <Typography
+                            sx={{
+                              fontWeight: 800,
+                              fontSize: { xs: "1.1rem", md: "1.4rem" },
+                              letterSpacing: "-0.02em",
+                            }}
+                          >
+                            {step.number}
+                          </Typography>
+                        </Box>
+                      </motion.div>
+                      <Box>
+                        <Typography
+                          variant="h5"
+                          sx={{ fontWeight: 700, mb: 0.5, color: "primary.main" }}
+                        >
+                          {step.title}
+                        </Typography>
+                        <Typography
+                          variant="body1"
+                          sx={{ color: "text.secondary", lineHeight: 1.6 }}
+                        >
+                          {step.description}
                         </Typography>
                       </Box>
-                    </motion.div>
-                    <Box>
-                      <Typography
-                        variant="h5"
-                        sx={{ fontWeight: 700, mb: 0.5, color: "primary.main" }}
-                      >
-                        {step.title}
-                      </Typography>
-                      <Typography
-                        variant="body1"
-                        sx={{ color: "text.secondary", lineHeight: 1.6 }}
-                      >
-                        {step.description}
-                      </Typography>
                     </Box>
-                  </Box>
-                </motion.div>
-              ))}
-            </Stack>
+                  </motion.div>
+                ))}
+              </Stack>
+            </Box>
           </StaggerGroup>
         </Container>
       </Box>
 
       {/* ═══════════ STATS ═══════════ */}
       <Box sx={{ py: { xs: 8, md: 10 }, bgcolor: "background.default" }}>
-        <Container maxWidth="md">
-          <StaggerGroup stagger={0.15}>
+        <Container maxWidth="lg">
+          <StaggerGroup stagger={0.1}>
             <Grid container spacing={4} justifyContent="center">
               {[
-                { value: 150000, suffix: "+", label: "Games in our database" },
-                { value: 4, suffix: "", label: "Game categories" },
-                { value: 200, suffix: "+", label: "Genres & mechanics" },
+                { value: 150000, suffix: "+", label: "Games indexed", sublabel: "From BGG, RAWG, and IGDB" },
+                { value: 4, suffix: "", label: "Game categories", sublabel: "Board, video, word, and party" },
+                { value: 200, suffix: "+", label: "Genres and mechanics", sublabel: "From deck-building to open world" },
+                { value: 2000000, suffix: "+", label: "Community ratings", sublabel: "Aggregated from every source" },
+                { value: 4, suffix: "", label: "AI recommendation layers", sublabel: "Rule-based, content, collaborative, semantic" },
               ].map((stat) => (
-                <Grid size={{ xs: 12, sm: 4 }} key={stat.label}>
+                <Grid size={{ xs: 6, sm: 4, md: 2.4 }} key={stat.label}>
                   <motion.div variants={staggerChild}>
                     <Stack alignItems="center" textAlign="center" spacing={0.5}>
                       <Typography
@@ -636,15 +720,22 @@ export default function Home() {
                           fontWeight: 800,
                           color: "secondary.main",
                           letterSpacing: "-0.03em",
+                          fontSize: { xs: "1.8rem", md: "2.4rem" },
                         }}
                       >
                         <AnimatedCount target={stat.value} suffix={stat.suffix} />
                       </Typography>
                       <Typography
                         variant="body1"
-                        sx={{ color: "text.secondary", fontWeight: 500 }}
+                        sx={{ color: "text.primary", fontWeight: 600, lineHeight: 1.2 }}
                       >
                         {stat.label}
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        sx={{ color: "text.secondary", lineHeight: 1.3 }}
+                      >
+                        {stat.sublabel}
                       </Typography>
                     </Stack>
                   </motion.div>
