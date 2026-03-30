@@ -238,8 +238,11 @@ export async function POST(request: NextRequest) {
       }
 
       // Query the canonical user_owned_games table
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: ownedData } = await (supabase as any)
+      // Use service role to bypass RLS (the anon client has no user session in this context)
+      const serviceUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      const serviceClient = serviceUrl && serviceKey ? createClient(serviceUrl, serviceKey) : supabase;
+      const { data: ownedData } = await serviceClient
         .from('user_owned_games')
         .select('game_id')
         .eq('user_id', body.userId);
