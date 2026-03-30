@@ -222,9 +222,21 @@ export async function POST(request: NextRequest) {
 
     console.log(`[Recommend] Hybrid pool: ${ratingCandidates.length} rating + ${mechanicCandidates.length} mechanic + ${vectorCandidates.length} vector + ${tagCandidates.length} tag + ${textCandidates.length} text + ${expandedCount} expanded = ${candidates.length} unique`);
 
-    // "My Collection Only" mode: filter to games the user owns
-    // Works with BGG-synced collection AND site favorites
-    if (body.collectionOnly && body.userId) {
+    // "My Collection Only" mode: ONLY return games the user owns
+    if (body.collectionOnly) {
+      if (!body.userId) {
+        // No user ID = can't filter by collection. Return empty.
+        console.log('[Recommend] collectionOnly=true but no userId, returning empty');
+        return NextResponse.json({
+          results: [],
+          count: 0,
+          totalCandidates: 0,
+          engine: 'collection-no-user',
+          collectionEmpty: true,
+          message: 'Sign in to use My Collection',
+        });
+      }
+
       // Query the canonical user_owned_games table
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: ownedData } = await (supabase as any)
@@ -236,30 +248,29 @@ export async function POST(request: NextRequest) {
         ((ownedData ?? []) as { game_id: string }[]).map((r) => r.game_id)
       );
 
-      if (ownedIds.size > 0) {
-        const beforeCollection = candidates.length;
-        candidates = candidates.filter((g) => ownedIds.has(g.id));
-        console.log(`[Recommend] Collection filter: ${beforeCollection} → ${candidates.length} (${ownedIds.size} owned games)`);
-
-        // If collection filtering left too few candidates, also fetch owned games directly
-        if (candidates.length < 10) {
-          const ownedArray = [...ownedIds].slice(0, 200);
-          const { data: ownedGames } = await supabase
-            .from('games')
-            .select(GAME_COLUMNS)
-            .in('id', ownedArray);
-          if (ownedGames) {
-            for (const row of ownedGames as GameRow[]) {
-              const game = rowToGame(row);
-              if (!seen.has(game.id)) {
-                candidates.push(game);
-                seen.add(game.id);
-              }
-            }
-          }
-          console.log(`[Recommend] Backfilled collection: now ${candidates.length} candidates`);
-        }
+      if (ownedIds.size === 0) {
+        console.log('[Recommend] collectionOnly=true but user has 0 owned games');
+        return NextResponse.json({
+          results: [],
+          count: 0,
+          totalCandidates: 0,
+          engine: 'collection-empty',
+          collectionEmpty: true,
+          message: 'No games in your collection yet. Sync your BGG account or add games with the package icon.',
+        });
       }
+
+      // REPLACE the entire candidate pool with only owned games
+      // Don't filter the existing pool (which might not contain owned games)
+      // Instead, fetch all owned games directly
+      const ownedArray = [...ownedIds].slice(0, 500);
+      const { data: ownedGames } = await supabase
+        .from('games')
+        .select(GAME_COLUMNS)
+        .in('id', ownedArray);
+
+      candidates = ((ownedGames ?? []) as GameRow[]).map(rowToGame);
+      console.log(`[Recommend] Collection mode: ${candidates.length} owned games as candidates (from ${ownedIds.size} total owned)`);
     }
 
     // Progressive fallbacks (only if hybrid produced nothing)

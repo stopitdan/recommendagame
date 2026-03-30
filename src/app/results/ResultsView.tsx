@@ -178,6 +178,11 @@ export default function ResultsView() {
       setEngine(data.engine ?? '');
       setTotalCandidates(data.totalCandidates ?? 0);
 
+      // Show message if collection is empty
+      if (data.collectionEmpty && data.message) {
+        setError(data.message);
+      }
+
       setHasLoaded(true);
 
       // Track recommendation count for guest signup prompt
