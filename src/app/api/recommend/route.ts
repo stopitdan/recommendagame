@@ -96,6 +96,7 @@ export async function POST(request: NextRequest) {
     minTime?: number;
     maxTime?: number;
     userId?: string;
+    collectionOnly?: boolean;
   };
 
   try {
@@ -219,6 +220,54 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(`[Recommend] Hybrid pool: ${ratingCandidates.length} rating + ${mechanicCandidates.length} mechanic + ${vectorCandidates.length} vector + ${tagCandidates.length} tag + ${textCandidates.length} text + ${expandedCount} expanded = ${candidates.length} unique`);
+
+    // "My Collection Only" mode: filter to games the user owns
+    // Works with BGG-synced collection AND site favorites
+    if (body.collectionOnly && body.userId) {
+      const [bggCollection, favorites] = await Promise.all([
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (supabase as any)
+          .from('user_bgg_collection')
+          .select('game_id')
+          .eq('user_id', body.userId)
+          .eq('owned', true)
+          .not('game_id', 'is', null),
+        supabase
+          .from('user_favorites')
+          .select('game_id')
+          .eq('user_id', body.userId),
+      ]);
+
+      const ownedIds = new Set<string>([
+        ...((bggCollection.data ?? []) as { game_id: string }[]).map((r) => r.game_id),
+        ...((favorites.data ?? []) as { game_id: string }[]).map((r) => r.game_id),
+      ]);
+
+      if (ownedIds.size > 0) {
+        const beforeCollection = candidates.length;
+        candidates = candidates.filter((g) => ownedIds.has(g.id));
+        console.log(`[Recommend] Collection filter: ${beforeCollection} → ${candidates.length} (${ownedIds.size} owned games)`);
+
+        // If collection filtering left too few candidates, also fetch owned games directly
+        if (candidates.length < 10) {
+          const ownedArray = [...ownedIds].slice(0, 200);
+          const { data: ownedGames } = await supabase
+            .from('games')
+            .select(GAME_COLUMNS)
+            .in('id', ownedArray);
+          if (ownedGames) {
+            for (const row of ownedGames as GameRow[]) {
+              const game = rowToGame(row);
+              if (!seen.has(game.id)) {
+                candidates.push(game);
+                seen.add(game.id);
+              }
+            }
+          }
+          console.log(`[Recommend] Backfilled collection: now ${candidates.length} candidates`);
+        }
+      }
+    }
 
     // Progressive fallbacks (only if hybrid produced nothing)
     if (candidates.length === 0) {

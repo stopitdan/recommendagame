@@ -29,7 +29,7 @@ import { incrementRecommendCount } from '@/lib/guest';
 import { useAchievements } from '@/components/AchievementToast';
 import { CATEGORY_OPTIONS, MECHANIC_OPTIONS, THEME_OPTIONS, PLATFORM_OPTIONS } from '@/lib/filter-options';
 import { createClient } from '@/lib/supabase/client';
-import { Save, Dice5, Puzzle, Gamepad2, Type, PartyPopper } from 'lucide-react';
+import { Save, Dice5, Puzzle, Gamepad2, Type, PartyPopper, Library } from 'lucide-react';
 import ShareResultsButton from '@/components/ShareResultsButton';
 import FeedbackButton from '@/components/FeedbackButton';
 import LoginPromptBanner from '@/components/LoginPromptBanner';
@@ -62,6 +62,7 @@ export default function ResultsView() {
   const [isReparsing, setIsReparsing] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [nameFilter, setNameFilter] = useState('');
+  const [collectionOnly, setCollectionOnly] = useState(false);
   const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
   const [userId, setUserId] = useState<string | null>(null);
 
@@ -121,7 +122,7 @@ export default function ResultsView() {
       // Merge URL params with applied refine filters (refine overrides URL params)
       const r = appliedRefine;
       const urlGenres = searchParams.get('genres')?.split(',').filter(Boolean) ?? [];
-      const preferences: QuestionnaireState & { popularity: string; limit: number; minRating?: number; minTime?: number; maxTime?: number; userId?: string } = {
+      const preferences: QuestionnaireState & { popularity: string; limit: number; minRating?: number; minTime?: number; maxTime?: number; userId?: string; collectionOnly?: boolean } = {
         freeText: searchParams.get('freeText') ?? '',
         gameTypes: (searchParams.get('types')?.split(',').filter(Boolean) ?? []) as GameType[],
         playerCount: {
@@ -142,6 +143,7 @@ export default function ResultsView() {
         minTime: r.time[0] > 0 ? r.time[0] : undefined,
         maxTime: r.time[1] < 300 ? r.time[1] : undefined,
         userId: userId ?? undefined,
+        collectionOnly: collectionOnly || undefined,
       };
 
       const response = await fetch('/api/recommend', {
@@ -179,7 +181,7 @@ export default function ResultsView() {
     } finally {
       setLoading(false);
     }
-  }, [searchParams, popularity, appliedRefine, userId]);
+  }, [searchParams, popularity, appliedRefine, userId, collectionOnly]);
 
   useEffect(() => {
     fetchResults();
@@ -361,6 +363,17 @@ export default function ResultsView() {
               <Save size={14} /> Save Preset
             </Button>
             <ShareResultsButton gameNames={games.map((g) => g.name)} />
+            {userId && (
+              <Chip
+                icon={<Library size={14} /> as React.ReactElement}
+                label="My Collection"
+                onClick={() => { setCollectionOnly(!collectionOnly); }}
+                color={collectionOnly ? 'primary' : 'default'}
+                variant={collectionOnly ? 'filled' : 'outlined'}
+                size="small"
+                sx={{ transition: 'all 200ms' }}
+              />
+            )}
             <Button variant="outlined" size="small" onClick={() => router.push('/find-a-game')}>
               Start Over
             </Button>
