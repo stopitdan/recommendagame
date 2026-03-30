@@ -104,6 +104,22 @@ export async function syncBggCollection(
         .select('id');
       result.feedbackCreated += (data?.length ?? 0);
     }
+
+    // Write owned games to user_owned_games table
+    const ownedRows = batch
+      .filter((item) => item.owned && matchMap.has(item.bggId))
+      .map((item) => ({
+        user_id: userId,
+        game_id: matchMap.get(item.bggId)!,
+        source: 'bgg',
+      }));
+
+    if (ownedRows.length > 0) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase as any)
+        .from('user_owned_games')
+        .upsert(ownedRows, { onConflict: 'user_id,game_id' });
+    }
   }
 
   // Update profile with BGG username and sync timestamp

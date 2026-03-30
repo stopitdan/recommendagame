@@ -225,24 +225,16 @@ export async function POST(request: NextRequest) {
     // "My Collection Only" mode: filter to games the user owns
     // Works with BGG-synced collection AND site favorites
     if (body.collectionOnly && body.userId) {
-      const [bggCollection, favorites] = await Promise.all([
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (supabase as any)
-          .from('user_bgg_collection')
-          .select('game_id')
-          .eq('user_id', body.userId)
-          .eq('owned', true)
-          .not('game_id', 'is', null),
-        supabase
-          .from('user_favorites')
-          .select('game_id')
-          .eq('user_id', body.userId),
-      ]);
+      // Query the canonical user_owned_games table
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: ownedData } = await (supabase as any)
+        .from('user_owned_games')
+        .select('game_id')
+        .eq('user_id', body.userId);
 
-      const ownedIds = new Set<string>([
-        ...((bggCollection.data ?? []) as { game_id: string }[]).map((r) => r.game_id),
-        ...((favorites.data ?? []) as { game_id: string }[]).map((r) => r.game_id),
-      ]);
+      const ownedIds = new Set<string>(
+        ((ownedData ?? []) as { game_id: string }[]).map((r) => r.game_id)
+      );
 
       if (ownedIds.size > 0) {
         const beforeCollection = candidates.length;

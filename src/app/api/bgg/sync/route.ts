@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json();
-  const username = body.username?.trim();
+  const username = body.username?.trim()?.replace(/^@/, '');
 
   if (!username || username.length < 2 || username.length > 50) {
     return NextResponse.json({ error: 'Invalid BGG username' }, { status: 400 });

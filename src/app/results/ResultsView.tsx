@@ -65,11 +65,13 @@ export default function ResultsView() {
   const [collectionOnly, setCollectionOnly] = useState(searchParams.get('collectionOnly') === '1');
   const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
   const [userId, setUserId] = useState<string | null>(null);
+  const [userLoaded, setUserLoaded] = useState(false);
 
-  // Get logged-in user ID for rejection learning
+  // Get logged-in user ID for rejection learning + collection filtering
   useEffect(() => {
     createClient().auth.getUser().then(({ data }) => {
       setUserId(data.user?.id ?? null);
+      setUserLoaded(true);
     });
   }, []);
 
@@ -184,8 +186,10 @@ export default function ResultsView() {
   }, [searchParams, popularity, appliedRefine, userId, collectionOnly]);
 
   useEffect(() => {
+    // Wait for user auth to resolve before fetching so collectionOnly has userId
+    if (!userLoaded) return;
     fetchResults();
-  }, [fetchResults]);
+  }, [fetchResults, userLoaded]);
 
   async function saveAsPreset() {
     if (!presetName.trim()) return;
