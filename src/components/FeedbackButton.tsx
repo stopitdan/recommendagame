@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
 import { MessageSquare } from 'lucide-react';
 
-export default function FeedbackButton() {
+export default function FeedbackButton({ label = 'Feedback' }: { label?: string }) {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
@@ -50,7 +50,7 @@ export default function FeedbackButton() {
           '&:hover': { color: 'primary.main' },
         }}
       >
-        Feedback
+        {label}
       </Button>
 
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="xs" fullWidth>

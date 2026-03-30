@@ -8,6 +8,7 @@ import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { motion } from 'motion/react';
+import FeedbackButton from '@/components/FeedbackButton';
 
 // ─── Roadmap Data ────────────────────────────────────────────
 
@@ -39,7 +40,7 @@ const PHASES: Phase[] = [
       { title: 'Word & Party Games Dataset', description: '47 curated word and party games including 27 "no equipment needed" games like Charades, Mafia, 20 Questions.', status: 'done', tags: ['Data'] },
       { title: 'Supabase Database + Schema', description: 'PostgreSQL with pgvector extension, RLS policies, indexes, full-text search, and vector similarity.', status: 'done', tags: ['Infrastructure'] },
       { title: 'BGG Kaggle Import (22k games)', description: 'Bulk import from Kaggle dataset with mechanics, themes, categories, designers, publishers.', status: 'done', tags: ['Data'] },
-      { title: 'BGG Live API Crawler', description: 'Scanning 400k BGG IDs to replace Kaggle data with real descriptions, ratings, and full metadata from the live API.', status: 'in-progress', tags: ['Data', 'API'] },
+      { title: 'BGG Live API Crawler', description: 'Scanning 400k BGG IDs to replace Kaggle data with real descriptions, ratings, and full metadata from the live API.', status: 'done', tags: ['Data', 'API'] },
       { title: 'RAWG Crawler (80k+ games)', description: 'Automated pagination with exponential backoff, detail backfills for descriptions and extended metadata.', status: 'done', tags: ['Data'] },
       { title: 'IGDB Adapter (Video Games)', description: '20k+ video games from IGDB with rich genres, themes, keywords. Twitch OAuth2, Apicalypse queries. Much richer metadata than RAWG.', status: 'done', tags: ['API', 'Data'] },
       { title: 'RAWG→IGDB Deduplication', description: 'Removed 13k duplicate games that existed in both RAWG and IGDB, keeping the richer IGDB version.', status: 'done', tags: ['Data'] },
@@ -72,7 +73,7 @@ const PHASES: Phase[] = [
       { title: 'Quick Collections on Landing Page', description: 'Date Night, Quick Play, Party Night, Strategy Deep Dive — one-click preset recommendations.', status: 'done', tags: ['UI'] },
       { title: 'Browse Page with Filters', description: 'Full game catalog with source, type, and tag filters + server-side pagination.', status: 'done', tags: ['UI'] },
       { title: 'Game Detail Pages', description: 'Full game info, similar games section, review form, favorite button.', status: 'done', tags: ['UI'] },
-      { title: 'LLM-Powered Free Text Parsing', description: 'GPT-4o-mini extracts structured preferences from natural language. Two-tier cache (memory + Supabase) with fuzzy matching. DB enrichment for "similarTo" games fills player count, complexity, time, genres from actual game data. Smart questionnaire filtering hides irrelevant options.', status: 'done', tags: ['AI', 'Recommendation'] },
+      { title: 'LLM-Powered Free Text Parsing', description: 'GPT-4o extracts structured preferences from natural language. Negative preferences ("no war games"), exact time extraction ("under 30 min"), auto-detects board game from mechanics. Two-tier cache with fuzzy matching.', status: 'done', tags: ['AI', 'Recommendation'] },
     ],
   },
   {
@@ -113,24 +114,28 @@ const PHASES: Phase[] = [
       { title: 'Nav Microanimations', description: 'Emoji wiggle on button hover (CSS keyframe), hover lift (motion), tap scale.', status: 'done', tags: ['UI'] },
       { title: 'Match Percentage Badges', description: 'Green/yellow/gray % match badges on every result card based on score.', status: 'done', tags: ['UI'] },
       { title: 'Responsive Polish', description: 'Mobile-first refinements across all pages.', status: 'done', tags: ['UI'] },
-      { title: 'Iconography & Less Text', description: 'Replace text-heavy sections with game-themed icons and visual elements.', status: 'planned', tags: ['Design'] },
+      { title: 'Lucide Icon System', description: 'Replaced 100+ emojis with Lucide React icons across 25 files. Consistent, professional iconography.', status: 'done', tags: ['Design'] },
+      { title: 'PWA Support', description: 'Manifest, service worker, PWA icons (dice design). Add to homescreen ready.', status: 'done', tags: ['Infrastructure'] },
+      { title: 'Accessibility', description: 'Skip-nav link, aria-labels on all IconButtons, form accessibility verified.', status: 'done', tags: ['UI'] },
     ],
   },
   {
     name: 'Phase 6: Growth & Monetization',
     subtitle: 'Hosting, marketing, and revenue',
-    timeframe: 'Planned',
+    timeframe: 'Mostly Complete',
     items: [
       { title: 'Vercel Deployment + CI/CD', description: 'Production deployment with auto-deploy from main branch.', status: 'done', tags: ['Infrastructure'] },
-      { title: 'Custom Domain', description: 'Connect Squarespace domain to Vercel deployment.', status: 'planned', tags: ['Infrastructure'] },
-      { title: 'Shareability & Social Cards', description: '"Share my recommendations" links with Open Graph previews for social media.', status: 'planned', tags: ['Feature', 'Growth'] },
-      { title: 'AI-Generated Blog / Game News', description: 'SEO-driven game recommendation articles, new releases coverage, "Best games for..." guides.', status: 'planned', tags: ['Content', 'Growth'] },
-      { title: 'Google Ads Integration', description: 'Tasteful ad placements for revenue generation.', status: 'planned', tags: ['Revenue'] },
-      { title: 'Email Validation', description: 'Verify email addresses before allowing full account features.', status: 'planned', tags: ['Auth'] },
-      { title: 'Marketing Plan', description: 'SEO, Reddit presence, BGG forum promotion, social media strategy.', status: 'planned', tags: ['Growth'] },
-      { title: 'Help Desk / Bug Reporting', description: 'GitHub Issues integration or embedded feedback widget.', status: 'planned', tags: ['Support'] },
+      { title: 'Custom Domain (boredgame.lol)', description: 'Cloudflare DNS, SSL, email routing (info@ + contact@). Full rebrand from "Recommend a Game".', status: 'done', tags: ['Infrastructure'] },
+      { title: 'Shareability & Social Cards', description: 'Dynamic OG + Twitter images via Next.js ImageResponse. Share menu with Copy Link, Twitter/X, Facebook, Reddit.', status: 'done', tags: ['Feature', 'Growth'] },
+      { title: 'AI-Generated Blog', description: 'GPT-4o daily blog generation with 365 rotating topics. Vercel cron at 6am UTC. SEO-optimized with affiliate links and internal game links.', status: 'done', tags: ['Content', 'Growth'] },
+      { title: 'Amazon Affiliate Links', description: 'Buy buttons on every game card and detail page. Tag: boredgame-20. Board games link to Amazon, video games to Steam.', status: 'done', tags: ['Revenue'] },
+      { title: 'Google Ads Integration', description: 'Apply for AdSense once traffic builds.', status: 'planned', tags: ['Revenue'] },
+      { title: 'Email Verification', description: 'Supabase confirm email enabled with branded templates (signup, reset, change).', status: 'done', tags: ['Auth'] },
+      { title: 'SEO Foundation', description: 'robots.txt, sitemap.xml, JSON-LD (WebSite, BoardGame, VideoGame, FAQPage, BlogPosting), canonical URLs, Google Search Console, Google Analytics.', status: 'done', tags: ['Growth'] },
+      { title: 'Help Desk / Feedback', description: 'Contact page, FAQ page, feedback button (sends via Resend to email), "why did you dislike this?" popover on thumbs-down.', status: 'done', tags: ['Support'] },
       { title: 'Share a Game Night Invite', description: '/invite page with share button. Web Share API on mobile, clipboard on desktop.', status: 'done', tags: ['Feature', 'Growth'] },
-      { title: 'Weekly Digest Email', description: '"3 games you might love this week" personalized email based on user profile. Drives return visits. Requires email service (Resend/SendGrid).', status: 'future', tags: ['Feature', 'Growth'] },
+      { title: 'Newsletter Signup', description: 'Email capture on landing page. Supabase storage. Ready for Mailchimp/Resend integration.', status: 'done', tags: ['Feature', 'Growth'] },
+      { title: 'Weekly Digest Email', description: '"3 games you might love this week" personalized email. Requires list integration.', status: 'future', tags: ['Feature', 'Growth'] },
     ],
   },
   {
@@ -139,9 +144,9 @@ const PHASES: Phase[] = [
     timeframe: 'Planned',
     items: [
       { title: 'Achievement System (43 achievements)', description: '43 achievements across 8 categories — all with active triggers. Dice, Discovery, Social, Reviews, Settings, Easter Eggs, Time, and Meta. Animated toast notifications with rarity-colored borders.', status: 'done', tags: ['Gamification', 'Feature'] },
-      { title: 'D20 Dice Skin System', description: 'Skin selection bank for the d20 roller — different colors, materials, themes. Users can upload custom images to create their own skins, save and share them. Leaderboard for most popular custom skins. Potential for a whole d20 ecosystem.', status: 'future', tags: ['3D', 'Feature', 'Social'] },
+      { title: 'D20 Dice Skin System', description: 'Full dice creator with colors, materials, textures. Public sharing via Dice Gallery. Voting/leaderboard. Custom uploads.', status: 'done', tags: ['3D', 'Feature', 'Social'] },
       { title: 'Spin the Wheel Randomizer', description: 'Alternative to the d20: a colorful prize-wheel where segments are game names from filtered results. Tap to spin, satisfying deceleration, lands on a game.', status: 'future', tags: ['UI', 'Animation'] },
-      { title: 'Daily Game Pick', description: 'Like Wordle — one curated game pick per day based on your profile. Creates a reason to come back daily. Push notification potential.', status: 'future', tags: ['Feature', 'Growth'] },
+      { title: 'Daily Game Pick', description: 'Deterministic high-rated game of the day on homepage. Redis cached. Only well-known games (7.0+ rating, 500+ votes, with image).', status: 'done', tags: ['Feature', 'Growth'] },
       { title: 'Game Night Playlist Generator', description: 'Input hours available + player count. Engine builds a 3-4 game playlist: warm-up (light) → main event (medium) → wind-down (chill). Ordered by complexity arc.', status: 'future', tags: ['Feature', 'AI'] },
       { title: 'Game Night Timer', description: 'Full-screen timer/stopwatch with the game\'s art as background after picking a game. Useful for timed games and tracking play sessions.', status: 'future', tags: ['Feature', 'UI'] },
       { title: '"What Should WE Play?"', description: 'Multi-player preference merging. Each person answers the questionnaire on their phone via room code. Results merged to find games everyone enjoys.', status: 'future', tags: ['Feature', 'Social'] },
@@ -172,9 +177,14 @@ const PHASES: Phase[] = [
       { title: 'Conversational Recommendations', description: 'Chat-style interface where users describe what they want and get iterative, conversational recommendations.', status: 'future', tags: ['AI', 'UI'] },
       { title: 'Game Group Matching', description: 'Multiple users input preferences, engine finds games everyone will enjoy. "Find a game for our group."', status: 'future', tags: ['Feature', 'AI'] },
       { title: 'Trending / Seasonal Recommendations', description: 'Surface games trending this week, seasonal picks (Halloween horror games, holiday party games).', status: 'future', tags: ['Feature'] },
-      { title: 'Import BGG / Steam Library', description: 'Connect your BGG or Steam account to auto-populate preferences from games you already own and rate.', status: 'future', tags: ['Feature', 'API'] },
-      { title: 'Tech Stack Diagram', description: 'Visual architecture diagram showing how all the pieces connect.', status: 'future', tags: ['Documentation'] },
-      { title: 'FAQ / Tutorial Page', description: 'Onboarding guide and frequently asked questions.', status: 'future', tags: ['Documentation'] },
+      { title: 'BGG Account Integration', description: 'Connect BGG username to import collection and ratings. Auto-converts to internal feedback signals. Onboarding prompt for logged-in users.', status: 'done', tags: ['Feature', 'API'] },
+      { title: 'LLM Reranking (GPT-4o)', description: 'Second-stage reranker reviews top 25 candidates and picks the best matches using board game knowledge. Catches everything rule-based scoring misses.', status: 'done', tags: ['AI', 'Recommendation'] },
+      { title: 'LLM Query Expansion', description: 'Creative intent understanding for any input. Expands "spaghetti and meatballs" into food/cooking themes. Runs in parallel with candidate fetch.', status: 'done', tags: ['AI', 'Recommendation'] },
+      { title: 'BGG Mechanic Alias Map', description: 'Maps common terms to BGG taxonomy. "Deck Building" -> "Deck, Bag, and Pool Building". 25+ aliases for reliable mechanic matching.', status: 'done', tags: ['Recommendation'] },
+      { title: 'FAQ / Tutorial / Onboarding', description: 'FAQ page, onboarding dialog for first-time users, BGG sync prompt for logged-in users.', status: 'done', tags: ['Documentation', 'UI'] },
+      { title: 'Conversational Recommendations', description: 'Chat-style interface where users describe what they want and get iterative, conversational recommendations.', status: 'future', tags: ['AI', 'UI'] },
+      { title: 'Game Group Matching', description: 'Multiple users input preferences, engine finds games everyone will enjoy.', status: 'future', tags: ['Feature', 'AI'] },
+      { title: 'Trending / Seasonal Recommendations', description: 'Surface games trending this week, seasonal picks (Halloween horror, holiday party games).', status: 'future', tags: ['Feature'] },
     ],
   },
   {
@@ -431,9 +441,12 @@ export default function RoadmapView() {
       <Typography variant="h3" fontWeight={900} sx={{ mb: 1 }}>
         Roadmap
       </Typography>
-      <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-        The full plan for boredgame.lol — what&apos;s done, what&apos;s in progress, and what&apos;s coming.
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+        <Typography variant="body1" color="text.secondary">
+          What&apos;s done, what&apos;s in progress, and what&apos;s coming next.
+        </Typography>
+        <FeedbackButton label="Suggest a Feature" />
+      </Box>
 
       {/* Clickable filter stats */}
       <Box sx={{ display: 'flex', gap: 2, mb: 4, flexWrap: 'wrap' }}>
