@@ -69,11 +69,16 @@ export async function fetchBggCollection(
       const xml = await res.text();
       const parsed = parser.parse(xml);
 
-      if (!parsed?.items?.item) return [];
+      if (!parsed?.items?.item) {
+        console.log(`[BGG Collection] No items found in response for ${username}. Keys: ${Object.keys(parsed ?? {}).join(', ')}`);
+        return [];
+      }
 
       const items = Array.isArray(parsed.items.item)
         ? parsed.items.item
         : [parsed.items.item];
+
+      console.log(`[BGG Collection] Parsed ${items.length} items for ${username}`);
 
       return items.map((item: Record<string, unknown>): BggCollectionItem => {
         const stats = item.stats as Record<string, unknown> | undefined;

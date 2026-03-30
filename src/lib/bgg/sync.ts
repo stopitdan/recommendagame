@@ -38,6 +38,7 @@ export async function syncBggCollection(
 
   // Fetch the collection from BGG
   const collection = await fetchBggCollection(bggUsername);
+  console.log(`[BGG Sync] Collection for ${bggUsername}: ${collection?.length ?? 'null'} items`);
   if (!collection) return null;
 
   const result: SyncResult = { total: collection.length, matched: 0, rated: 0, feedbackCreated: 0 };
