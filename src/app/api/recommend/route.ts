@@ -50,8 +50,11 @@ const DEFAULT_RESULT_LIMIT = 100;
 const MAX_RESULT_LIMIT = 200;
 const SIMILARITY_CANDIDATES = 100;
 
-const RULE_WEIGHT = 0.6;
-const SIMILARITY_WEIGHT = 0.4;
+// Hash-based embeddings have collision issues (0% semantic coverage).
+// Until semantic embeddings are working, keep similarity weight low
+// to avoid noisy reordering of rule-based scores.
+const RULE_WEIGHT = 0.85;
+const SIMILARITY_WEIGHT = 0.15;
 
 type PopularityMode = 'popular' | 'any' | 'hidden-gems';
 
@@ -335,8 +338,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Step 1d: Expand genres with BGG mechanic aliases for better scoring
-    // (e.g., "Deck Building" also matches "Deck, Bag, and Pool Building")
+    // Step 1d: Merge LLM-parsed genres and mechanics into body.genres for scoring
+    // Without this, scoreGenreMatch returns 0.5 (neutral) for every game when the
+    // user only typed free text and didn't click genre checkboxes in the UI.
+    if (body.llmParsed?.genres?.length) {
+      body.genres = [...new Set([...body.genres, ...body.llmParsed.genres])];
+    }
     if (body.llmParsed?.mechanics?.length) {
       const expanded = expandTagsWithAliases(body.llmParsed.mechanics);
       body.genres = [...new Set([...body.genres, ...expanded])];
@@ -411,10 +418,8 @@ export async function POST(request: NextRequest) {
       scored.sort((a, b) => b.score - a.score);
     }
 
-    // Step 5: LLM reranking — ask GPT-4o to pick the best matches from top candidates
-    // For small collections (< 50 games), rerank ALL of them since the LLM is smarter
-    // than the rule-based scorer for understanding queries like "game about a tv show"
-    const reranked = await llmRerank(scored, body, Math.min(limit, scored.length <= 50 ? scored.length : 15));
+    // Step 5: LLM reranking — ask GPT-4o to pick the best matches from top 50 candidates
+    const reranked = await llmRerank(scored, body, Math.min(limit, scored.length <= 75 ? scored.length : 15));
 
     // Step 6: Diversity re-ranking (prevent 20 strategy games in a row)
     const diversified = diversityRerank(reranked);

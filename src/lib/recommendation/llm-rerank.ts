@@ -47,8 +47,10 @@ export async function llmRerank(
   if (prefs.llmParsed?.keywords?.length) wantsSummary.push(`Keywords: ${prefs.llmParsed.keywords.join(', ')}`);
 
   // Build compact game summaries for the LLM
-  // For small candidate pools (e.g., user's collection), evaluate all of them
-  const maxCandidates = candidates.length <= 50 ? candidates.length : 25;
+  // For small candidate pools (e.g., user's collection), evaluate all of them.
+  // For large pools, evaluate top 50 so the LLM sees well-known games that
+  // rule-based scoring may have ranked at position 30-50.
+  const maxCandidates = candidates.length <= 75 ? candidates.length : 50;
   const gameSummaries = candidates.slice(0, maxCandidates).map((c, i) => {
     const g = c.game;
     const parts = [`${i + 1}. "${g.name}" [ID:${g.id}]`];

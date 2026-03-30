@@ -698,6 +698,8 @@ describe('recommendation quality', () => {
         keywords: ['fast', 'deck building'],
         excludedGenres: [],
         excludedMechanics: [],
+        maxMinutes: null,
+        timeStrictness: null,
       },
     });
 

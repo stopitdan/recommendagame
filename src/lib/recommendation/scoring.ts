@@ -119,7 +119,7 @@ export function scoreGame(
   const breakdown: ScoreBreakdown = {
     typeMatch: scoreTypeMatch(game, prefs.gameTypes),
     playerCountFit: scorePlayerCount(game, prefs.playerCount),
-    timeFit: scoreTimeFit(game, prefs.timePresets),
+    timeFit: scoreTimeFit(game, prefs.timePresets, prefs.llmParsed),
     complexityFit: scoreComplexity(game, prefs.complexity),
     genreMatch: scoreGenreMatch(game, prefs.genres),
     moodAlignment: scoreMoodAlignment(game, prefs.moods),
@@ -223,17 +223,36 @@ function scorePlayerCount(
  * preset ranges. Partial credit for close misses.
  * If multiple presets are selected, the union range spans min of all mins
  * to max of all maxes.
+ *
+ * Also uses LLM-parsed maxMinutes/timeStrictness when no UI presets are
+ * selected, so "under 30 minutes" in free text actually scores time fit.
  */
-function scoreTimeFit(game: Game, timePresets: TimePreset[]): number {
-  if (timePresets.length === 0) return 0.5; // No preference
+function scoreTimeFit(
+  game: Game,
+  timePresets: TimePreset[],
+  llmParsed?: ParsedPreferences | null,
+): number {
+  // Determine time range from UI presets or LLM-parsed time constraints
+  let unionMin = 0;
+  let unionMax = Infinity;
+  let hasConstraint = false;
+
+  if (timePresets.length > 0) {
+    unionMin = Math.min(...timePresets.map((tp) => TIME_PRESETS[tp].minMinutes));
+    unionMax = Math.max(...timePresets.map((tp) => TIME_PRESETS[tp].maxMinutes));
+    hasConstraint = true;
+  } else if (llmParsed?.maxMinutes) {
+    // Use LLM-extracted time: "under 30 minutes" -> maxMinutes=30
+    unionMax = llmParsed.maxMinutes;
+    unionMin = 0;
+    hasConstraint = true;
+  }
+
+  if (!hasConstraint) return 0.5; // No preference
   if (!game.playTime) return 0.4; // Unknown play time
 
   const gameTime = game.playTime.average ?? game.playTime.min;
   if (!gameTime || gameTime === 0) return 0.4;
-
-  // Compute union range across all selected presets
-  const unionMin = Math.min(...timePresets.map((tp) => TIME_PRESETS[tp].minMinutes));
-  const unionMax = Math.max(...timePresets.map((tp) => TIME_PRESETS[tp].maxMinutes));
 
   // Within union range = perfect
   if (gameTime >= unionMin && gameTime <= unionMax) {
@@ -794,48 +813,38 @@ function scoreQuality(game: Game): number {
 }
 
 /**
- * Popularity signal: log-scaled rating count with notability tiers.
+ * Popularity signal: combines rating count, BGG rank, and ownership
+ * into a single 0-1 score with meaningful spread.
  *
- * The base log scale rewards community validation, but we add tier
- * bonuses to ensure well-known games meaningfully outscore obscure ones:
- *   - 10,000+ ratings: universally known (Catan, Dominion) → bonus +0.15
- *   - 1,000+ ratings:  well-known in hobby → bonus +0.08
- *   - 100+ ratings:    community-validated → bonus +0.03
- *   - <100 ratings:    obscure, no bonus
+ * Previous version: bonuses stacked so almost every candidate hit 1.0,
+ * making the 20% popularity weight useless for differentiation.
  *
- * This prevents a game with 47 ratings and a 9.2 average from
- * outranking Dominion (50k ratings, 7.6 average) when someone
- * asks for "deck building games".
+ * New approach: three sub-signals averaged (each 0-1), producing a
+ * smooth gradient where BGG top-50 games score ~0.95, top-500 ~0.75,
+ * top-2000 ~0.55, and unranked obscure games ~0.15.
  */
 function scorePopularity(game: Game): number {
+  // Sub-signal 1: Rating count (log-scaled, 0-1)
+  // 10->0.2, 100->0.4, 1k->0.6, 10k->0.8, 100k->1.0
   const count = game.ratingCount ?? 0;
-  if (count === 0) return 0;
+  const countScore = count === 0 ? 0 : Math.min(Math.log10(count) / 5, 1.0);
 
-  // Base: log-scaled (10→0.2, 100→0.4, 1000→0.6, 10000→0.8, 100000→1.0)
-  const base = Math.min(Math.log10(count) / 5, 1.0);
-
-  // Notability tier bonus from rating count
-  let bonus = 0;
-  if (count >= 10_000) bonus = 0.15;
-  else if (count >= 1_000) bonus = 0.08;
-  else if (count >= 100) bonus = 0.03;
-
-  // BGG rank bonus: games ranked highly on BGG get a significant boost
-  // Rank #1-100 = +0.20, #101-500 = +0.15, #501-1000 = +0.10, #1001-2000 = +0.05
+  // Sub-signal 2: BGG rank (inverse log-scaled, 0-1)
+  // Rank 1->1.0, 10->0.9, 100->0.75, 500->0.6, 1000->0.5, 5000->0.3, unranked->0.1
   const rank = game.rankOverall;
+  let rankScore = 0.1; // unranked
   if (rank && rank > 0) {
-    if (rank <= 100) bonus += 0.20;
-    else if (rank <= 500) bonus += 0.15;
-    else if (rank <= 1000) bonus += 0.10;
-    else if (rank <= 2000) bonus += 0.05;
+    // log10(1)=0 -> 1.0, log10(100)=2 -> 0.75, log10(1000)=3 -> 0.625, log10(10000)=4 -> 0.5
+    rankScore = Math.max(0.1, 1.0 - Math.log10(rank) * 0.125);
   }
 
-  // Ownership bonus: games owned by many people are proven hits
+  // Sub-signal 3: Ownership (log-scaled, 0-1)
+  // 100->0.2, 1k->0.4, 10k->0.6, 50k->0.8, 100k+->1.0
   const owned = game.numOwned ?? 0;
-  if (owned >= 50_000) bonus += 0.10;
-  else if (owned >= 10_000) bonus += 0.05;
+  const ownScore = owned === 0 ? 0 : Math.min(Math.log10(owned) / 5, 1.0);
 
-  return Math.min(base + bonus, 1.0);
+  // Weighted average: rank matters most (it's BGG's own quality+popularity signal)
+  return rankScore * 0.5 + countScore * 0.3 + ownScore * 0.2;
 }
 
 // ─── Reason Generation ───────────────────────────────────────
