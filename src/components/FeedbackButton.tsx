@@ -11,23 +11,29 @@ import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
 import { MessageSquare } from 'lucide-react';
 
-/**
- * Subtle feedback button that opens a dialog to send feedback via email.
- * Place on results, browse, and game detail pages.
- */
 export default function FeedbackButton() {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
-  const [sent, setSent] = useState(false);
+  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
 
-  function handleSend() {
+  async function handleSend() {
     if (!message.trim()) return;
-    // Open mailto with pre-filled body
-    const subject = encodeURIComponent('boredgame.lol Feedback');
-    const body = encodeURIComponent(`${message.trim()}\n\n---\nPage: ${window.location.href}\nTime: ${new Date().toISOString()}`);
-    window.open(`mailto:contact@boredgame.lol?subject=${subject}&body=${body}`, '_blank');
-    setSent(true);
-    setTimeout(() => { setOpen(false); setSent(false); setMessage(''); }, 2000);
+    setStatus('sending');
+    try {
+      const res = await fetch('/api/feedback-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: message.trim(),
+          page: window.location.href,
+        }),
+      });
+      if (!res.ok) throw new Error();
+      setStatus('sent');
+      setTimeout(() => { setOpen(false); setStatus('idle'); setMessage(''); }, 2000);
+    } catch {
+      setStatus('error');
+    }
   }
 
   return (
@@ -50,13 +56,16 @@ export default function FeedbackButton() {
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="xs" fullWidth>
         <DialogTitle sx={{ fontWeight: 700 }}>Send Feedback</DialogTitle>
         <DialogContent>
-          {sent ? (
-            <Alert severity="success" sx={{ mb: 2 }}>Thanks for the feedback!</Alert>
+          {status === 'sent' ? (
+            <Alert severity="success">Thanks! We got your feedback.</Alert>
           ) : (
             <>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                 Bug report, feature request, or just a thought? We read every message.
               </Typography>
+              {status === 'error' && (
+                <Alert severity="error" sx={{ mb: 2 }}>Failed to send. Try again?</Alert>
+              )}
               <TextField
                 multiline
                 rows={3}
@@ -73,10 +82,10 @@ export default function FeedbackButton() {
                 <Button
                   variant="contained"
                   onClick={handleSend}
-                  disabled={!message.trim()}
+                  disabled={!message.trim() || status === 'sending'}
                   sx={{ textTransform: 'none' }}
                 >
-                  Send
+                  {status === 'sending' ? 'Sending...' : 'Send'}
                 </Button>
               </Box>
             </>
