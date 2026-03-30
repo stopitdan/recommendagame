@@ -27,80 +27,120 @@ async function main() {
   const allCases: any[] = [];
 
   const batches = [
+    // ── Mechanics (100 queries) ──
     {
-      category: 'Mechanic-specific queries',
-      prompt: `Generate 30 realistic board game recommendation queries focused on specific mechanics.
-Include: deck building, worker placement, area control, tile placement, engine building, drafting,
-push your luck, trick taking, set collection, roll and write, hidden role, social deduction,
-cooperative, dice rolling, hand management, route building, auction, bag building, legacy, campaign.
-Each query should be phrased differently (casual, specific, vague, with constraints like time/players).
-Include 5 queries with typos or informal language.`,
+      category: 'Mechanics: Deck/Engine/Worker',
+      prompt: `Generate 50 realistic board game recommendation queries about deck building, engine building, or worker placement mechanics. Every query must be unique and phrased differently. Mix casual ("I wanna build an engine"), specific ("heavy worker placement for 3"), vague ("something where you collect cards and make combos"), with constraints (time, players, complexity). Include 10 with typos or text-speak.`,
     },
     {
-      category: 'Theme-specific queries',
-      prompt: `Generate 30 realistic board game recommendation queries focused on themes.
-Include: fantasy, sci-fi, horror, zombie, pirate, space, medieval, western, detective, nature,
-animals, food/cooking, trains, sports, war, ancient civilizations, mythology, steampunk, cyberpunk,
-post-apocalyptic, superhero, lovecraft/cthulhu, viking, dragon, spy/espionage.
-Mix in time constraints, player counts, and complexity preferences.
-Include 5 queries from non-native English speakers with unusual grammar.`,
+      category: 'Mechanics: Area/Tile/Draft/Other',
+      prompt: `Generate 50 realistic queries about area control, tile placement, drafting, set collection, push your luck, trick taking, roll and write, route building, auction, bag building, social deduction, hidden role, cooperative, dice rolling, hand management, legacy, campaign, real-time, dexterity, or programming mechanics. Every query unique. Mix phrasing styles. Include 10 with typos.`,
+    },
+
+    // ── Themes (100 queries) ──
+    {
+      category: 'Themes: Fantasy/Sci-Fi/Horror',
+      prompt: `Generate 50 realistic queries about fantasy, sci-fi, horror, zombie, lovecraft/cthulhu, dragon, vampire, werewolf, ghost, dungeon, magic, wizard, demon, angel, mythology, fairy tale themes. Mix with player counts, time limits, complexity. Include 8 with unusual grammar or ESL phrasing.`,
     },
     {
-      category: 'Player count queries',
-      prompt: `Generate 20 realistic board game recommendation queries focused on player counts.
-Cover: solo, 2-player, 3-player, 4-player, 5-6 player, 7+ player, large groups, couples,
-date night, family with kids, game night with friends.
-Mix casual and specific phrasing. Include 3 with typos.`,
+      category: 'Themes: Historical/Nature/Modern',
+      prompt: `Generate 50 realistic queries about medieval, viking, roman, egyptian, pirate, western, wild west, cowboy, war, WW2, vietnam, cold war, spy, detective, crime, nature, animals, dinosaur, ocean, space, steampunk, cyberpunk, post-apocalyptic, food, cooking, farming, trains, racing, sports, city building themes. Every query unique. Include 8 ESL/typo variants.`,
+    },
+
+    // ── Player Counts (60 queries) ──
+    {
+      category: 'Player counts: Solo to 4',
+      prompt: `Generate 30 realistic queries focused on solo play, 2-player, couples, date night, 3-player, 4-player game night. Mix themes and mechanics in naturally. "me and my wife want...", "just me alone on a friday night", "exactly 3 of us". Include 5 with typos.`,
     },
     {
-      category: 'Time and complexity queries',
-      prompt: `Generate 20 realistic queries with time or complexity constraints.
-Cover: under 15 min, under 30 min, about an hour, 2+ hours, quick filler, all day,
-light/easy, medium weight, heavy/complex, gateway games, games for non-gamers,
-brain-burning strategy, simple rules deep gameplay.
-Include 3 queries with informal time descriptions ("quickie", "marathon", "something fast").`,
+      category: 'Player counts: 5+ and groups',
+      prompt: `Generate 30 realistic queries focused on 5-6 players, 7+ players, large groups, party games, family gatherings, work events, bachelor parties, holiday dinners, classroom games. Include 5 with informal language or slang.`,
+    },
+
+    // ── Time and Complexity (60 queries) ──
+    {
+      category: 'Time constraints',
+      prompt: `Generate 30 realistic queries with specific time constraints. Cover: under 10 min, under 15 min, under 30 min, about 45 min, about an hour, 90 minutes, 2 hours, 3+ hours, all day, quick filler between games, lunch break game, airport game. Use varied phrasing: "quickie", "marathon session", "we only got 20 min", "something we can knock out fast". Include 5 typo variants.`,
     },
     {
-      category: 'Mood and occasion queries',
-      prompt: `Generate 20 realistic queries about moods or occasions.
-Cover: date night, rainy day, camping, road trip, thanksgiving, halloween,
-game night, work team building, kids birthday, bachelor party, lazy sunday,
-competitive, relaxing, stressful (want to destress), celebratory, educational.
-Include varied phrasing and 3 with emoji or internet slang.`,
+      category: 'Complexity levels',
+      prompt: `Generate 30 realistic queries about complexity. Cover: extremely simple, for toddlers, for kids, for grandma, gateway games, games for people who don't play games, medium weight, heavy euro, brain burner, 18xx complexity, Lacerda-level, simple rules but deep strategy, easy to teach hard to master, no rulebook reading. Include 5 informal phrasing.`,
+    },
+
+    // ── Moods and Occasions (80 queries) ──
+    {
+      category: 'Moods',
+      prompt: `Generate 40 realistic queries about moods and feelings. Cover: relaxing, chill, cozy, intense, stressful, competitive, cutthroat, mean, friendly, collaborative, social, quiet, thinky, mindless, funny, hilarious, serious, dramatic, tense, suspenseful, satisfying, addictive, replayable, surprising, creative, educational, nostalgic, retro. Include 5 with emoji.`,
     },
     {
-      category: 'Comparison and reference queries',
-      prompt: `Generate 20 realistic queries that reference specific games.
-Cover: "something like Catan", "better than Monopoly", "if I liked Wingspan",
-"Catan but more complex", "like Ticket to Ride but shorter", "Gloomhaven lite",
-"the board game version of Stardew Valley", "like Risk but actually good",
-"Pandemic but competitive", "Azul but for 6 players".
-Include references to video games ("board game like Zelda", "tabletop Minecraft").`,
+      category: 'Occasions',
+      prompt: `Generate 40 realistic queries about specific occasions. Cover: date night, game night with friends, thanksgiving, christmas, halloween, new years eve, birthday party, kids sleepover, camping trip, road trip, flight/airport, waiting room, beach, park, bar/pub, coffee shop, office team building, classroom, retirement home, wedding reception, baby shower, super bowl party, rainy afternoon, snow day, power outage, first date, long distance relationship (online). Include 5 with slang.`,
+    },
+
+    // ── Comparisons and References (80 queries) ──
+    {
+      category: 'Board game comparisons',
+      prompt: `Generate 40 realistic queries that reference specific board games. Cover: "like Catan but X", "better than Monopoly", "similar to Pandemic", "Gloomhaven but shorter", "Wingspan for people who like X", "next step after Ticket to Ride", "if I love Azul", "Codenames but cooperative", "7 Wonders but simpler", "Terraforming Mars lite", "Spirit Island for beginners", "Root but less mean", comparisons between 2 games, "upgrade from X". Use real popular game names.`,
     },
     {
-      category: 'Weird and edge case queries',
-      prompt: `Generate 25 unusual, creative, or challenging queries.
-Include: extremely vague ("something fun"), overly specific ("game with blue meeples about farming in 17th century France for exactly 3 players"),
-emoji-heavy, sarcastic, questions ("what's the best game ever?"), negative ("I hate everything popular"),
-non-English words mixed in, extremely long run-on sentences, single-word queries ("dragons"),
-queries that aren't about games at all ("I want pizza"), pop culture references,
-queries about games that don't exist, requests for very niche combinations.`,
+      category: 'Video game to board game',
+      prompt: `Generate 40 realistic queries referencing video games or pop culture. Cover: "board game like Zelda", "tabletop Minecraft", "Stardew Valley board game", "Dark Souls but a board game", "something like Civilization the video game", "board game version of Among Us", "like Slay the Spire", "Pokemon but tabletop", "Fire Emblem board game", "like XCOM", references to movies (Star Wars, Lord of the Rings, Marvel, Game of Thrones), TV shows (Stranger Things, Breaking Bad, Yellowstone), books (Dune, Harry Potter). Include 5 with typos.`,
+    },
+
+    // ── Weird/Edge Cases (80 queries) ──
+    {
+      category: 'Extremely vague queries',
+      prompt: `Generate 20 extremely vague or minimal queries. Single words ("dragons", "fun", "strategy", "cards"), short phrases ("something good", "the best one", "idk surprise me", "whatever", "anything really"), philosophical ("what is the meaning of board games"), meta ("recommend me a recommendation"), emoji-only, just punctuation, blank-adjacent.`,
     },
     {
-      category: 'Negative preference queries',
-      prompt: `Generate 15 queries with explicit negative preferences.
-Cover: "no dice", "not cooperative", "anything but Catan", "no luck",
-"no player elimination", "nothing longer than 30 min", "not a card game",
-"no fantasy theme", "something without too many rules",
-"I don't want to read a rulebook for an hour".`,
+      category: 'Extremely specific queries',
+      prompt: `Generate 20 extremely specific or unusual queries. Overly detailed ("game with blue and yellow wooden meeples set in 17th century France involving wine production for exactly 3 players that takes 90 minutes"), niche combinations ("cooperative pirate deckbuilder with dice for 2"), impossible requests ("board game with no components"), contradictions ("competitive cooperative solo game"), very long run-on sentences.`,
     },
     {
-      category: 'ESL and typo queries',
-      prompt: `Generate 20 queries that simulate non-native English speakers or people typing quickly.
-Include: misspellings ("stratagy", "cooperativ", "deck bilder"), broken grammar,
-mixed languages (Spanglish, Franglais), autocorrect errors, missing spaces,
-abbreviated text-speak ("2p strat game 30min"), excessive punctuation,
-ALL CAPS, no punctuation at all, stream of consciousness.`,
+      category: 'Sarcastic and hostile queries',
+      prompt: `Generate 20 sarcastic, skeptical, or hostile queries. "all board games are boring change my mind", "my wife hates games, find one she won't", "something for people who think they're too cool for board games", "a game that won't make me fall asleep", "not another boring eurogame", "games for people who actually have friends", "something my gamer friend will shut up about", "the most overrated game".`,
+    },
+    {
+      category: 'Non-game queries and nonsense',
+      prompt: `Generate 20 queries that aren't really about games or are nonsensical. "I want pizza", "how do I fix my car", "best restaurant near me", "asdfghjkl", random characters, song lyrics, movie quotes, other languages entirely (Japanese, Spanish, Arabic), math equations, code snippets. The engine should still return SOMETHING reasonable or handle gracefully.`,
+    },
+
+    // ── Negative Preferences (40 queries) ──
+    {
+      category: 'Negative preferences: mechanics',
+      prompt: `Generate 20 queries with explicit negative mechanic preferences. "no dice", "no luck", "not cooperative", "anything without worker placement", "no card games", "hate deck building", "nothing with area control", "no hidden traitor", "something without auctions", "no player elimination", "nothing with a board". Include 3 with informal phrasing.`,
+    },
+    {
+      category: 'Negative preferences: themes and constraints',
+      prompt: `Generate 20 queries with negative theme or constraint preferences. "no fantasy", "nothing with zombies", "not a war game", "no sci-fi", "anything but Catan", "nothing longer than 20 minutes", "I hate party games", "nothing for kids", "no miniatures games too expensive", "nothing that takes forever to set up", "no games with a million expansions", "don't want to think too hard". Include 3 with typos.`,
+    },
+
+    // ── ESL/Typos/Accessibility (100 queries) ──
+    {
+      category: 'ESL: Spanish/Portuguese speakers',
+      prompt: `Generate 25 queries from Spanish or Portuguese speaking users typing in English. Include Spanglish ("juego de estrategia for 2 players"), direct translations that sound awkward ("game of building of cities"), wrong prepositions, missing articles, gender-confused adjectives. Cover varied game interests.`,
+    },
+    {
+      category: 'ESL: Asian language speakers',
+      prompt: `Generate 25 queries from Chinese, Japanese, or Korean speakers typing in English. Include: literal translations, unusual word order, missing plurals, mixed scripts, romanized words mixed in, very formal phrasing, very short telegraphic style. Cover varied game interests.`,
+    },
+    {
+      category: 'Typos and autocorrect',
+      prompt: `Generate 25 queries with realistic typos and autocorrect errors. "stratagy", "cooperativ", "deck bilder", "dungeoncrawler", "2plyer", phone keyboard adjacent-key errors, autocorrect changing game names ("Catalan" instead of "Catan", "Wing spam" instead of "Wingspan"), missing spaces, double letters, swapped letters.`,
+    },
+    {
+      category: 'Text-speak and abbreviations',
+      prompt: `Generate 25 queries in text-speak or heavily abbreviated. "2p strat 30min", "coop 4p horror", "smth like catan but better lol", "quick game 4 lunch break pls", "need rec asap", "any1 kno good solo games??", ALL CAPS, no caps, excessive exclamation, hashtags, "ngl i just want smth fun".`,
+    },
+
+    // ── Multi-constraint queries (60 queries) ──
+    {
+      category: 'Multi-constraint: 2-3 constraints',
+      prompt: `Generate 30 queries combining 2-3 specific constraints. "2 player cooperative under 30 min", "heavy strategy for 4 about ancient Rome", "quick party game for 8 people that's funny", "solo deck builder about space", "family game with tile placement under 45 min". Every combination should be different.`,
+    },
+    {
+      category: 'Multi-constraint: 4+ constraints',
+      prompt: `Generate 30 queries combining 4+ specific constraints. "2 player competitive area control about medieval warfare under an hour with miniatures", "cooperative fantasy dungeon crawler for 3-5 players between 1-2 hours medium complexity", "quick light party game for 6+ that involves bluffing and is funny". These should be realistic things someone would actually type.`,
     },
   ];
 
