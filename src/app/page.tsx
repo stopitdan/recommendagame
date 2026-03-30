@@ -25,6 +25,7 @@ import MagneticButton from "@/components/landing/MagneticButton";
 import JsonLd from "@/components/JsonLd";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import DailyPick from "@/components/DailyPick";
+import TrendingGames from "@/components/TrendingGames";
 import { Puzzle, Gamepad2, PartyPopper, Brain } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -570,6 +571,13 @@ export default function Home() {
       <Box sx={{ py: { xs: 4, md: 6 }, bgcolor: "background.default" }}>
         <Section>
           <QuickCollections />
+        </Section>
+      </Box>
+
+      {/* ═══════════ TRENDING ═══════════ */}
+      <Box sx={{ py: { xs: 4, md: 6 }, bgcolor: "background.default" }}>
+        <Section>
+          <TrendingGames />
         </Section>
       </Box>
 

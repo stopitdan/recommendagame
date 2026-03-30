@@ -6,13 +6,14 @@ import CardActionArea from '@mui/material/CardActionArea';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import type { GameType } from '@/types/game';
+import { getGameTypeConfig } from '@/lib/game-type-config';
 
-const OPTIONS: { value: GameType | null; label: string; description: string; emoji: string }[] = [
-  { value: 'board', label: 'Board Game', description: 'Tabletop, cards, dice', emoji: '♟️' },
-  { value: 'video', label: 'Video Game', description: 'PC, console, mobile', emoji: '🎮' },
-  { value: 'word', label: 'Word Game', description: 'Wordle, Scrabble, puzzles', emoji: '🔤' },
-  { value: 'party', label: 'Party Game', description: 'Groups, laughs, no equipment', emoji: '🎉' },
-  { value: null, label: 'Surprise Me', description: 'Show me anything good', emoji: '🎲' },
+const OPTIONS: { value: GameType | null; label: string; description: string; emoji: string; color: string }[] = [
+  { value: 'board', label: 'Board Game', description: 'Tabletop, cards, dice', emoji: '♟️', color: getGameTypeConfig('board').color },
+  { value: 'video', label: 'Video Game', description: 'PC, console, mobile', emoji: '🎮', color: getGameTypeConfig('video').color },
+  { value: 'word', label: 'Word Game', description: 'Wordle, Scrabble, puzzles', emoji: '🔤', color: getGameTypeConfig('word').color },
+  { value: 'party', label: 'Party Game', description: 'Groups, laughs, no equipment', emoji: '🎉', color: getGameTypeConfig('party').color },
+  { value: null, label: 'Surprise Me', description: 'Show me anything good', emoji: '🎲', color: '#5B4FDB' },
 ];
 
 export interface GameTypeStepProps {
@@ -47,12 +48,12 @@ export default function GameTypeStep({ value, onChange }: GameTypeStepProps) {
             key={option.label}
             variant={isSelected ? 'elevation' : 'outlined'}
             sx={{
-              borderColor: isSelected ? 'primary.main' : undefined,
+              borderColor: isSelected ? option.color : undefined,
               borderWidth: isSelected ? 2 : 1,
-              bgcolor: isSelected ? 'rgba(91, 79, 219, 0.06)' : undefined,
+              bgcolor: isSelected ? `${option.color}0F` : undefined,
               transition: 'all 200ms ease',
               transform: isSelected ? 'scale(1.02)' : 'scale(1)',
-              boxShadow: isSelected ? '0 4px 16px rgba(91, 79, 219, 0.2)' : undefined,
+              boxShadow: isSelected ? `0 4px 16px ${option.color}33` : undefined,
             }}
           >
             <CardActionArea onClick={() => handleClick(option.value)} sx={{ p: 1 }}>

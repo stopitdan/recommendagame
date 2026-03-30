@@ -18,7 +18,7 @@ import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { Heart, Star, ClipboardList, Package, Puzzle } from 'lucide-react';
+import { Heart, Star, ClipboardList, Package, Puzzle, Gamepad2 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import GameCard from '@/components/GameCard';
 import type { Game } from '@/types/game';
@@ -69,6 +69,11 @@ export default function ProfileHub() {
   const [bggSyncing, setBggSyncing] = useState(false);
   const [bggResult, setBggResult] = useState<string | null>(null);
 
+  // Steam sync state
+  const [steamInput, setSteamInput] = useState('');
+  const [steamSyncing, setSteamSyncing] = useState(false);
+  const [steamResult, setSteamResult] = useState<string | null>(null);
+
   async function handleBggSync() {
     const name = bggUsername.trim().replace(/^@/, '');
     if (!name) return;
@@ -94,6 +99,33 @@ export default function ProfileHub() {
       setBggResult('Sync failed. Check your username.');
     } finally {
       setBggSyncing(false);
+    }
+  }
+
+  async function handleSteamSync() {
+    const input = steamInput.trim();
+    if (!input) return;
+    setSteamSyncing(true);
+    setSteamResult(null);
+    try {
+      const res = await fetch('/api/sync/steam', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ steamInput: input }),
+      });
+      const json = await res.json();
+      setSteamResult(json.message ?? (res.ok ? 'Synced!' : json.error ?? 'Sync failed'));
+      if (res.ok) {
+        const ownedRes = await fetch('/api/owned');
+        if (ownedRes.ok) {
+          const ownedData = await ownedRes.json();
+          setOwnedGames(ownedData.owned ?? []);
+        }
+      }
+    } catch {
+      setSteamResult('Sync failed. Check your Steam profile URL or ID.');
+    } finally {
+      setSteamSyncing(false);
     }
   }
 
@@ -268,6 +300,38 @@ export default function ProfileHub() {
             {bggResult && (
               <Alert severity={bggResult.includes('Imported') || bggResult.includes('Synced') ? 'success' : 'error'} sx={{ mx: 2, mb: 2 }}>
                 {bggResult}
+              </Alert>
+            )}
+          </Card>
+
+          {/* Steam sync */}
+          <Card variant="outlined" sx={{ borderColor: 'divider' }}>
+            <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+              <Box sx={{ color: '#FF6D3F', display: 'flex' }}><Gamepad2 size={20} /></Box>
+              <Typography variant="body2" sx={{ flex: 1, minWidth: 200 }}>
+                Import your Steam library (profile must be public)
+              </Typography>
+              <TextField
+                size="small"
+                placeholder="Steam ID or profile URL"
+                value={steamInput}
+                onChange={(e) => setSteamInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSteamSync()}
+                sx={{ width: 200 }}
+              />
+              <Button
+                variant="contained"
+                size="small"
+                onClick={handleSteamSync}
+                disabled={steamSyncing || !steamInput.trim()}
+                sx={{ textTransform: 'none', fontWeight: 600, whiteSpace: 'nowrap', bgcolor: '#FF6D3F', '&:hover': { bgcolor: '#E85A2E' } }}
+              >
+                {steamSyncing ? 'Syncing...' : 'Sync'}
+              </Button>
+            </CardContent>
+            {steamResult && (
+              <Alert severity={steamResult.includes('Imported') || steamResult.includes('Synced') ? 'success' : 'error'} sx={{ mx: 2, mb: 2 }}>
+                {steamResult}
               </Alert>
             )}
           </Card>

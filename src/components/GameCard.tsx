@@ -11,7 +11,10 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import type { Game } from '@/types/game';
 import { formatGameType } from '@/lib/utils/format';
-import { ShoppingCart } from 'lucide-react';
+import { getPrimaryTypeConfig } from '@/lib/game-type-config';
+import { Puzzle, Gamepad2, Type, PartyPopper } from 'lucide-react';
+import BuyOptions from './BuyOptions';
+import Tooltip from '@mui/material/Tooltip';
 import AnimatedRating from './AnimatedRating';
 import FavoriteButton from './FavoriteButton';
 import GameCardActions from './GameCardActions';
@@ -27,10 +30,21 @@ export interface GameCardProps {
   onMoreLikeThis?: (gameId: string) => void;
   /** Index for staggered reveal animation (optional) */
   index?: number;
+  /** Recommendation reasons to show below description */
+  reasons?: string[];
 }
 
-export default function GameCard({ game, showFavorite = true, isFavorited = false, onFavoriteToggle, showActions = false, onDismiss, onMoreLikeThis, index }: GameCardProps) {
+const TYPE_ICONS: Record<string, React.ReactNode> = {
+  board: <Puzzle size={14} />,
+  video: <Gamepad2 size={14} />,
+  word: <Type size={14} />,
+  party: <PartyPopper size={14} />,
+  card: <Puzzle size={14} />,
+};
+
+export default function GameCard({ game, showFavorite = true, isFavorited = false, onFavoriteToggle, showActions = false, onDismiss, onMoreLikeThis, index, reasons }: GameCardProps) {
   const router = useRouter();
+  const typeConfig = getPrimaryTypeConfig(game.types);
   const details: string[] = [];
   if (game.playerCount) {
     const { min, max } = game.playerCount;
@@ -71,9 +85,12 @@ export default function GameCard({ game, showFavorite = true, isFavorited = fals
         display: 'flex',
         flexDirection: { xs: 'column', sm: 'row' },
         cursor: 'pointer',
+        position: 'relative',
+        borderLeft: `4px solid ${typeConfig.color}`,
+        bgcolor: (theme) => theme.palette.mode === 'dark' ? typeConfig.tintDark : typeConfig.tintLight,
         transition: 'box-shadow 150ms ease, transform 150ms ease',
         '&:hover': {
-          boxShadow: 4,
+          boxShadow: `0 6px 20px ${typeConfig.color}22`,
           transform: 'translateY(-2px)',
         },
         '&:active': {
@@ -81,6 +98,31 @@ export default function GameCard({ game, showFavorite = true, isFavorited = fals
         },
       }}
     >
+      {/* Game type icon badge */}
+      <Tooltip title={typeConfig.label} arrow>
+        <Box
+          aria-label={typeConfig.label}
+          sx={{
+            position: 'absolute',
+            top: 8,
+            right: 8,
+            zIndex: 1,
+            width: 28,
+            height: 28,
+            borderRadius: '50%',
+            bgcolor: typeConfig.color,
+            color: '#FFFFFF',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: 0.85,
+            transition: 'opacity 150ms ease',
+            '&:hover': { opacity: 1 },
+          }}
+        >
+          {TYPE_ICONS[game.types[0]] ?? TYPE_ICONS.board}
+        </Box>
+      </Tooltip>
       {game.imageUrl && (
         <CardMedia
           component="img"
@@ -144,25 +186,17 @@ export default function GameCard({ game, showFavorite = true, isFavorited = fals
             </Typography>
           )}
 
+          {reasons && reasons.length > 0 && (
+            <Typography variant="caption" sx={{ fontStyle: 'italic', color: 'text.secondary', lineHeight: 1.4 }}>
+              {reasons.slice(0, 2).join(' · ')}
+            </Typography>
+          )}
+
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5, alignItems: 'center' }}>
-            {game.types.map((t) => (
-              <Chip key={t} label={formatGameType(t)} size="small" variant="outlined" />
-            ))}
-            {game.categories.slice(0, 3).map((c) => (
+            {game.categories.slice(0, 4).map((c) => (
               <Chip key={c} label={c} size="small" />
             ))}
-            <Chip
-              component="a"
-              href={`https://www.amazon.com/s?k=${encodeURIComponent(game.name)}&tag=boredgame-20`}
-              target="_blank"
-              rel="noopener noreferrer"
-              icon={<ShoppingCart size={12} /> as React.ReactElement}
-              label="Buy"
-              size="small"
-              color="secondary"
-              variant="outlined"
-              clickable
-              sx={{ ml: 'auto' }}
+            <BuyOptions game={game}
             />
           </Box>
         </Stack>

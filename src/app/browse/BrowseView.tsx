@@ -24,7 +24,8 @@ import FeedbackButton from '@/components/FeedbackButton';
 import GameCard from '@/components/GameCard';
 import { GameCardSkeletonList } from '@/components/GameCardSkeleton';
 import GameLoader from '@/components/GameLoader';
-import type { Game } from '@/types/game';
+import type { Game, GameType } from '@/types/game';
+import { getGameTypeConfig } from '@/lib/game-type-config';
 import { CATEGORY_OPTIONS, MECHANIC_OPTIONS, THEME_OPTIONS, PLATFORM_OPTIONS } from '@/lib/filter-options';
 import { useAchievements } from '@/components/AchievementToast';
 
@@ -226,22 +227,33 @@ export default function BrowseView() {
         {/* Quick type filters */}
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
           {([
-            { label: 'All', value: null, icon: <Dice5 size={14} /> },
-            { label: 'Board Games', value: 'board', icon: <Puzzle size={14} /> },
-            { label: 'Video Games', value: 'video', icon: <Gamepad2 size={14} /> },
-            { label: 'Word Games', value: 'word', icon: <Type size={14} /> },
-            { label: 'Party Games', value: 'party', icon: <PartyPopper size={14} /> },
-          ] as const).map((t) => (
-            <Chip
-              key={t.label}
-              icon={t.icon as React.ReactElement}
-              label={t.label}
-              onClick={() => updateAndApply({ type: t.value })}
-              color={af.type === t.value || (!af.type && !t.value) ? 'primary' : 'default'}
-              variant={af.type === t.value || (!af.type && !t.value) ? 'filled' : 'outlined'}
-              sx={{ transition: 'all 200ms ease' }}
-            />
-          ))}
+            { label: 'All', value: null as string | null, icon: <Dice5 size={14} /> },
+            { label: 'Board Games', value: 'board' as string | null, icon: <Puzzle size={14} /> },
+            { label: 'Video Games', value: 'video' as string | null, icon: <Gamepad2 size={14} /> },
+            { label: 'Word Games', value: 'word' as string | null, icon: <Type size={14} /> },
+            { label: 'Party Games', value: 'party' as string | null, icon: <PartyPopper size={14} /> },
+          ]).map((t) => {
+            const isActive = af.type === t.value || (!af.type && !t.value);
+            const typeColor = t.value ? getGameTypeConfig(t.value as GameType).color : undefined;
+            return (
+              <Chip
+                key={t.label}
+                icon={t.icon as React.ReactElement}
+                label={t.label}
+                onClick={() => updateAndApply({ type: t.value })}
+                variant={isActive ? 'filled' : 'outlined'}
+                sx={{
+                  transition: 'all 200ms ease',
+                  ...(isActive && typeColor ? {
+                    bgcolor: typeColor,
+                    color: '#FFFFFF',
+                    borderColor: typeColor,
+                    '&:hover': { bgcolor: typeColor, opacity: 0.9 },
+                  } : {}),
+                }}
+              />
+            );
+          })}
         </Box>
 
         {/* Search + Sort + Filter toggle */}

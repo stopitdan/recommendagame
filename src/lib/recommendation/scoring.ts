@@ -898,8 +898,8 @@ function generateReasons(
     else reasons.push('Deep and complex — a real brain workout');
   }
 
-  // Genre match
-  if (breakdown.genreMatch >= 0.6 && prefs.genres.length > 0) {
+  // Genre match (lowered threshold from 0.6 to 0.4 so more games get specific reasons)
+  if (breakdown.genreMatch >= 0.4 && prefs.genres.length > 0) {
     const matchedGenres = prefs.genres.filter((genre) => {
       const lower = genre.toLowerCase();
       return [...game.categories, ...game.mechanics, ...game.themes]
@@ -911,7 +911,7 @@ function generateReasons(
   }
 
   // Free text match
-  if (breakdown.freeTextMatch >= 0.5 && prefs.freeText && prefs.freeText.trim()) {
+  if (breakdown.freeTextMatch >= 0.3 && prefs.freeText && prefs.freeText.trim()) {
     const keywords = extractKeywords(prefs.freeText);
     const gameTags = [...game.categories, ...game.mechanics, ...game.themes].map((t) => t.toLowerCase());
     const matched = keywords.filter((kw) =>
@@ -937,24 +937,40 @@ function generateReasons(
     if (matched) reasons.push(`Fits the ${moodLabels[matched]} vibe you're after`);
   }
 
+  // BGG rank -- a strong trust signal
+  if (game.rankOverall && game.rankOverall > 0 && game.rankOverall <= 100) {
+    reasons.push(`A modern classic -- BGG rank #${game.rankOverall}`);
+  } else if (game.rankOverall && game.rankOverall > 100 && game.rankOverall <= 500) {
+    reasons.push(`Highly regarded -- BGG top 500`);
+  }
+
+  // Hidden gem signal
+  if (game.rating && game.rating >= 7.5 && (game.ratingCount ?? 0) < 2000 && (game.ratingCount ?? 0) >= 20) {
+    reasons.push(`A hidden gem -- loved by those who've played it`);
+  }
+
+  // Designer signal
+  if (game.designers?.length && game.designers[0] && game.rating && game.rating >= 7.0) {
+    reasons.push(`From designer ${game.designers[0]}`);
+  }
+
   // Recency
   if (breakdown.recencyBoost >= 0.85 && game.yearPublished) {
     const currentYear = new Date().getFullYear();
     if (game.yearPublished >= currentYear) {
-      reasons.push(`Brand new — released in ${game.yearPublished}`);
+      reasons.push(`Brand new -- released in ${game.yearPublished}`);
     } else if (game.yearPublished >= currentYear - 1) {
       reasons.push(`Recently released (${game.yearPublished})`);
     }
   }
 
-  // Quality
-  if (breakdown.qualitySignal >= 0.75 && game.rating != null) {
-    reasons.push(`Rated ${game.rating.toFixed(1)}/10 by the community`);
-  }
-
-  // Fallback: always have at least one reason
+  // Fallback: mention a category or mechanic even if below scoring threshold
   if (reasons.length === 0) {
-    if (game.rating && game.rating >= 7.0) {
+    if (game.mechanics.length > 0) {
+      reasons.push(`Features ${game.mechanics[0]}`);
+    } else if (game.categories.length > 0) {
+      reasons.push(`A ${game.categories[0]} game`);
+    } else if (game.rating && game.rating >= 7.0) {
       reasons.push(`Highly rated at ${game.rating.toFixed(1)}/10`);
     } else {
       reasons.push('Matches your overall preferences');

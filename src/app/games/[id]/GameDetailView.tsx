@@ -19,6 +19,12 @@ import ReviewList from '@/components/ReviewList';
 import SimilarGames from '@/components/SimilarGames';
 import type { Game } from '@/types/game';
 import { formatGameType } from '@/lib/utils/format';
+import { getPrimaryTypeConfig } from '@/lib/game-type-config';
+import { Puzzle, Gamepad2, Type as TypeIcon, PartyPopper } from 'lucide-react';
+import MechanicChip from '@/components/MechanicChip';
+import ReportIssueButton from '@/components/ReportIssueButton';
+import QuickStartGuide from '@/components/QuickStartGuide';
+import GameNeighborhood from '@/components/GameNeighborhood';
 import JsonLd from '@/components/JsonLd';
 import { Users, Clock, Brain, Calendar, BarChart3, ExternalLink, ShoppingCart, Trophy, UserCheck } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -165,9 +171,25 @@ export default function GameDetailView() {
                 {game.name}
               </Typography>
               <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 1 }}>
-                {game.types.map((t) => (
-                  <Chip key={t} label={formatGameType(t)} size="small" variant="outlined" />
-                ))}
+                {game.types.map((t) => {
+                  const cfg = getPrimaryTypeConfig([t]);
+                  const icons: Record<string, React.ReactNode> = {
+                    board: <Puzzle size={14} />,
+                    video: <Gamepad2 size={14} />,
+                    word: <TypeIcon size={14} />,
+                    party: <PartyPopper size={14} />,
+                    card: <Puzzle size={14} />,
+                  };
+                  return (
+                    <Chip
+                      key={t}
+                      icon={icons[t] as React.ReactElement}
+                      label={formatGameType(t)}
+                      size="small"
+                      sx={{ bgcolor: cfg.color, color: '#FFFFFF', fontWeight: 600 }}
+                    />
+                  );
+                })}
               </Box>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
@@ -180,6 +202,7 @@ export default function GameDetailView() {
               <FavoriteButton gameId={game.id} />
               <OwnedButton gameId={game.id} />
               <ShareInviteButton gameId={game.id} gameName={game.name} />
+              <ReportIssueButton game={game} />
             </Box>
           </Box>
 
@@ -301,6 +324,16 @@ export default function GameDetailView() {
         </Box>
       )}
 
+      {/* Quick Start Guide (AI-generated) */}
+      <Box sx={{ mb: 4 }}>
+        <QuickStartGuide
+          gameId={game.id}
+          gameName={game.name}
+          hasDescription={(game.description?.length ?? 0) > 100}
+          mechanicCount={game.mechanics.length}
+        />
+      </Box>
+
       {/* Categories & Mechanics */}
       {(game.categories.length > 0 || game.mechanics.length > 0) && (
         <Box sx={{ mb: 4 }}>
@@ -323,7 +356,7 @@ export default function GameDetailView() {
               </Typography>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                 {game.mechanics.map((m) => (
-                  <Chip key={m} label={m} size="small" variant="outlined" clickable onClick={() => router.push(`/browse?mechanic=${encodeURIComponent(m)}`)} />
+                  <MechanicChip key={m} name={m} />
                 ))}
               </Box>
             </Box>
@@ -378,6 +411,14 @@ export default function GameDetailView() {
       </Box>
 
       <Divider sx={{ my: 4 }} />
+
+      {/* Game neighborhood map */}
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
+          Game Neighborhood
+        </Typography>
+        <GameNeighborhood gameId={game.id} />
+      </Box>
 
       {/* Similar games */}
       <Box sx={{ mb: 4 }}>

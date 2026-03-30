@@ -28,10 +28,13 @@ import type { GameType } from '@/types/game';
 import { incrementRecommendCount } from '@/lib/guest';
 import { useAchievements } from '@/components/AchievementToast';
 import { CATEGORY_OPTIONS, MECHANIC_OPTIONS, THEME_OPTIONS, PLATFORM_OPTIONS } from '@/lib/filter-options';
+import { getGameTypeConfig } from '@/lib/game-type-config';
 import { createClient } from '@/lib/supabase/client';
 import { Save, Dice5, Puzzle, Gamepad2, Type, PartyPopper, Library } from 'lucide-react';
 import ShareResultsButton from '@/components/ShareResultsButton';
 import FeedbackButton from '@/components/FeedbackButton';
+import FloatingFeedbackButton from '@/components/FloatingFeedbackButton';
+import ResultsFeedbackPrompt from '@/components/ResultsFeedbackPrompt';
 import LoginPromptBanner from '@/components/LoginPromptBanner';
 
 type PopularityMode = 'any' | 'hidden-gems';
@@ -432,16 +435,17 @@ export default function ResultsView() {
         {/* Game type quick filters */}
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
           {([
-            { label: 'All', value: null, icon: <Dice5 size={14} /> },
-            { label: 'Board', value: 'board', icon: <Puzzle size={14} /> },
-            { label: 'Video', value: 'video', icon: <Gamepad2 size={14} /> },
-            { label: 'Word', value: 'word', icon: <Type size={14} /> },
-            { label: 'Party', value: 'party', icon: <PartyPopper size={14} /> },
-          ] as const).map((t) => {
+            { label: 'All', value: null as string | null, icon: <Dice5 size={14} /> },
+            { label: 'Board', value: 'board' as string | null, icon: <Puzzle size={14} /> },
+            { label: 'Video', value: 'video' as string | null, icon: <Gamepad2 size={14} /> },
+            { label: 'Word', value: 'word' as string | null, icon: <Type size={14} /> },
+            { label: 'Party', value: 'party' as string | null, icon: <PartyPopper size={14} /> },
+          ]).map((t) => {
             const currentTypes = searchParams.get('types')?.split(',') ?? [];
             const isActive = t.value === null
               ? currentTypes.length === 0
               : currentTypes.includes(t.value);
+            const typeColor = t.value ? getGameTypeConfig(t.value as import('@/types/game').GameType).color : undefined;
             return (
               <Chip
                 key={t.label}
@@ -456,9 +460,14 @@ export default function ResultsView() {
                   }
                   router.push(`/results?${params.toString()}`);
                 }}
-                color={isActive ? 'primary' : 'default'}
                 variant={isActive ? 'filled' : 'outlined'}
                 size="small"
+                sx={isActive && typeColor ? {
+                  bgcolor: typeColor,
+                  color: '#FFFFFF',
+                  borderColor: typeColor,
+                  '&:hover': { bgcolor: typeColor, opacity: 0.9 },
+                } : {}}
               />
             );
           })}
@@ -707,41 +716,30 @@ export default function ResultsView() {
               showActions
               onDismiss={handleDismiss}
               onMoreLikeThis={handleMoreLikeThis}
+              reasons={game._reasons}
             />
-            {/* "Why we picked this" reasons + match score */}
-            {(game._reasons?.length || game._score) && (
-              <Box sx={{ px: 2, pb: 1, mt: -0.5 }}>
-                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap alignItems="center">
-                  {game._score != null && (
-                    <Chip
-                      label={`${Math.round(game._score * 100)}% match`}
-                      size="small"
-                      sx={{
-                        bgcolor: game._score >= 0.7 ? 'success.main'
-                          : game._score >= 0.4 ? 'warning.main'
-                          : 'text.disabled',
-                        color: '#fff',
-                        fontWeight: 700,
-                        fontSize: '0.7rem',
-                        height: 22,
-                      }}
-                    />
-                  )}
-                  {game._reasons?.map((reason, i) => (
-                    <Chip
-                      key={i}
-                      label={reason}
-                      size="small"
-                      variant="outlined"
-                      sx={{
-                        borderColor: 'info.main',
-                        color: 'text.secondary',
-                        fontSize: '0.75rem',
-                        height: 24,
-                      }}
-                    />
-                  ))}
-                </Stack>
+            {/* Match score badge */}
+            {game._score != null && (
+              <Box sx={{ px: 2, pb: 0.5, mt: -0.5 }}>
+                <Chip
+                  label={`${Math.round(game._score * 100)}% match`}
+                  size="small"
+                  sx={{
+                    bgcolor: game._score >= 0.7 ? 'success.main'
+                      : game._score >= 0.4 ? 'warning.main'
+                      : 'text.disabled',
+                    color: '#fff',
+                    fontWeight: 700,
+                    fontSize: '0.7rem',
+                    height: 22,
+                  }}
+                />
+              </Box>
+            )}
+            {/* Inline feedback prompt after 5th result */}
+            {i === 4 && (
+              <Box sx={{ my: 2 }}>
+                <ResultsFeedbackPrompt searchContext={freeText} />
               </Box>
             )}
           </Box>
@@ -790,6 +788,9 @@ export default function ResultsView() {
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4, mb: 2 }}>
         <FeedbackButton />
       </Box>
+
+      {/* Floating feedback FAB */}
+      <FloatingFeedbackButton searchContext={freeText} />
     </Container>
   );
 }
