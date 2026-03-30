@@ -104,7 +104,7 @@ export default function FavoriteButton({ gameId, initialFavorited = false, onTog
   }
 
   return (
-    <Tooltip title={favorited ? 'Remove from favorites' : 'Add to favorites'}>
+    <Tooltip title={favorited ? 'Remove from my collection' : 'Add to my collection'}>
       <IconButton
         onClick={toggle}
         disabled={loading}
