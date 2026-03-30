@@ -93,6 +93,15 @@ export interface Game {
 
   /** BGG's Bayesian-adjusted rating (dampened toward global mean) */
   bayesAvgRating?: number;
+
+  /** Game designers (e.g. ["Uwe Rosenberg", "Klaus Teuber"]) */
+  designers?: string[];
+
+  /** Game publishers (e.g. ["Stonemaier Games", "Fantasy Flight"]) */
+  publishers?: string[];
+
+  /** Number of users who have wishlisted this game */
+  numWish?: number;
 }
 
 /**

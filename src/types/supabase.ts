@@ -119,6 +119,9 @@ export interface GameRow {
   rank_overall: number | null;
   num_owned: number | null;
   bayes_avg_rating: number | null;
+  designers: string[];
+  publishers: string[];
+  num_wish: number | null;
   created_at: string;
   updated_at: string;
 }

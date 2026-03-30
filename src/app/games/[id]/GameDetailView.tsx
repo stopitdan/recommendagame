@@ -19,7 +19,7 @@ import SimilarGames from '@/components/SimilarGames';
 import type { Game } from '@/types/game';
 import { formatGameType } from '@/lib/utils/format';
 import JsonLd from '@/components/JsonLd';
-import { Users, Clock, Brain, Calendar, BarChart3, ExternalLink, ShoppingCart } from 'lucide-react';
+import { Users, Clock, Brain, Calendar, BarChart3, ExternalLink, ShoppingCart, Trophy, UserCheck } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 export default function GameDetailView() {
@@ -118,6 +118,12 @@ export default function GameDetailView() {
   if (game.ratingCount) {
     details.push({ label: 'Ratings', value: game.ratingCount.toLocaleString(), Icon: BarChart3 });
   }
+  if (game.rankOverall) {
+    details.push({ label: 'BGG Rank', value: `#${game.rankOverall.toLocaleString()} on BGG`, Icon: Trophy });
+  }
+  if (game.numOwned) {
+    details.push({ label: 'Owned', value: `${game.numOwned.toLocaleString()} owners`, Icon: UserCheck });
+  }
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
@@ -174,6 +180,24 @@ export default function GameDetailView() {
               <ShareInviteButton gameId={game.id} gameName={game.name} />
             </Box>
           </Box>
+
+          {/* Designers & Publishers */}
+          {(game.designers?.length || game.publishers?.length) && (
+            <Box>
+              {game.designers && game.designers.length > 0 && (
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                  Designed by {game.designers.join(', ')}
+                </Typography>
+              )}
+              {game.publishers && game.publishers.length > 0 && (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: game.designers?.length ? 0.5 : 0 }}>
+                  {game.publishers.map((pub) => (
+                    <Chip key={pub} label={pub} size="small" variant="outlined" sx={{ fontSize: '0.75rem' }} />
+                  ))}
+                </Box>
+              )}
+            </Box>
+          )}
 
           {/* Details grid */}
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
