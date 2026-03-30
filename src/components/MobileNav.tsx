@@ -13,7 +13,7 @@ import ListItemText from '@mui/material/ListItemText';
 import Typography from '@mui/material/Typography';
 import {
   Crosshair, Search, Dice5, Palette, Trophy, BookOpen,
-  User, Heart, ClipboardList, Settings,
+  User, Heart, ClipboardList, Settings, Package,
   LogIn, Sparkles, LogOut, Sun, Moon,
 } from 'lucide-react';
 import { logout } from '@/app/actions/auth';
@@ -35,6 +35,7 @@ const NAV_ITEMS: { label: string; href: string; icon: ReactNode }[] = [
 
 const USER_ITEMS: { label: string; href: string; icon: ReactNode }[] = [
   { label: 'My Profile', href: '/profile', icon: <User size={18} /> },
+  { label: 'My Collection', href: '/profile?tab=collection', icon: <Package size={18} /> },
   { label: 'Favorites', href: '/favorites', icon: <Heart size={18} /> },
   { label: 'Saved Presets', href: '/presets', icon: <ClipboardList size={18} /> },
   { label: 'Settings', href: '/settings', icon: <Settings size={18} /> },

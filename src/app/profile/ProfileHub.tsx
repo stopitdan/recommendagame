@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Alert from '@mui/material/Alert';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -15,8 +16,9 @@ import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
+import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { Heart, Star, ClipboardList, Package } from 'lucide-react';
+import { Heart, Star, ClipboardList, Package, Puzzle } from 'lucide-react';
 import type { ReactNode } from 'react';
 import GameCard from '@/components/GameCard';
 import type { Game } from '@/types/game';
@@ -50,13 +52,50 @@ interface ProfileData {
   }>;
 }
 
+const TAB_MAP: Record<string, number> = { collection: 0, favorites: 1, reviews: 2, presets: 3 };
+
 export default function ProfileHub() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [data, setData] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState(0);
+  const initialTab = TAB_MAP[searchParams.get('tab') ?? ''] ?? 0;
+  const [tab, setTab] = useState(initialTab);
   const [ownedGames, setOwnedGames] = useState<OwnedGame[]>([]);
   const [ownedLoading, setOwnedLoading] = useState(false);
+
+  // BGG sync state (inline on Collection tab)
+  const [bggUsername, setBggUsername] = useState('');
+  const [bggSyncing, setBggSyncing] = useState(false);
+  const [bggResult, setBggResult] = useState<string | null>(null);
+
+  async function handleBggSync() {
+    const name = bggUsername.trim().replace(/^@/, '');
+    if (!name) return;
+    setBggSyncing(true);
+    setBggResult(null);
+    try {
+      const res = await fetch('/api/bgg/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: name }),
+      });
+      const json = await res.json();
+      setBggResult(json.message ?? (res.ok ? 'Synced!' : 'Sync failed'));
+      // Refresh owned games after sync
+      if (res.ok) {
+        const ownedRes = await fetch('/api/owned');
+        if (ownedRes.ok) {
+          const ownedData = await ownedRes.json();
+          setOwnedGames(ownedData.owned ?? []);
+        }
+      }
+    } catch {
+      setBggResult('Sync failed. Check your username.');
+    } finally {
+      setBggSyncing(false);
+    }
+  }
 
   useEffect(() => {
     async function load() {
@@ -140,21 +179,24 @@ export default function ProfileHub() {
         </Button>
       </Box>
 
-      {/* Stats cards */}
+      {/* Stats cards — click to switch to the corresponding tab */}
       <Grid container spacing={2} sx={{ mb: 4 }}>
         {[
-          { value: ownedGames.length, label: 'Collection', icon: <Package size={24} /> as ReactNode, color: '#0EC6C6' },
-          { value: data.favoriteCount, label: 'Favorites', icon: <Heart size={24} /> as ReactNode, color: '#FF6D3F' },
-          { value: data.reviewCount, label: 'Reviews', icon: <Star size={24} /> as ReactNode, color: '#FFB020' },
-          { value: data.presetCount, label: 'Presets', icon: <ClipboardList size={24} /> as ReactNode, color: '#5B4FDB' },
+          { value: ownedGames.length, label: 'Collection', icon: <Package size={24} /> as ReactNode, color: '#0EC6C6', tabIndex: 0 },
+          { value: data.favoriteCount, label: 'Favorites', icon: <Heart size={24} /> as ReactNode, color: '#FF6D3F', tabIndex: 1 },
+          { value: data.reviewCount, label: 'Reviews', icon: <Star size={24} /> as ReactNode, color: '#FFB020', tabIndex: 2 },
+          { value: data.presetCount, label: 'Presets', icon: <ClipboardList size={24} /> as ReactNode, color: '#5B4FDB', tabIndex: 3 },
         ].map((stat) => (
           <Grid size={{ xs: 3 }} key={stat.label}>
             <Card
               variant="outlined"
+              onClick={() => setTab(stat.tabIndex)}
               sx={{
                 textAlign: 'center',
                 py: 2.5,
-                borderColor: 'divider',
+                cursor: 'pointer',
+                borderColor: tab === stat.tabIndex ? stat.color : 'divider',
+                boxShadow: tab === stat.tabIndex ? `0 4px 16px ${stat.color}20` : 'none',
                 transition: 'all 200ms',
                 '&:hover': { borderColor: stat.color, boxShadow: `0 4px 16px ${stat.color}20` },
               }}
@@ -196,17 +238,45 @@ export default function ProfileHub() {
       {/* My Collection tab */}
       {tab === 0 && (
         <Stack spacing={2}>
-          {ownedGames.length === 0 ? (
-            <Box sx={{ textAlign: 'center', py: 6 }}>
-              <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>
-                No games in your collection yet
+          {/* BGG sync — always shown on Collection tab */}
+          <Card variant="outlined" sx={{ borderColor: 'divider' }}>
+            <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+              <Box sx={{ color: '#0EC6C6', display: 'flex' }}><Puzzle size={20} /></Box>
+              <Typography variant="body2" sx={{ flex: 1, minWidth: 200 }}>
+                {ownedGames.length === 0
+                  ? 'Import your BoardGameGeek collection to get started'
+                  : 'Sync your BGG collection to keep it up to date'}
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Sync your BGG account in Settings, or click the package icon on any game to add it.
-              </Typography>
-              <Button variant="contained" onClick={() => router.push('/settings')}>
-                Connect BGG Account
+              <TextField
+                size="small"
+                placeholder="BGG username"
+                value={bggUsername}
+                onChange={(e) => setBggUsername(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleBggSync()}
+                sx={{ width: 180 }}
+              />
+              <Button
+                variant="contained"
+                size="small"
+                onClick={handleBggSync}
+                disabled={bggSyncing || !bggUsername.trim()}
+                sx={{ textTransform: 'none', fontWeight: 600, whiteSpace: 'nowrap' }}
+              >
+                {bggSyncing ? 'Syncing...' : 'Sync'}
               </Button>
+            </CardContent>
+            {bggResult && (
+              <Alert severity={bggResult.includes('Imported') || bggResult.includes('Synced') ? 'success' : 'error'} sx={{ mx: 2, mb: 2 }}>
+                {bggResult}
+              </Alert>
+            )}
+          </Card>
+
+          {ownedGames.length === 0 ? (
+            <Box sx={{ textAlign: 'center', py: 4 }}>
+              <Typography variant="body2" color="text.secondary">
+                You can also click the package icon on any game page to add it manually.
+              </Typography>
             </Box>
           ) : (
             <>

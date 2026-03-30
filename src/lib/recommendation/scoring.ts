@@ -75,22 +75,24 @@ export const DEFAULT_WEIGHTS: ScoringWeights = {
   recencyBoost: 0.03,    // Mild freshness boost
 };
 
+/**
+ * Hidden gems: high quality signal, near-zero popularity signal.
+ * We WANT obscure games that the few people who played them loved.
+ */
 export const HIDDEN_GEMS_WEIGHTS: ScoringWeights = {
   ...DEFAULT_WEIGHTS,
-  qualitySignal: 0.08,
-  popularitySignal: 0.01,
-  genreMatch: 0.24,
+  qualitySignal: 0.15,
+  popularitySignal: 0.00,
+  genreMatch: 0.22,
+  freeTextMatch: 0.16,
   recencyBoost: 0.05,
 };
 
-export const POPULAR_WEIGHTS: ScoringWeights = {
-  ...DEFAULT_WEIGHTS,
-  popularitySignal: 0.25,
-  qualitySignal: 0.05,
-  genreMatch: 0.16,
-  moodAlignment: 0.06,
-  recencyBoost: 0.02,
-};
+/**
+ * @deprecated Use DEFAULT_WEIGHTS instead. Kept for backwards compat
+ * with any code that references it during the transition.
+ */
+export const POPULAR_WEIGHTS: ScoringWeights = DEFAULT_WEIGHTS;
 
 // ─── Main Scoring Function ───────────────────────────────────
 

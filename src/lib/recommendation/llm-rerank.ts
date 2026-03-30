@@ -15,7 +15,7 @@ import OpenAI from 'openai';
 import type { ScoredGame } from './scoring';
 import type { QuestionnaireState } from '@/types/questionnaire';
 
-const RERANK_TIMEOUT_MS = 8000;
+const RERANK_TIMEOUT_MS = 6000;
 
 /**
  * Rerank the top candidates using GPT-4o.
@@ -50,22 +50,16 @@ export async function llmRerank(
   // For small candidate pools (e.g., user's collection), evaluate all of them.
   // For large pools, evaluate top 50 so the LLM sees well-known games that
   // rule-based scoring may have ranked at position 30-50.
-  const maxCandidates = candidates.length <= 75 ? candidates.length : 50;
+  const maxCandidates = candidates.length <= 60 ? candidates.length : 40;
   const gameSummaries = candidates.slice(0, maxCandidates).map((c, i) => {
     const g = c.game;
     const parts = [`${i + 1}. "${g.name}" [ID:${g.id}]`];
     if (g.playTime?.average) parts.push(`${g.playTime.average}min`);
-    else if (g.playTime?.max) parts.push(`${g.playTime.min}-${g.playTime.max}min`);
     if (g.playerCount) parts.push(`${g.playerCount.min}-${g.playerCount.max}p`);
-    if (g.complexity) parts.push(`complexity:${g.complexity.toFixed(1)}/5`);
-    if (g.rating) parts.push(`rating:${g.rating.toFixed(1)}`);
-    if (g.ratingCount) parts.push(`votes:${g.ratingCount >= 1000 ? `${Math.round(g.ratingCount / 1000)}k` : g.ratingCount}`);
-    if (g.categories.length > 0) parts.push(`categories:[${g.categories.slice(0, 5).join(',')}]`);
-    if (g.mechanics.length > 0) parts.push(`mechanics:[${g.mechanics.slice(0, 5).join(',')}]`);
-    if (g.description) {
-      const desc = g.description.slice(0, 120).replace(/\n/g, ' ');
-      parts.push(`"${desc}..."`);
-    }
+    if (g.complexity) parts.push(`wt:${g.complexity.toFixed(1)}`);
+    if (g.ratingCount) parts.push(`${g.ratingCount >= 1000 ? `${Math.round(g.ratingCount / 1000)}k` : g.ratingCount}votes`);
+    if (g.categories.length > 0) parts.push(g.categories.slice(0, 3).join(','));
+    if (g.mechanics.length > 0) parts.push(g.mechanics.slice(0, 3).join(','));
     return parts.join(' | ');
   }).join('\n');
 
@@ -94,9 +88,9 @@ Return ONLY a JSON object: {"ids": ["game-id-1", "game-id-2", ...]} with the ${l
     const openai = new OpenAI({ apiKey, timeout: RERANK_TIMEOUT_MS });
 
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o',
+      model: 'gpt-4o-mini',
       temperature: 0,
-      max_tokens: 300,
+      max_tokens: 200,
       response_format: { type: 'json_object' },
       messages: [{ role: 'user', content: prompt }],
     });

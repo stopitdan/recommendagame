@@ -57,6 +57,8 @@ const RULE_WEIGHT = 0.85;
 const SIMILARITY_WEIGHT = 0.15;
 
 type PopularityMode = 'popular' | 'any' | 'hidden-gems';
+// UI now only shows 'any' (default) and 'hidden-gems'.
+// 'popular' is kept for backwards compat but treated as 'any'.
 
 // ─── Caching ─────────────────────────────────────────────────
 
@@ -352,6 +354,18 @@ export async function POST(request: NextRequest) {
     // Step 2a: Hard constraint filtering — eliminate games that clearly violate preferences
     const beforeFilter = candidates.length;
     candidates = applyHardFilters(candidates, body);
+
+    // Hidden gems mode: also filter out well-known games that slipped in via
+    // vector/text/tag/mechanic searches (DB filters only apply to rating queries)
+    if (popularity === 'hidden-gems') {
+      candidates = candidates.filter((g) => {
+        const tooPopular = (g.ratingCount ?? 0) >= 2000;
+        const tooFamous = g.rankOverall != null && g.rankOverall > 0 && g.rankOverall <= 1000;
+        const tooLowRating = (g.rating ?? 0) < 7.0;
+        return !tooPopular && !tooFamous && !tooLowRating;
+      });
+    }
+
     console.log(`[Recommend] Hard filters: ${beforeFilter} → ${candidates.length} candidates`);
 
     // Step 2b: Rule-based scoring (fast, in-memory)
@@ -419,7 +433,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Step 5: LLM reranking — ask GPT-4o to pick the best matches from top 50 candidates
-    const reranked = await llmRerank(scored, body, Math.min(limit, scored.length <= 75 ? scored.length : 15));
+    const reranked = await llmRerank(scored, body, Math.min(limit, scored.length <= 60 ? scored.length : 15));
 
     // Step 6: Diversity re-ranking (prevent 20 strategy games in a row)
     const diversified = diversityRerank(reranked);
@@ -632,14 +646,16 @@ async function fetchCandidates(
     .eq('is_expansion', false);
 
   // ── Quality floor (always applied) ──
-  if (popularity === 'popular') {
-    query = query.gte('rating_count', 50);
-    query = query.gte('rating', 4.5);
-  } else if (popularity === 'hidden-gems') {
-    query = query.lt('rating_count', 5000);
-    query = query.gte('rating_count', 10);
-    query = query.gte('rating', 5.5);
+  if (popularity === 'hidden-gems') {
+    // Hidden gems: games with few ratings but those who played them loved them.
+    // Under 2000 ratings keeps out well-known games. 7.0+ rating ensures quality.
+    // No BGG top-1000 rank keeps out "famous" games. Min 20 ratings avoids noise.
+    query = query.lt('rating_count', 2000);
+    query = query.gte('rating_count', 20);
+    query = query.gte('rating', 7.0);
+    query = query.or('rank_overall.is.null,rank_overall.gt.1000');
   } else {
+    // Default: broad pool with basic quality floor
     query = query.gte('rating_count', 25);
   }
 
@@ -686,10 +702,9 @@ async function fetchCandidates(
     .not('rating', 'is', null)
     .eq('is_expansion', false);
 
-  if (popularity === 'popular') {
-    popQuery = popQuery.gte('rating_count', 50).gte('rating', 4.5);
-  } else if (popularity === 'hidden-gems') {
-    popQuery = popQuery.lt('rating_count', 5000).gte('rating_count', 10).gte('rating', 5.5);
+  if (popularity === 'hidden-gems') {
+    popQuery = popQuery.lt('rating_count', 2000).gte('rating_count', 20).gte('rating', 7.0);
+    popQuery = popQuery.or('rank_overall.is.null,rank_overall.gt.1000');
   } else {
     popQuery = popQuery.gte('rating_count', 25);
   }
@@ -1120,8 +1135,7 @@ function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T
 
 function getWeightsForMode(popularity: PopularityMode): ScoringWeights {
   switch (popularity) {
-    case 'popular': return POPULAR_WEIGHTS;
     case 'hidden-gems': return HIDDEN_GEMS_WEIGHTS;
-    default: return DEFAULT_WEIGHTS;
+    default: return DEFAULT_WEIGHTS; // 'any' and 'popular' both use default
   }
 }

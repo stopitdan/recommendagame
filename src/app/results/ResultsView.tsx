@@ -34,7 +34,7 @@ import ShareResultsButton from '@/components/ShareResultsButton';
 import FeedbackButton from '@/components/FeedbackButton';
 import LoginPromptBanner from '@/components/LoginPromptBanner';
 
-type PopularityMode = 'popular' | 'any' | 'hidden-gems';
+type PopularityMode = 'any' | 'hidden-gems';
 
 /** Game with recommendation metadata attached by the engine */
 interface RecommendedGame extends Game {
@@ -50,7 +50,7 @@ export default function ResultsView() {
   const [loading, setLoading] = useState(true);
   const [hasLoaded, setHasLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [popularity, setPopularity] = useState<PopularityMode>('popular');
+  const [popularity, setPopularity] = useState<PopularityMode>('any');
   const [engine, setEngine] = useState<string>('');
   const [totalCandidates, setTotalCandidates] = useState(0);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
@@ -95,7 +95,9 @@ export default function ResultsView() {
   // Refine filters — editing state (not applied until user clicks Apply or closes panel)
   // Player slider always starts wide (1-10) since the API already filters by the user's
   // declared group size. The refine slider is for further narrowing, not restating group size.
-  const [filterPlayers, setFilterPlayers] = useState<[number, number]>([1, 10]);
+  const initialMinPlayers = parseInt(searchParams.get('minPlayers') ?? '1', 10);
+  const initialMaxPlayers = parseInt(searchParams.get('maxPlayers') ?? '10', 10);
+  const [filterPlayers, setFilterPlayers] = useState<[number, number]>([initialMinPlayers, initialMaxPlayers]);
   const [filterTime, setFilterTime] = useState<[number, number]>([0, 300]);
   const [filterComplexity, setFilterComplexity] = useState<[number, number]>([
     parseFloat(searchParams.get('minComplexity') ?? '1'),
@@ -109,7 +111,7 @@ export default function ResultsView() {
 
   // Applied filters — what was last fetched (triggers re-fetch)
   const [appliedRefine, setAppliedRefine] = useState({
-    playerCount: [1, 10] as [number, number],
+    playerCount: [initialMinPlayers, initialMaxPlayers] as [number, number],
     time: [0, 300] as [number, number],
     complexity: [
       parseFloat(searchParams.get('minComplexity') ?? '1'),
@@ -479,7 +481,6 @@ export default function ResultsView() {
             Show:
           </Typography>
           {([
-            { mode: 'popular' as const, label: 'Popular' },
             { mode: 'any' as const, label: 'All' },
             { mode: 'hidden-gems' as const, label: 'Hidden Gems' },
           ]).map(({ mode, label }) => (
@@ -683,7 +684,7 @@ export default function ResultsView() {
               No games found matching your preferences
             </Typography>
             <Stack direction="row" spacing={2} justifyContent="center">
-              {popularity === 'popular' && (
+              {popularity === 'hidden-gems' && (
                 <Button variant="outlined" onClick={() => changePopularity('any')}>
                   Try including all games
                 </Button>

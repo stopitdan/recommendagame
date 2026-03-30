@@ -12,7 +12,7 @@ import ListItemText from '@mui/material/ListItemText';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
-import { User, Heart, ClipboardList, Settings, LogOut } from 'lucide-react';
+import { User, Heart, ClipboardList, Settings, LogOut, Package } from 'lucide-react';
 import { logout } from '@/app/actions/auth';
 
 export interface HeaderAuthProps {
@@ -105,6 +105,11 @@ export default function HeaderAuth({ isLoggedIn, email, displayName }: HeaderAut
           <MenuItem onClick={() => router.push('/profile')}>
             <ListItemIcon sx={{ minWidth: 32 }}><User size={18} /></ListItemIcon>
             <ListItemText>My Profile</ListItemText>
+          </MenuItem>
+
+          <MenuItem onClick={() => router.push('/profile?tab=collection')}>
+            <ListItemIcon sx={{ minWidth: 32 }}><Package size={18} /></ListItemIcon>
+            <ListItemText>My Collection</ListItemText>
           </MenuItem>
 
           <MenuItem onClick={() => router.push('/favorites')}>
