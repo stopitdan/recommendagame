@@ -3,9 +3,9 @@ import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { Dice5 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import HeaderNav from './HeaderNav';
+import DiceLogoIcon from './DiceLogoIcon';
 import HeaderAuth from './HeaderAuth';
 import MobileNav from './MobileNav';
 import DarkModeToggle from './DarkModeToggle';
@@ -36,7 +36,7 @@ export default async function Header() {
               gap: 1,
             }}
           >
-            <Dice5 size={22} />
+            <DiceLogoIcon />
             <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
               boredgame.lol
             </Box>

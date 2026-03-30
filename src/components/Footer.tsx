@@ -102,6 +102,26 @@ export default function Footer() {
             Data from BoardGameGeek &amp; RAWG
           </Typography>
         </Box>
+
+        {/* Hidden easter egg message */}
+        <Typography
+          variant="caption"
+          sx={{
+            display: 'block',
+            textAlign: 'center',
+            mt: 2,
+            opacity: 0,
+            transition: 'opacity 0.6s ease',
+            color: 'text.secondary',
+            fontSize: '0.65rem',
+            letterSpacing: '0.05em',
+            '&:hover, footer:hover &': {
+              opacity: 0.35,
+            },
+          }}
+        >
+          You found the secret! You must really like games.
+        </Typography>
       </Container>
     </Box>
   );
