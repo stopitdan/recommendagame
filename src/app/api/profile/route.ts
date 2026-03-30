@@ -73,12 +73,23 @@ export async function GET() {
     game_name: gameNameMap.get(r.game_id) ?? 'Unknown Game',
   }));
 
+  // Fetch BGG profile info
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: profileData } = await (supabase as any)
+    .from('user_profiles')
+    .select('bgg_username, bgg_synced_at')
+    .eq('id', user.id)
+    .single();
+
   return NextResponse.json({
     email: user.email ?? '',
     displayName: user.user_metadata?.display_name ?? null,
+    created_at: user.created_at,
     favoriteCount: favoriteGameIds.length,
     reviewCount: reviewsRes.data?.length ?? 0,
     presetCount: presetsRes.data?.length ?? 0,
+    bgg_username: profileData?.bgg_username ?? null,
+    bgg_synced_at: profileData?.bgg_synced_at ?? null,
     favorites,
     recentReviews,
     presets: presetsRes.data ?? [],

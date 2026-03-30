@@ -16,10 +16,17 @@ import Stack from '@mui/material/Stack';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Typography from '@mui/material/Typography';
-import { Heart, Star, ClipboardList } from 'lucide-react';
+import { Heart, Star, ClipboardList, Package } from 'lucide-react';
 import type { ReactNode } from 'react';
 import GameCard from '@/components/GameCard';
 import type { Game } from '@/types/game';
+
+interface OwnedGame {
+  game_id: string;
+  source: string;
+  added_at: string;
+  game?: Game;
+}
 
 interface ProfileData {
   email: string;
@@ -48,18 +55,28 @@ export default function ProfileHub() {
   const [data, setData] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState(0);
+  const [ownedGames, setOwnedGames] = useState<OwnedGame[]>([]);
+  const [ownedLoading, setOwnedLoading] = useState(false);
 
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch('/api/profile');
-        if (res.status === 401) {
+        const [profileRes, ownedRes] = await Promise.all([
+          fetch('/api/profile'),
+          fetch('/api/owned'),
+        ]);
+        if (profileRes.status === 401) {
           router.push('/login');
           return;
         }
-        if (!res.ok) return;
-        const json = await res.json();
-        setData(json);
+        if (profileRes.ok) {
+          const json = await profileRes.json();
+          setData(json);
+        }
+        if (ownedRes.ok) {
+          const ownedData = await ownedRes.json();
+          setOwnedGames(ownedData.owned ?? []);
+        }
       } finally {
         setLoading(false);
       }
@@ -126,11 +143,12 @@ export default function ProfileHub() {
       {/* Stats cards */}
       <Grid container spacing={2} sx={{ mb: 4 }}>
         {[
+          { value: ownedGames.length, label: 'Collection', icon: <Package size={24} /> as ReactNode, color: '#0EC6C6' },
           { value: data.favoriteCount, label: 'Favorites', icon: <Heart size={24} /> as ReactNode, color: '#FF6D3F' },
           { value: data.reviewCount, label: 'Reviews', icon: <Star size={24} /> as ReactNode, color: '#FFB020' },
           { value: data.presetCount, label: 'Presets', icon: <ClipboardList size={24} /> as ReactNode, color: '#5B4FDB' },
         ].map((stat) => (
-          <Grid size={{ xs: 4 }} key={stat.label}>
+          <Grid size={{ xs: 3 }} key={stat.label}>
             <Card
               variant="outlined"
               sx={{
@@ -168,13 +186,54 @@ export default function ProfileHub() {
           },
         }}
       >
+        <Tab label={`My Collection (${ownedGames.length})`} />
         <Tab label={`Favorites (${data.favoriteCount})`} />
         <Tab label={`Reviews (${data.reviewCount})`} />
         <Tab label={`Presets (${data.presetCount})`} />
       </Tabs>
 
       {/* Tab content */}
+      {/* My Collection tab */}
       {tab === 0 && (
+        <Stack spacing={2}>
+          {ownedGames.length === 0 ? (
+            <Box sx={{ textAlign: 'center', py: 6 }}>
+              <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>
+                No games in your collection yet
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                Sync your BGG account in Settings, or click the package icon on any game to add it.
+              </Typography>
+              <Button variant="contained" onClick={() => router.push('/settings')}>
+                Connect BGG Account
+              </Button>
+            </Box>
+          ) : (
+            <>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                {ownedGames.length} games in your collection. Use "My Collection Only" when searching to get picks from games you own.
+              </Typography>
+              {ownedGames.map((og) => (
+                og.game ? (
+                  <Box key={og.game_id} sx={{ position: 'relative' }}>
+                    <GameCard game={og.game} showFavorite={false} />
+                    <Chip
+                      label={og.source === 'bgg' ? 'BGG' : 'Added manually'}
+                      size="small"
+                      variant="outlined"
+                      color={og.source === 'bgg' ? 'primary' : 'default'}
+                      sx={{ position: 'absolute', top: 8, right: 8 }}
+                    />
+                  </Box>
+                ) : null
+              ))}
+            </>
+          )}
+        </Stack>
+      )}
+
+      {/* Favorites tab */}
+      {tab === 1 && (
         <Stack spacing={2}>
           {data.favorites.length === 0 ? (
             <Box sx={{ textAlign: 'center', py: 6 }}>
@@ -193,7 +252,7 @@ export default function ProfileHub() {
         </Stack>
       )}
 
-      {tab === 1 && (
+      {tab === 2 && (
         <Stack spacing={2}>
           {data.recentReviews.length === 0 ? (
             <Box sx={{ textAlign: 'center', py: 6 }}>
@@ -242,7 +301,7 @@ export default function ProfileHub() {
         </Stack>
       )}
 
-      {tab === 2 && (
+      {tab === 3 && (
         <Stack spacing={2}>
           {data.presets.length === 0 ? (
             <Box sx={{ textAlign: 'center', py: 6 }}>

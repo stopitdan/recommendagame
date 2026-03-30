@@ -72,6 +72,23 @@ export default function ResultsView() {
     createClient().auth.getUser().then(({ data }) => {
       setUserId(data.user?.id ?? null);
       setUserLoaded(true);
+
+      // Auto-sync BGG collection if stale (24h+)
+      if (data.user) {
+        fetch('/api/profile').then((r) => r.ok ? r.json() : null).then((profile) => {
+          if (profile?.bgg_username && profile?.bgg_synced_at) {
+            const lastSync = new Date(profile.bgg_synced_at).getTime();
+            const hoursSinceSync = (Date.now() - lastSync) / 3600000;
+            if (hoursSinceSync >= 24) {
+              fetch('/api/bgg/sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: profile.bgg_username }),
+              }).catch(() => {});
+            }
+          }
+        }).catch(() => {});
+      }
     });
   }, []);
 
