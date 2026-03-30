@@ -218,12 +218,9 @@ export default function BrowseView() {
           <Typography variant="h4" fontWeight={700}>
             Browse Games
           </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-              {total.toLocaleString()} games found
-            </Typography>
-            <FeedbackButton />
-          </Box>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            {total.toLocaleString()} games found
+          </Typography>
         </Box>
 
         {/* Quick type filters */}
@@ -616,6 +613,9 @@ export default function BrowseView() {
             </Button>
           </Box>
         )}
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+          <FeedbackButton />
+        </Box>
       </Stack>
     </Container>
   );

@@ -361,7 +361,6 @@ export default function ResultsView() {
               <Save size={14} /> Save Preset
             </Button>
             <ShareResultsButton gameNames={games.map((g) => g.name)} />
-            <FeedbackButton />
             <Button variant="outlined" size="small" onClick={() => router.push('/find-a-game')}>
               Start Over
             </Button>
@@ -746,6 +745,11 @@ export default function ResultsView() {
 
       {/* Signup prompt for guest users after N recommendations */}
       <SignupPrompt />
+
+      {/* Subtle feedback at bottom */}
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4, mb: 2 }}>
+        <FeedbackButton />
+      </Box>
     </Container>
   );
 }
