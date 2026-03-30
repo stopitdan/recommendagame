@@ -136,8 +136,75 @@ export async function POST(request: NextRequest) {
   }
 
   const startTime = Date.now();
+  console.log(`[Recommend] collectionOnly=${body.collectionOnly}, userId=${body.userId}`);
 
   try {
+    // Step 0: If collection-only mode, SKIP all hybrid fetching and use owned games directly
+    if (body.collectionOnly) {
+      if (!body.userId) {
+        return NextResponse.json({
+          results: [], count: 0, totalCandidates: 0,
+          engine: 'collection-no-user', collectionEmpty: true,
+          message: 'Sign in to use My Collection',
+        });
+      }
+
+      const serviceUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      if (!serviceUrl || !serviceKey) {
+        return NextResponse.json({ error: 'Server config error' }, { status: 500 });
+      }
+      const serviceClient = createClient(serviceUrl, serviceKey);
+      const { data: ownedData } = await serviceClient
+        .from('user_owned_games')
+        .select('game_id')
+        .eq('user_id', body.userId);
+
+      const ownedIds = ((ownedData ?? []) as { game_id: string }[]).map((r) => r.game_id);
+      console.log(`[Recommend] Collection mode: ${ownedIds.length} owned game IDs`);
+
+      if (ownedIds.length === 0) {
+        return NextResponse.json({
+          results: [], count: 0, totalCandidates: 0,
+          engine: 'collection-empty', collectionEmpty: true,
+          message: 'No games in your collection yet. Sync your BGG account or add games with the package icon.',
+        });
+      }
+
+      // Fetch full game data for all owned games
+      const { data: ownedGames } = await supabase
+        .from('games')
+        .select(GAME_COLUMNS)
+        .in('id', ownedIds);
+
+      let candidates = ((ownedGames ?? []) as GameRow[]).map(rowToGame);
+      console.log(`[Recommend] Collection: ${candidates.length} games fetched from DB`);
+
+      // Score them
+      const weights = getWeightsForMode(popularity);
+      const scored = scoreGames(candidates, body, weights);
+
+      // LLM rerank ALL of them (small collection)
+      const reranked = await llmRerank(scored, body, Math.min(limit, scored.length));
+
+      const latencyMs = Date.now() - startTime;
+      console.log(`[Recommend] Collection done in ${latencyMs}ms: ${candidates.length} owned → ${reranked.length} results`);
+
+      const response = {
+        results: reranked.slice(0, limit).map(({ game, score, reasons, breakdown }) => ({
+          ...game,
+          _score: Math.round(score * 1000) / 1000,
+          _reasons: reasons,
+          _breakdown: breakdown,
+        })),
+        count: Math.min(reranked.length, limit),
+        totalCandidates: candidates.length,
+        engine: 'collection-v1',
+      };
+
+      return NextResponse.json(response);
+    }
+
     // Step 1: Hybrid candidate fetching
     // Two parallel sources: vector similarity + rating-based.
     // Vector finds niche games matching preferences (roguelike deck builders).
@@ -221,60 +288,6 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(`[Recommend] Hybrid pool: ${ratingCandidates.length} rating + ${mechanicCandidates.length} mechanic + ${vectorCandidates.length} vector + ${tagCandidates.length} tag + ${textCandidates.length} text + ${expandedCount} expanded = ${candidates.length} unique`);
-
-    // "My Collection Only" mode: ONLY return games the user owns
-    if (body.collectionOnly) {
-      if (!body.userId) {
-        // No user ID = can't filter by collection. Return empty.
-        console.log('[Recommend] collectionOnly=true but no userId, returning empty');
-        return NextResponse.json({
-          results: [],
-          count: 0,
-          totalCandidates: 0,
-          engine: 'collection-no-user',
-          collectionEmpty: true,
-          message: 'Sign in to use My Collection',
-        });
-      }
-
-      // Query the canonical user_owned_games table
-      // Use service role to bypass RLS (the anon client has no user session in this context)
-      const serviceUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-      const serviceClient = serviceUrl && serviceKey ? createClient(serviceUrl, serviceKey) : supabase;
-      const { data: ownedData } = await serviceClient
-        .from('user_owned_games')
-        .select('game_id')
-        .eq('user_id', body.userId);
-
-      const ownedIds = new Set<string>(
-        ((ownedData ?? []) as { game_id: string }[]).map((r) => r.game_id)
-      );
-
-      if (ownedIds.size === 0) {
-        console.log('[Recommend] collectionOnly=true but user has 0 owned games');
-        return NextResponse.json({
-          results: [],
-          count: 0,
-          totalCandidates: 0,
-          engine: 'collection-empty',
-          collectionEmpty: true,
-          message: 'No games in your collection yet. Sync your BGG account or add games with the package icon.',
-        });
-      }
-
-      // REPLACE the entire candidate pool with only owned games
-      // Don't filter the existing pool (which might not contain owned games)
-      // Instead, fetch all owned games directly
-      const ownedArray = [...ownedIds].slice(0, 500);
-      const { data: ownedGames } = await supabase
-        .from('games')
-        .select(GAME_COLUMNS)
-        .in('id', ownedArray);
-
-      candidates = ((ownedGames ?? []) as GameRow[]).map(rowToGame);
-      console.log(`[Recommend] Collection mode: ${candidates.length} owned games as candidates (from ${ownedIds.size} total owned)`);
-    }
 
     // Progressive fallbacks (only if hybrid produced nothing)
     if (candidates.length === 0) {
