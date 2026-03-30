@@ -40,7 +40,7 @@ export default async function Header() {
               boredgame.lol
             </Box>
             <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>
-              RAG
+              BG.lol
             </Box>
           </Typography>
         </Link>
