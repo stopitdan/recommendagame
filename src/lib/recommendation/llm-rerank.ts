@@ -47,7 +47,9 @@ export async function llmRerank(
   if (prefs.llmParsed?.keywords?.length) wantsSummary.push(`Keywords: ${prefs.llmParsed.keywords.join(', ')}`);
 
   // Build compact game summaries for the LLM
-  const gameSummaries = candidates.slice(0, 25).map((c, i) => {
+  // For small candidate pools (e.g., user's collection), evaluate all of them
+  const maxCandidates = candidates.length <= 50 ? candidates.length : 25;
+  const gameSummaries = candidates.slice(0, maxCandidates).map((c, i) => {
     const g = c.game;
     const parts = [`${i + 1}. "${g.name}" [ID:${g.id}]`];
     if (g.playTime?.average) parts.push(`${g.playTime.average}min`);
@@ -69,7 +71,7 @@ export async function llmRerank(
 
 ${wantsSummary.join('\n')}
 
-Here are ${Math.min(candidates.length, 25)} candidate games from our database:
+Here are ${Math.min(candidates.length, maxCandidates)} candidate games from our database:
 
 ${gameSummaries}
 

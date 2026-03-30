@@ -399,7 +399,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Step 5: LLM reranking — ask GPT-4o to pick the best matches from top candidates
-    const reranked = await llmRerank(scored, body, Math.min(limit, 15));
+    // For small collections (< 50 games), rerank ALL of them since the LLM is smarter
+    // than the rule-based scorer for understanding queries like "game about a tv show"
+    const reranked = await llmRerank(scored, body, Math.min(limit, scored.length <= 50 ? scored.length : 15));
 
     // Step 6: Diversity re-ranking (prevent 20 strategy games in a row)
     const diversified = diversityRerank(reranked);
