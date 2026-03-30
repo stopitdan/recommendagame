@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
   try {
     await resend.emails.send({
       from: 'boredgame.lol Feedback <feedback@boredgame.lol>',
-      to: 'danjwiegand@gmail.com',
+      to: 'contact@boredgame.lol',
       subject: `Feedback: ${message.trim().slice(0, 60)}`,
       text: `${message.trim()}\n\n---\nPage: ${page ?? 'unknown'}\nTime: ${new Date().toISOString()}`,
     });
