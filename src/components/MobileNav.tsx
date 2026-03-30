@@ -29,7 +29,6 @@ const NAV_ITEMS: { label: string; href: string; icon: ReactNode }[] = [
   { label: 'Find a Game', href: '/find-a-game', icon: <Crosshair size={18} /> },
   { label: 'Browse', href: '/browse', icon: <Search size={18} /> },
   { label: 'Roll the Dice', href: '/random', icon: <Dice5 size={18} /> },
-  { label: 'Dice Gallery', href: '/dice-gallery', icon: <Palette size={18} /> },
   { label: 'Leaderboard', href: '/leaderboard', icon: <Trophy size={18} /> },
   { label: 'Blog', href: '/blog', icon: <BookOpen size={18} /> },
 ];

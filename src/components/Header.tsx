@@ -9,6 +9,7 @@ import HeaderNav from './HeaderNav';
 import HeaderAuth from './HeaderAuth';
 import MobileNav from './MobileNav';
 import DarkModeToggle from './DarkModeToggle';
+import BetaBadge from './BetaBadge';
 
 export default async function Header() {
   let user = null;
@@ -42,6 +43,7 @@ export default async function Header() {
             <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>
               BG.lol
             </Box>
+            <BetaBadge />
           </Typography>
         </Link>
 

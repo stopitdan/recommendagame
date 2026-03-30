@@ -390,6 +390,16 @@ export default function RandomGameView() {
           />
         </Box>
 
+        {/* Dice links */}
+        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', mt: 1 }}>
+          <Button size="small" variant="outlined" onClick={() => router.push('/dice-creator')} sx={{ textTransform: 'none' }}>
+            Create a Skin
+          </Button>
+          <Button size="small" variant="outlined" onClick={() => router.push('/dice-gallery')} sx={{ textTransform: 'none' }}>
+            Dice Gallery
+          </Button>
+        </Box>
+
         {/* Dice result */}
         <AnimatePresence mode="wait">
           {diceValue && !rolling && (

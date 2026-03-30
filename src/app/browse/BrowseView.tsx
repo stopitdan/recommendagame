@@ -20,6 +20,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Dice5, Puzzle, Gamepad2, Type, PartyPopper } from 'lucide-react';
 import SearchAutocomplete from '@/components/SearchAutocomplete';
+import FeedbackButton from '@/components/FeedbackButton';
 import GameCard from '@/components/GameCard';
 import { GameCardSkeletonList } from '@/components/GameCardSkeleton';
 import GameLoader from '@/components/GameLoader';
@@ -217,9 +218,12 @@ export default function BrowseView() {
           <Typography variant="h4" fontWeight={700}>
             Browse Games
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-            {total.toLocaleString()} games found
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+              {total.toLocaleString()} games found
+            </Typography>
+            <FeedbackButton />
+          </Box>
         </Box>
 
         {/* Quick type filters */}

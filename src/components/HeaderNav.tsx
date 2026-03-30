@@ -12,7 +12,6 @@ const NAV_ITEMS: { label: string; href: string; Icon: LucideIcon; tip: string }[
   { label: 'Find a Game', href: '/find-a-game', Icon: Crosshair, tip: 'Get personalized recommendations' },
   { label: 'Browse', href: '/browse', Icon: Search, tip: 'Explore the full game catalog' },
   { label: 'Roll the Dice', href: '/random', Icon: Dice5, tip: 'Roll the d20 for a random pick' },
-  { label: 'Dice Gallery', href: '/dice-gallery', Icon: Palette, tip: 'Browse & create custom dice skins' },
   { label: 'Leaderboard', href: '/leaderboard', Icon: Trophy, tip: 'See the most popular games' },
   { label: 'Blog', href: '/blog', Icon: BookOpen, tip: 'Game guides and recommendations' },
 ];
