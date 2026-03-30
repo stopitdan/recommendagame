@@ -14,7 +14,10 @@
  * - topN: how many results to check (default 10)
  */
 
+import * as fs from 'fs';
+
 const API_URL = process.env.EVAL_API_URL ?? 'http://localhost:1337';
+const CASES_FILE = 'scripts/eval-cases.json';
 
 interface EvalCase {
   name: string;
@@ -253,14 +256,30 @@ async function runEval(evalCase: EvalCase): Promise<EvalResult> {
 }
 
 async function main() {
-  console.log(`\n🎲 boredgame.lol Recommendation Evals`);
+  // Load generated cases from JSON file if it exists, merge with hardcoded cases
+  let allCases = [...EVAL_CASES];
+  if (fs.existsSync(CASES_FILE)) {
+    try {
+      const generated = JSON.parse(fs.readFileSync(CASES_FILE, 'utf8'));
+      allCases = [...EVAL_CASES, ...generated];
+      console.log(`Loaded ${generated.length} additional cases from ${CASES_FILE}`);
+    } catch (e) {
+      console.warn(`Failed to load ${CASES_FILE}:`, e);
+    }
+  }
+
+  // Allow running a subset: EVAL_LIMIT=20 to run first 20 only
+  const limit = parseInt(process.env.EVAL_LIMIT ?? '0', 10);
+  if (limit > 0) allCases = allCases.slice(0, limit);
+
+  console.log(`\nboredgame.lol Recommendation Evals`);
   console.log(`   API: ${API_URL}`);
-  console.log(`   Cases: ${EVAL_CASES.length}\n`);
+  console.log(`   Cases: ${allCases.length}\n`);
   console.log('─'.repeat(70));
 
   const results: EvalResult[] = [];
 
-  for (const evalCase of EVAL_CASES) {
+  for (const evalCase of allCases) {
     process.stdout.write(`  ${evalCase.name}... `);
     const result = await runEval(evalCase);
     results.push(result);
