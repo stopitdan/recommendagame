@@ -12,8 +12,8 @@ import { XMLParser } from 'fast-xml-parser';
 
 const BGG_BASE_URL = 'https://boardgamegeek.com/xmlapi2';
 const USER_AGENT = 'BoredGame/1.0 (https://boredgame.lol)';
-const MAX_RETRIES = 3;
-const RETRY_DELAY_MS = 5000;
+const MAX_RETRIES = 5;
+const RETRY_DELAY_MS = 6000;
 
 export interface BggCollectionItem {
   bggId: string;
@@ -67,6 +67,14 @@ export async function fetchBggCollection(
       }
 
       const xml = await res.text();
+
+      // BGG sometimes returns 200 with a "please wait" message instead of 202
+      if (xml.includes('accepted and will be processed') || xml.includes('Please try again later')) {
+        console.log(`[BGG Collection] Got "please wait" message for ${username} (attempt ${attempt + 1}), retrying...`);
+        await new Promise((r) => setTimeout(r, RETRY_DELAY_MS));
+        continue;
+      }
+
       const parsed = parser.parse(xml);
 
       if (!parsed?.items?.item) {
