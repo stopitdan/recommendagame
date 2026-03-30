@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Alert from '@mui/material/Alert';
 import Autocomplete from '@mui/material/Autocomplete';
@@ -57,6 +57,7 @@ export default function ResultsView() {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const { unlock } = useAchievements();
   const [freeText, setFreeText] = useState(searchParams.get('freeText') ?? '');
+  const freeTextRef = useRef<HTMLInputElement>(null);
   const [isReparsing, setIsReparsing] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [nameFilter, setNameFilter] = useState('');
@@ -229,7 +230,9 @@ export default function ResultsView() {
   }
 
   async function reSearch() {
-    if (!freeText.trim()) return;
+    const text = freeTextRef.current?.value?.trim() ?? freeText.trim();
+    if (!text) return;
+    setFreeText(text);
     setIsReparsing(true);
 
     // Re-parse with LLM
@@ -238,7 +241,7 @@ export default function ResultsView() {
       const res = await fetch('/api/parse-text', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: freeText.trim() }),
+        body: JSON.stringify({ text }),
       });
       if (res.ok) {
         const data = await res.json();
@@ -248,7 +251,7 @@ export default function ResultsView() {
 
     // Rebuild URL with new text + LLM data, keep other params
     const params = new URLSearchParams(searchParams.toString());
-    params.set('freeText', freeText.trim());
+    params.set('freeText', text);
     if (llmParsed) {
       params.set('llmParsed', encodeURIComponent(JSON.stringify(llmParsed)));
       // Update genre/type params from LLM if available
@@ -367,8 +370,8 @@ export default function ResultsView() {
         {(freeText || searchParams.get('freeText')) && (
           <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
             <TextField
-              value={freeText}
-              onChange={(e) => setFreeText(e.target.value)}
+              defaultValue={freeText}
+              inputRef={freeTextRef}
               onKeyDown={(e) => e.key === 'Enter' && reSearch()}
               size="small"
               fullWidth
@@ -383,7 +386,7 @@ export default function ResultsView() {
             <Button
               variant="contained"
               onClick={reSearch}
-              disabled={isReparsing || !freeText.trim()}
+              disabled={isReparsing}
               sx={{ minWidth: 120, whiteSpace: 'nowrap' }}
             >
               {isReparsing ? (
