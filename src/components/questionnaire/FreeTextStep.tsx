@@ -9,7 +9,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import type { PlayerCountRange } from '@/types/questionnaire';
 import type { GameType } from '@/types/game';
-import { Puzzle, Gamepad2, Type, PartyPopper, Dice5 } from 'lucide-react';
+import { Puzzle, Gamepad2, Type, PartyPopper, Dice5, Library } from 'lucide-react';
 
 const GAME_TYPE_OPTIONS: { label: string; value: GameType | null; icon: React.ReactNode }[] = [
   { label: 'All', value: null, icon: <Dice5 size={16} /> },
@@ -26,6 +26,9 @@ export interface FreeTextStepProps {
   onPlayerCountChange: (value: PlayerCountRange) => void;
   gameTypes: GameType[];
   onGameTypesChange: (value: GameType[]) => void;
+  collectionOnly: boolean;
+  onCollectionOnlyChange: (value: boolean) => void;
+  isLoggedIn: boolean;
   onQuickSubmit?: () => void;
   onCustomize?: () => void;
   isParsing?: boolean;
@@ -38,6 +41,9 @@ export default function FreeTextStep({
   onPlayerCountChange,
   gameTypes,
   onGameTypesChange,
+  collectionOnly,
+  onCollectionOnlyChange,
+  isLoggedIn,
   onQuickSubmit,
   onCustomize,
   isParsing,
@@ -74,6 +80,16 @@ export default function FreeTextStep({
               />
             );
           })}
+          {isLoggedIn && (
+            <Chip
+              icon={<Library size={16} /> as React.ReactElement}
+              label="My Collection Only"
+              onClick={() => onCollectionOnlyChange(!collectionOnly)}
+              color={collectionOnly ? 'secondary' : 'default'}
+              variant={collectionOnly ? 'filled' : 'outlined'}
+              sx={{ transition: 'all 200ms ease' }}
+            />
+          )}
         </Box>
       </Box>
 

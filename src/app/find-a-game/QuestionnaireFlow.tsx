@@ -53,14 +53,23 @@ export default function QuestionnaireFlow() {
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [presetName, setPresetName] = useState('');
   const [isParsing, setIsParsing] = useState(false);
+  const [collectionOnly, setCollectionOnly] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { unlock } = useAchievements();
 
-  // Load guest preferences from localStorage on mount
+  // Load guest preferences from localStorage on mount + check auth
   useEffect(() => {
     const saved = getGuestPreferences();
     if (saved) {
       setState((prev) => ({ ...prev, ...saved }));
     }
+    // Check if logged in for collection-only feature
+    import('@/lib/supabase/client').then(({ createClient }) => {
+      const supabase = createClient();
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        setIsLoggedIn(!!user);
+      });
+    });
   }, []);
 
   const totalSteps = STEPS.length;
@@ -209,6 +218,7 @@ export default function QuestionnaireFlow() {
           if (data.parsed.moods?.length > 0) params.set('moods', data.parsed.moods.join(','));
           params.set('freeText', state.freeText.trim());
           params.set('llmParsed', encodeURIComponent(JSON.stringify(data.parsed)));
+          if (collectionOnly) params.set('collectionOnly', '1');
 
           saveGuestPreferences(merged as unknown as Record<string, unknown>);
           router.push(`/results?${params.toString()}`);
@@ -297,6 +307,7 @@ export default function QuestionnaireFlow() {
     if (state.genres.length > 0) params.set('genres', state.genres.join(','));
     if (state.moods.length > 0) params.set('moods', state.moods.join(','));
     if (state.freeText.trim()) params.set('freeText', state.freeText.trim());
+    if (collectionOnly) params.set('collectionOnly', '1');
 
     // Pass LLM-parsed data as a URL param so the recommend API can use it
     if (state.llmParsed) {
@@ -317,6 +328,9 @@ export default function QuestionnaireFlow() {
             onPlayerCountChange={(v) => update({ playerCount: v })}
             gameTypes={state.gameTypes}
             onGameTypesChange={(v) => update({ gameTypes: v })}
+            collectionOnly={collectionOnly}
+            onCollectionOnlyChange={setCollectionOnly}
+            isLoggedIn={isLoggedIn}
             onQuickSubmit={quickSubmit}
             onCustomize={next}
             isParsing={isParsing}

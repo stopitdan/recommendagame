@@ -61,7 +61,7 @@ type PopularityMode = 'popular' | 'any' | 'hidden-gems';
 const recommendCache = new MemoryCache<unknown>(120, 50);
 
 /** Generate a cache key from preferences */
-function cacheKey(prefs: QuestionnaireState, popularity: string): string {
+function cacheKey(prefs: QuestionnaireState & { userId?: string; collectionOnly?: boolean }, popularity: string): string {
   return JSON.stringify({
     t: [...prefs.gameTypes].sort(),
     pc: prefs.playerCount,
@@ -71,6 +71,7 @@ function cacheKey(prefs: QuestionnaireState, popularity: string): string {
     m: [...prefs.moods].sort(),
     ft: prefs.freeText,
     p: popularity,
+    co: prefs.collectionOnly ? prefs.userId : undefined,
   });
 }
 

@@ -62,7 +62,7 @@ export default function ResultsView() {
   const [isReparsing, setIsReparsing] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [nameFilter, setNameFilter] = useState('');
-  const [collectionOnly, setCollectionOnly] = useState(false);
+  const [collectionOnly, setCollectionOnly] = useState(searchParams.get('collectionOnly') === '1');
   const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
   const [userId, setUserId] = useState<string | null>(null);
 
@@ -363,17 +363,6 @@ export default function ResultsView() {
               <Save size={14} /> Save Preset
             </Button>
             <ShareResultsButton gameNames={games.map((g) => g.name)} />
-            {userId && (
-              <Chip
-                icon={<Library size={14} /> as React.ReactElement}
-                label="My Collection"
-                onClick={() => { setCollectionOnly(!collectionOnly); }}
-                color={collectionOnly ? 'primary' : 'default'}
-                variant={collectionOnly ? 'filled' : 'outlined'}
-                size="small"
-                sx={{ transition: 'all 200ms' }}
-              />
-            )}
             <Button variant="outlined" size="small" onClick={() => router.push('/find-a-game')}>
               Start Over
             </Button>
@@ -445,6 +434,17 @@ export default function ResultsView() {
               />
             );
           })}
+          {userId && (
+            <Chip
+              icon={<Library size={14} /> as React.ReactElement}
+              label="My Collection"
+              onClick={() => setCollectionOnly(!collectionOnly)}
+              color={collectionOnly ? 'secondary' : 'default'}
+              variant={collectionOnly ? 'filled' : 'outlined'}
+              size="small"
+              sx={{ transition: 'all 200ms' }}
+            />
+          )}
         </Box>
 
         {/* Popularity controls */}
