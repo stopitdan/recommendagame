@@ -1,15 +1,16 @@
 import type { Metadata } from 'next';
-import { redirect } from 'next/navigation';
-// import MapView from './MapView'; // Hidden until hierarchical clustering rearchitecture
+import { Suspense } from 'react';
+import MapView from './MapView';
 
 export const metadata: Metadata = {
   title: 'Game Map | boredgame.lol',
-  description: 'Explore the board game universe. Pick any game and see its neighborhood of similar titles in an interactive graph.',
+  description: 'Explore the board game universe. Click clusters to drill into genres, mechanics, and individual games.',
 };
 
 export default function MapPage() {
-  // Map hidden until rearchitected with hierarchical clustering.
-  // All code remains -- just uncomment MapView and remove redirect.
-  redirect('/');
-  // return <MapView />;
+  return (
+    <Suspense>
+      <MapView />
+    </Suspense>
+  );
 }

@@ -1,10 +1,21 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Box from '@mui/material/Box';
 import SearchAutocomplete from '@/components/SearchAutocomplete';
 import GameMap from './GameMap';
+
+function useWindowHeight() {
+  return useSyncExternalStore(
+    (cb) => {
+      window.addEventListener('resize', cb);
+      return () => window.removeEventListener('resize', cb);
+    },
+    () => window.innerHeight,
+    () => 800, // SSR fallback
+  );
+}
 
 export default function MapView() {
   const searchParams = useSearchParams();
@@ -12,15 +23,8 @@ export default function MapView() {
 
   const [searchValue, setSearchValue] = useState('');
   const [flyTarget, setFlyTarget] = useState<string | undefined>(initialGameId);
-  const [mapHeight, setMapHeight] = useState(700);
-
-  // Set height client-side to avoid hydration mismatch
-  useEffect(() => {
-    setMapHeight(window.innerHeight - 64);
-    const handleResize = () => setMapHeight(window.innerHeight - 64);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  const windowHeight = useWindowHeight();
+  const mapHeight = windowHeight - 64;
 
   return (
     <Box sx={{ position: 'relative', height: 'calc(100vh - 64px)', overflow: 'hidden' }}>
@@ -46,7 +50,7 @@ export default function MapView() {
 
       {/* Full-screen game map */}
       <GameMap
-        initialGameId={flyTarget}
+        flyTarget={flyTarget}
         height={mapHeight}
       />
     </Box>

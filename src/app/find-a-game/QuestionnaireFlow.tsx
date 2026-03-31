@@ -105,18 +105,20 @@ export default function QuestionnaireFlow() {
 
     setState((prev) => ({
       ...prev,
+      // Reset to INITIAL_STATE defaults when LLM doesn't specify a value,
+      // so stale slider/chip state from a previous search doesn't carry over.
       gameTypes: parsed.gameTypes.length > 0
         ? parsed.gameTypes.filter((t) => VALID_GAME_TYPES.has(t)) as GameType[]
-        : prev.gameTypes,
-      playerCount: parsed.playerCount ?? prev.playerCount,
+        : INITIAL_STATE.gameTypes,
+      playerCount: parsed.playerCount ?? INITIAL_STATE.playerCount,
       timePresets: parsed.timePresets.length > 0
         ? parsed.timePresets.filter((t) => VALID_TIME_PRESETS.has(t)) as TimePreset[]
-        : prev.timePresets,
-      complexity: parsed.complexity ?? prev.complexity,
-      genres: matchedGenres.size > 0 ? [...matchedGenres] : prev.genres,
+        : INITIAL_STATE.timePresets,
+      complexity: parsed.complexity ?? INITIAL_STATE.complexity,
+      genres: matchedGenres.size > 0 ? [...matchedGenres] : INITIAL_STATE.genres,
       moods: parsed.moods.length > 0
         ? parsed.moods.filter((m) => VALID_MOODS.has(m))
-        : prev.moods,
+        : INITIAL_STATE.moods,
       llmParsed: parsed,
     }));
   }
@@ -192,18 +194,20 @@ export default function QuestionnaireFlow() {
       if (res.ok) {
         const data = await res.json();
         if (data.parsed) {
-          // Merge parsed data into state, then submit immediately
-          // Merge LLM parsed data with user selections.
-          // User selections (chips) take priority over LLM output when both exist.
-          // LLM output only fills in what the user didn't explicitly set.
+          // Merge parsed data with INITIAL_STATE defaults, not stale UI state.
+          // When the user types a new free text prompt, old slider/chip values
+          // from a previous search should not carry over and constrain results.
           const parsedTypes = (data.parsed.gameTypes ?? []).filter((t: string) => VALID_GAME_TYPES.has(t)) as GameType[];
           const parsedTime = (data.parsed.timePresets ?? []).filter((t: string) => VALID_TIME_PRESETS.has(t)) as TimePreset[];
           const merged = {
-            ...state,
-            gameTypes: state.gameTypes.length > 0 ? state.gameTypes : parsedTypes,
-            playerCount: data.parsed.playerCount ?? state.playerCount,
-            timePresets: state.timePresets.length > 0 ? state.timePresets : parsedTime,
-            complexity: data.parsed.complexity ?? state.complexity,
+            ...INITIAL_STATE,
+            freeText: state.freeText,
+            gameTypes: parsedTypes.length > 0 ? parsedTypes : INITIAL_STATE.gameTypes,
+            playerCount: data.parsed.playerCount ?? INITIAL_STATE.playerCount,
+            timePresets: parsedTime.length > 0 ? parsedTime : INITIAL_STATE.timePresets,
+            complexity: data.parsed.complexity ?? INITIAL_STATE.complexity,
+            genres: data.parsed.genres?.length > 0 ? data.parsed.genres : INITIAL_STATE.genres,
+            moods: data.parsed.moods?.length > 0 ? data.parsed.moods : INITIAL_STATE.moods,
             llmParsed: data.parsed,
           };
           // Build URL params from merged state

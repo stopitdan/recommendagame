@@ -1,9 +1,10 @@
 /**
- * Export map node data to a static JSON file for the client.
+ * Export hierarchical map tree data to a static JSON file for the client.
  *
- * Reads games with map_x/map_y from the database and exports a compact
- * JSON file to public/data/map-nodes.json. Field names are single-character
- * to minimize file size (~4MB for 40k games).
+ * Reads the hierarchy from map-hierarchy.json and game metadata from Supabase,
+ * then exports a compact JSON file to public/data/map-tree.json.
+ *
+ * Also maintains backward-compatible public/data/map-nodes.json.
  *
  * Usage: npx tsx scripts/export-map-data.ts
  * Requires: .env.local with NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY
@@ -21,12 +22,46 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
 
-// Type index mapping
 const TYPE_MAP: Record<string, number> = {
   board: 0, video: 1, word: 2, party: 3, card: 4,
 };
 
-interface CompactNode {
+// ---------------------------------------------------------------------------
+// Types matching the Python output
+// ---------------------------------------------------------------------------
+
+interface HierarchyNode {
+  id: string;
+  level: number;
+  label: string;
+  cx: number;
+  cy: number;
+  radius: number;
+  count: number;
+  colorIndex: number;
+  children: string[];
+  parentId: string | null;
+}
+
+interface HierarchyFile {
+  meta: { gameCount: number; levels: number; generated: string };
+  nodes: Record<string, HierarchyNode>;
+}
+
+// Compact output types
+interface CompactHierarchyNode {
+  l: number;    // level
+  n: string;    // label
+  cx: number;
+  cy: number;
+  r: number;    // radius
+  ct: number;   // count
+  co: number;   // colorIndex
+  ch: string[]; // children
+  p: string | null; // parentId
+}
+
+interface CompactGameNode {
   id: string;
   x: number;
   y: number;
@@ -34,18 +69,40 @@ interface CompactNode {
   n: string;          // name
   r: number | null;   // rating
   rc: number | null;  // ratingCount
-  c: number;          // clusterId
-  th: string | null;  // thumbnailUrl
+  p: string;          // parentId (L4 hierarchy node)
 }
 
-async function main() {
-  // Check if we have a local positions JSON from the UMAP script
-  const positionsPath = path.join(__dirname, 'map-positions.json');
-  const hasLocalPositions = fs.existsSync(positionsPath);
+// ---------------------------------------------------------------------------
+// Main
+// ---------------------------------------------------------------------------
 
+async function main() {
+  // Load hierarchy
+  const hierarchyPath = path.join(__dirname, 'map-hierarchy.json');
+  if (!fs.existsSync(hierarchyPath)) {
+    console.error('[Export] map-hierarchy.json not found. Run compute-map-hierarchy.py first.');
+    process.exit(1);
+  }
+
+  console.log('[Export] Loading hierarchy...');
+  const hierarchy: HierarchyFile = JSON.parse(fs.readFileSync(hierarchyPath, 'utf8'));
+  console.log(`[Export] Loaded ${Object.keys(hierarchy.nodes).length} hierarchy nodes`);
+
+  // Collect all leaf game IDs and their L4 parent
+  const gameToParent = new Map<string, string>();
+  for (const [nodeId, node] of Object.entries(hierarchy.nodes)) {
+    if (node.level === 4) {
+      for (const gameId of node.children) {
+        gameToParent.set(gameId, nodeId);
+      }
+    }
+  }
+  console.log(`[Export] ${gameToParent.size} leaf games found`);
+
+  // Also load local positions as fallback
+  const positionsPath = path.join(__dirname, 'map-positions.json');
   let positionMap: Map<string, { x: number; y: number; c: number }> | null = null;
-  if (hasLocalPositions) {
-    console.log('[Export] Loading positions from local map-positions.json...');
+  if (fs.existsSync(positionsPath)) {
     const positions: Array<{ id: string; x: number; y: number; c: number }> = JSON.parse(
       fs.readFileSync(positionsPath, 'utf8')
     );
@@ -53,26 +110,17 @@ async function main() {
     console.log(`[Export] Loaded ${positionMap.size} positions from file`);
   }
 
+  // Fetch game metadata from Supabase
   console.log('[Export] Fetching game metadata from Supabase...');
-
-  const allNodes: CompactNode[] = [];
+  const allGames: CompactGameNode[] = [];
   let offset = 0;
   const pageSize = 1000;
 
-  // If we have local positions, fetch ALL games (not just those with map_x set)
-  // and merge positions from the file. This is much faster than waiting for DB writes.
   while (true) {
-    let query = supabase
+    const { data, error } = await supabase
       .from('games')
-      .select('id, name, types, rating, rating_count, map_x, map_y, map_cluster_id, thumbnail_url')
-      .eq('is_expansion', false);
-
-    if (!positionMap) {
-      // No local file -- only get games with DB positions
-      query = query.not('map_x', 'is', null);
-    }
-
-    const { data, error } = await query
+      .select('id, name, types, rating, rating_count, map_x, map_y, thumbnail_url')
+      .eq('is_expansion', false)
       .range(offset, offset + pageSize - 1)
       .order('id');
 
@@ -80,20 +128,20 @@ async function main() {
       console.error('[Export] Query error:', error);
       break;
     }
-
     if (!data || data.length === 0) break;
 
     for (const row of data) {
+      const parentId = gameToParent.get(row.id as string);
+      if (!parentId) continue; // not in hierarchy
+
       const types = (row.types as string[]) ?? [];
-      // Prefer local position file, fall back to DB
       const localPos = positionMap?.get(row.id as string);
       const x = localPos?.x ?? (row.map_x as number | null);
       const y = localPos?.y ?? (row.map_y as number | null);
-      const c = localPos?.c ?? (row.map_cluster_id as number | null);
 
       if (x == null || y == null) continue;
 
-      allNodes.push({
+      allGames.push({
         id: row.id,
         x: Math.round(x * 100) / 100,
         y: Math.round(y * 100) / 100,
@@ -101,38 +149,43 @@ async function main() {
         n: row.name as string,
         r: row.rating != null ? Math.round((row.rating as number) * 10) / 10 : null,
         rc: row.rating_count as number | null,
-        c: c ?? 0,
-        th: row.thumbnail_url as string | null,
+        p: parentId,
       });
     }
 
     offset += pageSize;
-    if (offset % 5000 === 0) console.log(`  ... ${allNodes.length} games with positions (scanned ${offset})`);
+    if (offset % 5000 === 0) console.log(`  ... ${allGames.length} games processed (scanned ${offset})`);
   }
 
-  if (allNodes.length === 0) {
-    console.log('[Export] No games with map positions found. Run compute-map-positions.py first.');
+  if (allGames.length === 0) {
+    console.log('[Export] No games found. Check hierarchy and database.');
     return;
   }
-  console.log(`[Export] Total games with positions: ${allNodes.length}`);
+  console.log(`[Export] Total games: ${allGames.length}`);
 
-  // Load cluster metadata from the Python script output
-  let clusters: Array<{ id: number; cx: number; cy: number; label: string; primaryType: string; count: number }> = [];
-  const clusterPath = path.join(__dirname, 'map-clusters.json');
-  if (fs.existsSync(clusterPath)) {
-    clusters = JSON.parse(fs.readFileSync(clusterPath, 'utf8'));
-    console.log(`[Export] Loaded ${clusters.length} clusters from ${clusterPath}`);
-  } else {
-    console.warn('[Export] No map-clusters.json found. Cluster labels will be missing.');
+  // Build compact hierarchy
+  const compactHierarchy: Record<string, CompactHierarchyNode> = {};
+  for (const [nodeId, node] of Object.entries(hierarchy.nodes)) {
+    compactHierarchy[nodeId] = {
+      l: node.level,
+      n: node.label,
+      cx: node.cx,
+      cy: node.cy,
+      r: node.radius,
+      ct: node.count,
+      co: node.colorIndex,
+      ch: node.children,
+      p: node.parentId,
+    };
   }
 
   // Compute bounds
-  const xs = allNodes.map((n) => n.x);
-  const ys = allNodes.map((n) => n.y);
+  const xs = allGames.map((g) => g.x);
+  const ys = allGames.map((g) => g.y);
 
-  const output = {
-    nodes: allNodes,
-    clusters,
+  const treeOutput = {
+    h: compactHierarchy,
+    g: allGames,
     bounds: {
       minX: Math.min(...xs),
       maxX: Math.max(...xs),
@@ -141,15 +194,27 @@ async function main() {
     },
   };
 
-  // Write to public/data/
+  // Write tree JSON
   const outDir = path.join(__dirname, '..', 'public', 'data');
   if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
 
-  const outPath = path.join(outDir, 'map-nodes.json');
-  fs.writeFileSync(outPath, JSON.stringify(output));
+  const treePath = path.join(outDir, 'map-tree.json');
+  fs.writeFileSync(treePath, JSON.stringify(treeOutput));
+  const treeSize = Math.round(fs.statSync(treePath).size / 1024);
+  console.log(`\n[Export] Tree: ${allGames.length} games + ${Object.keys(compactHierarchy).length} hierarchy nodes -> ${treePath} (${treeSize} KB)`);
 
-  const sizeKB = Math.round(fs.statSync(outPath).size / 1024);
-  console.log(`\n[Export] Done! ${allNodes.length} games exported to ${outPath} (${sizeKB} KB)`);
+  // Also write backward-compatible flat map-nodes.json
+  const flatOutput = {
+    nodes: allGames.map((g) => ({
+      id: g.id, x: g.x, y: g.y, t: g.t, n: g.n, r: g.r, rc: g.rc, c: 0,
+    })),
+    clusters: [], // empty, no longer used
+    bounds: treeOutput.bounds,
+  };
+  const flatPath = path.join(outDir, 'map-nodes.json');
+  fs.writeFileSync(flatPath, JSON.stringify(flatOutput));
+  const flatSize = Math.round(fs.statSync(flatPath).size / 1024);
+  console.log(`[Export] Flat (compat): ${flatPath} (${flatSize} KB)`);
 }
 
 main().catch(console.error);

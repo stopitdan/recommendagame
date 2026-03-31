@@ -62,10 +62,12 @@ export async function findSimilarToPreferences(
 
   const queryVector = preferencesToVector(prefs);
 
-  // Use the match_games RPC function with pgvector
+  // Use the match_games RPC function with pgvector.
+  // Fetch 25% extra for post-filtering (game type) instead of 2x to reduce vector math.
+  const fetchCount = gameTypeFilter ? Math.ceil(limit * 1.25) : limit;
   const { data, error } = await supabase.rpc('match_games', {
     query_embedding: `[${queryVector.join(',')}]`,
-    match_count: limit * 2, // Fetch extra for post-filtering
+    match_count: fetchCount,
     similarity_threshold: similarityThreshold,
   });
 

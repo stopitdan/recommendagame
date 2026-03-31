@@ -907,39 +907,27 @@ async function fetchDirectMechanicMatches(
 ): Promise<ReturnType<typeof rowToGame>[]> {
   if (mechanics.length === 0) return [];
 
-  // Expand mechanics to BGG names
-  const bggMechanics = expandTagsWithAliases(mechanics);
+  // Expand mechanics to BGG names and deduplicate
+  const bggMechanics = [...new Set(expandTagsWithAliases(mechanics))].slice(0, 12);
 
-  // Query games that contain any of these exact mechanic strings
-  // Use multiple parallel queries for each unique BGG mechanic name
-  const uniqueMechanics = [...new Set(bggMechanics)].slice(0, 6);
-  const queries = uniqueMechanics.map((mech) =>
-    supabase
-      .from('games')
-      .select(GAME_COLUMNS)
-      .contains('mechanics', [mech])
-      .eq('is_expansion', false)
-      .gte('rating_count', 100)
-      .order('rating_count', { ascending: false })
-      .limit(50)
-  );
+  // Single query using overlaps() instead of N separate contains() queries.
+  // overlaps() matches games that have ANY of the listed mechanics (OR logic).
+  const { data, error } = await supabase
+    .from('games')
+    .select(GAME_COLUMNS)
+    .overlaps('mechanics', bggMechanics)
+    .eq('is_expansion', false)
+    .gte('rating_count', 100)
+    .order('rating_count', { ascending: false })
+    .limit(100);
 
-  const results = await Promise.all(queries);
-  const seen = new Set<string>();
-  const merged: ReturnType<typeof rowToGame>[] = [];
-
-  for (const { data, error } of results) {
-    if (error) continue;
-    for (const row of (data ?? []) as GameRow[]) {
-      const game = rowToGame(row);
-      if (!seen.has(game.id)) {
-        seen.add(game.id);
-        merged.push(game);
-      }
-    }
+  if (error) {
+    console.error('[Recommend] Mechanic search error:', error);
+    return [];
   }
 
-  console.log(`[Recommend] Direct mechanic search: ${merged.length} games for [${uniqueMechanics.join(', ')}]`);
+  const merged = ((data ?? []) as GameRow[]).map(rowToGame);
+  console.log(`[Recommend] Direct mechanic search: ${merged.length} games for [${bggMechanics.join(', ')}]`);
   return merged;
 }
 
@@ -954,33 +942,23 @@ async function fetchDesignerCandidates(
 ): Promise<ReturnType<typeof rowToGame>[]> {
   if (designers.length === 0) return [];
 
-  // Query for each designer name (ilike on the text[] column doesn't work,
-  // so we use a text search on the serialized designers column)
-  const queries = designers.slice(0, 3).map((name) =>
-    supabase
-      .from('games')
-      .select(GAME_COLUMNS)
-      .eq('is_expansion', false)
-      .contains('designers', [name])
-      .order('rating_count', { ascending: false })
-      .limit(50)
-  );
+  // Single query using overlaps() instead of N separate contains() queries.
+  // overlaps() on text[] matches games whose designers array shares any element.
+  const designerNames = designers.slice(0, 5);
+  const { data, error } = await supabase
+    .from('games')
+    .select(GAME_COLUMNS)
+    .eq('is_expansion', false)
+    .overlaps('designers', designerNames)
+    .order('rating_count', { ascending: false })
+    .limit(100);
 
-  const results = await Promise.all(queries);
-  const seen = new Set<string>();
-  const merged: ReturnType<typeof rowToGame>[] = [];
-
-  for (const { data, error } of results) {
-    if (error) continue;
-    for (const row of (data ?? []) as GameRow[]) {
-      const game = rowToGame(row);
-      if (!seen.has(game.id)) {
-        seen.add(game.id);
-        merged.push(game);
-      }
-    }
+  if (error) {
+    console.error('[Recommend] Designer search error:', error);
+    return [];
   }
 
+  const merged = ((data ?? []) as GameRow[]).map(rowToGame);
   console.log(`[Recommend] Designer search: ${merged.length} games for [${designers.join(', ')}]`);
   return merged;
 }

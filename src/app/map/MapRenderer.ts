@@ -1,13 +1,13 @@
 /**
- * PixiJS game map renderer with dynamic viewport-based clustering.
+ * PixiJS game map renderer with hierarchical cluster navigation.
  *
- * At any zoom level, visible nodes are grouped into ~20-50 bubbles.
- * Click a bubble to zoom in, groups get smaller, eventually dissolve
- * into individual games. Always ~20-50 things on screen.
+ * Uses d3.pack() circle packing to lay out children without overlap.
+ * Click a bubble to drill into its children (sub-clusters or games).
  */
 
-import type { MapNode, MapCluster, ViewportState } from './types';
-import { CLUSTER_COLORS, clusterColorHex } from './types';
+import { pack, hierarchy as d3hierarchy } from 'd3-hierarchy';
+import type { HierarchyNode, MapNode, MapTree, ViewportState } from './types';
+import { hierarchyColorHex } from './types';
 
 let PIXI: typeof import('pixi.js') | null = null;
 async function getPixi() {
@@ -15,52 +15,71 @@ async function getPixi() {
   return PIXI;
 }
 
-/** A dynamic group of nearby nodes at the current zoom level */
-interface DynCluster {
-  cx: number;
-  cy: number;
-  count: number;
-  label: string;
-  colorIdx: number;
-  nodes: MapNode[];
+/** Visible bubble representing a hierarchy node */
+export interface VisibleBubble {
+  node: HierarchyNode;
+  screenX: number;
+  screenY: number;
+  screenRadius: number;
+  worldX: number;
+  worldY: number;
+  worldRadius: number;
 }
 
-function nodeRadius(ratingCount: number | null): number {
-  const rc = ratingCount ?? 10;
-  return Math.max(2, Math.log10(rc + 1) * 2);
+/** Visible game dot at leaf level */
+export interface VisibleGame {
+  game: MapNode;
+  screenX: number;
+  screenY: number;
+  screenRadius: number;
+  worldX: number;
+  worldY: number;
 }
 
 interface RendererOptions {
   container: HTMLElement;
   width: number;
   height: number;
-  nodes: MapNode[];
-  clusters: MapCluster[];
+}
+
+/** Packed layout positions for one level of children */
+interface PackedLayout {
+  focusNodeId: string;
+  centerX: number;
+  centerY: number;
+  outerRadius: number;
+  items: Array<{ id: string; x: number; y: number; r: number }>;
 }
 
 export class MapRenderer {
   private app: InstanceType<typeof import('pixi.js').Application> | null = null;
   private world: InstanceType<typeof import('pixi.js').Container> | null = null;
   private gfx: InstanceType<typeof import('pixi.js').Graphics> | null = null;
-  private bgGfx: InstanceType<typeof import('pixi.js').Graphics> | null = null;
-  nodes: MapNode[];
-  clusters: MapCluster[];
   private opts: RendererOptions;
   private viewport: ViewportState = { x: 5000, y: 5000, zoom: 0.15 };
-  hoveredNode: MapNode | null = null;
-  hoveredDynCluster: DynCluster | null = null;
   private destroyed = false;
   private renderScheduled = false;
-  private bgDrawn = false;
 
-  /** Current visible dynamic clusters (for hit testing) */
-  dynClusters: DynCluster[] = [];
+  private tree: MapTree | null = null;
+  private focusNodeId = 'root';
+
+  /** Cached packed layout for the current focus node */
+  private packedLayout: PackedLayout | null = null;
+
+  /** Currently visible hierarchy bubbles */
+  visibleBubbles: VisibleBubble[] = [];
+  /** Currently visible game dots at leaf level */
+  visibleGames: VisibleGame[] = [];
+
+  hoveredBubbleId: string | null = null;
+  hoveredGameId: string | null = null;
+
+  private transitionProgress = 1;
+  private transitionStart = 0;
+  private static TRANSITION_DURATION = 400;
 
   constructor(opts: RendererOptions) {
     this.opts = opts;
-    this.nodes = opts.nodes;
-    this.clusters = opts.clusters;
-    this.nodes.sort((a, b) => (b.ratingCount ?? 0) - (a.ratingCount ?? 0));
   }
 
   async init() {
@@ -82,30 +101,134 @@ export class MapRenderer {
     this.world = new pixi.Container();
     this.app.stage.addChild(this.world);
 
-    // Background fog layer (static)
-    this.bgGfx = new pixi.Graphics();
-    this.world.addChild(this.bgGfx);
-    this.drawBackground();
-
-    // Main drawing layer
     this.gfx = new pixi.Graphics();
     this.world.addChild(this.gfx);
-
-    this.updateViewport(this.viewport);
   }
 
-  private drawBackground() {
-    if (!this.bgGfx || this.bgDrawn) return;
-    const g = this.bgGfx;
-    // Soft fog behind pre-computed clusters for ambient color
-    for (const cluster of this.clusters) {
-      const color = clusterColorHex(cluster.id);
-      const r = Math.sqrt(cluster.count) * 6;
-      g.circle(cluster.cx, cluster.cy, r);
-      g.fill({ color, alpha: 0.04 });
+  setTree(tree: MapTree) {
+    this.tree = tree;
+    this.packedLayout = null;
+    this.scheduleRender();
+  }
+
+  setFocusNode(nodeId: string) {
+    if (this.focusNodeId === nodeId) return;
+    this.focusNodeId = nodeId;
+    this.packedLayout = null; // invalidate layout cache
+    this.transitionProgress = 0;
+    this.transitionStart = performance.now();
+    this.scheduleRender();
+  }
+
+  getFocusNodeId(): string {
+    return this.focusNodeId;
+  }
+
+  // ─── Circle Packing Layout ─────────────────────────────
+
+  /**
+   * Use d3.pack() to compute non-overlapping circle positions for the
+   * children of the current focus node. Results are in world coordinates
+   * centered on the focus node's centroid.
+   */
+  private computePackedLayout(): PackedLayout {
+    if (!this.tree) throw new Error('No tree');
+    const focusNode = this.tree.hierarchy.get(this.focusNodeId);
+    if (!focusNode) throw new Error('Focus node not found');
+
+    const isLeaf = focusNode.level === 4;
+
+    // Build a simple hierarchy for d3.pack()
+    interface PackDatum { id: string; value: number; children?: PackDatum[] }
+
+    let rootDatum: PackDatum;
+
+    if (isLeaf) {
+      // Children are game IDs
+      const children: PackDatum[] = focusNode.children
+        .filter((gid) => this.tree!.games.has(gid))
+        .map((gid) => {
+          const game = this.tree!.games.get(gid)!;
+          const rc = game.ratingCount ?? 10;
+          return { id: gid, value: Math.max(1, Math.sqrt(rc)) };
+        });
+      rootDatum = { id: 'pack-root', value: 0, children };
+    } else {
+      // Children are hierarchy nodes
+      const children: PackDatum[] = focusNode.children
+        .filter((cid) => this.tree!.hierarchy.has(cid))
+        .map((cid) => {
+          const child = this.tree!.hierarchy.get(cid)!;
+          return { id: cid, value: child.count };
+        });
+      rootDatum = { id: 'pack-root', value: 0, children };
     }
-    this.bgDrawn = true;
+
+    // Use a large packing radius so we have room in world space
+    const packSize = isLeaf ? 600 : 3000;
+
+    const root = d3hierarchy(rootDatum)
+      .sum((d) => d.value)
+      .sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
+
+    const packer = pack<PackDatum>()
+      .size([packSize, packSize])
+      .padding(isLeaf ? 8 : packSize * 0.03);
+
+    packer(root);
+
+    // Convert d3 output to our format, centered on the focus node's centroid
+    const offsetX = focusNode.cx - packSize / 2;
+    const offsetY = focusNode.cy - packSize / 2;
+
+    const items: PackedLayout['items'] = [];
+    // d3.pack() adds x, y, r to nodes but TypeScript doesn't expose r on the type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const rootAny = root as any;
+    if (rootAny.children) {
+      for (const child of rootAny.children) {
+        items.push({
+          id: child.data.id,
+          x: (child.x ?? 0) + offsetX,
+          y: (child.y ?? 0) + offsetY,
+          r: child.r ?? 10,
+        });
+      }
+    }
+
+    return {
+      focusNodeId: this.focusNodeId,
+      centerX: focusNode.cx,
+      centerY: focusNode.cy,
+      outerRadius: rootAny.r ?? packSize / 2,
+      items,
+    };
   }
+
+  private getPackedLayout(): PackedLayout {
+    if (!this.packedLayout || this.packedLayout.focusNodeId !== this.focusNodeId) {
+      this.packedLayout = this.computePackedLayout();
+    }
+    return this.packedLayout;
+  }
+
+  /**
+   * Get the bounding info for the packed layout (for camera fitting).
+   */
+  getChildrenBounds(): { cx: number; cy: number; worldRadius: number } | null {
+    if (!this.tree) return null;
+    const focusNode = this.tree.hierarchy.get(this.focusNodeId);
+    if (!focusNode) return null;
+
+    const layout = this.getPackedLayout();
+    return {
+      cx: layout.centerX,
+      cy: layout.centerY,
+      worldRadius: layout.outerRadius * 1.15,
+    };
+  }
+
+  // ─── Viewport & Rendering ──────────────────────────────
 
   updateViewport(state: ViewportState) {
     this.viewport = state;
@@ -117,167 +240,195 @@ export class MapRenderer {
     this.world.y = cy - state.y * state.zoom;
     this.world.scale.set(state.zoom);
 
-    if (!this.renderScheduled) {
-      this.renderScheduled = true;
-      requestAnimationFrame(() => {
-        this.renderScheduled = false;
-        if (!this.destroyed) this.render();
-      });
-    }
+    this.scheduleRender();
+  }
+
+  private scheduleRender() {
+    if (this.renderScheduled || this.destroyed) return;
+    this.renderScheduled = true;
+    requestAnimationFrame(() => {
+      this.renderScheduled = false;
+      if (!this.destroyed) this.render();
+    });
   }
 
   private render() {
     const g = this.gfx;
-    if (!g || this.destroyed) return;
+    if (!g || !this.tree || this.destroyed) return;
     g.clear();
 
-    const { zoom } = this.viewport;
-    const hw = (this.opts.width / 2) / zoom;
-    const hh = (this.opts.height / 2) / zoom;
-    const vx1 = this.viewport.x - hw;
-    const vy1 = this.viewport.y - hh;
-    const vx2 = this.viewport.x + hw;
-    const vy2 = this.viewport.y + hh;
-
-    // Get visible nodes
-    const visible: MapNode[] = [];
-    for (const node of this.nodes) {
-      if (node.x >= vx1 && node.x <= vx2 && node.y >= vy1 && node.y <= vy2) {
-        visible.push(node);
-      }
+    if (this.transitionProgress < 1) {
+      const elapsed = performance.now() - this.transitionStart;
+      this.transitionProgress = Math.min(1, elapsed / MapRenderer.TRANSITION_DURATION);
+      this.transitionProgress = 1 - Math.pow(1 - this.transitionProgress, 3);
+      if (this.transitionProgress < 1) this.scheduleRender();
     }
 
-    // Dynamic clustering: grid-based grouping
-    // Grid cell size adapts to viewport: we want ~30-50 cells across the view
-    const viewW = vx2 - vx1;
-    const viewH = vy2 - vy1;
-    const cellSize = Math.max(viewW, viewH) / 25;
+    const fadeAlpha = this.transitionProgress;
+    const focusNode = this.tree.hierarchy.get(this.focusNodeId);
+    if (!focusNode) return;
 
-    const gridMap = new Map<string, MapNode[]>();
-    for (const node of visible) {
-      const gx = Math.floor(node.x / cellSize);
-      const gy = Math.floor(node.y / cellSize);
-      const key = `${gx},${gy}`;
-      if (!gridMap.has(key)) gridMap.set(key, []);
-      gridMap.get(key)!.push(node);
-    }
+    const layout = this.getPackedLayout();
+    const isLeafLevel = focusNode.level === 4;
 
-    // Build dynamic clusters from grid cells
-    const dynClusters: DynCluster[] = [];
-    const soloNodes: MapNode[] = [];
-
-    for (const [, cellNodes] of gridMap) {
-      if (cellNodes.length <= 3) {
-        // Too few to cluster -- show individually
-        soloNodes.push(...cellNodes);
-      } else {
-        // Compute centroid
-        let sumX = 0, sumY = 0;
-        for (const n of cellNodes) { sumX += n.x; sumY += n.y; }
-        const cx = sumX / cellNodes.length;
-        const cy = sumY / cellNodes.length;
-
-        // Label from most common category of first few nodes
-        // (We don't have categories in MapNode, so use pre-computed cluster label)
-        const clusterIds = cellNodes.map((n) => n.clusterId);
-        const mostCommon = mode(clusterIds);
-        const preCluster = this.clusters.find((c) => c.id === mostCommon);
-        const label = preCluster?.label?.replace(/&#039;/g, "'") ?? 'Games';
-
-        dynClusters.push({
-          cx, cy,
-          count: cellNodes.length,
-          label,
-          colorIdx: mostCommon ?? 0,
-          nodes: cellNodes,
-        });
-      }
-    }
-
-    this.dynClusters = dynClusters;
-
-    // Draw dynamic cluster bubbles
-    for (const dc of dynClusters) {
-      const color = clusterColorHex(dc.colorIdx);
-      const r = Math.max(15, Math.sqrt(dc.count) * 3);
-      const isHov = this.hoveredDynCluster === dc;
-
-      g.circle(dc.cx, dc.cy, r);
-      g.fill({ color, alpha: isHov ? 0.55 : 0.3 });
-      g.circle(dc.cx, dc.cy, r);
-      g.stroke({ color: 0xFFFFFF, alpha: isHov ? 0.4 : 0.12, width: isHov ? 2 : 1 });
-    }
-
-    // Draw solo nodes (not part of a cluster at this zoom)
-    for (const node of soloNodes) {
-      const color = clusterColorHex(node.clusterId);
-      const r = nodeRadius(node.ratingCount);
-      const isHov = this.hoveredNode?.id === node.id;
-
-      if (isHov) {
-        g.circle(node.x, node.y, r + 4);
-        g.fill({ color: 0xFFFFFF, alpha: 0.3 });
-      }
-      g.circle(node.x, node.y, r);
-      g.fill({ color, alpha: isHov ? 1.0 : 0.7 });
-      g.circle(node.x, node.y, r);
-      g.stroke({ color: 0xFFFFFF, alpha: isHov ? 0.6 : 0.1, width: isHov ? 1.5 : 0.5 });
+    if (isLeafLevel) {
+      this.renderGameLeaves(g, focusNode, layout, fadeAlpha);
+    } else {
+      this.renderHierarchyBubbles(g, focusNode, layout, fadeAlpha);
     }
   }
 
-  /** Hit test: at any zoom, check dynamic clusters first, then solo nodes */
-  dynClusterHitTest(screenX: number, screenY: number): DynCluster | null {
-    const worldX = this.viewport.x + (screenX - this.opts.width / 2) / this.viewport.zoom;
-    const worldY = this.viewport.y + (screenY - this.opts.height / 2) / this.viewport.zoom;
+  private renderHierarchyBubbles(
+    g: InstanceType<typeof import('pixi.js').Graphics>,
+    _focusNode: HierarchyNode,
+    layout: PackedLayout,
+    fadeAlpha: number,
+  ) {
+    const bubbles: VisibleBubble[] = [];
+    const { zoom } = this.viewport;
 
-    for (const dc of this.dynClusters) {
-      const r = Math.max(15, Math.sqrt(dc.count) * 3);
-      const dx = dc.cx - worldX;
-      const dy = dc.cy - worldY;
-      if (dx * dx + dy * dy < r * r) return dc;
+    for (const item of layout.items) {
+      const child = this.tree!.hierarchy.get(item.id);
+      if (!child) continue;
+
+      const screenX = (item.x - this.viewport.x) * zoom + this.opts.width / 2;
+      const screenY = (item.y - this.viewport.y) * zoom + this.opts.height / 2;
+      const screenR = item.r * zoom;
+
+      // Frustum cull
+      if (screenX + screenR < -20 || screenX - screenR > this.opts.width + 20 ||
+          screenY + screenR < -20 || screenY - screenR > this.opts.height + 20) {
+        continue;
+      }
+
+      const isHovered = this.hoveredBubbleId === child.id;
+      const color = hierarchyColorHex(child.colorIndex, child.level);
+
+      // Solid filled circle
+      g.circle(item.x, item.y, item.r);
+      g.fill({ color, alpha: fadeAlpha * (isHovered ? 0.75 : 0.55) });
+
+      // Stroke
+      g.circle(item.x, item.y, item.r);
+      g.stroke({ color: 0xFFFFFF, alpha: fadeAlpha * (isHovered ? 0.4 : 0.12), width: isHovered ? 2.5 : 1 });
+
+      bubbles.push({
+        node: child,
+        screenX, screenY, screenRadius: screenR,
+        worldX: item.x, worldY: item.y, worldRadius: item.r,
+      });
+    }
+
+    this.visibleBubbles = bubbles;
+    this.visibleGames = [];
+  }
+
+  private renderGameLeaves(
+    g: InstanceType<typeof import('pixi.js').Graphics>,
+    focusNode: HierarchyNode,
+    layout: PackedLayout,
+    fadeAlpha: number,
+  ) {
+    const visGames: VisibleGame[] = [];
+    const { zoom } = this.viewport;
+
+    for (const item of layout.items) {
+      const game = this.tree!.games.get(item.id);
+      if (!game) continue;
+
+      const screenX = (item.x - this.viewport.x) * zoom + this.opts.width / 2;
+      const screenY = (item.y - this.viewport.y) * zoom + this.opts.height / 2;
+      const screenR = item.r * zoom;
+
+      if (screenX + screenR < -20 || screenX - screenR > this.opts.width + 20 ||
+          screenY + screenR < -20 || screenY - screenR > this.opts.height + 20) {
+        continue;
+      }
+
+      const isHovered = this.hoveredGameId === game.id;
+      const color = hierarchyColorHex(focusNode.colorIndex, 4);
+
+      if (isHovered) {
+        g.circle(item.x, item.y, item.r + 3);
+        g.fill({ color: 0xFFFFFF, alpha: fadeAlpha * 0.2 });
+      }
+
+      g.circle(item.x, item.y, item.r);
+      g.fill({ color, alpha: fadeAlpha * (isHovered ? 1.0 : 0.8) });
+
+      if (isHovered) {
+        g.circle(item.x, item.y, item.r);
+        g.stroke({ color: 0xFFFFFF, alpha: fadeAlpha * 0.5, width: 1.5 });
+      }
+
+      visGames.push({
+        game,
+        screenX, screenY, screenRadius: screenR,
+        worldX: item.x, worldY: item.y,
+      });
+    }
+
+    this.visibleBubbles = [];
+    this.visibleGames = visGames;
+  }
+
+  // ─── Hit Testing ─────────────────────────────────────────
+
+  bubbleHitTest(screenX: number, screenY: number): HierarchyNode | null {
+    // Test smallest bubbles first so you can click inside overlapping areas
+    const sorted = [...this.visibleBubbles].sort((a, b) => a.screenRadius - b.screenRadius);
+    for (const bubble of sorted) {
+      const dx = screenX - bubble.screenX;
+      const dy = screenY - bubble.screenY;
+      if (dx * dx + dy * dy < bubble.screenRadius * bubble.screenRadius) {
+        return bubble.node;
+      }
     }
     return null;
   }
 
-  hitTest(screenX: number, screenY: number): MapNode | null {
-    const worldX = this.viewport.x + (screenX - this.opts.width / 2) / this.viewport.zoom;
-    const worldY = this.viewport.y + (screenY - this.opts.height / 2) / this.viewport.zoom;
-
-    const hitR = 15;
+  gameHitTest(screenX: number, screenY: number): MapNode | null {
+    const hitR = 20;
     let best: MapNode | null = null;
     let bestDist = hitR * hitR;
 
-    for (const node of this.nodes) {
-      const dx = node.x - worldX;
-      const dy = node.y - worldY;
+    for (const vg of this.visibleGames) {
+      const dx = screenX - vg.screenX;
+      const dy = screenY - vg.screenY;
       const d2 = dx * dx + dy * dy;
       if (d2 < bestDist) {
         bestDist = d2;
-        best = node;
+        best = vg.game;
       }
     }
     return best;
   }
 
-  setHoveredDynCluster(dc: DynCluster | null) {
-    if (this.hoveredDynCluster === dc) return;
-    this.hoveredDynCluster = dc;
-    this.hoveredNode = null;
-    if (this.app) {
-      (this.app.canvas as HTMLCanvasElement).style.cursor = dc ? 'pointer' : 'grab';
-    }
-    this.render();
+  // ─── Hover State ─────────────────────────────────────────
+
+  setHoveredBubble(nodeId: string | null) {
+    if (this.hoveredBubbleId === nodeId) return;
+    this.hoveredBubbleId = nodeId;
+    this.hoveredGameId = null;
+    this.setCursor(nodeId ? 'pointer' : 'grab');
+    this.scheduleRender();
   }
 
-  setHoveredNode(node: MapNode | null) {
-    if (this.hoveredNode?.id === node?.id) return;
-    this.hoveredNode = node;
-    this.hoveredDynCluster = null;
-    if (this.app) {
-      (this.app.canvas as HTMLCanvasElement).style.cursor = node ? 'pointer' : 'grab';
-    }
-    this.render();
+  setHoveredGame(gameId: string | null) {
+    if (this.hoveredGameId === gameId) return;
+    this.hoveredGameId = gameId;
+    this.hoveredBubbleId = null;
+    this.setCursor(gameId ? 'pointer' : 'grab');
+    this.scheduleRender();
   }
+
+  private setCursor(cursor: string) {
+    if (this.app) {
+      (this.app.canvas as HTMLCanvasElement).style.cursor = cursor;
+    }
+  }
+
+  // ─── Lifecycle ───────────────────────────────────────────
 
   resize(width: number, height: number) {
     this.opts.width = width;
@@ -291,17 +442,4 @@ export class MapRenderer {
     this.app?.destroy(true, { children: true, texture: true });
     this.app = null;
   }
-}
-
-/** Find the most common value in an array */
-function mode(arr: number[]): number {
-  const counts = new Map<number, number>();
-  let best = arr[0] ?? 0;
-  let bestCount = 0;
-  for (const v of arr) {
-    const c = (counts.get(v) ?? 0) + 1;
-    counts.set(v, c);
-    if (c > bestCount) { bestCount = c; best = v; }
-  }
-  return best;
 }

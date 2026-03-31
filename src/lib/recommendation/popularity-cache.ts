@@ -82,13 +82,17 @@ export async function computeAndCachePopularLists(): Promise<{
     .gte('rating_count', 10)
     .order('rating_count', { ascending: false }), 100);
 
+  // Run all list queries in parallel batches of 10 to avoid hammering the DB
+  // with 46 simultaneous queries, while still being much faster than sequential.
+  const allTasks: Array<() => Promise<void>> = [];
+
   // Top per type
   for (const type of ['board', 'video', 'word', 'party']) {
-    await cacheList(`type:${type}`, supabase
+    allTasks.push(() => cacheList(`type:${type}`, supabase
       .from('games').select(GAME_COLUMNS)
       .contains('types', [type])
       .gte('rating_count', 5)
-      .order('rating_count', { ascending: false }), 50);
+      .order('rating_count', { ascending: false }), 50));
   }
 
   // Top per player count bracket
@@ -101,20 +105,20 @@ export async function computeAndCachePopularLists(): Promise<{
   ];
 
   for (const { key: bracketKey, min, max } of playerBrackets) {
-    await cacheList(`players:${bracketKey}`, supabase
+    allTasks.push(() => cacheList(`players:${bracketKey}`, supabase
       .from('games').select(GAME_COLUMNS)
       .lte('min_players', max).gte('max_players', min)
       .gte('rating_count', 3)
-      .order('rating_count', { ascending: false }), 50);
+      .order('rating_count', { ascending: false }), 50));
   }
 
   // Top per popular category
   for (const category of POPULAR_CATEGORIES) {
-    await cacheList(`cat:${category}`, supabase
+    allTasks.push(() => cacheList(`cat:${category}`, supabase
       .from('games').select(GAME_COLUMNS)
       .contains('categories', [category])
       .gte('rating_count', 3)
-      .order('rating_count', { ascending: false }), 30);
+      .order('rating_count', { ascending: false }), 30));
   }
 
   // Top per popular mechanic
@@ -124,11 +128,17 @@ export async function computeAndCachePopularLists(): Promise<{
     'Engine Building', 'Tile Placement',
   ];
   for (const mechanic of POPULAR_MECHANICS) {
-    await cacheList(`mech:${mechanic}`, supabase
+    allTasks.push(() => cacheList(`mech:${mechanic}`, supabase
       .from('games').select(GAME_COLUMNS)
       .contains('mechanics', [mechanic])
       .gte('rating_count', 3)
-      .order('rating_count', { ascending: false }), 30);
+      .order('rating_count', { ascending: false }), 30));
+  }
+
+  // Execute in batches of 5 to spread CPU load instead of firing all 46 at once
+  const BATCH_SIZE = 5;
+  for (let i = 0; i < allTasks.length; i += BATCH_SIZE) {
+    await Promise.all(allTasks.slice(i, i + BATCH_SIZE).map((fn) => fn()));
   }
 
   return { totalLists, totalGames };

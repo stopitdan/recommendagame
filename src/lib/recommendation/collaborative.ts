@@ -75,10 +75,10 @@ export async function getItemBasedRecommendations(
   const supabase = getSupabase();
   if (!supabase) return [];
 
-  // Check if we have enough feedback data
+  // Check if we have enough feedback data (use estimated count to avoid full scan)
   const { count } = await supabase
     .from('user_reviews')
-    .select('*', { count: 'exact', head: true });
+    .select('*', { count: 'estimated', head: true });
 
   if ((count ?? 0) < MIN_FEEDBACK_FOR_ITEM_CF) return [];
 
@@ -87,7 +87,8 @@ export async function getItemBasedRecommendations(
     .from('user_reviews')
     .select('user_id')
     .in('game_id', likedGameIds)
-    .gte('rating', 7);
+    .gte('rating', 7)
+    .limit(500);
 
   if (userError || !similarUserReviews || similarUserReviews.length === 0) return [];
 
@@ -105,7 +106,8 @@ export async function getItemBasedRecommendations(
     .from('user_reviews')
     .select('game_id')
     .in('user_id', filteredUserIds)
-    .gte('rating', 7);
+    .gte('rating', 7)
+    .limit(1000);
 
   if (reviewError || !otherReviews) return [];
 
@@ -169,7 +171,8 @@ export async function getUserBasedRecommendations(
     .select('user_id, game_id, rating')
     .in('game_id', [...userLikedGames])
     .gte('rating', 6)
-    .neq('user_id', userId);
+    .neq('user_id', userId)
+    .limit(1000);
 
   if (otherError || !otherReviews) return [];
 
@@ -201,7 +204,8 @@ export async function getUserBasedRecommendations(
     .from('user_reviews')
     .select('game_id, rating, user_id')
     .in('user_id', similarUserIds)
-    .gte('rating', 7);
+    .gte('rating', 7)
+    .limit(1000);
 
   if (recError || !recs) return [];
 

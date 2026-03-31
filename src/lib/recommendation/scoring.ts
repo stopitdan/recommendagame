@@ -131,18 +131,34 @@ export function scoreGame(
     recencyBoost: scoreRecency(game),
   };
 
+  // When the user's query has a very specific intent (designer, similar-to),
+  // the freeTextMatch signal should dominate scoring. Otherwise a popular
+  // game tagged "Strategy" outscores the exact designer the user asked for
+  // because freeTextMatch is only 14% of the default weight.
+  let effectiveWeights = weights;
+  const llm = prefs.llmParsed;
+  if (llm && ((llm.designers?.length ?? 0) > 0 || (llm.similarTo?.length ?? 0) > 0)) {
+    effectiveWeights = {
+      ...weights,
+      freeTextMatch: 0.45,
+      genreMatch: 0.10,
+      popularitySignal: 0.08,
+      qualitySignal: 0.02,
+    };
+  }
+
   // Weighted sum
   const score =
-    breakdown.typeMatch * weights.typeMatch +
-    breakdown.playerCountFit * weights.playerCountFit +
-    breakdown.timeFit * weights.timeFit +
-    breakdown.complexityFit * weights.complexityFit +
-    breakdown.genreMatch * weights.genreMatch +
-    breakdown.moodAlignment * weights.moodAlignment +
-    breakdown.freeTextMatch * weights.freeTextMatch +
-    breakdown.qualitySignal * weights.qualitySignal +
-    breakdown.popularitySignal * weights.popularitySignal +
-    breakdown.recencyBoost * weights.recencyBoost;
+    breakdown.typeMatch * effectiveWeights.typeMatch +
+    breakdown.playerCountFit * effectiveWeights.playerCountFit +
+    breakdown.timeFit * effectiveWeights.timeFit +
+    breakdown.complexityFit * effectiveWeights.complexityFit +
+    breakdown.genreMatch * effectiveWeights.genreMatch +
+    breakdown.moodAlignment * effectiveWeights.moodAlignment +
+    breakdown.freeTextMatch * effectiveWeights.freeTextMatch +
+    breakdown.qualitySignal * effectiveWeights.qualitySignal +
+    breakdown.popularitySignal * effectiveWeights.popularitySignal +
+    breakdown.recencyBoost * effectiveWeights.recencyBoost;
 
   const reasons = generateReasons(game, prefs, breakdown);
 

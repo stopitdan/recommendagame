@@ -81,6 +81,19 @@ export class CameraController {
     this.flyRaf = requestAnimationFrame(animate);
   }
 
+  /**
+   * Fly to a position and zoom level that fits a given world-space radius
+   * into the viewport with some padding.
+   */
+  flyToFit(cx: number, cy: number, worldRadius: number) {
+    const rect = this.canvas.getBoundingClientRect();
+    const screenSize = Math.min(rect.width, rect.height);
+    // Fit the diameter into ~75% of the smaller screen dimension
+    const targetZoom = screenSize / (worldRadius * 2.5);
+    const clampedZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, targetZoom));
+    this.flyTo(cx, cy, clampedZoom);
+  }
+
   /** Convert screen coords to world coords */
   screenToWorld(screenX: number, screenY: number): { x: number; y: number } {
     const rect = this.canvas.getBoundingClientRect();

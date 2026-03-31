@@ -283,12 +283,13 @@ export default function ResultsView() {
       }
     } catch { /* proceed without LLM */ }
 
-    // Rebuild URL with new text + LLM data, keep other params
-    const params = new URLSearchParams(searchParams.toString());
+    // Rebuild URL from scratch with only LLM-derived params.
+    // Starting from existing params would carry over stale filters
+    // (e.g., time=quick,short) from a previous search.
+    const params = new URLSearchParams();
     params.set('freeText', text);
     if (llmParsed) {
       params.set('llmParsed', encodeURIComponent(JSON.stringify(llmParsed)));
-      // Update genre/type params from LLM if available
       if (llmParsed.gameTypes?.length) params.set('types', llmParsed.gameTypes.join(','));
       if (llmParsed.genres?.length) params.set('genres', llmParsed.genres.join(','));
       if (llmParsed.moods?.length) params.set('moods', llmParsed.moods.join(','));
@@ -296,6 +297,11 @@ export default function ResultsView() {
         params.set('minPlayers', String(llmParsed.playerCount.min));
         params.set('maxPlayers', String(llmParsed.playerCount.max));
       }
+      if (llmParsed.complexity) {
+        params.set('minComplexity', String(llmParsed.complexity.min));
+        params.set('maxComplexity', String(llmParsed.complexity.max));
+      }
+      if (llmParsed.timePresets?.length) params.set('time', llmParsed.timePresets.join(','));
     }
 
     setIsReparsing(false);
