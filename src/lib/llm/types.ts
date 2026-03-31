@@ -45,6 +45,9 @@ export interface ParsedPreferences {
 
   /** How strict the time limit is: "hard" for "under/less than/no more than", "soft" for "about/around" */
   timeStrictness: 'hard' | 'soft' | null;
+
+  /** Designer/author names the user mentioned */
+  designers: string[];
 }
 
 /** Empty parsed preferences (used as default/fallback) */
@@ -62,4 +65,5 @@ export const EMPTY_PARSED: ParsedPreferences = {
   excludedMechanics: [],
   maxMinutes: null,
   timeStrictness: null,
+  designers: [],
 };

@@ -26,6 +26,7 @@ Return a JSON object with these fields:
 - "timeStrictness": how strict is the time limit? "hard" if they say "under", "less than", "no more than", "no longer than", "max", "within". "soft" if they say "about", "around", "roughly", "approximately", "ish". null if not mentioned or if no specific time given.
 - "similarTo": array of specific game names the user mentioned or compared to (e.g. "Catan", "Slay the Spire", "Wordle", "Hollow Knight"). Empty array if none. Include both board AND video games.
 - "keywords": array of other relevant keywords that don't fit above but help find games (e.g. "replayable", "solo", "legacy", "campaign", "miniatures", "pixel art", "hand-drawn", "atmospheric", "procedural", "permadeath", "base-building", "exploration", "loot").
+- "designers": array of game designer/author names the user mentioned (e.g. "Uwe Rosenberg", "Stefan Feld", "Vlaada Chvátil", "Reiner Knizia", "Hideo Kojima"). Empty array if no designers mentioned. Use full names.
 
 Be generous in extraction — if the user implies something, include it. Examples:
 - "something my kids would enjoy" → genres: ["Family"], moods: ["chill"], complexity: {min:1, max:2}
@@ -36,6 +37,8 @@ Be generous in extraction — if the user implies something, include it. Example
 - "we want to argue and betray each other" → moods: ["competitive", "social"], mechanics: ["Social Deduction", "Negotiation", "Hidden Role"]
 - "I just want to build stuff" → genres: ["City Builder", "Simulation", "Sandbox"], mechanics: ["Engine Building"], keywords: ["building", "creative", "construction"]
 - "a game like Stardew Valley but board game" → gameTypes: ["board"], similarTo: ["Stardew Valley"], genres: ["Farming", "Cozy"], moods: ["chill"]
+- "games designed by Stefan Feld" → designers: ["Stefan Feld"], genres: ["Strategy"]
+- "an Uwe Rosenberg worker placement" → designers: ["Uwe Rosenberg"], mechanics: ["Worker Placement"]
 
 Handle typos naturally — "roguelkie" means "roguelike", "stategy" means "strategy", "metroidvnia" means "metroidvania".
 
@@ -123,6 +126,7 @@ function validateAndClean(raw: Record<string, unknown>, originalText: string): P
     excludedMechanics: toStringArray(raw.excludedMechanics),
     maxMinutes: typeof raw.maxMinutes === 'number' && raw.maxMinutes > 0 ? raw.maxMinutes : null,
     timeStrictness: raw.timeStrictness === 'hard' || raw.timeStrictness === 'soft' ? raw.timeStrictness : null,
+    designers: toStringArray(raw.designers),
   };
 
   // Post-processing: extract time from original text if LLM missed it

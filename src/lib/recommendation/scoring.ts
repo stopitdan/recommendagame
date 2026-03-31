@@ -589,7 +589,8 @@ function hasLLMData(parsed: ParsedPreferences): boolean {
     parsed.genres.length > 0 ||
     parsed.mechanics.length > 0 ||
     parsed.keywords.length > 0 ||
-    parsed.similarTo.length > 0
+    parsed.similarTo.length > 0 ||
+    (parsed.designers?.length ?? 0) > 0
   );
 }
 
@@ -604,12 +605,28 @@ function scoreFreeTextLLM(game: Game, parsed: ParsedPreferences): number {
   const gameThemes = game.themes.map((t) => t.toLowerCase());
   const gameName = game.name.toLowerCase();
   const gameDesc = (game.description ?? '').toLowerCase();
+  const gameDesigners = (game.designers ?? []).map((d) => d.toLowerCase());
   const allTags = [...gameMechanics, ...gameCategories, ...gameThemes];
 
   let totalScore = 0;
   let totalChecks = 0;
 
-  // Mechanics match (very strong signal — LLM identified specific mechanics)
+  // Designer match (strongest signal -- if user asked for a specific designer,
+  // this should dominate. A game by the right designer scores 1.0, wrong designer 0.0)
+  if (parsed.designers?.length > 0) {
+    let designerHits = 0;
+    for (const designer of parsed.designers) {
+      const lower = designer.toLowerCase();
+      if (gameDesigners.some((gd) => gd.includes(lower) || lower.includes(gd))) {
+        designerHits++;
+      }
+    }
+    // Weight designer match very heavily (1.5x) to dominate the score
+    totalScore += (designerHits / parsed.designers.length) * 1.5;
+    totalChecks++;
+  }
+
+  // Mechanics match (very strong signal -- LLM identified specific mechanics)
   if (parsed.mechanics.length > 0) {
     let mechanicHits = 0;
     for (const mech of parsed.mechanics) {

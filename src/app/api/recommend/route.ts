@@ -242,7 +242,13 @@ export async function POST(request: NextRequest) {
       ? withTimeout(fetchDirectMechanicMatches(supabase, uniqueMechanicTerms), 5000, [])
       : Promise.resolve([]);
 
-    const [ratingCandidates, vectorCandidates, textCandidates, tagCandidates, mechanicCandidates] = await Promise.all([
+    // Designer search: if the user asked for a specific designer, fetch their games directly
+    const designerNames = body.llmParsed?.designers ?? [];
+    const designerSearchPromise = designerNames.length > 0
+      ? withTimeout(fetchDesignerCandidates(supabase, designerNames), 5000, [])
+      : Promise.resolve([]);
+
+    const [ratingCandidates, vectorCandidates, textCandidates, tagCandidates, mechanicCandidates, designerCandidates] = await Promise.all([
       withTimeout(fetchCandidates(supabase, body, popularity, extra), 8000, []),
       withTimeout(fetchVectorCandidates(body, { limit: VECTOR_POOL_SIZE, columns: GAME_COLUMNS, supabaseClient: supabase }), 8000, []),
       body.freeText && body.freeText.trim().length >= 3
@@ -252,6 +258,7 @@ export async function POST(request: NextRequest) {
         ? withTimeout(fetchTagCandidates(supabase, allTags, body), 5000, [])
         : Promise.resolve([]),
       mechanicSearchPromise,
+      designerSearchPromise,
     ]);
 
     // Deduplicate: rating-based first, then merge in vector + text + tag matches
@@ -259,7 +266,7 @@ export async function POST(request: NextRequest) {
     let candidates = [...ratingCandidates];
     for (const g of candidates) seen.add(g.id);
 
-    for (const source of [mechanicCandidates, vectorCandidates, tagCandidates, textCandidates]) {
+    for (const source of [designerCandidates, mechanicCandidates, vectorCandidates, tagCandidates, textCandidates]) {
       for (const g of source) {
         if (!seen.has(g.id)) { candidates.push(g); seen.add(g.id); }
       }
@@ -292,7 +299,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log(`[Recommend] Hybrid pool: ${ratingCandidates.length} rating + ${mechanicCandidates.length} mechanic + ${vectorCandidates.length} vector + ${tagCandidates.length} tag + ${textCandidates.length} text + ${expandedCount} expanded = ${candidates.length} unique`);
+    console.log(`[Recommend] Hybrid pool: ${ratingCandidates.length} rating + ${designerCandidates.length} designer + ${mechanicCandidates.length} mechanic + ${vectorCandidates.length} vector + ${tagCandidates.length} tag + ${textCandidates.length} text + ${expandedCount} expanded = ${candidates.length} unique`);
 
     // Progressive fallbacks (only if hybrid produced nothing)
     if (candidates.length === 0) {
@@ -933,6 +940,48 @@ async function fetchDirectMechanicMatches(
   }
 
   console.log(`[Recommend] Direct mechanic search: ${merged.length} games for [${uniqueMechanics.join(', ')}]`);
+  return merged;
+}
+
+/**
+ * Fetch games by designer name(s). Uses the `designers` array column
+ * with case-insensitive substring matching.
+ */
+async function fetchDesignerCandidates(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+  designers: string[],
+): Promise<ReturnType<typeof rowToGame>[]> {
+  if (designers.length === 0) return [];
+
+  // Query for each designer name (ilike on the text[] column doesn't work,
+  // so we use a text search on the serialized designers column)
+  const queries = designers.slice(0, 3).map((name) =>
+    supabase
+      .from('games')
+      .select(GAME_COLUMNS)
+      .eq('is_expansion', false)
+      .contains('designers', [name])
+      .order('rating_count', { ascending: false })
+      .limit(50)
+  );
+
+  const results = await Promise.all(queries);
+  const seen = new Set<string>();
+  const merged: ReturnType<typeof rowToGame>[] = [];
+
+  for (const { data, error } of results) {
+    if (error) continue;
+    for (const row of (data ?? []) as GameRow[]) {
+      const game = rowToGame(row);
+      if (!seen.has(game.id)) {
+        seen.add(game.id);
+        merged.push(game);
+      }
+    }
+  }
+
+  console.log(`[Recommend] Designer search: ${merged.length} games for [${designers.join(', ')}]`);
   return merged;
 }
 

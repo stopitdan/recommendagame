@@ -700,6 +700,7 @@ describe('recommendation quality', () => {
         excludedMechanics: [],
         maxMinutes: null,
         timeStrictness: null,
+        designers: [],
       },
     });
 

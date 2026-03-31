@@ -74,6 +74,7 @@ export default function SearchAutocomplete({ value, onChange, onSubmit, onSelect
       onClose={() => setOpen(false)}
       options={suggestions}
       getOptionLabel={(opt) => (typeof opt === 'string' ? opt : opt.name)}
+      getOptionKey={(opt) => (typeof opt === 'string' ? opt : opt.id)}
       loading={loading}
       filterOptions={(x) => x} // Don't filter client-side, server already filtered
       inputValue={value}
