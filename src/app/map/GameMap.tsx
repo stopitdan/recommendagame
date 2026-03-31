@@ -214,8 +214,6 @@ export default function GameMap({ flyTarget, height = 700 }: GameMapProps) {
     const game = rendererRef.current.gameHitTest(sx, sy);
     if (game) {
       setSelectedNode(game);
-      const curZoom = cameraRef.current?.state.zoom ?? 1;
-      cameraRef.current?.flyTo(game.x, game.y, Math.max(curZoom, curZoom * 1.3));
       return;
     }
 
@@ -229,25 +227,10 @@ export default function GameMap({ flyTarget, height = 700 }: GameMapProps) {
 
   // ─── Zoom controls ──────────────────────────────────────
 
-  // Plus: drill into the largest visible cluster (or just zoom if at leaf)
-  function zoomInOrDown() {
-    const renderer = rendererRef.current;
-    if (!renderer) return;
-
-    // If there are visible bubbles, drill into the largest one
-    if (renderer.visibleBubbles.length > 0) {
-      const largest = renderer.visibleBubbles.reduce((a, b) =>
-        a.node.count > b.node.count ? a : b
-      );
-      drillInto(largest.node);
-      return;
-    }
-
-    // At leaf level, just zoom camera
-    if (cameraRef.current) {
-      const s = cameraRef.current.state;
-      cameraRef.current.flyTo(s.x, s.y, Math.min(s.zoom * 1.5, 10));
-    }
+  function zoomIn() {
+    if (!cameraRef.current) return;
+    const s = cameraRef.current.state;
+    cameraRef.current.flyTo(s.x, s.y, Math.min(s.zoom * 1.5, 10));
   }
 
   // Minus: navigate up a layer (or just zoom out if at root)
@@ -459,7 +442,7 @@ export default function GameMap({ flyTarget, height = 700 }: GameMapProps) {
 
       {/* Controls (bottom right) */}
       <Box sx={{ position: 'absolute', bottom: 16, right: 16, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-        <IconButton onClick={zoomInOrDown} size="small" sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: '#FFF', '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' } }}>
+        <IconButton onClick={zoomIn} size="small" sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: '#FFF', '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' } }}>
           <Plus size={18} />
         </IconButton>
         <IconButton onClick={zoomOutOrUp} size="small" sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: '#FFF', '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' } }}>

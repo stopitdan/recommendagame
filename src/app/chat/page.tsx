@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
-import { redirect } from 'next/navigation';
-// import ChatView from './ChatView'; // Hidden until paid tier
+import ChatView from './ChatView';
 
 export const metadata: Metadata = {
   title: 'Board Game Sommelier | boredgame.lol',
@@ -8,8 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function ChatPage() {
-  // Chat is hidden until paid tier is available.
-  // All code remains — just uncomment ChatView and remove the redirect.
-  redirect('/');
-  // return <ChatView />;
+  return <ChatView />;
 }

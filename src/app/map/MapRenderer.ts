@@ -388,15 +388,16 @@ export class MapRenderer {
   }
 
   gameHitTest(screenX: number, screenY: number): MapNode | null {
-    const hitR = 20;
     let best: MapNode | null = null;
-    let bestDist = hitR * hitR;
+    let bestDist = Infinity;
 
     for (const vg of this.visibleGames) {
       const dx = screenX - vg.screenX;
       const dy = screenY - vg.screenY;
       const d2 = dx * dx + dy * dy;
-      if (d2 < bestDist) {
+      // Use the actual visual radius as the hit target (min 12px so small dots are clickable)
+      const hitR = Math.max(12, vg.screenRadius);
+      if (d2 < hitR * hitR && d2 < bestDist) {
         bestDist = d2;
         best = vg.game;
       }

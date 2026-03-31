@@ -413,13 +413,14 @@ export default function GameDetailView() {
 
       <Divider sx={{ my: 4 }} />
 
-      {/* Game neighborhood map */}
+      {/* Game neighborhood map -- hidden until map rearchitecture is polished
       <Box sx={{ mb: 4 }}>
         <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
           Game Neighborhood
         </Typography>
         <GameNeighborhood gameId={game.id} />
       </Box>
+      */}
 
       {/* Cross-type recommendations (board <-> video) */}
       <Box sx={{ mb: 4 }}>
