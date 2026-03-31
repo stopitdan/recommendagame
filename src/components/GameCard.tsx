@@ -98,19 +98,21 @@ export default function GameCard({ game, showFavorite = true, isFavorited = fals
         },
       }}
     >
-      {/* Game type icon badge */}
+      {/* Game type icon badge — pinned to image area so it doesn't overlap content icons */}
       <Tooltip title={typeConfig.label} arrow>
         <Box
           aria-label={typeConfig.label}
           sx={{
             position: 'absolute',
             top: 8,
-            right: 8,
+            left: { xs: 'auto', sm: 8 },
+            right: { xs: 8, sm: 'auto' },
             zIndex: 1,
             width: 28,
             height: 28,
             borderRadius: '50%',
             bgcolor: typeConfig.color,
+            border: '2px solid #FFFFFF',
             color: '#FFFFFF',
             display: 'flex',
             alignItems: 'center',

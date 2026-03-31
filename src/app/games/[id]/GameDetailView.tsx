@@ -25,6 +25,7 @@ import MechanicChip from '@/components/MechanicChip';
 import ReportIssueButton from '@/components/ReportIssueButton';
 import QuickStartGuide from '@/components/QuickStartGuide';
 import GameNeighborhood from '@/components/GameNeighborhood';
+import CrossTypeRecommendations from '@/components/CrossTypeRecommendations';
 import JsonLd from '@/components/JsonLd';
 import { Users, Clock, Brain, Calendar, BarChart3, ExternalLink, ShoppingCart, Trophy, UserCheck } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -418,6 +419,17 @@ export default function GameDetailView() {
           Game Neighborhood
         </Typography>
         <GameNeighborhood gameId={game.id} />
+      </Box>
+
+      {/* Cross-type recommendations (board <-> video) */}
+      <Box sx={{ mb: 4 }}>
+        <CrossTypeRecommendations
+          gameId={game.id}
+          gameType={game.types[0] ?? 'board'}
+          gameName={game.name}
+          categories={game.categories}
+          mechanics={game.mechanics}
+        />
       </Box>
 
       {/* Similar games */}

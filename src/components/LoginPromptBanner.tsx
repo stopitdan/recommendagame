@@ -39,14 +39,14 @@ export default function LoginPromptBanner() {
           color="inherit"
           size="small"
           onClick={() => router.push('/signup')}
-          sx={{ textTransform: 'none', fontWeight: 600 }}
+          sx={{ textTransform: 'none', fontWeight: 600, whiteSpace: 'nowrap', borderRadius: "100px" }}
         >
           Sign Up Free
         </Button>
       }
-      sx={{ mb: 2, borderRadius: 2 }}
+      sx={{ mb: 2, borderRadius: 2, display: 'flex', alignItems: 'center' }}
     >
-      Create a free account to save favorites, sync your BGG collection, and get recommendations that learn your taste.
+      Create a free account to save favorites, sync your BoardGameGeek/Steam collections, and get recommendations that learn your taste.
     </Alert>
   );
 }

@@ -11,7 +11,7 @@ import type { LucideIcon } from 'lucide-react';
 const NAV_ITEMS: { label: string; href: string; Icon: LucideIcon; tip: string }[] = [
   { label: 'Find a Game', href: '/find-a-game', Icon: Crosshair, tip: 'Get personalized recommendations' },
   { label: 'Browse', href: '/browse', Icon: Search, tip: 'Explore the full game catalog' },
-  { label: 'Sommelier', href: '/chat', Icon: Wine, tip: 'Chat with our AI game expert' },
+  // { label: 'Sommelier', href: '/chat', Icon: Wine, tip: 'Chat with our AI game expert' }, // Hidden until paid tier
   { label: 'Roll the Dice', href: '/random', Icon: Dice5, tip: 'Roll the d20 for a random pick' },
   { label: 'Leaderboard', href: '/leaderboard', Icon: Trophy, tip: 'See the most popular games' },
   { label: 'Blog', href: '/blog', Icon: BookOpen, tip: 'Game guides and recommendations' },

@@ -728,7 +728,9 @@ export default function ResultsView() {
                     bgcolor: game._score >= 0.7 ? 'success.main'
                       : game._score >= 0.4 ? 'warning.main'
                       : 'text.disabled',
-                    color: '#fff',
+                    color: game._score >= 0.7 ? '#fff'
+                      : game._score >= 0.4 ? 'rgba(0,0,0,0.87)'
+                      : '#fff',
                     fontWeight: 700,
                     fontSize: '0.7rem',
                     height: 22,
