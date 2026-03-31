@@ -41,9 +41,14 @@ export async function POST(request: NextRequest) {
       .upsert({
         user_id: user.id,
         achievement_id: achievementId,
-      }, { onConflict: 'user_id,achievement_id' });
+      }, { onConflict: 'user_id,achievement_id', ignoreDuplicates: true });
 
     if (error) {
+      // Duplicate key errors are fine -- achievement already exists
+      if (error.code === '23505') {
+        return NextResponse.json({ ok: true, achievementId, alreadyUnlocked: true });
+      }
+      console.error('[Achievements] Upsert error:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 

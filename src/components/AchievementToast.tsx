@@ -99,12 +99,16 @@ export function AchievementProvider({ children }: { children: React.ReactNode })
   // Track unique features used this session for power_user achievement
   const sessionFeatures = useRef(new Set<string>());
 
+  // Use a ref for dedup to avoid stale closure issues with useCallback
+  const unlockedRef = useRef(unlockedSet);
+  unlockedRef.current = unlockedSet;
+
   const unlock = useCallback((achievementId: string) => {
     // Not logged in? Skip entirely
     if (!isLoggedIn.current) return;
 
-    // Already unlocked? Skip
-    if (unlockedSet.has(achievementId)) return;
+    // Already unlocked? Skip (check ref to avoid stale closure)
+    if (unlockedRef.current.has(achievementId)) return;
 
     const achievement = ACHIEVEMENT_MAP.get(achievementId);
     if (!achievement) return;
@@ -112,31 +116,35 @@ export function AchievementProvider({ children }: { children: React.ReactNode })
     // Track feature usage for power_user
     sessionFeatures.current.add(achievementId);
     if (sessionFeatures.current.size >= 10 && achievementId !== 'power_user') {
-      // Defer so it doesn't stack with the current toast
       setTimeout(() => unlock('power_user'), 4500);
     }
 
-    // Optimistically mark as unlocked
-    setUnlockedSet((prev) => new Set([...prev, achievementId]));
+    // Optimistically mark as unlocked (both ref and state)
+    setUnlockedSet((prev) => {
+      const next = new Set([...prev, achievementId]);
+      unlockedRef.current = next;
+      return next;
+    });
 
     // Show toast
     setToast(achievement);
     setTimeout(() => setToast(null), 4000);
 
-    // Check for completionist+ (all other achievements unlocked)
-    const newSet = new Set([...unlockedSet, achievementId]);
+    // Check for completionist+
+    const newSet = new Set([...unlockedRef.current, achievementId]);
     const allOthers = ACHIEVEMENTS.filter((a) => a.id !== 'completionist_plus');
     if (allOthers.every((a) => newSet.has(a.id)) && achievementId !== 'completionist_plus') {
       setTimeout(() => unlock('completionist_plus'), 5000);
     }
 
-    // Persist to server (best-effort)
+    // Persist to server (best-effort, ignore errors)
     fetch('/api/achievements', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ achievementId }),
     }).catch(() => {});
-  }, [unlockedSet]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <AchievementContext.Provider value={{ unlock }}>

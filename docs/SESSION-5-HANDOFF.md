@@ -244,11 +244,49 @@ When ready for a paid tier:
 
 ---
 
+## Game Map Status (WIP -- NOT production-ready)
+
+The interactive game map (`/map`) is partially built but needs significant rearchitecture before it's good enough to ship. What exists:
+
+**Working:**
+- UMAP 2D projections computed for 32,704 games (stored in `scripts/map-positions.json`)
+- PixiJS rendering engine with zoom/pan/pinch
+- 50 pre-computed flat clusters with category-based labels
+- Static JSON export pipeline (`public/data/map-nodes.json`, 7.9MB)
+- Image proxy API for CORS-safe thumbnails
+- Search integration (flies to game if it has a map position)
+- Dynamic viewport-based grid clustering (runtime)
+
+**NOT working / needs rearchitecture:**
+- **Hierarchical clustering** -- need pre-computed cluster tree (not flat k-means). When you click a cluster, it should split into sub-clusters, not jump to individual games. Need agglomerative clustering at 4-5 levels.
+- **Cluster naming** -- should use LLM to generate meaningful names at each level, not just "Card Game & Fantasy". E.g., level 1: "Strategy", level 2: "Euro Strategy", level 3: "Worker Placement Euros", level 4: individual games.
+- **Visual polish** -- needs proper sized circles at each level (like the Spotify genre map), smooth transitions between levels, game images at closest zoom.
+- **The field name mapping bug was fixed** (JSON uses `n` for name, TypeScript uses `name`).
+
+**Key files:**
+- `scripts/compute-map-positions.py` -- UMAP + flat k-means (needs hierarchical clustering)
+- `scripts/export-map-data.ts` -- exports to JSON (needs hierarchy structure)
+- `src/app/map/MapRenderer.ts` -- PixiJS renderer (needs hierarchy-aware rendering)
+- `src/app/map/GameMap.tsx` -- React wrapper
+- `src/app/map/CameraController.ts` -- zoom/pan (working)
+- `src/app/map/types.ts` -- type definitions
+- `src/app/map/useMapData.ts` -- data loader
+- `public/data/map-nodes.json` -- static data (32k nodes)
+- `supabase/migrations/024_map_positions.sql` -- DB columns (applied)
+
+**Approach for next session:**
+1. Pre-compute hierarchical agglomerative clustering in Python (scipy.cluster.hierarchy)
+2. At each level, use GPT to name the clusters based on game categories/mechanics in them
+3. Store the full hierarchy in the JSON (tree structure, not flat)
+4. Renderer walks the tree based on zoom level, always showing ~30-50 bubbles
+5. Click a bubble -> zoom to its children (which are either sub-clusters or games)
+6. Smooth animated transitions between levels
+
 ## Recommended Next Priorities
 
-1. **Wait for semantic embeddings to finish** (running in background, ~$0.25)
+1. **Deploy the non-map features** -- everything except the map is production-ready
 2. **Re-run full eval suite** to get updated baseline with all scoring changes
-3. **Deploy** -- everything is type-checked clean and ready
-4. **Seasonal recommendations** (quick win, 4-6h, auto-themed by date)
+3. **Game map rearchitecture** -- hierarchical clustering + LLM naming (next session)
+4. **Seasonal recommendations** (quick win, 4-6h)
 5. **Shareable taste profiles** (good for social/viral growth)
-6. **Community lists** (best SEO play, creates user-generated content pages)
+6. **Community lists** (best SEO play)

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import MapView from './MapView';
+import { redirect } from 'next/navigation';
+// import MapView from './MapView'; // Hidden until hierarchical clustering rearchitecture
 
 export const metadata: Metadata = {
   title: 'Game Map | boredgame.lol',
@@ -7,5 +8,8 @@ export const metadata: Metadata = {
 };
 
 export default function MapPage() {
-  return <MapView />;
+  // Map hidden until rearchitected with hierarchical clustering.
+  // All code remains -- just uncomment MapView and remove redirect.
+  redirect('/');
+  // return <MapView />;
 }

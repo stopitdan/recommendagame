@@ -415,19 +415,9 @@ export default function GameDetailView() {
 
       {/* Game neighborhood map */}
       <Box sx={{ mb: 4 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-          <Typography variant="h6" fontWeight={700}>
-            Game Neighborhood
-          </Typography>
-          <Button
-            size="small"
-            variant="outlined"
-            onClick={() => router.push(`/map?game=${encodeURIComponent(game.id)}&name=${encodeURIComponent(game.name)}`)}
-            sx={{ textTransform: 'none', fontWeight: 600 }}
-          >
-            Open full map
-          </Button>
-        </Box>
+        <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
+          Game Neighborhood
+        </Typography>
         <GameNeighborhood gameId={game.id} />
       </Box>
 

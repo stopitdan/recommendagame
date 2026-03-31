@@ -1,75 +1,54 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Box from '@mui/material/Box';
-import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
-import { Map } from 'lucide-react';
 import SearchAutocomplete from '@/components/SearchAutocomplete';
-import GameNeighborhood from '@/components/GameNeighborhood';
+import GameMap from './GameMap';
 
 export default function MapView() {
   const searchParams = useSearchParams();
-  const initialId = searchParams.get('game');
-  const initialName = searchParams.get('name') ?? '';
+  const initialGameId = searchParams.get('game') ?? undefined;
 
-  const [selectedGameId, setSelectedGameId] = useState<string | null>(initialId);
-  const [selectedName, setSelectedName] = useState(initialName);
   const [searchValue, setSearchValue] = useState('');
+  const [flyTarget, setFlyTarget] = useState<string | undefined>(initialGameId);
+  const [mapHeight, setMapHeight] = useState(700);
+
+  // Set height client-side to avoid hydration mismatch
+  useEffect(() => {
+    setMapHeight(window.innerHeight - 64);
+    const handleResize = () => setMapHeight(window.innerHeight - 64);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
-        <Map size={24} />
-        <Typography variant="h4" fontWeight={800}>
-          Game Map
-        </Typography>
-      </Box>
-      <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-        Search for a game, then click nodes to explore similar titles.
-      </Typography>
-
-      <Box sx={{ maxWidth: 500, mb: 3 }}>
+    <Box sx={{ position: 'relative', height: 'calc(100vh - 64px)', overflow: 'hidden' }}>
+      {/* Floating search bar */}
+      <Box sx={{
+        position: 'absolute',
+        top: 16,
+        left: 16,
+        zIndex: 10,
+        width: { xs: 'calc(100% - 32px)', sm: 360 },
+      }}>
         <SearchAutocomplete
           value={searchValue}
           onChange={setSearchValue}
           onSubmit={() => {}}
-          onSelect={(gameId, gameName) => {
-            setSelectedGameId(gameId);
-            setSelectedName(gameName);
+          onSelect={(gameId) => {
             setSearchValue('');
+            setFlyTarget(gameId);
           }}
-          placeholder="Search for a game..."
+          placeholder="Search the game universe..."
         />
       </Box>
 
-      {selectedGameId ? (
-        <Box>
-          <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
-            Exploring: {selectedName}
-          </Typography>
-          <GameNeighborhood
-            gameId={selectedGameId}
-            height={550}
-            onRecenter={(id, name) => {
-              setSelectedGameId(id);
-              setSelectedName(name);
-            }}
-          />
-        </Box>
-      ) : (
-        <Box sx={{ textAlign: 'center', py: 8, color: 'text.secondary' }}>
-          <Map size={48} />
-          <Typography variant="h6" sx={{ mt: 2, fontWeight: 600 }}>
-            Search for a game above to start exploring
-          </Typography>
-          <Typography variant="body2" sx={{ mt: 1 }}>
-            Each node is a game, sized by popularity and colored by type.
-            Click any node to re-center and explore its neighborhood.
-          </Typography>
-        </Box>
-      )}
-    </Container>
+      {/* Full-screen game map */}
+      <GameMap
+        initialGameId={flyTarget}
+        height={mapHeight}
+      />
+    </Box>
   );
 }
