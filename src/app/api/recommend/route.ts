@@ -338,13 +338,17 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Step 1c: If LLM parsed "similarTo" game names, resolve them and
-    // merge their categories/mechanics into genres for scoring boost
+    // Step 1c: If LLM parsed "similarTo" game names, resolve them,
+    // merge their tags into genres, AND bootstrap preferences from
+    // the similar game's attributes (complexity, player count, etc.)
     if (body.llmParsed?.similarTo?.length) {
-      const resolvedTags = await resolveSimilarToGames(supabase, body.llmParsed.similarTo);
+      const { tags: resolvedTags, games: similarGames } = await resolveSimilarToGames(supabase, body.llmParsed.similarTo);
       if (resolvedTags.length > 0) {
         body.genres = [...new Set([...body.genres, ...resolvedTags])];
       }
+      // Bootstrap: inherit complexity/playerCount from similar game
+      // if user didn't specify them explicitly
+      bootstrapFromSimilarGames(body, similarGames);
     }
 
     // Step 1d: Merge LLM-parsed genres and mechanics into body.genres for scoring
@@ -1121,17 +1125,22 @@ async function fetchCandidatesNuclear(
 // ─── SimilarTo Resolution ────────────────────────────────────
 
 /**
- * Looks up games by name from the "similarTo" list and returns
- * their categories, mechanics, and themes as a flat array.
- * These get merged into the user's genre preferences so the
- * existing scoreGenreMatch picks them up.
+ * Looks up games by name from the "similarTo" list and returns:
+ * - tags: categories, mechanics, themes (merged into genres for scoring)
+ * - games: full Game objects (used for attribute bootstrapping)
+ *
+ * Attribute bootstrapping: when user says "like Catan," we fetch Catan's
+ * full profile and use its attributes (complexity, player count, time) to
+ * inform the scoring context. This produces games that *play like* Catan,
+ * not just games whose description mentions Catan.
  */
 async function resolveSimilarToGames(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabase: any,
   similarTo: string[],
-): Promise<string[]> {
+): Promise<{ tags: string[]; games: GameRow[] }> {
   const allTags: string[] = [];
+  const resolvedGames: GameRow[] = [];
 
   const lookups = similarTo.slice(0, 5).map(async (name) => {
     // Use full-text search RPC instead of ILIKE (uses GIN index)
@@ -1143,11 +1152,60 @@ async function resolveSimilarToGames(
     if (data && data.length > 0) {
       const row = data[0];
       allTags.push(...(row.categories ?? []), ...(row.mechanics ?? []), ...(row.themes ?? []));
+      resolvedGames.push(row);
     }
   });
 
   await Promise.all(lookups);
-  return [...new Set(allTags)];
+  return { tags: [...new Set(allTags)], games: resolvedGames };
+}
+
+/**
+ * Bootstrap preferences from similar games' attributes.
+ *
+ * When user says "like Catan" but didn't specify complexity/time/playerCount,
+ * inherit those constraints from Catan's profile (with slight relaxation).
+ * This makes the scoring context match what the user actually wants.
+ */
+function bootstrapFromSimilarGames(
+  body: QuestionnaireState,
+  similarGames: GameRow[],
+): void {
+  if (similarGames.length === 0) return;
+
+  // Use the first similar game as the primary reference
+  const ref = similarGames[0];
+
+  // Bootstrap complexity: if user didn't specify, use similar game's +/- 0.75
+  if (
+    body.complexity.min === 1 && body.complexity.max === 5 && // default (no user preference)
+    ref.complexity != null
+  ) {
+    body.complexity = {
+      min: Math.max(1, ref.complexity - 0.75),
+      max: Math.min(5, ref.complexity + 0.75),
+    };
+  }
+
+  // Bootstrap player count: if user used default range, narrow to similar game's range
+  if (
+    body.playerCount.min === 1 && body.playerCount.max === 10 && // default
+    ref.min_players != null && ref.max_players != null
+  ) {
+    body.playerCount = {
+      min: Math.max(1, ref.min_players),
+      max: Math.min(10, ref.max_players + 1), // slightly wider
+    };
+  }
+
+  // Boost similar game's categories and mechanics with 1.5x representation
+  // (add them again so they appear more frequently in the genre list,
+  // which increases the genre match score for games sharing these tags)
+  const boostTags = [
+    ...(ref.categories ?? []),
+    ...(ref.mechanics ?? []),
+  ];
+  body.genres = [...body.genres, ...boostTags]; // duplicates boost scoring
 }
 
 // ─── Helpers ─────────────────────────────────────────────────
