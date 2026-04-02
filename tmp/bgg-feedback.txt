@@ -1,0 +1,685 @@
+Very cool! I tested it out and it seemed to work decently well, had a few duplicates but I like it! I'm generally looking for a tool that sorts through MY games though, any way to have it apply the scan to a users collection? I'm not understanding the use case- I sit down and tell it I have four people then it tells me about games I don't have so then I am supposed to get up and go out and buy the game???
+
+3
+Give GeekGold
+Tip
+Reply
+Quote
+More Options
+stopitdan AvatarUser actions menu
+Microbadge: 5 Year Geek VeteranMicrobadge: I was here for BGG's Twentieth Anniversary!Microbadge: Omens are fun!Microbadge: Slay the Spire fanMicrobadge: Web Developer
+Dan Wiegand
+United States flag
+@stopitdan
+Mar 29
+thats a great idea! in my head it was sort of a way to figure out what games i should buy—like, "what should i add to my collection next?"
+
+you can connect your BGG account, and so thats a great idea to tie that BGG connection into games you own so it only picks from games you already have. Give me 24 hours and that feature will be live lol, will update you here 🫡
+
+1
+Give GeekGold
+Tip
+Reply
+Quote
+More Options
+thorbot AvatarUser actions menu
+Microbadge: Chip Theory Games fanMicrobadge: The Elder Scrolls: Betrayal of the Second Era fanMicrobadge: A Feast for Odin fanMicrobadge: Orange Nebula fanMicrobadge: Frosthaven
+Thor
+@thorbot
+Mar 29
+Dan Wiegand
+@stopitdan
+thats a great idea! in my head it was sort of a way to figure out what games i should buy—like, "what should i add to my collection next?"
+
+you can connect your BGG account, and so thats a great idea to tie that BGG connection into games you own so it only picks from games you already have. Give me 24 hours and that feature will be live lol, will update you here 🫡
+Amazing! Thanks
+
+1
+Give GeekGold
+Tip
+Reply
+Quote
+More Options
+Kolmogorv AvatarUser actions menu
+Microbadge: I play a Rogue!Microbadge: The Lord of the Rings fanMicrobadge: X-Men fanMicrobadge: Deep Space Nine fanMicrobadge: LGBT Pride flag
+Johannes Blank
+Germany flag
+@Kolmogorv
+Mar 29
+The crew
+
+Some recommendations I got looking for ‘thematic solo games’ 🤨
+
+3
+Give GeekGold
+Tip
+Reply
+Quote
+More Options
+stopitdan AvatarUser actions menu
+Microbadge: 5 Year Geek VeteranMicrobadge: I was here for BGG's Twentieth Anniversary!Microbadge: Omens are fun!Microbadge: Slay the Spire fanMicrobadge: Web Developer
+Dan Wiegand
+United States flag
+@stopitdan
+Mar 29
+Johannes Blank
+@Kolmogorv
+The crew
+
+Some recommendations I got looking for ‘thematic solo games’ 🤨
+still very WIP lol but this is good feedback, will ensure "solo" doesnt return min 2 player games as recommendations that makes literally 0 sense. thanks for the feedback!
+
+1
+Give GeekGold
+Tip
+Reply
+Quote
+More Options
+black_daveth AvatarUser actions menu
+Microbadge: "The laws of nature are but the mathematical thoughts of God." —Euclid, ElementsMicrobadge: Go fanMicrobadge: Splotter fanMicrobadge: 18xx fanMicrobadge: I play with yellow!
+Dave Desmond
+Australia flag
+@black_daveth
+Mar 29
+Love the idea "Hidden Gems" option, but it needs to go waaay deeper.
+
+I got pretty good results with prompts searching for the types of games I like, but they were easy/obvious results - even with Hidden Gems enabled. If that setting can't dig up some awesome out of print game from 2005 that's only rated 6.5 the tool is not really doing anything I couldn't easily do myself.
+
+Early impressions are good though 👍
+
+1
+Give GeekGold
+Tip
+Reply
+Quote
+More Options
+VariousArtist AvatarUser actions menu
+VariousArtist
+@VariousArtist
+Mar 30 (edited)
+Hm, strange. I compared results of this with a common LLM, like Claude and GPT, and it nets pretty much the same results.
+Its really just an AI-coded front end for a usual LLM with fancy pics?!
+So isnt this just more AI slop?
+
+4
+Give GeekGold
+Tip
+Reply
+Quote
+More Options
+
+M
+User actions menu
+Microbadge: Pandemic Iberia fanMicrobadge: LGBTQ allyMicrobadge: 'When playing a game, the goal is to win, but it is the goal that is important, not the winning' - Dr. Reiner KniziaMicrobadge: Black lives matterMicrobadge: Through the Ages - Science
+Magnetic North
+@Magnetic North
+Mar 30
+Is this a front for AI slop?
+
+This site is slow and ponderous in the way that an LLM is, as opposed to a normal modern website with under 10000-ish entries should be. There is no obvious call out to an LLM vendor in the HTTP traffic, but I suppose that could all be happening on the inside of the async call and it would be less evident. I have not used it but if it's calling into the BGG API, but I wouldn't have expected it to be this slow every time, especially because normal web services use some form of sensible caching. (Which does not exist in the same capacity for LLM consumers, since they are inherently inconsistent.)
+
+2
+Give GeekGold
+Tip
+Reply
+Quote
+More Options
+JackTorrents AvatarUser actions menu
+Microbadge: Bite my shiny metal...Microbadge: Tennessee Game Days attendeeMicrobadge: I play games while I drinkMicrobadge: Reddit fanMicrobadge: 2025 Silver Supporter
+Michael Sims
+United States flag
+@JackTorrents
+Mar 30
+VariousArtist
+@VariousArtist
+Hm, strange. I compared results of this with a common LLM, like Claude and GPT, and it nets pretty much the same results.
+Its really just an AI-coded front end for a usual LLM with fancy pics?!
+So isnt this just more AI slop?
+We made it to 7 replies before someone mentioned AI.
+Do you have any idea how much energy you consumed trying to gather evidence to support your thread derailment?
+
+1
+Give GeekGold
+Tip
+Reply
+Quote
+More Options
+thorbot AvatarUser actions menu
+Microbadge: Chip Theory Games fanMicrobadge: The Elder Scrolls: Betrayal of the Second Era fanMicrobadge: A Feast for Odin fanMicrobadge: Orange Nebula fanMicrobadge: Frosthaven
+Thor
+@thorbot
+Mar 30
+Michael Sims
+@JackTorrents
+VariousArtist
+@VariousArtist
+Hm, strange. I compared results of this with a common LLM, like Claude and GPT, and it nets pretty much the same results.
+Its really just an AI-coded front end for a usual LLM with fancy pics?!
+So isnt this just more AI slop?
+We made it to 7 replies before someone mentioned AI.
+Do you have any idea how much energy you consumed trying to gather evidence to support your thread derailment?
+Did you even look at the site? It proudly exclaims that it uses AI:
+
+"4 AI recommendation layers
+Rule-based, content, collaborative, semantic"
+
+Give GeekGold
+Tip
+Reply
+Quote
+More Options
+JackTorrents AvatarUser actions menu
+Microbadge: Bite my shiny metal...Microbadge: Tennessee Game Days attendeeMicrobadge: I play games while I drinkMicrobadge: Reddit fanMicrobadge: 2025 Silver Supporter
+Michael Sims
+United States flag
+@JackTorrents
+Mar 30 (edited)
+Thor
+@thorbot
+Michael Sims
+@JackTorrents
+VariousArtist
+@VariousArtist
+Hm, strange. I compared results of this with a common LLM, like Claude and GPT, and it nets pretty much the same results.
+Its really just an AI-coded front end for a usual LLM with fancy pics?!
+So isnt this just more AI slop?
+We made it to 7 replies before someone mentioned AI.
+Do you have any idea how much energy you consumed trying to gather evidence to support your thread derailment?
+Did you even look at the site? It proudly exclaims that it uses AI:
+
+"4 AI recommendation layers
+Rule-based, content, collaborative, semantic"
+I'm not sure how your reply follows from what I wrote. Maybe you meant to ask VariousArtist if they looked at the site, since they apparently hit a couple of LLMs to establish what the site states explicitly?
+
+Give GeekGold
+Tip
+Reply
+Quote
+More Options
+plezercruz AvatarUser actions menu
+Microbadge: Cystic Fibrosis AwarenessMicrobadge: I speak GreekMicrobadge: Rules LawyerMicrobadge: Platinum Board Game CollectorMicrobadge: Lawyer
+Pete
+United States flag
+@plezercruz
+Mar 30
+I'd remove the ALL category. I asked it for a scenario that clearly pointed to either a video game or a party game and it just returned a bunch of standard board games.
+
+If it's going to default to that anyway, don't give false hope that it will do "all."
+
+Pete (hopes that helps)
+
+1
+Give GeekGold
+Tip
+Reply
+Quote
+More Options
+stopitdan AvatarUser actions menu
+Microbadge: 5 Year Geek VeteranMicrobadge: I was here for BGG's Twentieth Anniversary!Microbadge: Omens are fun!Microbadge: Slay the Spire fanMicrobadge: Web Developer
+Dan Wiegand
+United States flag
+@stopitdan
+Mar 30
+Pete
+@plezercruz
+I'd remove the ALL category. I asked it for a scenario that clearly pointed to either a video game or a party game and it just returned a bunch of standard board games.
+
+If it's going to default to that anyway, don't give false hope that it will do "all."
+
+Pete (hopes that helps)
+this is great feedback! thanks!
+
+Give GeekGold
+Tip
+Reply
+Quote
+More Options
+stopitdan AvatarUser actions menu
+Microbadge: 5 Year Geek VeteranMicrobadge: I was here for BGG's Twentieth Anniversary!Microbadge: Omens are fun!Microbadge: Slay the Spire fanMicrobadge: Web Developer
+Dan Wiegand
+United States flag
+@stopitdan
+Mar 30 (edited)
+VariousArtist
+@VariousArtist
+Hm, strange. I compared results of this with a common LLM, like Claude and GPT, and it nets pretty much the same results.
+Its really just an AI-coded front end for a usual LLM with fancy pics?!
+So isnt this just more AI slop?
+Magnetic North
+@Magnetic North
+Is this a front for AI slop?
+
+This site is slow and ponderous in the way that an LLM is, as opposed to a normal modern website with under 10000-ish entries should be. There is no obvious call out to an LLM vendor in the HTTP traffic, but I suppose that could all be happening on the inside of the async call and it would be less evident. I have not used it but if it's calling into the BGG API, but I wouldn't have expected it to be this slow every time, especially because normal web services use some form of sensible caching. (Which does not exist in the same capacity for LLM consumers, since they are inherently inconsistent.)
+slow because still in beta, can throw more money into resourcing when i get more users, but its very much not just a wrapper on an LLM/AI slop. games are stored in my own databases, ingested from BGG and other various sources. AI is used for text parsing in the human readable text input, and other various minor applications, and there is a true, non ai, vector based (along with a few other factors) recommendation engine under the hood. it's just not been fully tuned yet since i dont have enough test data. running evals constantly to improve this (again, not AI here, hitting my own api), and adjusting results and weights based on that.
+
+sure, im using a bit of claude code to help, but its more than 75% written by hand as i myself am an experienced SDE
+
+but, even with the slightly harsh tone of your messages, all feedback is good feedback so i truly do appreciate your comments! 
+
+2
+Give GeekGold
+Tip
+Reply
+Quote
+More Options
+stopitdan AvatarUser actions menu
+Microbadge: 5 Year Geek VeteranMicrobadge: I was here for BGG's Twentieth Anniversary!Microbadge: Omens are fun!Microbadge: Slay the Spire fanMicrobadge: Web Developer
+Dan Wiegand
+United States flag
+@stopitdan
+Mar 30 (edited)
+honestly the "I compared results of this with a common LLM, like Claude and GPT, and it nets pretty much the same results." is actually pretty huge praise considering im not using AI for the recommendations, but if they are "about as good as AI", thats high praise 
+
+for just some more aded context, my AI usage cast has been ~$12.52 for this whole entire project and that includes my mass amounts of testing as well as any BGG users who have bee trying it, which should tell you how little its hitting the LLM
+
+2
+Give GeekGold
+Tip
+Reply
+Quote
+More Options
+plezercruz AvatarUser actions menu
+Microbadge: Cystic Fibrosis AwarenessMicrobadge: I speak GreekMicrobadge: Rules LawyerMicrobadge: Platinum Board Game CollectorMicrobadge: Lawyer
+Pete
+United States flag
+@plezercruz
+Mar 30
+Dan Wiegand
+@stopitdan
+Pete
+@plezercruz
+I'd remove the ALL category. I asked it for a scenario that clearly pointed to either a video game or a party game and it just returned a bunch of standard board games.
+
+If it's going to default to that anyway, don't give false hope that it will do "all."
+
+Pete (hopes that helps)
+this is great feedback! thanks!
+And just to follow up, when I clicked on "video" it gave me exactly what I was looking for. A+ result.
+
+Pete (doesn't want to sound ALL negative )
+
+1
+Give GeekGold
+Tip
+Reply
+Quote
+More Options
+
+W
+User actions menu
+Microbadge: 5 Year Geek VeteranMicrobadge: Level 04 BGG posterMicrobadge: I was here for BGG's 25th Anniversary!Microbadge: I love Canada!Microbadge: I love British Columbia!
+Kenny Ie
+Canada flag
+@wtncffts
+Mar 30
+Very cool project. I'm not sure how well it works, though, to be honest. I tried some specific prompts to see if it comes up with 'valid' results.
+
+"A game for two players in which one player plays white, the other plays black. Each player has 8 pawns, 2 rooks, 2 bishops, 2 knights, 1 queen and 1 king. The goal is to checkmate the opponent's king. The game is played on an 8x8 board." It does list Chess first, but only 59% match. How does the percent match work?
+
+"A worker placement game designed by Uwe Rosenberg where you play as cave dwelling farmers". Caverna didn't come up.
+
+"A game designed by Stefan Feld". This one I thought would be more realistic as something someone might be interested in. Castles of Burgundy comes up first, but then not a single other Feld game.
+
+1
+Give GeekGold
+Tip
+Reply
+Quote
+More Options
+stopitdan AvatarUser actions menu
+Microbadge: 5 Year Geek VeteranMicrobadge: I was here for BGG's Twentieth Anniversary!Microbadge: Omens are fun!Microbadge: Slay the Spire fanMicrobadge: Web Developer
+Dan Wiegand
+United States flag
+@stopitdan
+Mar 30
+Kenny Ie
+@wtncffts
+Very cool project. I'm not sure how well it works, though, to be honest. I tried some specific prompts to see if it comes up with 'valid' results.
+
+"A game for two players in which one player plays white, the other plays black. Each player has 8 pawns, 2 rooks, 2 bishops, 2 knights, 1 queen and 1 king. The goal is to checkmate the opponent's king. The game is played on an 8x8 board." It does list Chess first, but only 59% match. How does the percent match work?
+
+"A worker placement game designed by Uwe Rosenberg where you play as cave dwelling farmers". Caverna didn't come up.
+
+"A game designed by Stefan Feld". This one I thought would be more realistic as something someone might be interested in. Castles of Burgundy comes up first, but then not a single other Feld game.
+this is great—i hadnt factored specifically mentioned game designers into the engine at all, and now given this feedback, basically everything you mentioned should be behaving much more like you expected it to. still testing and havent deployed those changes, but i will continue to update this thread when major improvements are made, especially when in direct response to great feedback like this, so i'd give this thread a subcribe to stay updated!
+
+cant say it enough, thanks to everyone for helping me make this passion project of mine better!
+
+1
+Give GeekGold
+Tip
+Reply
+Quote
+More Options
+black_daveth AvatarUser actions menu
+Microbadge: "The laws of nature are but the mathematical thoughts of God." —Euclid, ElementsMicrobadge: Go fanMicrobadge: Splotter fanMicrobadge: 18xx fanMicrobadge: I play with yellow!
+Dave Desmond
+Australia flag
+@black_daveth
+Mar 30
+Honestly I think you'd be wasting your time trying to improve it's ability to answer such mundane questions that are designed only to stump it, rather than focusing on the types of questions that real users are likely to ask.
+
+Give GeekGold
+Tip
+Reply
+Quote
+More Options
+
+W
+User actions menu
+Microbadge: 5 Year Geek VeteranMicrobadge: Level 04 BGG posterMicrobadge: I was here for BGG's 25th Anniversary!Microbadge: I love Canada!Microbadge: I love British Columbia!
+Kenny Ie
+Canada flag
+@wtncffts
+Mar 30
+Dave Desmond
+@black_daveth
+Honestly I think you'd be wasting your time trying to improve it's ability to answer such mundane questions that are designed only to stump it, rather than focusing on the types of questions that real users are likely to ask.
+I totally agree that I was testing it in an unrealistic way, but one would kind of want the tool to be as robust as possible right? I mean the first two prompts, sure, a litle silly, but if I was new to Feld games after playing one and wanted to use this tool to get other Feld recommendations, I would have been kind of confused right?
+
+Give GeekGold
+Tip
+Reply
+Quote
+More Options
+fortyfive AvatarUser actions menu
+Microbadge: Rules Addict - I read rules before I go to bedMicrobadge: Plays Games With FamilyMicrobadge: Calvin and Hobbes fanMicrobadge: Parent of Three GirlsMicrobadge: Parent of Four Boys
+Josh Morgan
+United States flag
+@fortyfive
+Mar 30
+I told it, I’m at a convention and want to play something new. I have 90 minutes. Clicked 4p. The suggestions it gave were.
+Tzolk'in: The Mayan Calendar 2012 and at least 90 mins
+Brass: Birmingham 2018 and way more than 90 mins.
+Pandemic Legacy: Season 1 2015 but could probably learn and play in 90 mins.
+The Crew: Mission Deep Sea 2021 and under 90 mins. Closest so far!
+Quacks 2018 but under 90 mins.
+Harmonies 2024 and under 90 mins. We have our first right answer!
+Dune: Imperium 2020 and over 90 mins.
+Scythe 2016 and it could happen under 90, but unlikely for a first game.
+Through the Ages: A New Story of Civilization 2015 and way more than 90. Especially with learning or teaching.
+
+I’ll stop there. I kept scrolling and nothing was really getting it right. Neat idea. It has promise. I don’t comment to discourage, but to give the feedback for improvement.
+
+2
+Give GeekGold
+Tip
+Reply
+Quote
+More Options
+stenole AvatarUser actions menu
+Microbadge: StarCraft fanMicrobadge: Factorio fanMicrobadge: 5 Year Geek VeteranMicrobadge: ZX Spectrum fanMicrobadge: Philip K. Dick fan
+Sten Børretzen
+Norway flag
+@stenole
+Mar 30
+Neat user interface and presentation. But it seems to ignore everything I put in the text description and give me a list of random popular games. If this is purely LLM-based, I'm not surprised it struggles because the information we are looking for is not widely available or well-organized.
+
+2
+Give GeekGold
+Tip
+Reply
+Quote
+More Options
+stopitdan AvatarUser actions menu
+Microbadge: 5 Year Geek VeteranMicrobadge: I was here for BGG's Twentieth Anniversary!Microbadge: Omens are fun!Microbadge: Slay the Spire fanMicrobadge: Web Developer
+Dan Wiegand
+United States flag
+@stopitdan
+Mar 30
+Josh Morgan
+@fortyfive
+I told it, I’m at a convention and want to play something new. I have 90 minutes. Clicked 4p. The suggestions it gave were.
+Tzolk'in: The Mayan Calendar 2012 and at least 90 mins
+Brass: Birmingham 2018 and way more than 90 mins.
+Pandemic Legacy: Season 1 2015 but could probably learn and play in 90 mins.
+The Crew: Mission Deep Sea 2021 and under 90 mins. Closest so far!
+Quacks 2018 but under 90 mins.
+Harmonies 2024 and under 90 mins. We have our first right answer!
+Dune: Imperium 2020 and over 90 mins.
+Scythe 2016 and it could happen under 90, but unlikely for a first game.
+Through the Ages: A New Story of Civilization 2015 and way more than 90. Especially with learning or teaching.
+
+I’ll stop there. I kept scrolling and nothing was really getting it right. Neat idea. It has promise. I don’t comment to discourage, but to give the feedback for improvement.
+dont worry, i would much rather critique than compliment, because it helps me improve it! i think its in part due to different ideas of what "new" is to people. since board games have bee around so long, it might be indexing on the last ~10 years as being considered "new". this is something i can dial in, as i agree, in my mind, that means released within the last couple years at latest.
+
+i appreciate the thoughtful feedback! im basically working to improve this in all my free time and comments like this help me a lot. each time you return, im sure the results will be better and better for sure.
+
+especially the idea of time to learn if its a new game, thats not something that i had considered in the recommendation engine. if the game takes 90 minutes to play but is so complicated it takes 60 to learn, i may need to adjust the recommendations based on that principle. food for thought, deifnitely going on my roadmap!
+
+2
+Give GeekGold
+Tip
+Reply
+Quote
+More Options
+stopitdan AvatarUser actions menu
+Microbadge: 5 Year Geek VeteranMicrobadge: I was here for BGG's Twentieth Anniversary!Microbadge: Omens are fun!Microbadge: Slay the Spire fanMicrobadge: Web Developer
+Dan Wiegand
+United States flag
+@stopitdan
+Mar 30 (edited)
+Sten Børretzen
+@stenole
+Neat user interface and presentation. But it seems to ignore everything I put in the text description and give me a list of random popular games. If this is purely LLM-based, I'm not surprised it struggles because the information we are looking for is not widely available or well-organized.
+its actually not purely LLM based at all! it uses a variety of recommendation en gine techniques like similarity vector mapping, collaborative filtering (though i dont have many users yet so this will get better with time), basic heuristics, among other techniques (im basically trying everything and swapping techniques in and out basically daily until i get the best combined recommendations) and the only thing im using LLMs for at the moment is parsing the user input to strip out noise, fix typos, generate keywords, etc etc not for the actual recommendations.
+
+i deifnitely made a point to add the beta tag in my last release so people know its still very much work in progress. appreciate the subtle compliment on neat interface though lol im probably spending more time than i'd like to admit making it look and feel cool instead of focusing on the hard recommendation algorithms
+
+
+Microbadge: "The laws of nature are but the mathematical thoughts of God." —Euclid, ElementsMicrobadge: Go fanMicrobadge: Splotter fanMicrobadge: 18xx fanMicrobadge: I play with yellow!
+Dave Desmond
+Australia flag
+@black_daveth
+Mar 30
+Kenny Ie
+@wtncffts
+I totally agree that I was testing it in an unrealistic way, but one would kind of want the tool to be as robust as possible right? I mean the first two prompts, sure, a litle silly, but if I was new to Feld games after playing one and wanted to use this tool to get other Feld recommendations, I would have been kind of confused right?
+1. Yes, absolutely. I just think you achieve robustness quicker if you go for the higher order priorities first - engine and chassis before door handles and windscreen wipers.
+2. Case in point, why on Earth would you use a tool like this for Feld recommendations when you can see all the games he's ever designed in ranked order in about three clicks on this very website? I can't speak for the designer obviously, but surely he's aiming to achieve more than list a bunch of games from a given designer.
+
+Likewise with @fortyfive's post above - with geekgroup.app I can generate that list in a few clicks.
+
+I think the potential of the tool is much greater than that. Take this question from the Recommendations forum:
+Quote:
+Any game recommendations for fans of Wavelength that are easy to learn and lead to fun conversations? I've played Wavelength now many times with different groups, which always leads to hilarious conversations. However, I think we are looking for something fresh, any thoughts? Thank you!
+That's not an easy idea for a person to go searching for with traditional tools, but perhaps this tool could scrape far enough and wide enough to generate some meaningful results.
+
+I just fed it that question and it's given me Decrypto, The Resistance: Avalon, Deception: Murder in Hong Kong, Concept, Codenames, and Captain Sonar among others, and I think those results are actually a lot better than just suggesting a bunch of party games.
+
+I dunno, just my 2c.
+
+1
+Give GeekGold
+Tip
+Reply
+Quote
+More Options
+stenole AvatarUser actions menu
+Microbadge: StarCraft fanMicrobadge: Factorio fanMicrobadge: 5 Year Geek VeteranMicrobadge: ZX Spectrum fanMicrobadge: Philip K. Dick fan
+Sten Børretzen
+Norway flag
+@stenole
+Mar 30
+Dan Wiegand
+@stopitdan
+its actually not purely LLM based at all! it uses a variety of recommendation en gine techniques like similarity vector mapping, collaborative filtering (though i dont have many users yet so this will get better with time), basic heuristics, among other techniques (im basically trying everything and swapping techniques in and out basically daily until i get the best combined recommendations) and the only thing im using LLMs for at the moment is parsing the user input to strip out noise, fix typos, generate keywords, etc etc not for the actual recommendations.
+That actually gives some hope that it can be improved. It might be a good idea to list some example description texts that are well-suited to work well with the system that is under the hood.
+
+1
+Give GeekGold
+Tip
+Reply
+Quote
+More Options
+
+S
+User actions menu
+Microbadge: 5 Year Geek Veteran
+stevage b
+Australia flag
+@stevage
+Yesterday (edited)
+Great concept.
+
+My query (board game, 3 players):
+
+> A very thematic euro-style game that takes about an hour, is quick to learn, and you could take to the pub.
+
+The #2 result was "poker". Which is not thematic, not a euro-game, and according to the description "Best at 6 players — right in your sweet spot".
+
+Also, what's with the "about" page of the recommended games? For Attila (https://boredgame.lol/games/bgg-827) it says this:
+
+> About ad attilas mount hun overrun europe cause germanic tribe path flee penetrate outer province decline roman empire attila player influence migration germanic tribe roman empire winner player exert good influence successful tribesplayer hand card correspond invading tribe turn consist firstly play card place match tribal marker area board expand start area secondly repeat increase influence tribe province contain tribal marker total war break tribe basic strength tribe number marker player add matching card hand boost weak tribe eliminate tribe low total leave province peace possibility tribal marker add scoring occur time game end century century end war second player influence tribe score point tribe marker player second place score point area tribe tribal marker sort area st nd score influence player gain increase century large swing control possibleplayer aim expand tribe influence conversely gain influence tribe expand whilst time try manipulate timing province war happen view protect favour tribe eliminate gameplay play tribe need matching card defend case simply right card hand want provoke conflict example add tribe nt influence finish area favour tribe strong
+
+What on earth is going on here?
+
+2
+Give GeekGold
+Tip
+Reply
+Quote
+More Options
+
+M
+User actions menu
+Microbadge: Pandemic Iberia fanMicrobadge: LGBTQ allyMicrobadge: 'When playing a game, the goal is to win, but it is the goal that is important, not the winning' - Dr. Reiner KniziaMicrobadge: Black lives matterMicrobadge: Through the Ages - Science
+Magnetic North
+@Magnetic North
+Yesterday
+stevage b
+@stevage
+> About ad attilas mount hun overrun europe cause germanic tribe path flee penetrate outer province decline roman empire attila player influence migration germanic tribe roman empire winner player exert good influence successful tribesplayer ... [snip]
+
+What on earth is going on here?
+Check it out on BGG: Attila
+
+Quote:
+In 375 A.D., Attila's mounted Huns overran Europe causing the Germanic tribes in their path to flee and penetrate the outer provinces of the declining Roman empire. In Attila, the players influence the migrations of the Germanic tribes to the Roman empire. The winner is the player who has exerted the best influence on the most successful of the tribes.
+About ~ In, Ad ~ A.D, attilas ~ Atilla's mount ~ mounted, hun ~ Huns, etc etc etc.
+
+It seems the slop engine got confused. What a parasitic waste of time.
+
+1
+Give GeekGold
+Tip
+Reply
+Quote
+More Options
+Kolmogorv AvatarUser actions menu
+Microbadge: I play a Rogue!Microbadge: The Lord of the Rings fanMicrobadge: X-Men fanMicrobadge: Deep Space Nine fanMicrobadge: LGBT Pride flag
+Johannes Blank
+Germany flag
+@Kolmogorv
+Yesterday (edited)
+Magnetic North
+@Magnetic North
+stevage b
+@stevage
+> About ad attilas mount hun overrun europe cause germanic tribe path flee penetrate outer province decline roman empire attila player influence migration germanic tribe roman empire winner player exert good influence successful tribesplayer ... [snip]
+
+What on earth is going on here?
+Check it out on BGG: Attila
+
+Quote:
+In 375 A.D., Attila's mounted Huns overran Europe causing the Germanic tribes in their path to flee and penetrate the outer provinces of the declining Roman empire. In Attila, the players influence the migrations of the Germanic tribes to the Roman empire. The winner is the player who has exerted the best influence on the most successful of the tribes.
+About ~ In, Ad ~ A.D, attilas ~ Atilla's mount ~ mounted, hun ~ Huns, etc etc etc.
+
+It seems the slop engine got confused. What a parasitic waste of time.
+Could be just tokenization/lemmatization and a bug in the app that returns that stuff.
+
+To me the results look mostly random to be honest. I don’t think it works right now and maybe you need to get back to the drawing board. Test the various components individually, and go back into fundamentals for the recommendation engine (which I assume is some linear algebra + NLP + feature engineering).
+
+1
+Give GeekGold
+Tip
+Reply
+Quote
+More Options
+stopitdan AvatarUser actions menu
+Microbadge: 5 Year Geek VeteranMicrobadge: I was here for BGG's Twentieth Anniversary!Microbadge: Omens are fun!Microbadge: Slay the Spire fanMicrobadge: Web Developer
+Dan Wiegand
+United States flag
+@stopitdan
+Yesterday (edited)
+Johannes Blank
+@Kolmogorv
+Magnetic North
+@Magnetic North
+stevage b
+@stevage
+> About ad attilas mount hun overrun europe cause germanic tribe path flee penetrate outer province decline roman empire attila player influence migration germanic tribe roman empire winner player exert good influence successful tribesplayer ... [snip]
+
+What on earth is going on here?
+Check it out on BGG: Attila
+
+Quote:
+In 375 A.D., Attila's mounted Huns overran Europe causing the Germanic tribes in their path to flee and penetrate the outer provinces of the declining Roman empire. In Attila, the players influence the migrations of the Germanic tribes to the Roman empire. The winner is the player who has exerted the best influence on the most successful of the tribes.
+About ~ In, Ad ~ A.D, attilas ~ Atilla's mount ~ mounted, hun ~ Huns, etc etc etc.
+
+It seems the slop engine got confused. What a parasitic waste of time.
+Could be just tokenization/lemmatization and a bug in the app that returns that stuff.
+
+To me the results look mostly random to be honest. I don’t think it works right now and maybe you need to get back to the drawing board. Test the various components individually, and go back into fundamentals for the recommendation emfine (which I assume is some linear algebra + NLP + feature engineering).
+to all these 3 responses above, ive beenb makin some changes and i kinda screwed the recommendatrion engine temporarily trying to make improvements. i may lock this thread for a bit, spend aboiuyt a week really taking all this feedback into account and running MANY more tests and evals, and then re open or make a new post outlining my changes.
+
+cant say it enough, appreciate the feedback.
+
+when i started seeing "Poker" in most of the top results, i knew i had majorly frigged something up lol so you all are not wrong 😢
+
+work in progress/beta project at it's core. every few hgours you may see different things until we land on the best recommendation alorithm
+
+1
+Give GeekGold
+Tip
+Reply
+Quote
+More Options
+stopitdan AvatarUser actions menu
+Microbadge: 5 Year Geek VeteranMicrobadge: I was here for BGG's Twentieth Anniversary!Microbadge: Omens are fun!Microbadge: Slay the Spire fanMicrobadge: Web Developer
+Dan Wiegand
+United States flag
+@stopitdan
+Yesterday (edited)
+Magnetic North
+@Magnetic North
+It seems the slop engine got confused. What a parasitic waste of time.
+little harsh though, i will say
+
+2
+Give GeekGold
+Tip
+Reply
+Quote
+More Options
+
+W
+User actions menu
+Microbadge: 5 Year Geek VeteranMicrobadge: Level 04 BGG posterMicrobadge: I was here for BGG's 25th Anniversary!Microbadge: I love Canada!Microbadge: I love British Columbia!
+Kenny Ie
+Canada flag
+@wtncffts
+Yesterday
+Dan Wiegand
+@stopitdan
+Magnetic North
+@Magnetic North
+It seems the slop engine got confused. What a parasitic waste of time.
+little harsh though, i will say
+Ignore them, they seem fixated on the idea that this is AI and decided to express that really unpleasantly, which I think you've effectively refuted. Obviously, as you recognize, it needs a lot of work, but if one is anti-AI one should be encouraging this kind of development.
+
+2
+Give GeekGold
+Tip
+Reply
+Quote
+More Options
+plezercruz AvatarUser actions menu
+Microbadge: Cystic Fibrosis AwarenessMicrobadge: I speak GreekMicrobadge: Rules LawyerMicrobadge: Platinum Board Game CollectorMicrobadge: Lawyer
+Pete
+United States flag
+@plezercruz
+Yesterday
+Incidentally, this is the very first .lol site I have ever encountered.
+
+Pete (learned something new)
