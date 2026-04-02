@@ -1,0 +1,1238 @@
+{
+  "timestamp": "2026-04-02T05:20:42.468Z",
+  "totalGames": 351,
+  "foundCount": 322,
+  "notFoundCount": 29,
+  "ambiguousCount": 81,
+  "notFoundGames": [
+    "18XX",
+    "A Game of Thrones: The Board Game Second Edition",
+    "Aeon's End",
+    "Axis and Allies",
+    "Barbie: Queen of the Prom",
+    "CO2: Second Chance",
+    "Can't Stop",
+    "Clank! A Deck-Building Adventure",
+    "Dune (2019)",
+    "Flick 'em Up",
+    "Fury of Dracula (Third Edition)",
+    "Ghost Fightin' Treasure Hunters",
+    "Mousetrap",
+    "Nemo's War",
+    "Pandemic: Legacy Season 1",
+    "Plague Inc: The Board Game",
+    "Pokemon Trading Card Game",
+    "Pop Up Pirate",
+    "Risk: Legacy",
+    "Sid Meier's Civilization: The Board Game",
+    "Stranger Things: Dungeons & Dragons Starter Set",
+    "That's Pretty Clever",
+    "The Crew: Quest for Planet Nine",
+    "Timeline: Geography",
+    "Tsuro: The Game of the Path",
+    "Twilight Imperium (Fourth Edition)",
+    "Tzolk'in",
+    "Tzolk'in: The Mayan Calendar",
+    "Warhammer 40K"
+  ],
+  "ambiguousGames": {
+    "Terraforming Mars": [
+      {
+        "id": "bgg-167791",
+        "name": "Terraforming Mars"
+      },
+      {
+        "id": "igdb-86558",
+        "name": "Terraforming Mars"
+      }
+    ],
+    "Wingspan": [
+      {
+        "id": "igdb-121586",
+        "name": "Wingspan"
+      },
+      {
+        "id": "bgg-266192",
+        "name": "Wingspan"
+      }
+    ],
+    "Chess": [
+      {
+        "id": "rawg-3482",
+        "name": "Chess"
+      },
+      {
+        "id": "bgg-171",
+        "name": "Chess"
+      }
+    ],
+    "UNO": [
+      {
+        "id": "bgg-2223",
+        "name": "UNO"
+      },
+      {
+        "id": "igdb-20524",
+        "name": "Uno"
+      },
+      {
+        "id": "igdb-22739",
+        "name": "Uno"
+      }
+    ],
+    "Dominion": [
+      {
+        "id": "bgg-36218",
+        "name": "Dominion"
+      },
+      {
+        "id": "bgg-64777",
+        "name": "Dominion"
+      }
+    ],
+    "Star Realms": [
+      {
+        "id": "bgg-147020",
+        "name": "Star Realms"
+      },
+      {
+        "id": "igdb-21324",
+        "name": "Star Realms"
+      },
+      {
+        "id": "bgg-355199",
+        "name": "Star Realms"
+      }
+    ],
+    "Monopoly": [
+      {
+        "id": "igdb-332",
+        "name": "Monopoly"
+      },
+      {
+        "id": "bgg-1406",
+        "name": "Monopoly"
+      }
+    ],
+    "Uno": [
+      {
+        "id": "bgg-2223",
+        "name": "UNO"
+      },
+      {
+        "id": "igdb-20524",
+        "name": "Uno"
+      },
+      {
+        "id": "igdb-22739",
+        "name": "Uno"
+      }
+    ],
+    "Ticket to Ride": [
+      {
+        "id": "bgg-9209",
+        "name": "Ticket to Ride"
+      },
+      {
+        "id": "rawg-964",
+        "name": "Ticket to Ride"
+      }
+    ],
+    "Gloomhaven": [
+      {
+        "id": "bgg-174430",
+        "name": "Gloomhaven"
+      },
+      {
+        "id": "igdb-106803",
+        "name": "Gloomhaven"
+      }
+    ],
+    "Battleship": [
+      {
+        "id": "bgg-165283",
+        "name": "Battleship"
+      },
+      {
+        "id": "bgg-2425",
+        "name": "Battleship"
+      }
+    ],
+    "Clank!": [
+      {
+        "id": "bgg-201808",
+        "name": "Clank!: A Deck-Building Adventure"
+      },
+      {
+        "id": "bgg-233371",
+        "name": "Clank! In! Space!: A Deck-Building Adventure"
+      },
+      {
+        "id": "bgg-365717",
+        "name": "Clank!: Catacombs"
+      },
+      {
+        "id": "bgg-266507",
+        "name": "Clank! Legacy: Acquisitions Incorporated"
+      },
+      {
+        "id": "bgg-218103",
+        "name": "Clank!: Sunken Treasures"
+      }
+    ],
+    "Sorry!": [
+      {
+        "id": "bgg-2407",
+        "name": "Sorry!"
+      },
+      {
+        "id": "bgg-313121",
+        "name": "Sorry!"
+      }
+    ],
+    "Sequence": [
+      {
+        "id": "bgg-118561",
+        "name": "Sequence"
+      },
+      {
+        "id": "bgg-2375",
+        "name": "Sequence"
+      }
+    ],
+    "Splendor": [
+      {
+        "id": "rawg-7598",
+        "name": "Splendor"
+      },
+      {
+        "id": "bgg-148228",
+        "name": "Splendor"
+      }
+    ],
+    "Axis & Allies": [
+      {
+        "id": "bgg-98",
+        "name": "Axis & Allies"
+      },
+      {
+        "id": "bgg-10093",
+        "name": "Axis & Allies"
+      }
+    ],
+    "Life": [
+      {
+        "id": "bgg-2921",
+        "name": "The Game of Life"
+      },
+      {
+        "id": "bgg-249",
+        "name": "Lifeboats"
+      },
+      {
+        "id": "bgg-17240",
+        "name": "That&#039;s Life!"
+      },
+      {
+        "id": "bgg-4174",
+        "name": "Lifeboat"
+      },
+      {
+        "id": "bgg-368305",
+        "name": "Life of the Amazonia"
+      }
+    ],
+    "Trivial Pursuit": [
+      {
+        "id": "bgg-2952",
+        "name": "Trivial Pursuit: Genus Edition"
+      },
+      {
+        "id": "bgg-4492",
+        "name": "Trivial Pursuit: 20th Anniversary Edition"
+      },
+      {
+        "id": "bgg-1297",
+        "name": "Trivial Pursuit: Star Wars Classic Trilogy Collector's Edition"
+      },
+      {
+        "id": "bgg-2001",
+        "name": "Trivial Pursuit: Family Edition"
+      },
+      {
+        "id": "bgg-1299",
+        "name": "Trivial Pursuit: Genus IV"
+      }
+    ],
+    "Operation": [
+      {
+        "id": "bgg-3737",
+        "name": "Operation"
+      },
+      {
+        "id": "bgg-33292",
+        "name": "Operation"
+      }
+    ],
+    "Connect 4": [
+      {
+        "id": "bgg-65262",
+        "name": "Connect 4 (Revised Edition)"
+      },
+      {
+        "id": "bgg-102219",
+        "name": "Connect 4 Launchers"
+      },
+      {
+        "id": "bgg-42685",
+        "name": "Connect 4x4"
+      },
+      {
+        "id": "bgg-258818",
+        "name": "Connect 4: Shots"
+      },
+      {
+        "id": "bgg-217425",
+        "name": "Connect 4: Card Game"
+      }
+    ],
+    "Candyland": [
+      {
+        "id": "bgg-59451",
+        "name": "Candyland Sweet Celebration Game"
+      },
+      {
+        "id": "bgg-9940",
+        "name": "Candyland Bingo"
+      }
+    ],
+    "Clue": [
+      {
+        "id": "bgg-1294",
+        "name": "Clue"
+      },
+      {
+        "id": "bgg-130592",
+        "name": "Clue"
+      },
+      {
+        "id": "bgg-154633",
+        "name": "Clue"
+      },
+      {
+        "id": "bgg-374342",
+        "name": "Clue"
+      }
+    ],
+    "Snakes and Ladders": [
+      {
+        "id": "bgg-7848",
+        "name": "Snakes and Ladders 3D"
+      },
+      {
+        "id": "bgg-24249",
+        "name": "3D Action Snakes and Ladders"
+      },
+      {
+        "id": "bgg-420727",
+        "name": "Carcassonne: Snakes and Ladders"
+      },
+      {
+        "id": "bgg-374630",
+        "name": "Змеи и лестницы: Бродилка (Snakes and Ladders: Adventure)"
+      },
+      {
+        "id": "bgg-38401",
+        "name": "Snakes and Ladders of Life"
+      }
+    ],
+    "Carcassonne": [
+      {
+        "id": "bgg-822",
+        "name": "Carcassonne"
+      },
+      {
+        "id": "igdb-75582",
+        "name": "Carcassonne"
+      }
+    ],
+    "Dead of Winter": [
+      {
+        "id": "bgg-150376",
+        "name": "Dead of Winter: A Crossroads Game"
+      },
+      {
+        "id": "bgg-193037",
+        "name": "Dead of Winter: The Long Night"
+      },
+      {
+        "id": "bgg-207016",
+        "name": "Flick &#039;em Up!: Dead of Winter"
+      },
+      {
+        "id": "bgg-206094",
+        "name": "Dead of Winter: Warring Colonies"
+      },
+      {
+        "id": "bgg-150482",
+        "name": "Dead of Winter: Kodiak Colby"
+      }
+    ],
+    "Fox in the Forest": [
+      {
+        "id": "bgg-221965",
+        "name": "The Fox in the Forest"
+      },
+      {
+        "id": "bgg-288169",
+        "name": "The Fox in the Forest Duet"
+      }
+    ],
+    "Catan: Seafarers": [
+      {
+        "id": "bgg-4103",
+        "name": "Catan: Seafarers – 5-6 Player Extension"
+      },
+      {
+        "id": "bgg-223171",
+        "name": "Catan: Seafarers Scenario – Legend of the Sea Robbers"
+      }
+    ],
+    "Exit: The Game": [
+      {
+        "id": "bgg-203420",
+        "name": "EXIT: The Game – The Abandoned Cabin"
+      },
+      {
+        "id": "bgg-203417",
+        "name": "EXIT: The Game – The Secret Lab"
+      },
+      {
+        "id": "bgg-203416",
+        "name": "EXIT: The Game – The Pharaoh&#039;s Tomb"
+      },
+      {
+        "id": "bgg-226522",
+        "name": "EXIT: The Game – Dead Man on the Orient Express"
+      },
+      {
+        "id": "bgg-215842",
+        "name": "EXIT: The Game – The Polar Station"
+      }
+    ],
+    "Quacks of Quedlinburg": [
+      {
+        "id": "bgg-269259",
+        "name": "The Quacks of Quedlinburg: The Herb Witches"
+      },
+      {
+        "id": "bgg-316597",
+        "name": "The Quacks of Quedlinburg: The Alchemists"
+      },
+      {
+        "id": "bgg-349955",
+        "name": "The Quacks of Quedlinburg: MegaBox"
+      },
+      {
+        "id": "bgg-409496",
+        "name": "The Quacks of Quedlinburg: The Duel"
+      },
+      {
+        "id": "bgg-326869",
+        "name": "The Quacks of Quedlinburg: Big Box"
+      }
+    ],
+    "Battlestar Galactica": [
+      {
+        "id": "bgg-2688",
+        "name": "Battlestar Galactica"
+      },
+      {
+        "id": "bgg-6768",
+        "name": "Battlestar Galactica"
+      }
+    ],
+    "Settlers of Catan": [
+      {
+        "id": "bgg-152959",
+        "name": "The Settlers of Catan"
+      },
+      {
+        "id": "bgg-19343",
+        "name": "The Settlers of Catan: The Fishermen of Catan"
+      },
+      {
+        "id": "bgg-20247",
+        "name": "The Settlers of Catan: The Great River"
+      },
+      {
+        "id": "bgg-38821",
+        "name": "Settlers of Catan: Gallery Edition"
+      },
+      {
+        "id": "bgg-20899",
+        "name": "Settlers of Catan: Rockman Edition"
+      }
+    ],
+    "Isle of Skye": [
+      {
+        "id": "bgg-176494",
+        "name": "Isle of Skye: From Chieftain to King"
+      },
+      {
+        "id": "bgg-232226",
+        "name": "Isle of Skye: Journeyman"
+      },
+      {
+        "id": "bgg-246646",
+        "name": "Isle of Skye: Druids"
+      },
+      {
+        "id": "bgg-369258",
+        "name": "Isle of Skye: Big Box"
+      },
+      {
+        "id": "bgg-211116",
+        "name": "Isle of Skye: From Chieftain to King – Themed Tiles"
+      }
+    ],
+    "Love Letter": [
+      {
+        "id": "bgg-129622",
+        "name": "Love Letter"
+      },
+      {
+        "id": "bgg-277085",
+        "name": "Love Letter"
+      }
+    ],
+    "The Quacks of Quedlinburg": [
+      {
+        "id": "bgg-269259",
+        "name": "The Quacks of Quedlinburg: The Herb Witches"
+      },
+      {
+        "id": "bgg-316597",
+        "name": "The Quacks of Quedlinburg: The Alchemists"
+      },
+      {
+        "id": "bgg-349955",
+        "name": "The Quacks of Quedlinburg: MegaBox"
+      },
+      {
+        "id": "bgg-409496",
+        "name": "The Quacks of Quedlinburg: The Duel"
+      },
+      {
+        "id": "bgg-326869",
+        "name": "The Quacks of Quedlinburg: Big Box"
+      }
+    ],
+    "Trajan": [
+      {
+        "id": "bgg-102680",
+        "name": "Trajan"
+      },
+      {
+        "id": "bgg-741",
+        "name": "Trajan"
+      }
+    ],
+    "Sherlock Holmes Consulting Detective": [
+      {
+        "id": "bgg-2511",
+        "name": "Sherlock Holmes Consulting Detective: The Thames Murders & Other Cases"
+      },
+      {
+        "id": "bgg-204305",
+        "name": "Sherlock Holmes Consulting Detective: Jack the Ripper & West End Adventures"
+      },
+      {
+        "id": "bgg-296345",
+        "name": "Sherlock Holmes Consulting Detective: The Baker Street Irregulars"
+      },
+      {
+        "id": "bgg-223931",
+        "name": "Sherlock Holmes Consulting Detective: Carlton House & Queen&#039;s Park"
+      },
+      {
+        "id": "bgg-3224",
+        "name": "Sherlock Holmes Consulting Detective: The Mansion Murders"
+      }
+    ],
+    "Formula D": [
+      {
+        "id": "bgg-64896",
+        "name": "Formula D"
+      },
+      {
+        "id": "bgg-37904",
+        "name": "Formula D"
+      }
+    ],
+    "Blood Bowl": [
+      {
+        "id": "bgg-3071",
+        "name": "Blood Bowl"
+      },
+      {
+        "id": "igdb-5649",
+        "name": "Blood Bowl"
+      }
+    ],
+    "Coup": [
+      {
+        "id": "bgg-2088",
+        "name": "Coup"
+      },
+      {
+        "id": "bgg-131357",
+        "name": "Coup"
+      },
+      {
+        "id": "bgg-1653",
+        "name": "Coup"
+      }
+    ],
+    "Arkham Horror": [
+      {
+        "id": "bgg-34",
+        "name": "Arkham Horror"
+      },
+      {
+        "id": "bgg-15987",
+        "name": "Arkham Horror"
+      }
+    ],
+    "Through the Ages": [
+      {
+        "id": "bgg-182028",
+        "name": "Through the Ages: A New Story of Civilization"
+      },
+      {
+        "id": "bgg-25613",
+        "name": "Through the Ages: A Story of Civilization"
+      },
+      {
+        "id": "bgg-37380",
+        "name": "Roll Through the Ages: The Bronze Age"
+      },
+      {
+        "id": "bgg-280833",
+        "name": "Through the Ages: New Leaders and Wonders"
+      },
+      {
+        "id": "bgg-150926",
+        "name": "Roll Through the Ages: The Iron Age"
+      }
+    ],
+    "War of the Ring": [
+      {
+        "id": "bgg-2228",
+        "name": "War of the Ring"
+      },
+      {
+        "id": "bgg-9609",
+        "name": "War of the Ring"
+      },
+      {
+        "id": "bgg-42131",
+        "name": "War of the Ring"
+      }
+    ],
+    "Timeline": [
+      {
+        "id": "bgg-428252",
+        "name": "Timeline"
+      },
+      {
+        "id": "bgg-125554",
+        "name": "Timeline"
+      },
+      {
+        "id": "bgg-7182",
+        "name": "TimeLine"
+      },
+      {
+        "id": "bgg-128664",
+        "name": "Timeline"
+      }
+    ],
+    "Puerto Rico": [
+      {
+        "id": "bgg-3076",
+        "name": "Puerto Rico"
+      },
+      {
+        "id": "bgg-108687",
+        "name": "Puerto Rico"
+      },
+      {
+        "id": "bgg-165332",
+        "name": "Puerto Rico"
+      },
+      {
+        "id": "bgg-318985",
+        "name": "Puerto Rico"
+      }
+    ],
+    "Star Wars: Rebellion": [
+      {
+        "id": "igdb-151",
+        "name": "Star Wars: Rebellion"
+      },
+      {
+        "id": "bgg-187645",
+        "name": "Star Wars: Rebellion"
+      }
+    ],
+    "Nemesis": [
+      {
+        "id": "bgg-167355",
+        "name": "Nemesis"
+      },
+      {
+        "id": "igdb-18630",
+        "name": "Nemesis"
+      }
+    ],
+    "Pandemic Legacy": [
+      {
+        "id": "bgg-161936",
+        "name": "Pandemic Legacy: Season 1"
+      },
+      {
+        "id": "bgg-221107",
+        "name": "Pandemic Legacy: Season 2"
+      },
+      {
+        "id": "bgg-314040",
+        "name": "Pandemic Legacy: Season 0"
+      }
+    ],
+    "Robinson Crusoe": [
+      {
+        "id": "bgg-121921",
+        "name": "Robinson Crusoe: Adventures on the Cursed Island"
+      },
+      {
+        "id": "bgg-144722",
+        "name": "Robinson Crusoe: Adventures on the Cursed Island – Voyage of the Beagle (Vol. 1)"
+      },
+      {
+        "id": "bgg-238391",
+        "name": "Robinson Crusoe: Adventures on the Cursed Island – Mystery Tales"
+      },
+      {
+        "id": "bgg-334931",
+        "name": "Robinson Crusoe: Adventures on the Cursed Island – Collector&#039;s Edition (Gamefound Edition)"
+      },
+      {
+        "id": "bgg-304337",
+        "name": "Robinson Crusoe: Adventures on the Cursed Island – Treasure Chest"
+      }
+    ],
+    "Cosmic Encounter": [
+      {
+        "id": "bgg-15",
+        "name": "Cosmic Encounter"
+      },
+      {
+        "id": "bgg-40531",
+        "name": "Cosmic Encounter"
+      },
+      {
+        "id": "bgg-39463",
+        "name": "Cosmic Encounter"
+      },
+      {
+        "id": "bgg-40529",
+        "name": "Cosmic Encounter"
+      }
+    ],
+    "The Castles of Burgundy": [
+      {
+        "id": "bgg-84876",
+        "name": "The Castles of Burgundy"
+      },
+      {
+        "id": "bgg-271320",
+        "name": "The Castles of Burgundy"
+      }
+    ],
+    "6 Nimmt!": [
+      {
+        "id": "bgg-268586",
+        "name": "6 nimmt! 25 Jahre"
+      },
+      {
+        "id": "bgg-20030",
+        "name": "6 nimmt! Plus"
+      },
+      {
+        "id": "bgg-433339",
+        "name": "6 nimmt! Baron Oxx"
+      },
+      {
+        "id": "bgg-286533",
+        "name": "6 nimmt! Brettspiel"
+      },
+      {
+        "id": "bgg-40958",
+        "name": "6 nimmt! Junior"
+      }
+    ],
+    "Bingo": [
+      {
+        "id": "bgg-7316",
+        "name": "Bingo"
+      },
+      {
+        "id": "bgg-225752",
+        "name": "Bingo"
+      }
+    ],
+    "Santorini": [
+      {
+        "id": "bgg-9963",
+        "name": "Santorini"
+      },
+      {
+        "id": "bgg-146645",
+        "name": "Santorini"
+      },
+      {
+        "id": "bgg-194655",
+        "name": "Santorini"
+      }
+    ],
+    "Monopoly Deal": [
+      {
+        "id": "rawg-3457",
+        "name": "MONOPOLY DEAL"
+      },
+      {
+        "id": "bgg-164840",
+        "name": "Monopoly Deal"
+      }
+    ],
+    "Sagrada": [
+      {
+        "id": "bgg-199561",
+        "name": "Sagrada"
+      },
+      {
+        "id": "bgg-107448",
+        "name": "Sagrada"
+      }
+    ],
+    "Parks": [
+      {
+        "id": "bgg-196238",
+        "name": "Parks"
+      },
+      {
+        "id": "bgg-266524",
+        "name": "PARKS"
+      }
+    ],
+    "Game of Thrones: The Board Game": [
+      {
+        "id": "bgg-103343",
+        "name": "A Game of Thrones: The Board Game (Second Edition)"
+      },
+      {
+        "id": "bgg-257496",
+        "name": "A Game of Thrones: The Board Game (Second Edition) – Mother of Dragons"
+      },
+      {
+        "id": "bgg-140261",
+        "name": "A Game of Thrones: The Board Game (Second Edition) – A Feast for Crows"
+      },
+      {
+        "id": "bgg-124693",
+        "name": "A Game of Thrones: The Board Game (Second Edition) – A Dance with Dragons"
+      }
+    ],
+    "Calico": [
+      {
+        "id": "bgg-283155",
+        "name": "Calico"
+      },
+      {
+        "id": "igdb-122345",
+        "name": "Calico"
+      }
+    ],
+    "Wavelength": [
+      {
+        "id": "bgg-23596",
+        "name": "WaveLength"
+      },
+      {
+        "id": "bgg-262543",
+        "name": "Wavelength"
+      }
+    ],
+    "Dobble": [
+      {
+        "id": "bgg-125048",
+        "name": "Dobble: Free Demo Version"
+      },
+      {
+        "id": "bgg-381429",
+        "name": "Dobble Connect"
+      },
+      {
+        "id": "bgg-340354",
+        "name": "Dobble: 360°"
+      },
+      {
+        "id": "bgg-375753",
+        "name": "Dobble Access+"
+      }
+    ],
+    "Jaws of the Lion": [
+      {
+        "id": "bgg-291457",
+        "name": "Gloomhaven: Jaws of the Lion"
+      },
+      {
+        "id": "bgg-338400",
+        "name": "Gloomhaven: Jaws of the Lion – Removable Sticker Set and Map"
+      },
+      {
+        "id": "bgg-354666",
+        "name": "Gloomhaven: Jaws of the Lion – Roguish Individuals (Promo Scenario)"
+      }
+    ],
+    "Warhammer 40,000": [
+      {
+        "id": "bgg-156776",
+        "name": "Warhammer 40,000: Conquest"
+      },
+      {
+        "id": "bgg-2162",
+        "name": "Warhammer 40,000 (Third Edition)"
+      },
+      {
+        "id": "bgg-13362",
+        "name": "Warhammer 40,000 (Fourth Edition)"
+      },
+      {
+        "id": "bgg-37165",
+        "name": "Warhammer 40,000 (Fifth Edition)"
+      },
+      {
+        "id": "bgg-256066",
+        "name": "Warhammer 40,000: Kill Team"
+      }
+    ],
+    "Caverna": [
+      {
+        "id": "bgg-102794",
+        "name": "Caverna: The Cave Farmers"
+      },
+      {
+        "id": "bgg-220520",
+        "name": "Caverna: Cave vs Cave"
+      },
+      {
+        "id": "bgg-245932",
+        "name": "Caverna: The Forgotten Folk"
+      },
+      {
+        "id": "bgg-258647",
+        "name": "Caverna: Cave vs Cave – Era II"
+      },
+      {
+        "id": "bgg-183531",
+        "name": "Caverna: Water Expansion"
+      }
+    ],
+    "Castles of Burgundy": [
+      {
+        "id": "bgg-84876",
+        "name": "The Castles of Burgundy"
+      },
+      {
+        "id": "bgg-271320",
+        "name": "The Castles of Burgundy"
+      },
+      {
+        "id": "bgg-363622",
+        "name": "The Castles of Burgundy: Special Edition"
+      },
+      {
+        "id": "bgg-191977",
+        "name": "The Castles of Burgundy: The Card Game"
+      },
+      {
+        "id": "bgg-232988",
+        "name": "The Castles of Burgundy: The Dice Game"
+      }
+    ],
+    "Guess Who": [
+      {
+        "id": "bgg-4143",
+        "name": "Guess Who?"
+      },
+      {
+        "id": "bgg-39872",
+        "name": "Guess Who? Extra"
+      },
+      {
+        "id": "bgg-302584",
+        "name": "Guess Who?: Card Game"
+      },
+      {
+        "id": "bgg-174468",
+        "name": "Guess Who? Shuffle"
+      },
+      {
+        "id": "bgg-116331",
+        "name": "Guess Who? Mix &#039;n Mash"
+      }
+    ],
+    "Mansions of Madness": [
+      {
+        "id": "rawg-12824",
+        "name": "Mansions of Madness"
+      },
+      {
+        "id": "bgg-83330",
+        "name": "Mansions of Madness"
+      }
+    ],
+    "Stratego": [
+      {
+        "id": "bgg-1917",
+        "name": "Stratego"
+      },
+      {
+        "id": "bgg-232822",
+        "name": "Stratego"
+      }
+    ],
+    "Warhammer Underworlds": [
+      {
+        "id": "bgg-224597",
+        "name": "Warhammer Underworlds: Shadespire"
+      },
+      {
+        "id": "bgg-261594",
+        "name": "Warhammer Underworlds: Nightvault"
+      },
+      {
+        "id": "bgg-287754",
+        "name": "Warhammer Underworlds: Beastgrave"
+      },
+      {
+        "id": "bgg-238541",
+        "name": "Warhammer Underworlds: Shadespire – Sepulchral Guard"
+      },
+      {
+        "id": "bgg-238542",
+        "name": "Warhammer Underworlds: Shadespire – Ironskull&#039;s Boyz"
+      }
+    ],
+    "The Lord of the Rings: Journeys in Middle-earth": [
+      {
+        "id": "rawg-292902",
+        "name": "The Lord of the Rings: Journeys in Middle-earth"
+      },
+      {
+        "id": "bgg-269385",
+        "name": "The Lord of the Rings: Journeys in Middle-Earth"
+      }
+    ],
+    "Survive: Escape from Atlantis!": [
+      {
+        "id": "bgg-2653",
+        "name": "Survive: Escape from Atlantis!"
+      },
+      {
+        "id": "bgg-315048",
+        "name": "Survive: Escape from Atlantis!"
+      }
+    ],
+    "Fluxx": [
+      {
+        "id": "bgg-258",
+        "name": "Fluxx"
+      },
+      {
+        "id": "bgg-314413",
+        "name": "Fluxx"
+      }
+    ],
+    "Charades": [
+      {
+        "id": "local-charades",
+        "name": "Charades"
+      },
+      {
+        "id": "bgg-5122",
+        "name": "Charades"
+      }
+    ],
+    "Mancala": [
+      {
+        "id": "bgg-23030",
+        "name": "Da Vinci&#039;s Mancala"
+      },
+      {
+        "id": "bgg-9488",
+        "name": "Mancala 4"
+      },
+      {
+        "id": "bgg-217323",
+        "name": "Disney Tsum Tsum Mancala Super Stack"
+      }
+    ],
+    "Mouse Trap": [
+      {
+        "id": "bgg-24985",
+        "name": "Mouse Trap"
+      },
+      {
+        "id": "bgg-2679",
+        "name": "Mouse Trap"
+      },
+      {
+        "id": "igdb-5687",
+        "name": "Mouse Trap"
+      }
+    ],
+    "War": [
+      {
+        "id": "bgg-16398",
+        "name": "War"
+      },
+      {
+        "id": "bgg-33112",
+        "name": "War"
+      }
+    ],
+    "Shakespeare": [
+      {
+        "id": "bgg-3606",
+        "name": "Shakespeare"
+      },
+      {
+        "id": "bgg-180511",
+        "name": "Shakespeare"
+      }
+    ],
+    "A Game of Thrones: The Board Game": [
+      {
+        "id": "bgg-103343",
+        "name": "A Game of Thrones: The Board Game (Second Edition)"
+      },
+      {
+        "id": "bgg-257496",
+        "name": "A Game of Thrones: The Board Game (Second Edition) – Mother of Dragons"
+      },
+      {
+        "id": "bgg-140261",
+        "name": "A Game of Thrones: The Board Game (Second Edition) – A Feast for Crows"
+      },
+      {
+        "id": "bgg-124693",
+        "name": "A Game of Thrones: The Board Game (Second Edition) – A Dance with Dragons"
+      }
+    ],
+    "Magic: The Gathering": [
+      {
+        "id": "bgg-463",
+        "name": "Magic: The Gathering"
+      },
+      {
+        "id": "igdb-12443",
+        "name": "Magic: The Gathering"
+      }
+    ],
+    "Ascension": [
+      {
+        "id": "bgg-388395",
+        "name": "Ascension"
+      },
+      {
+        "id": "bgg-10403",
+        "name": "Ascension"
+      }
+    ],
+    "Dungeons & Dragons: The Legend of Drizzt": [
+      {
+        "id": "bgg-91872",
+        "name": "Dungeons & Dragons: The Legend of Drizzt Board Game"
+      },
+      {
+        "id": "bgg-104391",
+        "name": "Dungeons & Dragons: The Legend of Drizzt Board Game – Vierna Do&#039;Urden Promo"
+      }
+    ],
+    "Unlock!": [
+      {
+        "id": "bgg-213460",
+        "name": "Unlock!: Escape Adventures"
+      },
+      {
+        "id": "bgg-266121",
+        "name": "Unlock!: Heroic Adventures"
+      },
+      {
+        "id": "bgg-228867",
+        "name": "Unlock!: Mystery Adventures"
+      },
+      {
+        "id": "bgg-312267",
+        "name": "Star Wars: Unlock!"
+      },
+      {
+        "id": "bgg-239307",
+        "name": "Unlock!: Secret Adventures"
+      }
+    ]
+  },
+  "invalidEvalCaseCount": 37,
+  "invalidEvalCaseNames": [
+    "[Mechanics: Deck/Engine/Worker] co-op deck-building",
+    "[Mechanics: Deck/Engine/Worker] deck-building for advanced players",
+    "[Mechanics: Deck/Engine/Worker] complex deck-builder",
+    "[Mechanics: Area/Tile/Draft/Other] Push Your Luck Fun",
+    "[Mechanics: Area/Tile/Draft/Other] Roll and Write Games",
+    "[Mechanics: Area/Tile/Draft/Other] Dexterity Games",
+    "[Mechanics: Area/Tile/Draft/Other] Push Your Luck Typo",
+    "[Mechanics: Area/Tile/Draft/Other] Roll and Write Typo",
+    "[Mechanics: Area/Tile/Draft/Other] Dexterity Games Typo",
+    "[Mechanics: Area/Tile/Draft/Other] Push Your Luck Query",
+    "[Themes: Fantasy/Sci-Fi/Horror] Vampire and Werewolf theme",
+    "[Themes: Fantasy/Sci-Fi/Horror] ESL Vampires",
+    "[Themes: Fantasy/Sci-Fi/Horror] Family-friendly ghost game",
+    "[Themes: Fantasy/Sci-Fi/Horror] Exploration games with vampires",
+    "[Themes: Fantasy/Sci-Fi/Horror] Epic Sci-Fi for 4 players",
+    "[Player counts: Solo to 4] Solo deck-building game",
+    "[Complexity levels] 18xx Complexity",
+    "[Complexity levels] Lacerda-Level (Informal)",
+    "[Occasions] Classroom",
+    "[Board game comparisons] Easier than Mage Knight",
+    "[Video game to board game] Civilization-like board game",
+    "[Video game to board game] like Slay the Spire",
+    "[Video game to board game] Pokemon tabletop",
+    "[Video game to board game] Game of Thrones experience",
+    "[Video game to board game] Stranger Things board game",
+    "[Video game to board game] Dune style game",
+    "[Video game to board game] typo: Pokemon",
+    "[Video game to board game] Game of Thrones strategy",
+    "[Video game to board game] Stranger Things inspired",
+    "[Extremely vague queries] dragons",
+    "[Extremely specific queries] Game set in Ancient Egypt with real sand timers",
+    "[Extremely specific queries] Competitive cooperative solo game",
+    "[Extremely specific queries] Epic fantasy war game with legacy components",
+    "[Negative preferences: themes and constraints] no party games",
+    "[Text-speak and abbreviations] fast-paced card game",
+    "[Multi-constraint: 2-3 constraints] tile placement game with dragons",
+    "[Multi-constraint: 4+ constraints] educational geography game"
+  ]
+}
