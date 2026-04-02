@@ -78,7 +78,6 @@ Themes: ${(g.themes ?? []).join(', ')}`
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: `Analyze these ${games.length} games and return a JSON object with keys "game_1", "game_2", etc., each containing the enriched metadata.\n\n${gamesText}` },
       ],
-      timeout: 30000,
     });
 
     const content = response.choices[0]?.message?.content;
