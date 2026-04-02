@@ -566,6 +566,22 @@ function scoreGenreMatch(game: Game, preferredGenres: string[]): number {
 function scoreMoodAlignment(game: Game, moods: string[]): number {
   if (moods.length === 0) return 0.5;
 
+  // If game has LLM-enriched mood tags, use them directly (much more accurate)
+  const enrichedMoods = game.enrichedMetadata?.moods?.map(m => m.toLowerCase()) ?? [];
+  if (enrichedMoods.length > 0) {
+    let matches = 0;
+    for (const mood of moods) {
+      if (enrichedMoods.some(em => em.includes(mood) || mood.includes(em))) {
+        matches++;
+      }
+    }
+    // Enriched moods are high-confidence; blend with heuristic score below
+    const enrichedScore = moods.length > 0 ? matches / moods.length : 0.5;
+    // If enriched gave a strong signal, return it directly
+    if (enrichedScore >= 0.5) return enrichedScore;
+    // Otherwise fall through to heuristic scoring as supplement
+  }
+
   const gameTags = [
     ...game.categories,
     ...game.mechanics,

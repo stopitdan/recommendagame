@@ -102,6 +102,15 @@ export interface Game {
 
   /** Number of users who have wishlisted this game */
   numWish?: number;
+
+  /** LLM-enriched metadata for better mood/vibe matching */
+  enrichedMetadata?: {
+    moods?: string[];
+    vibeKeywords?: string[];
+    targetAudience?: string[];
+    similarGames?: string[];
+    refinedMechanics?: string[];
+  };
 }
 
 /**
