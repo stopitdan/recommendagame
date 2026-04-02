@@ -47,15 +47,15 @@ export default async function Header() {
           </Typography>
         </Link>
 
-        {/* Desktop nav */}
-        <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+        {/* Desktop nav -- show at lg+ (1200px) where all 5 items fit comfortably */}
+        <Box sx={{ display: { xs: 'none', lg: 'flex' } }}>
           <HeaderNav />
         </Box>
 
         <Box sx={{ flex: 1 }} />
 
         {/* Desktop auth + dark mode */}
-        <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1, alignItems: 'center' }}>
+        <Box sx={{ display: { xs: 'none', lg: 'flex' }, gap: 1, alignItems: 'center' }}>
           <DarkModeToggle />
           <HeaderAuth
             isLoggedIn={!!user}
@@ -64,8 +64,8 @@ export default async function Header() {
           />
         </Box>
 
-        {/* Mobile hamburger menu */}
-        <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
+        {/* Mobile/tablet hamburger menu -- show below lg (1200px) */}
+        <Box sx={{ display: { xs: 'flex', lg: 'none' }, ml: 'auto' }}>
           <MobileNav
             isLoggedIn={!!user}
             email={user?.email ?? ''}
