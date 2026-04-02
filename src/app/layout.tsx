@@ -12,6 +12,7 @@ import CookieConsent from "@/components/CookieConsent";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import SkipNav from "@/components/SkipNav";
 import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
+import SmoothScroll from "@/components/SmoothScroll";
 import "./globals.css";
 
 const roboto = Roboto({
@@ -75,21 +76,23 @@ export default function RootLayout({
       <body className={roboto.className}>
         <AppRouterCacheProvider>
           <ThemeRegistry>
-            <SkipNav />
-            <ScrollProgress />
-            <Header />
-            <AchievementProvider>
-            <ErrorBoundary>
-              <main id="main-content" style={{ flex: 1 }}>
-                <PageTransition>
-                  {children}
-                </PageTransition>
-              </main>
-            </ErrorBoundary>
-            <Footer />
-            <CookieConsent />
-            <ServiceWorkerRegistration />
-            </AchievementProvider>
+            <SmoothScroll>
+              <SkipNav />
+              <ScrollProgress />
+              <Header />
+              <AchievementProvider>
+              <ErrorBoundary>
+                <main id="main-content" style={{ flex: 1 }}>
+                  <PageTransition>
+                    {children}
+                  </PageTransition>
+                </main>
+              </ErrorBoundary>
+              <Footer />
+              <CookieConsent />
+              <ServiceWorkerRegistration />
+              </AchievementProvider>
+            </SmoothScroll>
           </ThemeRegistry>
         </AppRouterCacheProvider>
       </body>
