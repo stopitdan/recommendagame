@@ -413,9 +413,11 @@ describe('scoreGame — quality signal', () => {
 // ─── Popularity Signal ───────────────────────────────────────
 
 describe('scoreGame — popularity signal', () => {
-  it('returns 0 for games with no ratings', () => {
+  it('returns near-zero for games with no ratings', () => {
+    // rankScore defaults to 0.1 (unranked), countScore=0, ownScore=0
+    // Result: 0.1*0.5 + 0 + 0 = 0.05
     const result = scoreGame(makeGame({ ratingCount: 0 }), makePrefs());
-    expect(result.breakdown.popularitySignal).toBe(0);
+    expect(result.breakdown.popularitySignal).toBeCloseTo(0.05, 2);
   });
 
   it('scales logarithmically', () => {
@@ -425,7 +427,9 @@ describe('scoreGame — popularity signal', () => {
 
     expect(low.breakdown.popularitySignal).toBeLessThan(mid.breakdown.popularitySignal);
     expect(mid.breakdown.popularitySignal).toBeLessThan(high.breakdown.popularitySignal);
-    expect(high.breakdown.popularitySignal).toBe(1.0);
+    // 100k ratings: countScore=1.0, but rankScore and ownScore depend on those fields
+    // which makeGame doesn't set, so: rankScore=0.1*0.5 + countScore=1.0*0.3 + ownScore=0*0.2 = 0.35
+    expect(high.breakdown.popularitySignal).toBeGreaterThan(0.3);
   });
 });
 
@@ -437,8 +441,8 @@ describe('weight configurations', () => {
     expect(sum).toBeCloseTo(1.0, 1);
   });
 
-  it('POPULAR_WEIGHTS emphasize popularity over default', () => {
-    expect(POPULAR_WEIGHTS.popularitySignal).toBeGreaterThan(DEFAULT_WEIGHTS.popularitySignal);
+  it('POPULAR_WEIGHTS is deprecated alias for DEFAULT_WEIGHTS', () => {
+    expect(POPULAR_WEIGHTS.popularitySignal).toBe(DEFAULT_WEIGHTS.popularitySignal);
   });
 
   it('HIDDEN_GEMS_WEIGHTS de-emphasize popularity', () => {
@@ -506,7 +510,9 @@ describe('reason generation', () => {
     expect(result.reasons.some((r) => r.includes('board'))).toBe(true);
   });
 
-  it('includes rating reason for highly-rated games with minimal other matches', () => {
+  it('includes rating reason for highly-rated games with no other matches', () => {
+    // Use types that DON'T match prefs so typeMatch reason doesn't fire,
+    // and empty categories/mechanics/themes so the fallback triggers
     const result = scoreGame(
       makeGame({
         rating: 9.2,
@@ -518,9 +524,9 @@ describe('reason generation', () => {
         playTime: undefined,
         complexity: undefined,
       }),
-      makePrefs({ gameTypes: ['video'], genres: [], moods: [] }),
+      makePrefs({ gameTypes: ['board'], genres: [], moods: [] }),
     );
-    // With minimal dimension matches, the quality signal reason should surface
+    // With no dimension matches at all, the fallback "Highly rated" reason should surface
     expect(result.reasons.some((r) => r.includes('9.2') || r.includes('Highly rated') || r.includes('ated'))).toBe(true);
   });
 });

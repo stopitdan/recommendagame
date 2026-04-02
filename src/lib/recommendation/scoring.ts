@@ -67,11 +67,11 @@ export const DEFAULT_WEIGHTS: ScoringWeights = {
   playerCountFit: 0.08,  // Hard-filtered already, this scores fit quality
   timeFit: 0.07,         // Hard-filtered already, this scores fit quality
   complexityFit: 0.07,   // Hard-filtered already, this scores fit quality
-  genreMatch: 0.20,      // Primary relevance signal — genres/mechanics drive taste
+  genreMatch: 0.24,      // PRIMARY relevance signal — user taste (was 0.20, +0.04)
   moodAlignment: 0.08,   // Soft signal — vibes
-  freeTextMatch: 0.14,   // Keywords from user's description are highly relevant
+  freeTextMatch: 0.18,   // User's exact words are high-intent (was 0.14, +0.04)
   qualitySignal: 0.03,   // Minor tiebreaker — rating score matters very little
-  popularitySignal: 0.20, // Community engagement — how many people own/play/rate this game
+  popularitySignal: 0.12, // Community validation, not dominance (was 0.20, -0.08)
   recencyBoost: 0.03,    // Mild freshness boost
 };
 
