@@ -122,6 +122,7 @@ export interface GameRow {
   designers: string[];
   publishers: string[];
   num_wish: number | null;
+  enriched_metadata: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
 }
