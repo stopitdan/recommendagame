@@ -25,9 +25,11 @@ config({ path: '.env.local' });
 import OpenAI from 'openai';
 import { createClient } from '@supabase/supabase-js';
 
-const BATCH_SIZE = parseInt(process.argv[2] ?? '25', 10);
+const LLM_BATCH_SIZE = parseInt(process.argv[2] ?? '50', 10);
 const START_OFFSET = parseInt(process.argv[3] ?? '0', 10);
 const MODEL = 'gpt-4o-mini';
+const MAX_TAGS_THRESHOLD = 10; // Only enrich games with < 10 total tags
+const FETCH_BATCH_SIZE = 500; // Fetch more from DB, filter client-side
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -108,7 +110,8 @@ Themes: ${(g.themes ?? []).join(', ')}`
 async function main() {
   console.log(`[Enrich] Starting metadata enrichment`);
   console.log(`  Model: ${MODEL}`);
-  console.log(`  Batch size: ${BATCH_SIZE}`);
+  console.log(`  LLM batch size: ${LLM_BATCH_SIZE}`);
+  console.log(`  Tag threshold: < ${MAX_TAGS_THRESHOLD} total tags`);
   console.log(`  Start offset: ${START_OFFSET}\n`);
 
   // Check if enriched_metadata column exists by trying to select it
@@ -131,13 +134,14 @@ async function main() {
   let totalCost = 0;
 
   while (true) {
-    // Fetch games that haven't been enriched yet
+    // Fetch a larger batch of unenriched games, then filter client-side
+    // for sparse metadata (PostgREST can't do array_length arithmetic)
     const { data: rows, error } = await supabase
       .from('games')
       .select('id, name, description, categories, mechanics, themes, enriched_metadata')
       .is('enriched_metadata', null)
-      .order('rating_count', { ascending: false }) // Prioritize popular games
-      .range(offset, offset + BATCH_SIZE - 1);
+      .order('rating_count', { ascending: false })
+      .range(offset, offset + FETCH_BATCH_SIZE - 1);
 
     if (error) {
       console.error('[Enrich] Fetch error:', error.message);
@@ -145,44 +149,59 @@ async function main() {
     }
 
     if (!rows || rows.length === 0) {
-      console.log('[Enrich] No more games to enrich');
+      console.log('[Enrich] No more unenriched games');
       break;
     }
 
-    // Enrich batch
-    const enriched = await enrichBatch(rows);
+    // Filter to games with < MAX_TAGS_THRESHOLD total tags
+    const sparse = rows.filter((g: any) => {
+      const tagCount = (g.categories ?? []).length + (g.mechanics ?? []).length + (g.themes ?? []).length;
+      return tagCount < MAX_TAGS_THRESHOLD;
+    });
 
-    // Upsert enriched data
-    for (const [gameId, metadata] of enriched) {
-      const { error: updateError } = await supabase
-        .from('games')
-        .update({ enriched_metadata: metadata })
-        .eq('id', gameId);
+    const skippedRich = rows.length - sparse.length;
+    totalSkipped += skippedRich;
 
-      if (updateError) {
-        console.error(`[Enrich] Update failed for ${gameId}:`, updateError.message);
-      } else {
-        totalEnriched++;
-      }
+    if (sparse.length === 0) {
+      totalProcessed += rows.length;
+      offset += FETCH_BATCH_SIZE;
+      console.log(`[Enrich] Skipped ${rows.length} games (all have >= ${MAX_TAGS_THRESHOLD} tags) | offset: ${offset}`);
+      continue;
     }
 
-    totalSkipped += rows.length - enriched.size;
+    // Process sparse games in LLM-sized chunks
+    for (let i = 0; i < sparse.length; i += LLM_BATCH_SIZE) {
+      const chunk = sparse.slice(i, i + LLM_BATCH_SIZE);
+      const enriched = await enrichBatch(chunk);
+
+      for (const [gameId, metadata] of enriched) {
+        const { error: updateError } = await supabase
+          .from('games')
+          .update({ enriched_metadata: metadata })
+          .eq('id', gameId);
+
+        if (updateError) {
+          console.error(`[Enrich] Update failed for ${gameId}:`, updateError.message);
+        } else {
+          totalEnriched++;
+        }
+      }
+
+      // Estimate cost (GPT-4o-mini: $0.15/1M input, $0.60/1M output)
+      const batchInputTokens = chunk.length * 500;
+      const batchOutputTokens = chunk.length * 100;
+      const batchCost = (batchInputTokens * 0.15 + batchOutputTokens * 0.6) / 1_000_000;
+      totalCost += batchCost;
+
+      // Rate limit between LLM calls
+      await new Promise((r) => setTimeout(r, 300));
+    }
+
     totalProcessed += rows.length;
+    // Advance offset since we're mixing sparse and non-sparse in the fetch
+    offset += FETCH_BATCH_SIZE;
 
-    // Estimate cost (GPT-4o-mini: $0.15/1M input, $0.60/1M output)
-    // ~500 tokens input per game, ~100 tokens output per game
-    const batchInputTokens = rows.length * 500;
-    const batchOutputTokens = rows.length * 100;
-    const batchCost = (batchInputTokens * 0.15 + batchOutputTokens * 0.6) / 1_000_000;
-    totalCost += batchCost;
-
-    console.log(`[Enrich] Progress: ${totalProcessed} processed | ${totalEnriched} enriched | ${totalSkipped} skipped | cost: ~$${totalCost.toFixed(4)}`);
-
-    // Don't advance offset since we're filtering by IS NULL
-    // (enriched games won't appear in the next query)
-
-    // Rate limit
-    await new Promise((r) => setTimeout(r, 500));
+    console.log(`[Enrich] Progress: ${totalProcessed} scanned | ${totalEnriched} enriched | ${totalSkipped} skipped (rich) | cost: ~$${totalCost.toFixed(4)}`);
   }
 
   console.log(`\n[Enrich] Done!`);
