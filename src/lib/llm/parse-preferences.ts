@@ -58,6 +58,31 @@ Examples of negative extraction:
 - "vegetarian, no chicken" → This is NOT a game request, return mostly empty with keywords: ["vegetarian", "food"]
 - "party game that isn't Cards Against Humanity" → genres: ["Party"], excludedGenres: ["Adult", "Crude Humor"]
 
+INTENT MODIFIERS: Extract the user's priority/intensity for preferences.
+- "intentModifiers": object with arrays:
+  - "mustHave": things the user REQUIRES ("must have", "need", "has to be", "only", "definitely")
+  - "niceToHave": things the user would prefer but aren't dealbreakers ("would be cool", "ideally", "bonus if", "preferably")
+  - "avoid": things the user wants to minimize ("not too", "less", "avoid", "without much")
+  - "emphasize": things the user wants MORE of ("really", "very", "extremely", "super", "highly")
+
+Examples:
+- "must have deck building, would be nice if cooperative" → intentModifiers: {mustHave: ["Deck Building"], niceToHave: ["Cooperative"], avoid: [], emphasize: []}
+- "really strategic, not too random" → intentModifiers: {mustHave: [], niceToHave: [], avoid: ["random", "luck", "dice"], emphasize: ["strategic", "strategy"]}
+- "I need a quick game, preferably funny" → intentModifiers: {mustHave: ["quick", "short play time"], niceToHave: ["funny", "humor"], avoid: [], emphasize: []}
+
+COMPARISON STRUCTURE: When the user compares to a specific game, extract what they want to keep and change.
+- "comparisonBase": object with:
+  - "game": the reference game name
+  - "keepAttributes": aspects of the reference game to preserve
+  - "changeAttributes": aspects to change (often preceded by "but", "less", "more", "without")
+
+Examples:
+- "like Catan but less random and more strategic" → comparisonBase: {game: "Catan", keepAttributes: ["trading", "resource management", "building"], changeAttributes: ["less dice rolling", "more strategic depth"]}
+- "something like Gloomhaven but shorter sessions" → comparisonBase: {game: "Gloomhaven", keepAttributes: ["dungeon crawler", "tactical combat", "cooperative"], changeAttributes: ["shorter play time", "less campaign commitment"]}
+- "Slay the Spire as a board game" → comparisonBase: {game: "Slay the Spire", keepAttributes: ["deck building", "roguelike", "card combos"], changeAttributes: ["board game format"]}
+
+Only include intentModifiers and comparisonBase if they can be meaningfully extracted. Omit them for simple queries like "deck building game".
+
 Only include fields you can reasonably infer. Return empty arrays and null for unmentioned fields.`;
 
 /** Timeout for OpenAI API calls */

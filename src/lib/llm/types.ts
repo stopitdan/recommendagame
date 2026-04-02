@@ -48,6 +48,36 @@ export interface ParsedPreferences {
 
   /** Designer/author names the user mentioned */
   designers: string[];
+
+  /**
+   * Intent modifiers -- preserve the intensity/priority of preferences.
+   * "Must have deck building" vs "would be nice if cooperative" carry
+   * very different weights in scoring.
+   */
+  intentModifiers?: {
+    /** Strong requirements: "must have", "need", "has to be" */
+    mustHave: string[];
+    /** Nice-to-haves: "would be cool if", "ideally", "bonus if" */
+    niceToHave: string[];
+    /** Things to avoid: "not too random", "avoid", "less" */
+    avoid: string[];
+    /** Things to emphasize: "really strategic", "very thematic", "extremely" */
+    emphasize: string[];
+  };
+
+  /**
+   * Comparison structure -- when user says "like X but different in Y",
+   * preserve the relationship so scoring can keep X's good attributes
+   * while penalizing the things user wants changed.
+   */
+  comparisonBase?: {
+    /** The reference game: "like Catan" -> "Catan" */
+    game: string;
+    /** Attributes to keep: "the trading part" -> ["trading", "resource management"] */
+    keepAttributes: string[];
+    /** Attributes to change: "less random" -> ["less dice rolling"] */
+    changeAttributes: string[];
+  };
 }
 
 /** Empty parsed preferences (used as default/fallback) */

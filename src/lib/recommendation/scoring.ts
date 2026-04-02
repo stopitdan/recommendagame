@@ -744,8 +744,46 @@ function scoreFreeTextLLM(game: Game, parsed: ParsedPreferences): number {
     totalChecks++;
   }
 
+  // Intent modifiers: apply bonuses/penalties based on priority signals
+  if (parsed.intentModifiers) {
+    const { mustHave, niceToHave, avoid, emphasize } = parsed.intentModifiers;
+
+    // mustHave: strong bonus for matching, strong penalty for missing
+    for (const term of mustHave ?? []) {
+      const lower = term.toLowerCase();
+      const found = allTags.some((t) => t.includes(lower) || lower.includes(t))
+        || gameName.includes(lower) || gameDesc.includes(lower);
+      totalScore += found ? 0.3 : -0.2;
+      totalChecks++;
+    }
+
+    // avoid: penalty for matching
+    for (const term of avoid ?? []) {
+      const lower = term.toLowerCase();
+      const found = allTags.some((t) => t.includes(lower) || lower.includes(t))
+        || gameName.includes(lower) || gameDesc.includes(lower);
+      if (found) totalScore -= 0.25;
+    }
+
+    // emphasize: mild bonus for matching
+    for (const term of emphasize ?? []) {
+      const lower = term.toLowerCase();
+      const found = allTags.some((t) => t.includes(lower) || lower.includes(t))
+        || gameDesc.includes(lower);
+      if (found) totalScore += 0.15;
+    }
+
+    // niceToHave: small bonus for matching (no penalty for missing)
+    for (const term of niceToHave ?? []) {
+      const lower = term.toLowerCase();
+      const found = allTags.some((t) => t.includes(lower) || lower.includes(t))
+        || gameDesc.includes(lower);
+      if (found) totalScore += 0.1;
+    }
+  }
+
   if (totalChecks === 0) return 0.5;
-  return Math.min(totalScore / totalChecks, 1.0);
+  return Math.max(0, Math.min(totalScore / totalChecks, 1.0));
 }
 
 /**
