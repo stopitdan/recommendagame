@@ -94,6 +94,64 @@ export const HIDDEN_GEMS_WEIGHTS: ScoringWeights = {
  */
 export const POPULAR_WEIGHTS: ScoringWeights = DEFAULT_WEIGHTS;
 
+// ─── Adaptive Weight Computation ────────────────────────────
+
+/**
+ * Amplifies scoring weights based on what the user emphasized in their query.
+ *
+ * Research backing: Arxiv survey (2407.13699) discusses contextual weight
+ * adjustment. Koch (Criteo) recommends a trained meta-learner. This is
+ * the rules-based approach that doesn't require ML training data.
+ *
+ * Example: "90 minutes, 4 players" -> timeFit and playerCountFit get 2-2.5x
+ * boost, then all weights are renormalized to sum to 1.0.
+ */
+function computeAdaptiveWeights(
+  baseWeights: ScoringWeights,
+  prefs: QuestionnaireState,
+): ScoringWeights {
+  const w = { ...baseWeights };
+  const llm = prefs.llmParsed;
+
+  // Tight player count = user is specific about group size
+  const pcRange = prefs.playerCount.max - prefs.playerCount.min;
+  if (pcRange <= 1 && prefs.playerCount.min > 0 && prefs.playerCount.max < 10) {
+    w.playerCountFit *= 2.0;
+  } else if (pcRange <= 3 && prefs.playerCount.min > 1) {
+    w.playerCountFit *= 1.5;
+  }
+
+  // Hard time constraint = user really means it
+  if (llm?.timeStrictness === 'hard' && llm.maxMinutes) {
+    w.timeFit *= 2.5;
+  } else if (llm?.maxMinutes || prefs.timePresets.length > 0) {
+    w.timeFit *= 1.5;
+  }
+
+  // Narrow complexity range = user knows what weight they want
+  const cxRange = prefs.complexity.max - prefs.complexity.min;
+  if (cxRange <= 1 && (prefs.complexity.min > 1 || prefs.complexity.max < 5)) {
+    w.complexityFit *= 2.0;
+  } else if (cxRange <= 2) {
+    w.complexityFit *= 1.3;
+  }
+
+  // Multiple moods or specific social moods = vibe-heavy query
+  if (prefs.moods.length >= 2) {
+    w.moodAlignment *= 1.5;
+  }
+
+  // Renormalize to sum to 1.0
+  const sum = Object.values(w).reduce((a, b) => a + b, 0);
+  if (sum > 0) {
+    for (const key of Object.keys(w) as (keyof ScoringWeights)[]) {
+      w[key] /= sum;
+    }
+  }
+
+  return w;
+}
+
 // ─── Main Scoring Function ───────────────────────────────────
 
 /**
@@ -146,6 +204,11 @@ export function scoreGame(
       qualitySignal: 0.02,
     };
   }
+
+  // Query-adaptive weight amplification: when the user emphasized specific
+  // constraints, amplify those dimensions so they matter more in ranking.
+  // This prevents "90 minutes, 4 players" from returning 3-hour games.
+  effectiveWeights = computeAdaptiveWeights(effectiveWeights, prefs);
 
   // Weighted sum
   const score =
