@@ -476,13 +476,16 @@ export async function POST(request: NextRequest) {
     // Step 4: Apply rejection penalties (if user has negative feedback)
     const rejectionProfile = await buildRejectionProfile(body.userId ?? null);
     if (rejectionProfile) {
+      let penalizedCount = 0;
       for (const item of scored) {
         const penalty = computeRejectionPenalty(item.game, rejectionProfile);
         if (penalty > 0) {
           item.score *= (1 - penalty);
+          penalizedCount++;
         }
       }
       scored.sort((a, b) => b.score - a.score);
+      console.log(`[Recommend] Rejection profile: ${rejectionProfile.totalRejections} rejections, ${rejectionProfile.rejectedTags.size} tags, penalized ${penalizedCount}/${scored.length} games`);
     }
 
     // Step 5: LLM reranking — ask GPT-4o to pick the best matches from top 50 candidates

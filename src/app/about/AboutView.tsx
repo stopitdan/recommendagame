@@ -37,30 +37,44 @@ function Section({ children, delay = 0 }: { children: React.ReactNode; delay?: n
 const ENGINE_LAYERS: { number: string; title: string; description: string; color: string; icon: ReactNode }[] = [
   {
     number: '01',
-    title: 'Rule-Based Scoring',
-    description: 'Scores every game across 8 dimensions (type, player count, time, complexity, genre, mood, quality, and popularity) to find your best matches.',
+    title: 'Natural Language Understanding',
+    description: 'Describe what you want in plain English. Our AI extracts genres, mechanics, player count, time limits, and even designer preferences from your request, then expands your query with creative search terms.',
     color: '#5B4FDB',
-    icon: <BarChart3 size={24} />,
+    icon: <Sparkles size={24} />,
   },
   {
     number: '02',
-    title: 'Content-Based Filtering',
-    description: 'Each game is encoded as a vector in high-dimensional space. Your preferences become a vector too. We find games pointing in the same direction as your taste.',
+    title: 'Relevance-First Candidate Search',
+    description: 'Instead of showing popular games by default, we search for games that actually match your request. Semantic vector search (pgvector), tag matching, mechanic search, text search, and designer lookups all run in parallel to find relevant candidates.',
     color: '#0EC6C6',
-    icon: <Cpu size={24} />,
+    icon: <Search size={24} />,
   },
   {
     number: '03',
-    title: 'Collaborative Filtering',
-    description: '"People who liked X also liked Y." As more people use the platform, the engine discovers patterns and connects you with hidden gems.',
+    title: 'Multi-Dimensional Scoring',
+    description: 'Every candidate is scored across 10 dimensions: genre match, free-text relevance, player count fit, time fit, complexity fit, type match, mood alignment, quality, popularity, and recency. Weights adapt based on what you emphasized.',
     color: '#FF6D3F',
-    icon: <Users size={24} />,
+    icon: <BarChart3 size={24} />,
   },
   {
     number: '04',
-    title: 'Feedback Loop',
-    description: 'Every thumbs up, thumbs down, and review adjusts your preference profile. The more you use it, the smarter your recommendations become.',
+    title: 'Semantic Similarity',
+    description: 'Games and your preferences are encoded as vectors using semantic embeddings. This captures meaning that tags miss. "Anime themed" finds Japanese-style games even when the tags just say "Fantasy" or "Card Game".',
+    color: '#9C27B0',
+    icon: <Cpu size={24} />,
+  },
+  {
+    number: '05',
+    title: 'AI Re-Ranking',
+    description: 'An AI judge reviews the top candidates and re-orders them using common sense. It catches things the algorithm misses, like knowing an expansion pack should rank below its base game.',
     color: '#FFB020',
+    icon: <Zap size={24} />,
+  },
+  {
+    number: '06',
+    title: 'Learning From You',
+    description: 'Thumbs up and thumbs down teach the engine your taste. Collaborative filtering discovers patterns across users, and your feedback profile gets sharper over time.',
+    color: '#4CAF50',
     icon: <RefreshCw size={24} />,
   },
 ];
@@ -68,20 +82,20 @@ const ENGINE_LAYERS: { number: string; title: string; description: string; color
 const DATA_SOURCES: { name: string; games: string; description: string; icon: ReactNode }[] = [
   {
     name: 'BoardGameGeek',
-    games: '22,000+',
-    description: 'The gold standard for board game data. Community ratings, complexity scores, mechanics, and player counts.',
+    games: '65,000+',
+    description: 'The gold standard for board game data. Community ratings, complexity scores, mechanics, player counts, and designer info.',
     icon: <Puzzle size={32} />,
   },
   {
-    name: 'RAWG',
-    games: '80,000+',
-    description: 'Comprehensive video game database covering every platform, from indie to AAA.',
+    name: 'IGDB',
+    games: '11,000+',
+    description: 'Rich video game metadata via Twitch. Genres, platforms, release dates, and community ratings.',
     icon: <Gamepad2 size={32} />,
   },
   {
-    name: 'Curated Collection',
-    games: '39',
-    description: 'Hand-picked word games and party games you can play anywhere with no equipment needed.',
+    name: 'RAWG + Curated',
+    games: '3,800+',
+    description: 'Additional video games from RAWG plus hand-picked word games and party games you can play with no equipment.',
     icon: <PartyPopper size={32} />,
   },
 ];
@@ -90,11 +104,11 @@ const TECH_STACK: { name: string; role: string; icon: ReactNode }[] = [
   { name: 'Next.js 16', role: 'Framework', icon: <Zap size={20} /> },
   { name: 'React 19', role: 'UI Library', icon: <Atom size={20} /> },
   { name: 'TypeScript', role: 'Type Safety', icon: <FileCode size={20} /> },
-  { name: 'MUI', role: 'Components', icon: <Palette size={20} /> },
+  { name: 'MUI 7', role: 'Components', icon: <Palette size={20} /> },
   { name: 'Supabase', role: 'Database & Auth', icon: <Database size={20} /> },
   { name: 'pgvector', role: 'Similarity Search', icon: <Search size={20} /> },
-  { name: 'Motion', role: 'Animations', icon: <Sparkles size={20} /> },
-  { name: 'Vitest', role: 'Testing', icon: <TestTube size={20} /> },
+  { name: 'LLMs', role: 'AI Parsing & Ranking', icon: <Sparkles size={20} /> },
+  { name: 'Redis', role: 'Caching', icon: <Cpu size={20} /> },
 ];
 
 export default function AboutView() {
@@ -145,7 +159,7 @@ export default function AboutView() {
           How Recommendations Work
         </Typography>
         <Typography variant="body1" color="text.secondary" sx={{ mb: 4, lineHeight: 1.8 }}>
-          Under the hood, a 4-layer AI recommendation engine analyzes 100,000+ games to find
+          Under the hood, a 6-layer recommendation engine analyzes 80,000+ games to find
           your perfect match.
         </Typography>
       </Section>

@@ -121,19 +121,22 @@ export function computeRejectionPenalty(
 
   if (gameTags.length === 0) return 0;
 
-  // Count how many of this game's tags appear in the rejection profile
+  // Count how many of this game's tags appear in the rejection profile,
+  // but only count tags that were rejected MULTIPLE times (≥2).
+  // A single rejection creates ~20 tags from one game's metadata — those
+  // are too noisy to penalize on. Only repeated rejections of the same
+  // tag indicate a real dislike pattern.
   let matchedWeight = 0;
   for (const tag of gameTags) {
     const rejectionCount = profile.rejectedTags.get(tag) ?? 0;
-    if (rejectionCount > 0) {
-      // Tags rejected multiple times get stronger penalty
-      matchedWeight += Math.min(rejectionCount / profile.totalRejections, 0.5);
+    if (rejectionCount >= 2) {
+      matchedWeight += Math.min(rejectionCount / profile.totalRejections, 0.3);
     }
   }
 
   // Normalize by game's tag count (a game with 1 matching tag out of 10 is mild)
   const penalty = matchedWeight / gameTags.length;
 
-  // Cap at 0.8 — never fully exclude a game based on tags alone
-  return Math.min(penalty * 3, 0.8);
+  // Cap at 0.5 — rejection is a soft signal, not a hard filter
+  return Math.min(penalty * 2, 0.5);
 }

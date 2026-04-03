@@ -90,7 +90,7 @@ Return ONLY a JSON object: {"ids": ["game-id-1", "game-id-2", ...]} with the ${l
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o',
       temperature: 0,
-      max_tokens: 400,
+      max_tokens: 1000,
       response_format: { type: 'json_object' },
       messages: [{ role: 'user', content: prompt }],
     });
