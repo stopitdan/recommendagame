@@ -11,9 +11,9 @@
  * mood alignment scoring and free-text matching.
  *
  * Cost: ~$5-10 for 81k games at GPT-4o-mini pricing.
- * Runtime: ~2-4 hours (rate limited to avoid OpenAI throttling).
+ * Runtime: ~1-2 hours with default concurrency of 10 (was 10+ hours sequential).
  *
- * Usage: npx tsx scripts/enrich-game-metadata.ts [batch-size] [start-offset]
+ * Usage: npx tsx scripts/enrich-game-metadata.ts [batch-size] [start-offset] [concurrency]
  *
  * Requires: OPENAI_API_KEY in .env.local
  * Stores: enriched data in games.enriched_metadata JSONB column
@@ -27,6 +27,7 @@ import { createClient } from '@supabase/supabase-js';
 
 const LLM_BATCH_SIZE = parseInt(process.argv[2] ?? '50', 10);
 const START_OFFSET = parseInt(process.argv[3] ?? '0', 10);
+const CONCURRENCY = parseInt(process.argv[4] ?? '10', 10); // Parallel LLM calls
 const MODEL = 'gpt-4o-mini';
 const MAX_TAGS_THRESHOLD = 10; // Only enrich games with < 10 total tags
 const FETCH_BATCH_SIZE = 500; // Fetch more from DB, filter client-side
@@ -111,6 +112,7 @@ async function main() {
   console.log(`[Enrich] Starting metadata enrichment`);
   console.log(`  Model: ${MODEL}`);
   console.log(`  LLM batch size: ${LLM_BATCH_SIZE}`);
+  console.log(`  Concurrency: ${CONCURRENCY} parallel calls`);
   console.log(`  Tag threshold: < ${MAX_TAGS_THRESHOLD} total tags`);
   console.log(`  Start offset: ${START_OFFSET}\n`);
 
@@ -169,32 +171,43 @@ async function main() {
       continue;
     }
 
-    // Process sparse games in LLM-sized chunks
+    // Process sparse games in LLM-sized chunks, CONCURRENCY at a time
+    const chunks: typeof sparse[] = [];
     for (let i = 0; i < sparse.length; i += LLM_BATCH_SIZE) {
-      const chunk = sparse.slice(i, i + LLM_BATCH_SIZE);
-      const enriched = await enrichBatch(chunk);
+      chunks.push(sparse.slice(i, i + LLM_BATCH_SIZE));
+    }
 
-      for (const [gameId, metadata] of enriched) {
-        const { error: updateError } = await supabase
-          .from('games')
-          .update({ enriched_metadata: metadata })
-          .eq('id', gameId);
+    // Process chunks in parallel waves of CONCURRENCY
+    for (let w = 0; w < chunks.length; w += CONCURRENCY) {
+      const wave = chunks.slice(w, w + CONCURRENCY);
+      const waveResults = await Promise.all(wave.map((chunk) => enrichBatch(chunk)));
 
-        if (updateError) {
-          console.error(`[Enrich] Update failed for ${gameId}:`, updateError.message);
-        } else {
-          totalEnriched++;
-        }
+      for (let ci = 0; ci < wave.length; ci++) {
+        const enriched = waveResults[ci];
+        const chunk = wave[ci];
+
+        // Batch update: fire all updates concurrently
+        const updatePromises = Array.from(enriched.entries()).map(
+          async ([gameId, metadata]) => {
+            const { error: updateError } = await supabase
+              .from('games')
+              .update({ enriched_metadata: metadata })
+              .eq('id', gameId);
+            if (updateError) {
+              console.error(`[Enrich] Update failed for ${gameId}:`, updateError.message);
+            } else {
+              totalEnriched++;
+            }
+          },
+        );
+        await Promise.all(updatePromises);
+
+        // Estimate cost (GPT-4o-mini: $0.15/1M input, $0.60/1M output)
+        const batchInputTokens = chunk.length * 500;
+        const batchOutputTokens = chunk.length * 100;
+        const batchCost = (batchInputTokens * 0.15 + batchOutputTokens * 0.6) / 1_000_000;
+        totalCost += batchCost;
       }
-
-      // Estimate cost (GPT-4o-mini: $0.15/1M input, $0.60/1M output)
-      const batchInputTokens = chunk.length * 500;
-      const batchOutputTokens = chunk.length * 100;
-      const batchCost = (batchInputTokens * 0.15 + batchOutputTokens * 0.6) / 1_000_000;
-      totalCost += batchCost;
-
-      // Rate limit between LLM calls
-      await new Promise((r) => setTimeout(r, 300));
     }
 
     totalProcessed += rows.length;
