@@ -110,17 +110,16 @@ async function fetchDescriptions(bggIds: string[]): Promise<Map<string, string>>
 async function main() {
   console.log(`[${ts()}] Finding games with gibberish descriptions...`);
 
-  // Count total gibberish games
+  // Rough count of candidates to check (actual gibberish is a subset)
   const { count } = await supabase
     .from('games')
     .select('id', { count: 'exact', head: true })
     .eq('source', 'bgg')
     .not('description', 'is', null)
     .not('description', 'like', '% the %')
-    .not('description', 'like', '% is %')
-    .gt('description', ''); // non-empty
+    .gt('description', '');
 
-  console.log(`[${ts()}] Found ${count ?? '?'} games with likely gibberish descriptions`);
+  console.log(`[${ts()}] ~${count ?? '?'} candidates to check (filtering client-side for actual gibberish)`);
   console.log(`[${ts()}] BGG batch size: ${BGG_BATCH_SIZE}, throttle: ${THROTTLE_MS}ms`);
   if (START_OFFSET > 0) console.log(`[${ts()}] Starting from offset: ${START_OFFSET}`);
   console.log();
@@ -131,14 +130,14 @@ async function main() {
   let totalFailed = 0;
 
   while (true) {
-    // Fetch a batch of gibberish games from DB
+    // Fetch a batch of games to check for gibberish client-side.
+    // We can't do the multi-marker heuristic in PostgREST, so fetch and filter.
     const { data: rows, error } = await supabase
       .from('games')
-      .select('id, source_id, name')
+      .select('id, source_id, name, description')
       .eq('source', 'bgg')
       .not('description', 'is', null)
       .not('description', 'like', '% the %')
-      .not('description', 'like', '% is %')
       .gt('description', '')
       .order('rating_count', { ascending: false, nullsFirst: false })
       .range(offset, offset + FETCH_BATCH - 1);
@@ -148,15 +147,31 @@ async function main() {
       break;
     }
     if (!rows || rows.length === 0) {
-      console.log(`[${ts()}] No more gibberish games found.`);
+      console.log(`[${ts()}] No more games to check.`);
       break;
     }
 
-    console.log(`[${ts()}] Processing batch: ${rows.length} games (offset ${offset})`);
+    // Client-side gibberish detection: real English has common articles/prepositions.
+    // Lemmatized text strips them out. Count how many markers are present.
+    const MARKERS = [' the ', ' a ', ' an ', ' is ', ' are ', ' of ', ' in ', ' for ', ' and ', ' to ', ' with ', ' that '];
+    const gibberishRows = rows.filter((r) => {
+      const d = (r.description ?? '').toLowerCase();
+      if (d.length <= 50) return false; // too short to judge
+      const found = MARKERS.filter((m) => d.includes(m)).length;
+      return found <= 1; // 0-1 common words = almost certainly gibberish
+    });
+
+    if (gibberishRows.length === 0) {
+      offset += rows.length;
+      console.log(`[${ts()}] Batch had 0 gibberish out of ${rows.length} (offset ${offset})`);
+      continue;
+    }
+
+    console.log(`[${ts()}] Found ${gibberishRows.length} gibberish out of ${rows.length} (offset ${offset})`);
 
     // Process in BGG-sized chunks
-    for (let i = 0; i < rows.length; i += BGG_BATCH_SIZE) {
-      const chunk = rows.slice(i, i + BGG_BATCH_SIZE);
+    for (let i = 0; i < gibberishRows.length; i += BGG_BATCH_SIZE) {
+      const chunk = gibberishRows.slice(i, i + BGG_BATCH_SIZE);
       const bggIds = chunk.map((r) => r.source_id);
 
       const descriptions = await fetchDescriptions(bggIds);
