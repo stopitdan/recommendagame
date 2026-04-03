@@ -532,38 +532,39 @@ function scoreGenreMatch(game: Game, preferredGenres: string[]): number {
     'speed': ['real-time', 'action / dexterity'],
   };
 
-  // Expand preferred genres with aliases
-  const expandedGenres = [...preferredGenres];
-  for (const genre of preferredGenres) {
-    const expansion = GENRE_EXPANSION[genre.toLowerCase()];
-    if (expansion) expandedGenres.push(...expansion);
-  }
-
+  // For each preferred genre, check if the game matches it OR any of its expansions.
+  // Count one match per preferred genre (not per expansion term), so expansions
+  // help find matches but don't inflate the score.
   let matches = 0;
-  for (const genre of expandedGenres) {
-    const lowerGenre = genre.toLowerCase();
-    // Check for substring matches (e.g. "Strategy" matches "Abstract Strategy")
-    // Also check tokenized word overlap for BGG's compound mechanic names
-    // (e.g. "Deck Building" should match "Deck, Bag, and Pool Building")
-    const genreWords = lowerGenre.split(/[\s,]+/).filter((w) => w.length > 2);
-    if (gameTags.some((tag) => {
-      if (tag.includes(lowerGenre) || lowerGenre.includes(tag)) return true;
-      // Tokenized match: if all significant words from the genre appear in the tag
-      if (genreWords.length >= 2) {
-        const tagWords = tag.split(/[\s,]+/);
-        const wordMatches = genreWords.filter((gw) => tagWords.some((tw) => tw.includes(gw) || gw.includes(tw)));
-        return wordMatches.length >= genreWords.length * 0.6; // 60% word overlap
-      }
-      return false;
-    })) {
-      matches++;
-    }
+  for (const genre of preferredGenres) {
+    // Build the list of terms that satisfy this genre: the genre itself + expansions
+    const termsForGenre = [genre];
+    const expansion = GENRE_EXPANSION[genre.toLowerCase()];
+    if (expansion) termsForGenre.push(...expansion);
+
+    // Check if any term matches any game tag
+    const matched = termsForGenre.some((term) => {
+      const lowerTerm = term.toLowerCase();
+      const termWords = lowerTerm.split(/[\s,]+/).filter((w) => w.length > 2);
+      return gameTags.some((tag) => {
+        if (tag.includes(lowerTerm) || lowerTerm.includes(tag)) return true;
+        // Tokenized match for compound names (e.g. "Deck Building" ↔ "Deck, Bag, and Pool Building")
+        if (termWords.length >= 2) {
+          const tagWords = tag.split(/[\s,]+/);
+          const wordMatches = termWords.filter((tw) => tagWords.some((gw) => gw.includes(tw) || tw.includes(gw)));
+          return wordMatches.length >= termWords.length * 0.6;
+        }
+        return false;
+      });
+    });
+
+    if (matched) matches++;
   }
 
   // Zero matches = zero score. If the user asked for anime and this game
   // has nothing anime-related, it shouldn't get any genre credit at all.
   if (matches === 0) return 0.0;
-  const ratio = Math.min(matches / preferredGenres.length, 1.0);
+  const ratio = matches / preferredGenres.length;
   return 0.4 + ratio * 0.6; // 1 match out of 3 = 0.6, all match = 1.0
 }
 

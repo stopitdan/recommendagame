@@ -96,16 +96,27 @@ export default function ResultsView() {
   }, []);
 
   // Refine filters — editing state (not applied until user clicks Apply or closes panel)
-  // Player slider always starts wide (1-10) since the API already filters by the user's
-  // declared group size. The refine slider is for further narrowing, not restating group size.
-  const initialMinPlayers = parseInt(searchParams.get('minPlayers') ?? '1', 10);
-  const initialMaxPlayers = parseInt(searchParams.get('maxPlayers') ?? '10', 10);
-  const [filterPlayers, setFilterPlayers] = useState<[number, number]>([initialMinPlayers, initialMaxPlayers]);
+  // Parse compact "players" param (e.g., "4-4") or fall back to old separate params
+  const playersParam = searchParams.get('players');
+  let initMinP = parseInt(searchParams.get('minPlayers') ?? '1', 10);
+  let initMaxP = parseInt(searchParams.get('maxPlayers') ?? '10', 10);
+  if (playersParam) {
+    const [lo, hi] = playersParam.split('-').map(Number);
+    if (!isNaN(lo)) initMinP = lo;
+    if (!isNaN(hi)) initMaxP = hi;
+  }
+  const complexityParam = searchParams.get('complexity');
+  let initMinC = parseFloat(searchParams.get('minComplexity') ?? '1');
+  let initMaxC = parseFloat(searchParams.get('maxComplexity') ?? '5');
+  if (complexityParam) {
+    const [lo, hi] = complexityParam.split('-').map(Number);
+    if (!isNaN(lo)) initMinC = lo;
+    if (!isNaN(hi)) initMaxC = hi;
+  }
+
+  const [filterPlayers, setFilterPlayers] = useState<[number, number]>([initMinP, initMaxP]);
   const [filterTime, setFilterTime] = useState<[number, number]>([0, 300]);
-  const [filterComplexity, setFilterComplexity] = useState<[number, number]>([
-    parseFloat(searchParams.get('minComplexity') ?? '1'),
-    parseFloat(searchParams.get('maxComplexity') ?? '5'),
-  ]);
+  const [filterComplexity, setFilterComplexity] = useState<[number, number]>([initMinC, initMaxC]);
   const [filterMinRating, setFilterMinRating] = useState(0);
   const [filterCategories, setFilterCategories] = useState<string[]>([]);
   const [filterMechanics, setFilterMechanics] = useState<string[]>([]);
@@ -114,12 +125,9 @@ export default function ResultsView() {
 
   // Applied filters — what was last fetched (triggers re-fetch)
   const [appliedRefine, setAppliedRefine] = useState({
-    playerCount: [initialMinPlayers, initialMaxPlayers] as [number, number],
+    playerCount: [initMinP, initMaxP] as [number, number],
     time: [0, 300] as [number, number],
-    complexity: [
-      parseFloat(searchParams.get('minComplexity') ?? '1'),
-      parseFloat(searchParams.get('maxComplexity') ?? '5'),
-    ] as [number, number],
+    complexity: [initMinC, initMaxC] as [number, number],
     minRating: 0,
     categories: [] as string[],
     mechanics: [] as string[],
@@ -136,27 +144,49 @@ export default function ResultsView() {
     setError(null);
 
     try {
-      // Reconstruct preferences from URL params
+      // Reconstruct preferences from clean URL params.
+      // LLM parsing now happens server-side in /api/recommend.
+      const r = appliedRefine;
+      const urlGenres = searchParams.get('genres')?.split(',').filter(Boolean) ?? [];
+
+      // Parse compact "players" param (e.g., "2-4") or fall back to old separate params
+      const playersParam = searchParams.get('players');
+      let urlMinPlayers = parseInt(searchParams.get('minPlayers') ?? '1', 10);
+      let urlMaxPlayers = parseInt(searchParams.get('maxPlayers') ?? '10', 10);
+      if (playersParam) {
+        const [lo, hi] = playersParam.split('-').map(Number);
+        if (!isNaN(lo)) urlMinPlayers = lo;
+        if (!isNaN(hi)) urlMaxPlayers = hi;
+      }
+
+      // Parse compact "complexity" param (e.g., "2-4") or fall back to old separate params
+      const complexityParam = searchParams.get('complexity');
+      let urlMinComplexity = parseFloat(searchParams.get('minComplexity') ?? '1');
+      let urlMaxComplexity = parseFloat(searchParams.get('maxComplexity') ?? '5');
+      if (complexityParam) {
+        const [lo, hi] = complexityParam.split('-').map(Number);
+        if (!isNaN(lo)) urlMinComplexity = lo;
+        if (!isNaN(hi)) urlMaxComplexity = hi;
+      }
+
+      // Legacy support: read llmParsed from URL if present (old bookmarks)
       let llmParsed = null;
       const llmRaw = searchParams.get('llmParsed');
       if (llmRaw) {
         try { llmParsed = JSON.parse(decodeURIComponent(llmRaw)); } catch { /* ignore */ }
       }
 
-      // Merge URL params with applied refine filters (refine overrides URL params)
-      const r = appliedRefine;
-      const urlGenres = searchParams.get('genres')?.split(',').filter(Boolean) ?? [];
       const preferences: QuestionnaireState & { popularity: string; limit: number; minRating?: number; minTime?: number; maxTime?: number; userId?: string; collectionOnly?: boolean } = {
         freeText: searchParams.get('freeText') ?? '',
         gameTypes: (searchParams.get('types')?.split(',').filter(Boolean) ?? []) as GameType[],
         playerCount: {
-          min: r.playerCount[0],
-          max: r.playerCount[1],
+          min: r.playerCount[0] !== 1 ? r.playerCount[0] : urlMinPlayers,
+          max: r.playerCount[1] !== 10 ? r.playerCount[1] : urlMaxPlayers,
         },
         timePresets: (searchParams.get('time')?.split(',').filter(Boolean) ?? []) as TimePreset[],
         complexity: {
-          min: r.complexity[0],
-          max: r.complexity[1],
+          min: r.complexity[0] !== 1 ? r.complexity[0] : urlMinComplexity,
+          max: r.complexity[1] !== 5 ? r.complexity[1] : urlMaxComplexity,
         },
         genres: [...new Set([...urlGenres, ...r.categories, ...r.mechanics, ...r.themes])],
         moods: searchParams.get('moods')?.split(',').filter(Boolean) ?? [],
@@ -173,7 +203,7 @@ export default function ResultsView() {
       const response = await fetch('/api/recommend', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(preferences),
+        body: JSON.stringify({ ...preferences, _nocache: true }),
       });
 
       if (!response.ok) throw new Error('Recommendation failed');
@@ -269,40 +299,10 @@ export default function ResultsView() {
     setFreeText(text);
     setIsReparsing(true);
 
-    // Re-parse with LLM
-    let llmParsed = null;
-    try {
-      const res = await fetch('/api/parse-text', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        llmParsed = data.parsed;
-      }
-    } catch { /* proceed without LLM */ }
-
-    // Rebuild URL from scratch with only LLM-derived params.
-    // Starting from existing params would carry over stale filters
-    // (e.g., time=quick,short) from a previous search.
+    // Clean URL with just freeText — server re-parses via LLM automatically
     const params = new URLSearchParams();
     params.set('freeText', text);
-    if (llmParsed) {
-      params.set('llmParsed', encodeURIComponent(JSON.stringify(llmParsed)));
-      if (llmParsed.gameTypes?.length) params.set('types', llmParsed.gameTypes.join(','));
-      if (llmParsed.genres?.length) params.set('genres', llmParsed.genres.join(','));
-      if (llmParsed.moods?.length) params.set('moods', llmParsed.moods.join(','));
-      if (llmParsed.playerCount) {
-        params.set('minPlayers', String(llmParsed.playerCount.min));
-        params.set('maxPlayers', String(llmParsed.playerCount.max));
-      }
-      if (llmParsed.complexity) {
-        params.set('minComplexity', String(llmParsed.complexity.min));
-        params.set('maxComplexity', String(llmParsed.complexity.max));
-      }
-      if (llmParsed.timePresets?.length) params.set('time', llmParsed.timePresets.join(','));
-    }
+    if (collectionOnly) params.set('collectionOnly', '1');
 
     setIsReparsing(false);
     router.push(`/results?${params.toString()}`);

@@ -210,18 +210,20 @@ export default function QuestionnaireFlow() {
             moods: data.parsed.moods?.length > 0 ? data.parsed.moods : INITIAL_STATE.moods,
             llmParsed: data.parsed,
           };
-          // Build URL params from merged state
+          // Build clean URL params — only explicit user selections.
+          // LLM parsing happens server-side in /api/recommend.
           const params = new URLSearchParams();
-          if (merged.gameTypes.length > 0) params.set('types', merged.gameTypes.join(','));
-          params.set('minPlayers', String(merged.playerCount.min));
-          params.set('maxPlayers', String(merged.playerCount.max));
-          if (merged.timePresets.length > 0) params.set('time', merged.timePresets.join(','));
-          params.set('minComplexity', String(merged.complexity.min));
-          params.set('maxComplexity', String(merged.complexity.max));
-          if (data.parsed.genres?.length > 0) params.set('genres', data.parsed.genres.join(','));
-          if (data.parsed.moods?.length > 0) params.set('moods', data.parsed.moods.join(','));
           params.set('freeText', state.freeText.trim());
-          params.set('llmParsed', encodeURIComponent(JSON.stringify(data.parsed)));
+          if (merged.gameTypes.length > 0) params.set('types', merged.gameTypes.join(','));
+          if (merged.playerCount.min > 1 || merged.playerCount.max < 10) {
+            params.set('players', `${merged.playerCount.min}-${merged.playerCount.max}`);
+          }
+          if (merged.timePresets.length > 0) params.set('time', merged.timePresets.join(','));
+          if (merged.complexity.min > 1 || merged.complexity.max < 5) {
+            params.set('complexity', `${merged.complexity.min}-${merged.complexity.max}`);
+          }
+          if (merged.genres.length > 0) params.set('genres', merged.genres.join(','));
+          if (merged.moods.length > 0) params.set('moods', merged.moods.join(','));
           if (collectionOnly) params.set('collectionOnly', '1');
 
           saveGuestPreferences(merged as unknown as Record<string, unknown>);
@@ -302,21 +304,18 @@ export default function QuestionnaireFlow() {
 
     const params = new URLSearchParams();
 
+    if (state.freeText.trim()) params.set('freeText', state.freeText.trim());
     if (state.gameTypes.length > 0) params.set('types', state.gameTypes.join(','));
-    params.set('minPlayers', String(state.playerCount.min));
-    params.set('maxPlayers', String(state.playerCount.max));
+    if (state.playerCount.min > 1 || state.playerCount.max < 10) {
+      params.set('players', `${state.playerCount.min}-${state.playerCount.max}`);
+    }
     if (state.timePresets.length > 0) params.set('time', state.timePresets.join(','));
-    params.set('minComplexity', String(state.complexity.min));
-    params.set('maxComplexity', String(state.complexity.max));
+    if (state.complexity.min > 1 || state.complexity.max < 5) {
+      params.set('complexity', `${state.complexity.min}-${state.complexity.max}`);
+    }
     if (state.genres.length > 0) params.set('genres', state.genres.join(','));
     if (state.moods.length > 0) params.set('moods', state.moods.join(','));
-    if (state.freeText.trim()) params.set('freeText', state.freeText.trim());
     if (collectionOnly) params.set('collectionOnly', '1');
-
-    // Pass LLM-parsed data as a URL param so the recommend API can use it
-    if (state.llmParsed) {
-      params.set('llmParsed', encodeURIComponent(JSON.stringify(state.llmParsed)));
-    }
 
     router.push(`/results?${params.toString()}`);
   }

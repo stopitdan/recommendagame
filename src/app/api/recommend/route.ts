@@ -38,6 +38,7 @@ import { getPopularFallback } from '@/lib/recommendation/popularity-cache';
 import { llmRerank } from '@/lib/recommendation/llm-rerank';
 import { expandQuery } from '@/lib/recommendation/llm-query-expand';
 import { getCollaborativeSignals } from '@/lib/recommendation/collaborative';
+import { parsePreferencesWithLLM } from '@/lib/llm/parse-preferences';
 
 // ─── Config ──────────────────────────────────────────────────
 
@@ -113,6 +114,36 @@ export async function POST(request: NextRequest) {
   const supabase = createDbClient();
   if (!supabase) {
     return NextResponse.json({ error: 'Database not configured' }, { status: 500 });
+  }
+
+  // Server-side LLM parsing: always parse freeText server-side.
+  // The client no longer sends llmParsed in URLs (clean URLs).
+  // Legacy bookmarks may still include it, but we always prefer a fresh parse.
+  if (body.freeText && body.freeText.trim().length >= 5) {
+    const fresh = await parsePreferencesWithLLM(body.freeText);
+    if (fresh) {
+      body.llmParsed = fresh;
+      console.log(`[Recommend] LLM parsed: genres=${JSON.stringify(fresh.genres)} mechanics=${JSON.stringify(fresh.mechanics)} keywords=${JSON.stringify(fresh.keywords)}`);
+    } else {
+      console.warn('[Recommend] LLM parse returned null for:', body.freeText.slice(0, 80));
+    }
+  }
+
+  // Merge LLM-parsed preferences into body BEFORE cache key computation.
+  // Without this, the cache key uses body.genres=[] and all queries with the
+  // same freeText share one stale cache entry regardless of what the LLM extracted.
+  if (body.llmParsed?.gameTypes?.length) {
+    body.gameTypes = [...new Set([...body.gameTypes, ...body.llmParsed.gameTypes])] as typeof body.gameTypes;
+  }
+  if (body.llmParsed?.genres?.length) {
+    body.genres = [...new Set([...body.genres, ...body.llmParsed.genres])];
+  }
+  if (body.llmParsed?.mechanics?.length) {
+    const expanded = expandTagsWithAliases(body.llmParsed.mechanics);
+    body.genres = [...new Set([...body.genres, ...expanded])];
+  }
+  if (body.llmParsed?.moods?.length) {
+    body.moods = [...new Set([...body.moods, ...body.llmParsed.moods])];
   }
 
   const limit = Math.min(body.limit ?? DEFAULT_RESULT_LIMIT, MAX_RESULT_LIMIT);
@@ -358,16 +389,7 @@ export async function POST(request: NextRequest) {
       bootstrapFromSimilarGames(body, similarGames);
     }
 
-    // Step 1d: Merge LLM-parsed genres and mechanics into body.genres for scoring
-    // Without this, scoreGenreMatch returns 0.5 (neutral) for every game when the
-    // user only typed free text and didn't click genre checkboxes in the UI.
-    if (body.llmParsed?.genres?.length) {
-      body.genres = [...new Set([...body.genres, ...body.llmParsed.genres])];
-    }
-    if (body.llmParsed?.mechanics?.length) {
-      const expanded = expandTagsWithAliases(body.llmParsed.mechanics);
-      body.genres = [...new Set([...body.genres, ...expanded])];
-    }
+    // (LLM genre/mechanic/gameType merge already happened before cache key computation)
 
     // Step 2a: Hard constraint filtering — eliminate games that clearly violate preferences
     const beforeFilter = candidates.length;
@@ -388,7 +410,20 @@ export async function POST(request: NextRequest) {
 
     // Step 2b: Rule-based scoring (fast, in-memory)
     const weights = getWeightsForMode(popularity);
-    const scored = scoreGames(candidates, body, weights);
+    let scored = scoreGames(candidates, body, weights);
+
+    // Step 2c: Genre relevance hard filter — if the user asked for specific genres,
+    // eliminate games that scored 0 on genre match. UNO should never appear in
+    // results for "anime themed board game" regardless of other scores.
+    if (body.genres.length > 0) {
+      const beforeGenreFilter = scored.length;
+      const genreFiltered = scored.filter((s) => s.breakdown.genreMatch > 0);
+      // Only apply if it doesn't eliminate too many results
+      if (genreFiltered.length >= 10) {
+        scored = genreFiltered;
+        console.log(`[Recommend] Genre relevance filter: ${beforeGenreFilter} → ${scored.length} (removed ${beforeGenreFilter - scored.length} zero-genre-match games)`);
+      }
+    }
 
     // Step 3: In-memory similarity on top candidates only (skip if too few)
     // Use scored results (sorted by rule-based score) to pick the best candidates
@@ -474,6 +509,12 @@ export async function POST(request: NextRequest) {
       engine: engineVersion,
       popularity,
       latencyMs,
+      // Debug info: include LLM parse + merged genres so admin UI can inspect
+      _debug: {
+        llmParsed: body.llmParsed ?? null,
+        mergedGenres: body.genres,
+        mergedGameTypes: body.gameTypes,
+      },
     };
 
     // Cache responses with results in both layers
