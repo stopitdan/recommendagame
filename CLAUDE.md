@@ -21,14 +21,16 @@ This project uses **Next.js 16** which has breaking changes from earlier version
 
 **boredgame.lol** is a smart game recommendation engine built with Next.js 16 (App Router), React 19, MUI 7, Supabase (PostgreSQL + pgvector + Auth), Redis, and OpenAI.
 
-### Recommendation Engine (4-layer stack)
+### Recommendation Engine (6-layer stack)
 
 The core system lives in `src/lib/recommendation/`:
 
-1. **Rule-based scoring** (`scoring.ts`) — 9 weighted dimensions (type, player count, time, complexity, genre, mood, free-text, quality, popularity) produce a 0-1 score with human-readable reasons
-2. **Content-based filtering** (`embeddings.ts`, `similarity.ts`) — Games and user preferences encoded as 768-dim vectors, matched via pgvector HNSW index using `match_games()` RPC
-3. **Collaborative filtering** (`collaborative.ts`) — Item-based "users who liked X also liked Y", activates when sufficient feedback exists
-4. **Semantic embeddings** (`semantic-embeddings.ts`) — OpenAI text-embedding-3-small (1536-dim) captures meaning from game descriptions and free-text preferences
+1. **Natural Language Understanding** — LLM parses free-text preferences, extracts genres/mechanics/constraints, expands queries
+2. **Relevance-First Candidate Search** — Semantic vector search, tag matching, mechanic search, text search, designer lookups run in parallel
+3. **Multi-Dimensional Scoring** (`scoring.ts`) — 10 weighted dimensions produce a 0-1 score with human-readable reasons
+4. **Semantic Similarity** (`embeddings.ts`, `similarity.ts`) — Games and preferences encoded as vectors via pgvector HNSW index
+5. **AI Re-Ranking** — LLM judge reviews top candidates and re-orders using common sense
+6. **Learning From You** (`collaborative.ts`, `feedback-loop.ts`) — Collaborative filtering + user feedback sharpens preference profiles
 
 `POST /api/recommend` orchestrates all layers: fetches 500 candidates (250 by similarity + 250 by rating), scores them rule-based, re-ranks by hybrid score (60% rule + 40% similarity), applies diversity penalties, returns top results.
 
@@ -75,6 +77,15 @@ All colors MUST use MUI theme tokens (`primary.main`, `secondary.main`, etc.), n
 - Always include `Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>`
 - Push to remote regularly
 - Never commit data files, secrets, or `.env.local`
+
+## Keeping Stats in Sync
+
+When importing new games, changing the recommendation system, adding new data sources, or anything that affects site stats, you MUST update **both**:
+
+- **Landing page** (`src/app/page.tsx`) — hero subtitle, FEATURES cards (per-category game counts, layer count), and stats section (total game count, layer count, sources)
+- **About page** (`src/app/about/AboutView.tsx`) — engine layers, data sources, game counts
+
+These pages display overlapping stats (total games indexed, per-source game counts, number of recommendation layers, data source names). They must always agree. When in doubt, check both files.
 
 ## Documentation
 

@@ -72,6 +72,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={roboto.variable}>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var m=localStorage.getItem('rag_color_mode');if(!m){m=window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'}document.documentElement.setAttribute('data-theme',m);var p=localStorage.getItem('rag_color_preset');if(p)document.documentElement.setAttribute('data-preset',p)}catch(e){}})()`,
+          }}
+        />
+      </head>
       <GoogleAnalytics />
       <body className={roboto.className}>
         <AppRouterCacheProvider>

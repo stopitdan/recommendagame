@@ -51,18 +51,23 @@ export default function ThemeRegistry({
 }: {
   children: React.ReactNode;
 }) {
-  const [mode, setMode] = useState<PaletteMode>("light");
-  const [colorPreset, setColorPresetState] = useState('game-night-glow');
+  const [mode, setMode] = useState<PaletteMode>(() => {
+    if (typeof document !== "undefined") {
+      const attr = document.documentElement.getAttribute("data-theme");
+      if (attr === "light" || attr === "dark") return attr;
+    }
+    return "light";
+  });
+  const [colorPreset, setColorPresetState] = useState(() => {
+    if (typeof document !== "undefined") {
+      return document.documentElement.getAttribute("data-preset") || "game-night-glow";
+    }
+    return "game-night-glow";
+  });
 
-  // Initialize from stored preferences
+  // Listen for system theme changes (only if no stored preference)
   useEffect(() => {
-    const stored = getStoredMode();
-    setMode(stored ?? getSystemMode());
-    const storedPreset = localStorage.getItem(PRESET_STORAGE_KEY);
-    if (storedPreset) setColorPresetState(storedPreset);
-
-    // Listen for system theme changes (only if no stored preference)
-    if (!stored) {
+    if (!getStoredMode()) {
       const mq = window.matchMedia("(prefers-color-scheme: dark)");
       const handler = (e: MediaQueryListEvent) => {
         if (!getStoredMode()) setMode(e.matches ? "dark" : "light");

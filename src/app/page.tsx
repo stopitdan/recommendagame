@@ -186,7 +186,7 @@ const FEATURES: { Icon: LucideIcon; title: string; description: string; href: st
     description:
       "From Catan to Gloomhaven. Rated, categorized, and ready to discover.",
     href: "/browse?type=board",
-    stat: "90,000+",
+    stat: "65,000+",
     statLabel: "titles indexed",
     iconColor: "primary.main",
   },
@@ -196,7 +196,7 @@ const FEATURES: { Icon: LucideIcon; title: string; description: string; href: st
     description:
       "Every platform covered. From indie gems to AAA blockbusters.",
     href: "/browse?type=video",
-    stat: "80,000+",
+    stat: "14,000+",
     statLabel: "titles indexed",
     iconColor: "secondary.main",
   },
@@ -216,7 +216,7 @@ const FEATURES: { Icon: LucideIcon; title: string; description: string; href: st
     description:
       "Learns your taste across every dimension. The more you use it, the better it gets.",
     href: "/find-a-game",
-    stat: "4 layers",
+    stat: "6 layers",
     statLabel: "of recommendation AI",
     iconColor: "success.main",
   },
@@ -374,7 +374,7 @@ export default function Home() {
                     fontSize: { xs: "1rem", md: "1.15rem" },
                   }}
                 >
-                  Tell us what you&apos;re in the mood for and we&apos;ll match you with something great from our catalog of 150,000+ games.
+                  Tell us what you&apos;re in the mood for and we&apos;ll match you with something great from our catalog of 80,000+ games.
                 </Typography>
               </motion.div>
 
@@ -713,11 +713,11 @@ export default function Home() {
           <StaggerGroup stagger={0.1}>
             <Grid container spacing={4} justifyContent="center">
               {[
-                { value: 150000, suffix: "+", label: "Games indexed", sublabel: "From BGG, RAWG, and IGDB" },
+                { value: 80000, suffix: "+", label: "Games indexed", sublabel: "From BGG, IGDB, and RAWG" },
                 { value: 4, suffix: "", label: "Game categories", sublabel: "Board, video, word, and party" },
                 { value: 200, suffix: "+", label: "Genres and mechanics", sublabel: "From deck-building to open world" },
                 { value: 2000000, suffix: "+", label: "Community ratings", sublabel: "Aggregated from every source" },
-                { value: 4, suffix: "", label: "AI recommendation layers", sublabel: "Rule-based, content, collaborative, semantic" },
+                { value: 6, suffix: "", label: "AI recommendation layers", sublabel: "NLU, search, scoring, similarity, AI re-ranking, learning" },
               ].map((stat) => (
                 <Grid size={{ xs: 6, sm: 4, md: 2.4 }} key={stat.label}>
                   <motion.div variants={staggerChild}>
