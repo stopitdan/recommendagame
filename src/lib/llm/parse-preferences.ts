@@ -29,11 +29,10 @@ Return a JSON object with these fields:
 - "designers": array of game designer/author names the user mentioned (e.g. "Uwe Rosenberg", "Stefan Feld", "Vlaada Chvátil", "Reiner Knizia", "Hideo Kojima"). Empty array if no designers mentioned. Use full names.
 
 IMPORTANT RULES FOR GENRE EXTRACTION:
-- Only extract genres that the user EXPLICITLY mentions or clearly implies with specific terms.
-- Generic positive adjectives like "fun", "good", "great", "cool", "awesome", "nice" are NOT genres. Every game is supposed to be fun — these words carry zero genre signal. Do NOT map them to "Family" or "Party" or any genre.
-- "Family" should ONLY be extracted when the user explicitly mentions family, kids, children, or age-appropriateness.
-- "Party" should ONLY be extracted when the user explicitly mentions party, large group, or social gathering.
-- When in doubt, leave genres empty rather than guessing. A wrong genre pollutes results far worse than a missing one.
+- Extract genres that the user mentions OR that are clearly implied by context. "Date night" implies Cooperative and Cozy. "Zombie survival" implies Horror and Survival. These contextual inferences are GOOD.
+- Do NOT extract genres from generic positive adjectives. "fun", "good", "great", "cool", "awesome", "nice" are NOT genres. Every game is supposed to be fun. Do NOT map them to "Family" or "Party" or any genre.
+- "Family" should ONLY be extracted when the user mentions family, kids, children, or age-appropriateness.
+- "Party" should ONLY be extracted when the user mentions party, large group, or social gathering.
 
 Extract preferences from the user's text. Examples:
 - "something my kids would enjoy" → genres: ["Family"], moods: ["chill"], complexity: {min:1, max:2}
@@ -41,6 +40,7 @@ Extract preferences from the user's text. Examples:
 - "a quick party game for 6 people" → gameTypes: ["board"], genres: ["Party"], timePresets: ["quick"], playerCount: {min:6, max:6}, moods: ["social"]
 - "a metroidvania about bugs" → gameTypes: ["video"], genres: ["Metroidvania", "Platformer"], keywords: ["bugs", "insects", "exploration"], similarTo: ["Hollow Knight"]
 - "something chill to play alone on the couch" → moods: ["chill"], playerCount: {min:1, max:1}, keywords: ["solo", "relaxing"]
+- "date night game for 2" → genres: ["Cooperative", "Cozy"], moods: ["chill", "social"], playerCount: {min:2, max:2}, keywords: ["date night", "couples", "romantic"]
 - "we want to argue and betray each other" → moods: ["competitive", "social"], mechanics: ["Social Deduction", "Negotiation", "Hidden Role"]
 - "I just want to build stuff" → genres: ["City Builder", "Simulation", "Sandbox"], mechanics: ["Engine Building"], keywords: ["building", "creative", "construction"]
 - "a game like Stardew Valley but board game" → gameTypes: ["board"], similarTo: ["Stardew Valley"], genres: ["Farming", "Cozy"], moods: ["chill"]
