@@ -1,13 +1,16 @@
 /**
- * POST /api/blog/generate — Generate and publish a new blog post
+ * GET /api/blog/generate — Generate a blog post draft and email for approval
  *
  * Called by Vercel Cron Job daily. Protected by CRON_SECRET.
  * Uses OpenAI GPT-4o to generate SEO-optimized game articles.
+ * Posts are saved as drafts and emailed to contact@boredgame.lol
+ * with approve/reject links. See /api/blog/approve for the approval flow.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import OpenAI from 'openai';
+import { Resend } from 'resend';
 
 const CRON_SECRET = process.env.CRON_SECRET;
 
@@ -442,27 +445,114 @@ export async function GET(request: NextRequest) {
   const topicIndex = dayOfYear % TOPIC_TEMPLATES.length;
   const topic = TOPIC_TEMPLATES[topicIndex];
 
-  // Fetch some real games from the DB to reference
-  let gameContext = '';
-  const { data: games } = await supabase
-    .from('games')
-    .select('id, name, rating, rating_count, categories, mechanics, min_players, max_players, avg_play_time, complexity, year_published')
-    .gte('rating', 7.0)
-    .gte('rating_count', 100)
-    .eq('is_expansion', false)
-    .order('rating', { ascending: false })
-    .limit(50);
+  const titleHint = topic.template.replace('{category}', topic.category ?? 'Board');
 
-  if (games && games.length > 0) {
-    // Pick 8 random games from the top 50
+  // Determine if this topic is board-game-specific or video-game-crossover
+  const isVideoGameCrossover = topicIndex >= 341; // indices 341-365 are video game crossover topics
+  const isBoardGameTopic = titleHint.toLowerCase().includes('board game');
+
+  // Fetch topic-relevant games from the DB
+  let gameContext = '';
+  const gameFields = 'id, name, rating, rating_count, categories, mechanics, min_players, max_players, avg_play_time, complexity, year_published, source, enriched_metadata';
+
+  type BlogGameRow = {
+    id: string; name: string; rating: number; rating_count: number;
+    categories: string[] | null; mechanics: string[] | null;
+    min_players: number; max_players: number; avg_play_time: number;
+    complexity: number; year_published: number; source: string;
+    enriched_metadata: Record<string, unknown> | null;
+  };
+  let games: BlogGameRow[] = [];
+
+  // Pass 1: Filter by topic category/mechanic (exact match)
+  if (topic.category) {
+    // Try matching category first
+    const catQuery = supabase
+      .from('games')
+      .select(gameFields)
+      .gte('rating', 6.5)
+      .gte('rating_count', 50)
+      .eq('is_expansion', false)
+      .contains('categories', [topic.category])
+      .order('rating', { ascending: false })
+      .limit(30);
+
+    if (!isVideoGameCrossover) {
+      catQuery.eq('source', 'bgg');
+    }
+
+    const { data: catGames } = await catQuery;
+
+    if (catGames && catGames.length >= 6) {
+      games = catGames;
+    } else {
+      // Try mechanics as fallback
+      const mechQuery = supabase
+        .from('games')
+        .select(gameFields)
+        .gte('rating', 6.5)
+        .gte('rating_count', 50)
+        .eq('is_expansion', false)
+        .contains('mechanics', [topic.category])
+        .order('rating', { ascending: false })
+        .limit(30);
+
+      if (!isVideoGameCrossover) {
+        mechQuery.eq('source', 'bgg');
+      }
+
+      const { data: mechGames } = await mechQuery;
+
+      if (mechGames && mechGames.length >= 6) {
+        games = mechGames;
+      } else {
+        // Combine whatever we found from both
+        const combined = [...(catGames ?? []), ...(mechGames ?? [])];
+        const seen = new Set<string>();
+        games = combined.filter((g) => {
+          if (seen.has(g.id)) return false;
+          seen.add(g.id);
+          return true;
+        });
+      }
+    }
+  }
+
+  // Pass 2: If we still don't have enough, broaden the search
+  if (games.length < 6) {
+    const broadQuery = supabase
+      .from('games')
+      .select(gameFields)
+      .gte('rating', 7.0)
+      .gte('rating_count', 100)
+      .eq('is_expansion', false)
+      .order('rating', { ascending: false })
+      .limit(50);
+
+    // Still respect board-game vs video-game boundaries
+    if (isBoardGameTopic && !isVideoGameCrossover) {
+      broadQuery.eq('source', 'bgg');
+    }
+
+    const { data: broadGames } = await broadQuery;
+    if (broadGames) {
+      const existingIds = new Set(games.map((g) => g.id));
+      const extras = broadGames.filter((g) => !existingIds.has(g.id));
+      games = [...games, ...extras];
+    }
+  }
+
+  if (games.length > 0) {
+    // Pick 8 random games, preferring topic-matched ones
     const shuffled = games.sort(() => Math.random() - 0.5).slice(0, 8);
-    gameContext = shuffled.map((g) =>
-      `- ${g.name} (${g.rating}/10, ${g.rating_count} ratings, ${g.min_players}-${g.max_players} players, ~${g.avg_play_time}min, complexity ${g.complexity}/5, categories: ${(g.categories ?? []).join(', ')}, id: ${g.id})`
-    ).join('\n');
+    gameContext = shuffled.map((g) => {
+      const moods = (g.enriched_metadata as Record<string, unknown>)?.moods;
+      const moodStr = Array.isArray(moods) ? `, moods: ${moods.join(', ')}` : '';
+      return `- ${g.name} (${g.rating}/10, ${g.rating_count} ratings, ${g.min_players}-${g.max_players} players, ~${g.avg_play_time}min, complexity ${g.complexity}/5, categories: ${(g.categories ?? []).join(', ')}, mechanics: ${(g.mechanics ?? []).join(', ')}${moodStr}, source: ${g.source}, id: ${g.id})`;
+    }).join('\n');
   }
 
   const year = new Date().getFullYear();
-  const titleHint = topic.template.replace('{category}', topic.category ?? 'Board');
 
   const prompt = `You are a blog writer for boredgame.lol, a game recommendation website with 100,000+ board games and video games.
 
@@ -472,7 +562,11 @@ Write an authoritative, well-researched blog post that would rank well on Google
 "${titleHint} (${year})"
 
 ## Real Games From Our Database
-Reference these actual games (use their exact names and IDs for internal links):
+Here are candidate games. CRITICAL: ONLY feature games that genuinely fit the topic.
+If a game doesn't match (wrong genre, mechanic, player count, theme, etc.), DO NOT include it.
+It is far better to feature 3 truly relevant games than 6 irrelevant ones.
+A "modular board game" must actually have modular/variable setup. A "solo game" must support 1 player. Etc.
+Use their exact names and IDs for internal links:
 ${gameContext}
 
 ## SEO & Structure Requirements
@@ -516,7 +610,7 @@ Respond in this exact JSON format:
       model: 'gpt-4o',
       messages: [{ role: 'user', content: prompt }],
       response_format: { type: 'json_object' },
-      temperature: 0.8,
+      temperature: 0.6,
       max_tokens: 4000,
     });
 
@@ -532,7 +626,7 @@ Respond in this exact JSON format:
     const gameIdMatches = article.content.matchAll(/\/games\/([a-zA-Z0-9-]+)/g);
     const featuredGameIds = [...new Set([...gameIdMatches].map((m: RegExpMatchArray) => m[1]))];
 
-    // Store in Supabase
+    // Store as draft (not published) pending approval
     const { data: post, error } = await supabase
       .from('blog_posts')
       .insert({
@@ -542,7 +636,8 @@ Respond in this exact JSON format:
         content: article.content,
         tags: article.tags ?? [],
         featured_game_ids: featuredGameIds,
-        published_at: new Date().toISOString(),
+        published_at: null,
+        status: 'draft',
       })
       .select()
       .single();
@@ -552,7 +647,43 @@ Respond in this exact JSON format:
       return NextResponse.json({ error: 'Failed to save post' }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, slug: post.slug, title: post.title });
+    // Email draft for approval
+    const resendKey = process.env.RESEND_API_KEY;
+    if (resendKey && post.approval_token) {
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://boredgame.lol';
+      const approveUrl = `${baseUrl}/api/blog/approve?token=${post.approval_token}`;
+      const rejectUrl = `${baseUrl}/api/blog/approve?token=${post.approval_token}&action=reject`;
+      const previewUrl = `${baseUrl}/api/blog/preview?token=${post.approval_token}`;
+
+      const resend = new Resend(resendKey);
+      await resend.emails.send({
+        from: 'boredgame.lol Blog <blog@boredgame.lol>',
+        to: 'contact@boredgame.lol',
+        subject: `Blog Draft: ${article.title}`,
+        html: `
+          <h2>New Blog Draft Ready for Review</h2>
+          <h3>${article.title}</h3>
+          <p><em>${article.description}</em></p>
+          <p><strong>Tags:</strong> ${(article.tags ?? []).join(', ')}</p>
+          <p><strong>Featured games:</strong> ${featuredGameIds.length} games referenced</p>
+          <hr />
+          <p><a href="${previewUrl}" style="color:#2196f3;font-size:16px;">Preview full post</a></p>
+          <br />
+          <p>
+            <a href="${approveUrl}" style="display:inline-block;padding:12px 24px;background:#4caf50;color:white;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px;">Approve and Publish</a>
+            &nbsp;&nbsp;
+            <a href="${rejectUrl}" style="display:inline-block;padding:12px 24px;background:#f44336;color:white;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px;">Reject</a>
+          </p>
+          <hr />
+          <details>
+            <summary>Full content preview</summary>
+            <div style="padding:16px;background:#f5f5f5;border-radius:8px;margin-top:8px;white-space:pre-wrap;font-family:sans-serif;font-size:14px;">${article.content.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+          </details>
+        `,
+      });
+    }
+
+    return NextResponse.json({ success: true, slug: post.slug, title: post.title, status: 'draft' });
   } catch (err) {
     console.error('[Blog Generate] Error:', err);
     return NextResponse.json({ error: 'Generation failed' }, { status: 500 });

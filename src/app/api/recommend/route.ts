@@ -41,20 +41,19 @@ import { getCollaborativeSignals } from '@/lib/recommendation/collaborative';
 
 // ─── Config ──────────────────────────────────────────────────
 
-/** Per-source candidate limits (rating-based + vector-based) */
-const RATING_POOL_SIZE = 250;
-const RATING_BY_QUALITY_SIZE = 125;
-const RATING_BY_POPULARITY_SIZE = 125;
+/** Per-source candidate limits */
+const RELEVANCE_POOL_SIZE = 150; // tag/mechanic/text/designer searches
+const POPULARITY_FALLBACK_SIZE = 50; // only used when relevance-based fetching finds < MIN_CANDIDATES
+const MIN_CANDIDATES = 30; // threshold below which we add popularity fallback
 const VECTOR_POOL_SIZE = 250;
 const DEFAULT_RESULT_LIMIT = 100;
 const MAX_RESULT_LIMIT = 200;
 const SIMILARITY_CANDIDATES = 100;
 
-// Hash-based embeddings have collision issues (0% semantic coverage).
-// Until semantic embeddings are working, keep similarity weight low
-// to avoid noisy reordering of rule-based scores.
-const RULE_WEIGHT = 0.85;
-const SIMILARITY_WEIGHT = 0.15;
+// Semantic embeddings weight: when populated, embeddings understand meaning
+// (e.g., "anime" → Japanese-themed games) far better than tag matching.
+const RULE_WEIGHT = 0.55;
+const SIMILARITY_WEIGHT = 0.45;
 
 type PopularityMode = 'popular' | 'any' | 'hidden-gems';
 // UI now only shows 'any' (default) and 'hidden-gems'.
@@ -210,10 +209,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(response);
     }
 
-    // Step 1: Hybrid candidate fetching
-    // Two parallel sources: vector similarity + rating-based.
-    // Vector finds niche games matching preferences (roguelike deck builders).
-    // Rating finds generally excellent games. Deduplicate and score all.
+    // Step 1: Relevance-first candidate fetching
+    // ALL candidates come from relevance-based sources (vector, tags, text, mechanics, designers).
+    // Popularity-based fetching is ONLY used as a fallback when relevance finds too few games.
+    // This prevents UNO from appearing in every single recommendation.
     const extra = {
       minRating: body.minRating,
       minTime: body.minTime,
@@ -221,7 +220,6 @@ export async function POST(request: NextRequest) {
     };
 
     // LLM query expansion: creatively expand the user's intent into additional search terms
-    // This runs in parallel with everything else and adds to the candidate pool
     const queryExpansion = body.freeText
       ? expandQuery(body.freeText)
       : Promise.resolve({ searchTerms: [], categories: [], mechanics: [], themes: [] });
@@ -229,12 +227,9 @@ export async function POST(request: NextRequest) {
     // Collect tags from LLM parsing + user genres for tag-based search
     const allTags = collectSearchTags(body);
 
-    // Direct mechanic search: search for games with specific mechanics.
-    // Works with LLM-parsed mechanics OR genre names that happen to be mechanics
-    // (e.g., "Deck Building" appears in both genres and mechanics arrays)
+    // Direct mechanic search
     const mechanicTerms = [
       ...(body.llmParsed?.mechanics ?? []),
-      // Also check genres for mechanic-like terms (the LLM puts them in both)
       ...body.genres.filter((g: string) => BGG_MECHANIC_ALIASES[g.toLowerCase()]),
     ];
     const uniqueMechanicTerms = [...new Set(mechanicTerms)];
@@ -242,14 +237,14 @@ export async function POST(request: NextRequest) {
       ? withTimeout(fetchDirectMechanicMatches(supabase, uniqueMechanicTerms), 5000, [])
       : Promise.resolve([]);
 
-    // Designer search: if the user asked for a specific designer, fetch their games directly
+    // Designer search
     const designerNames = body.llmParsed?.designers ?? [];
     const designerSearchPromise = designerNames.length > 0
       ? withTimeout(fetchDesignerCandidates(supabase, designerNames), 5000, [])
       : Promise.resolve([]);
 
-    const [ratingCandidates, vectorCandidates, textCandidates, tagCandidates, mechanicCandidates, designerCandidates] = await Promise.all([
-      withTimeout(fetchCandidates(supabase, body, popularity, extra), 8000, []),
+    // Relevance-first: NO unconditional rating pool. All sources are preference-aware.
+    const [vectorCandidates, textCandidates, tagCandidates, mechanicCandidates, designerCandidates] = await Promise.all([
       withTimeout(fetchVectorCandidates(body, { limit: VECTOR_POOL_SIZE, columns: GAME_COLUMNS, supabaseClient: supabase }), 8000, []),
       body.freeText && body.freeText.trim().length >= 3
         ? withTimeout(fetchTextSearchCandidates(supabase, body.freeText), 5000, [])
@@ -261,10 +256,9 @@ export async function POST(request: NextRequest) {
       designerSearchPromise,
     ]);
 
-    // Deduplicate: rating-based first, then merge in vector + text + tag matches
+    // Deduplicate: relevance sources first (designer > mechanic > vector > tag > text)
     const seen = new Set<string>();
-    let candidates = [...ratingCandidates];
-    for (const g of candidates) seen.add(g.id);
+    let candidates: ReturnType<typeof rowToGame>[] = [];
 
     for (const source of [designerCandidates, mechanicCandidates, vectorCandidates, tagCandidates, textCandidates]) {
       for (const g of source) {
@@ -286,7 +280,6 @@ export async function POST(request: NextRequest) {
         if (!seen.has(g.id)) { candidates.push(g); seen.add(g.id); expandedCount++; }
       }
     }
-    // Also do a description text search for the expanded search terms
     if (expanded.searchTerms.length > 0) {
       const searchText = expanded.searchTerms.join(' ');
       const expandedText = await withTimeout(
@@ -299,7 +292,21 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log(`[Recommend] Hybrid pool: ${ratingCandidates.length} rating + ${designerCandidates.length} designer + ${mechanicCandidates.length} mechanic + ${vectorCandidates.length} vector + ${tagCandidates.length} tag + ${textCandidates.length} text + ${expandedCount} expanded = ${candidates.length} unique`);
+    // Popularity fallback: ONLY if relevance-based fetching found too few games.
+    // This prevents popular-but-irrelevant games (UNO, Catan) from polluting niche queries.
+    let popularityFallbackCount = 0;
+    if (candidates.length < MIN_CANDIDATES) {
+      const fallbackGames = await withTimeout(
+        fetchCandidates(supabase, body, popularity, extra, POPULARITY_FALLBACK_SIZE),
+        5000,
+        [],
+      );
+      for (const g of fallbackGames) {
+        if (!seen.has(g.id)) { candidates.push(g); seen.add(g.id); popularityFallbackCount++; }
+      }
+    }
+
+    console.log(`[Recommend] Relevance-first pool: ${designerCandidates.length} designer + ${mechanicCandidates.length} mechanic + ${vectorCandidates.length} vector + ${tagCandidates.length} tag + ${textCandidates.length} text + ${expandedCount} expanded + ${popularityFallbackCount} popularity-fallback = ${candidates.length} unique`);
 
     // Progressive fallbacks (only if hybrid produced nothing)
     if (candidates.length === 0) {
@@ -444,7 +451,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Step 5: LLM reranking — ask GPT-4o to pick the best matches from top 50 candidates
-    const reranked = await llmRerank(scored, body, Math.min(limit, scored.length <= 60 ? scored.length : 15));
+    const reranked = await llmRerank(scored, body, Math.min(limit, scored.length <= 80 ? scored.length : 25));
 
     // Step 6: Diversity re-ranking (prevent 20 strategy games in a row)
     const diversified = diversityRerank(reranked);
@@ -643,12 +650,19 @@ const GAME_COLUMNS = GAME_SELECT_COLUMNS;
  *
  * This ensures users ALWAYS get results, even with unusual combinations.
  */
+/**
+ * Popularity-based fallback: fetches games by rating/popularity.
+ * Only used when relevance-based sources return too few candidates.
+ * The poolSize parameter controls how many games to fetch (kept small
+ * to avoid drowning out relevant results).
+ */
 async function fetchCandidates(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabase: any,
   prefs: QuestionnaireState,
   popularity: PopularityMode,
   extra?: { minRating?: number; minTime?: number; maxTime?: number },
+  poolSize: number = POPULARITY_FALLBACK_SIZE,
 ) {
   let query = supabase
     .from('games')
@@ -658,107 +672,42 @@ async function fetchCandidates(
 
   // ── Quality floor (always applied) ──
   if (popularity === 'hidden-gems') {
-    // Hidden gems: games with few ratings but those who played them loved them.
-    // Under 2000 ratings keeps out well-known games. 7.0+ rating ensures quality.
-    // No BGG top-1000 rank keeps out "famous" games. Min 20 ratings avoids noise.
     query = query.lt('rating_count', 2000);
     query = query.gte('rating_count', 20);
     query = query.gte('rating', 7.0);
     query = query.or('rank_overall.is.null,rank_overall.gt.1000');
   } else {
-    // Default: broad pool with basic quality floor
     query = query.gte('rating_count', 25);
   }
 
   // ── Player count: HARD constraint ──
-  // You physically can't play a 4-min game with 2 people
   if (prefs.playerCount) {
     query = query.lte('min_players', prefs.playerCount.max);
     query = query.gte('max_players', prefs.playerCount.min);
   }
 
   // ── Extra refine filters (from results page) ──
-  if (extra?.minRating && extra.minRating > 0) {
-    query = query.gte('rating', extra.minRating);
-  }
-  if (extra?.minTime && extra.minTime > 0) {
-    query = query.gte('avg_play_time', extra.minTime);
-  }
-  if (extra?.maxTime && extra.maxTime < 300) {
-    query = query.lte('avg_play_time', extra.maxTime);
-  }
+  if (extra?.minRating && extra.minRating > 0) query = query.gte('rating', extra.minRating);
+  if (extra?.minTime && extra.minTime > 0) query = query.gte('avg_play_time', extra.minTime);
+  if (extra?.maxTime && extra.maxTime < 300) query = query.lte('avg_play_time', extra.maxTime);
 
-  // ── Game type: soft filter at DB level (helps narrow pool) ──
-  // Applied as a filter but NOT a dealbreaker — fallback removes this
+  // ── Game type: soft filter at DB level ──
   if (prefs.gameTypes.length === 1) {
     query = query.contains('types', [prefs.gameTypes[0]]);
   } else if (prefs.gameTypes.length > 1) {
     query = query.or(prefs.gameTypes.map((t: string) => `types.cs.{${t}}`).join(','));
   }
 
-  // Time, complexity, genres are NOT filtered at DB level.
-  // The scoring engine handles them as weighted preferences.
-
-  // Blend two strategies: half by rating (quality), half by rating_count (popularity).
-  // This prevents obscure games with inflated ratings from dominating the pool
-  // and ensures well-known games (Dominion, Ticket to Ride) always appear.
-  const qualityQuery = query
+  const { data, error } = await query
     .order('rating', { ascending: false })
-    .limit(RATING_BY_QUALITY_SIZE);
+    .limit(poolSize);
 
-  // Clone the base filters for the popularity query by rebuilding it
-  let popQuery = supabase
-    .from('games')
-    .select(GAME_COLUMNS)
-    .not('rating', 'is', null)
-    .eq('is_expansion', false);
-
-  if (popularity === 'hidden-gems') {
-    popQuery = popQuery.lt('rating_count', 2000).gte('rating_count', 20).gte('rating', 7.0);
-    popQuery = popQuery.or('rank_overall.is.null,rank_overall.gt.1000');
-  } else {
-    popQuery = popQuery.gte('rating_count', 25);
+  if (error) {
+    console.error('[Recommend] DB popularity fallback error:', error);
+    return [];
   }
 
-  if (prefs.playerCount) {
-    popQuery = popQuery.lte('min_players', prefs.playerCount.max);
-    popQuery = popQuery.gte('max_players', prefs.playerCount.min);
-  }
-
-  if (extra?.minRating && extra.minRating > 0) popQuery = popQuery.gte('rating', extra.minRating);
-  if (extra?.minTime && extra.minTime > 0) popQuery = popQuery.gte('avg_play_time', extra.minTime);
-  if (extra?.maxTime && extra.maxTime < 300) popQuery = popQuery.lte('avg_play_time', extra.maxTime);
-
-  if (prefs.gameTypes.length === 1) {
-    popQuery = popQuery.contains('types', [prefs.gameTypes[0]]);
-  } else if (prefs.gameTypes.length > 1) {
-    popQuery = popQuery.or(prefs.gameTypes.map((t: string) => `types.cs.{${t}}`).join(','));
-  }
-
-  popQuery = popQuery
-    .order('rating_count', { ascending: false })
-    .limit(RATING_BY_POPULARITY_SIZE);
-
-  const [qualityResult, popularityResult] = await Promise.all([qualityQuery, popQuery]);
-
-  if (qualityResult.error) {
-    console.error('[Recommend] DB quality query error:', qualityResult.error);
-  }
-  if (popularityResult.error) {
-    console.error('[Recommend] DB popularity query error:', popularityResult.error);
-  }
-
-  // Merge and deduplicate (quality first, then popularity fills gaps)
-  const seen = new Set<string>();
-  const merged: GameRow[] = [];
-  for (const row of ((qualityResult.data ?? []) as GameRow[])) {
-    if (!seen.has(row.id)) { seen.add(row.id); merged.push(row); }
-  }
-  for (const row of ((popularityResult.data ?? []) as GameRow[])) {
-    if (!seen.has(row.id)) { seen.add(row.id); merged.push(row); }
-  }
-
-  return merged.map(rowToGame);
+  return ((data ?? []) as GameRow[]).map(rowToGame);
 }
 
 /**
@@ -1072,7 +1021,7 @@ async function fetchCandidatesNoType(
   }
 
   // In fallback mode, prefer well-known games (popularity) over raw rating
-  query = query.order('rating_count', { ascending: false, nullsFirst: false }).limit(RATING_POOL_SIZE);
+  query = query.order('rating_count', { ascending: false, nullsFirst: false }).limit(RELEVANCE_POOL_SIZE);
   const { data, error } = await query;
   if (error) return [];
   return ((data ?? []) as GameRow[]).map(rowToGame);
@@ -1098,7 +1047,7 @@ async function fetchCandidatesFallback(
   }
 
   // In fallback mode, prefer well-known games (popularity) over raw rating
-  query = query.order('rating_count', { ascending: false, nullsFirst: false }).limit(RATING_POOL_SIZE);
+  query = query.order('rating_count', { ascending: false, nullsFirst: false }).limit(RELEVANCE_POOL_SIZE);
   const { data, error } = await query;
   if (error) return [];
   return ((data ?? []) as GameRow[]).map(rowToGame);
@@ -1116,7 +1065,7 @@ async function fetchCandidatesNuclear(
     .from('games')
     .select(GAME_COLUMNS)
     .order('rating_count', { ascending: false, nullsFirst: false })
-    .limit(RATING_POOL_SIZE);
+    .limit(RELEVANCE_POOL_SIZE);
 
   if (error) return [];
   return ((data ?? []) as GameRow[]).map(rowToGame);

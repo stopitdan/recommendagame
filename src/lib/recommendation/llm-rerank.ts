@@ -15,7 +15,7 @@ import OpenAI from 'openai';
 import type { ScoredGame } from './scoring';
 import type { QuestionnaireState } from '@/types/questionnaire';
 
-const RERANK_TIMEOUT_MS = 6000;
+const RERANK_TIMEOUT_MS = 12000;
 
 /**
  * Rerank the top candidates using GPT-4o.
@@ -50,7 +50,7 @@ export async function llmRerank(
   // For small candidate pools (e.g., user's collection), evaluate all of them.
   // For large pools, evaluate top 50 so the LLM sees well-known games that
   // rule-based scoring may have ranked at position 30-50.
-  const maxCandidates = candidates.length <= 60 ? candidates.length : 40;
+  const maxCandidates = candidates.length <= 80 ? candidates.length : 60;
   const gameSummaries = candidates.slice(0, maxCandidates).map((c, i) => {
     const g = c.game;
     const parts = [`${i + 1}. "${g.name}" [ID:${g.id}]`];
@@ -88,9 +88,9 @@ Return ONLY a JSON object: {"ids": ["game-id-1", "game-id-2", ...]} with the ${l
     const openai = new OpenAI({ apiKey, timeout: RERANK_TIMEOUT_MS });
 
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: 'gpt-4o',
       temperature: 0,
-      max_tokens: 200,
+      max_tokens: 400,
       response_format: { type: 'json_object' },
       messages: [{ role: 'user', content: prompt }],
     });

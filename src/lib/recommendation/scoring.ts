@@ -67,11 +67,11 @@ export const DEFAULT_WEIGHTS: ScoringWeights = {
   playerCountFit: 0.08,  // Hard-filtered already, this scores fit quality
   timeFit: 0.07,         // Hard-filtered already, this scores fit quality
   complexityFit: 0.07,   // Hard-filtered already, this scores fit quality
-  genreMatch: 0.24,      // PRIMARY relevance signal — user taste (was 0.20, +0.04)
+  genreMatch: 0.28,      // PRIMARY relevance signal — user taste (was 0.24, +0.04)
   moodAlignment: 0.08,   // Soft signal — vibes
-  freeTextMatch: 0.18,   // User's exact words are high-intent (was 0.14, +0.04)
+  freeTextMatch: 0.22,   // User's exact words are high-intent (was 0.18, +0.04)
   qualitySignal: 0.03,   // Minor tiebreaker — rating score matters very little
-  popularitySignal: 0.12, // Community validation, not dominance (was 0.20, -0.08)
+  popularitySignal: 0.04, // Tiebreaker only, not a ranking signal (was 0.12)
   recencyBoost: 0.03,    // Mild freshness boost
 };
 
@@ -383,6 +383,11 @@ function scoreGenreMatch(game: Game, preferredGenres: string[]): number {
     ...game.categories,
     ...game.mechanics,
     ...game.themes,
+    // Include enriched metadata tags for better matching (LLM-generated vibes, moods, etc.)
+    ...(game.enrichedMetadata?.moods ?? []),
+    ...(game.enrichedMetadata?.vibeKeywords ?? []),
+    ...(game.enrichedMetadata?.targetAudience ?? []),
+    ...(game.enrichedMetadata?.refinedMechanics ?? []),
   ].map((t) => t.toLowerCase());
 
   // Genre aliases: user vocabulary -> BGG taxonomy terms
@@ -421,8 +426,9 @@ function scoreGenreMatch(game: Game, preferredGenres: string[]): number {
     'adaptation': ['movies / tv / radio theme', 'video game theme', 'novel-based'],
     'book': ['novel-based'],
     'comic': ['comic book / strip'],
-    'anime': ['comic book / strip'],
-    'manga': ['comic book / strip'],
+    'anime': ['anime', 'comic book / strip', 'japanese', 'manga'],
+    'manga': ['anime', 'comic book / strip', 'japanese', 'manga'],
+    'japanese': ['anime', 'japanese', 'manga'],
     'video game': ['video game theme'],
 
     // Themes
@@ -554,8 +560,9 @@ function scoreGenreMatch(game: Game, preferredGenres: string[]): number {
     }
   }
 
-  // At least 1 match = good, more = better, diminishing returns
-  if (matches === 0) return 0.1;
+  // Zero matches = zero score. If the user asked for anime and this game
+  // has nothing anime-related, it shouldn't get any genre credit at all.
+  if (matches === 0) return 0.0;
   const ratio = Math.min(matches / preferredGenres.length, 1.0);
   return 0.4 + ratio * 0.6; // 1 match out of 3 = 0.6, all match = 1.0
 }

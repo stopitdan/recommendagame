@@ -5,6 +5,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   stripHtml,
+  decodeHtmlEntities,
   ensureArray,
   parseOptionalInt,
   parseOptionalFloat,
@@ -33,6 +34,10 @@ describe('stripHtml', () => {
     expect(stripHtml('it&#39;s')).toBe("it's");
   });
 
+  it('decodes &#039; (zero-padded apostrophe from BGG)', () => {
+    expect(stripHtml("Death Note: Le Jeu d&#039;Enqu\u00eate")).toBe("Death Note: Le Jeu d'Enqu\u00eate");
+  });
+
   it('decodes &#10; (newline)', () => {
     expect(stripHtml('line1&#10;line2')).toBe('line1\nline2');
   });
@@ -56,6 +61,30 @@ describe('stripHtml', () => {
     expect(result).not.toContain('>');
     expect(result).toContain('trading');
     expect(result).toContain('Good for 2-4 players');
+  });
+});
+
+describe('decodeHtmlEntities', () => {
+  it('decodes &#039; (zero-padded apostrophe)', () => {
+    expect(decodeHtmlEntities("d&#039;Enqu\u00eate")).toBe("d'Enqu\u00eate");
+  });
+
+  it('decodes &apos;', () => {
+    expect(decodeHtmlEntities("it&apos;s")).toBe("it's");
+  });
+
+  it('decodes smart quotes', () => {
+    expect(decodeHtmlEntities('&ldquo;hello&rdquo;')).toBe('"hello"');
+    expect(decodeHtmlEntities('&lsquo;hello&rsquo;')).toBe("'hello'");
+  });
+
+  it('decodes dashes', () => {
+    expect(decodeHtmlEntities('a&ndash;b')).toBe('a\u2013b');
+    expect(decodeHtmlEntities('a&mdash;b')).toBe('a\u2014b');
+  });
+
+  it('does not strip HTML tags', () => {
+    expect(decodeHtmlEntities('<b>bold</b>')).toBe('<b>bold</b>');
   });
 });
 

@@ -28,7 +28,7 @@ import type {
   BggPollResult,
   BggLink,
 } from '@/types/bgg';
-import { stripHtml, ensureArray, parseOptionalInt, parseOptionalFloat } from '@/lib/utils/parsing';
+import { stripHtml, decodeHtmlEntities, ensureArray, parseOptionalInt, parseOptionalFloat } from '@/lib/utils/parsing';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -244,7 +244,7 @@ function mapThingToGame(item: BggThingItem): Game {
     id: `bgg-${item['@_id']}`,
     source: 'bgg',
     sourceId: item['@_id'],
-    name: primaryName?.['@_value'] ?? names[0]?.['@_value'] ?? 'Unknown',
+    name: decodeHtmlEntities(primaryName?.['@_value'] ?? names[0]?.['@_value'] ?? 'Unknown'),
     description: stripHtml(item.description ?? ''),
     yearPublished: parseOptionalInt(item.yearpublished?.['@_value']),
     types: ['board'],
@@ -283,7 +283,7 @@ function mapThingToGame(item: BggThingItem): Game {
 function extractLinks(links: BggLink[], type: string): string[] {
   return links
     .filter((link) => link['@_type'] === type)
-    .map((link) => link['@_value']);
+    .map((link) => decodeHtmlEntities(link['@_value']));
 }
 
 /**

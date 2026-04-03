@@ -9,6 +9,7 @@
 
 import type { Game } from '@/types/game';
 import type { GameInsert, GameRow } from '@/types/supabase';
+import { decodeHtmlEntities } from '@/lib/utils/parsing';
 
 // ---------------------------------------------------------------------------
 // Column Selection
@@ -68,7 +69,7 @@ export function rowToGame(row: GameRow): Game {
     id: row.id,
     source: row.source,
     sourceId: row.source_id,
-    name: row.name,
+    name: decodeHtmlEntities(row.name),
     description: row.description,
     yearPublished: row.year_published ?? undefined,
     types: row.types as Game['types'],

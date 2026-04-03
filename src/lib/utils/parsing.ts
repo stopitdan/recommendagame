@@ -6,19 +6,36 @@
  */
 
 /**
- * Strips HTML tags and decodes common HTML entities.
- * Used for cleaning descriptions from BGG, RAWG, etc.
+ * Decodes common HTML entities found in XML/HTML data.
+ * Used for cleaning names, tags, and other short strings from BGG, RAWG, etc.
  */
-export function stripHtml(html: string): string {
-  return html
-    .replace(/<[^>]*>/g, '')
+export function decodeHtmlEntities(text: string): string {
+  return text
     .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
+    .replace(/&#0*39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&ldquo;|&rdquo;/g, '"')
+    .replace(/&lsquo;|&rsquo;/g, "'")
+    .replace(/&ndash;/g, '\u2013')
+    .replace(/&mdash;/g, '\u2014')
+    .replace(/&nbsp;/g, ' ');
+}
+
+/**
+ * Strips HTML tags and decodes common HTML entities.
+ * Used for cleaning descriptions from BGG, RAWG, etc.
+ */
+export function stripHtml(html: string): string {
+  return decodeHtmlEntities(
+    html
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<[^>]*>/g, '')
+  )
     .replace(/&#10;/g, '\n')
-    .replace(/&nbsp;/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
     .trim();
 }
 
