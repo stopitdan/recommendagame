@@ -137,7 +137,7 @@ export default function AboutView() {
             The Problem
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8 }}>
-            There are over 100,000 board games, video games, word games, and party games out there.
+            There are over 1,000,000 board games, video games, word games, and party games out there.
             Finding the right one for your group, your mood, and your time budget shouldn&apos;t
             require scrolling through endless lists or reading dozens of reviews. You should be
             able to say &quot;I want a 30-minute strategy game for 4 people&quot; and get an
