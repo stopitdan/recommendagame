@@ -1,0 +1,115 @@
+
+========================================================================
+  BOREDGAME.LOL EVALUATION REPORT
+  Run ID: 2026-04-05T04-11-58
+  2026-04-05T04:11:58.804Z -> 2026-04-05T04:17:18.208Z
+  Duration: 319.4s | Cases: 130 | Concurrency: 5
+========================================================================
+
+  OVERALL RESULTS
+------------------------------------------------------------------------
+  Pass Rate:       55/130 (42.3%)
+  Avg NDCG@10:     0.9749
+  Avg Precision@10: 0.9992
+  Avg MRR:         1.0000
+  Avg Hit Rate@5:  1.0000
+  Constraint Viol: 1.3%
+  LLM Judge Score: 7.05/10
+  Latency p50/p95: 9136ms / 12556ms
+
+  REGRESSION vs 2026-04-05T04-11-37
+------------------------------------------------------------------------
+  Pass Rate Delta: +0.4231
+  NDCG Delta:      -0.0079
+  MRR Delta:       +0.0000
+
+  PER-CATEGORY BREAKDOWN
+------------------------------------------------------------------------
+  mechanic-focused         1/20 (5%)  NDCG=0.944  MRR=1.000  Violations=1%
+  player-count             1/8 (13%)  NDCG=1.000  MRR=1.000  Violations=0%
+  time-constraint          1/6 (17%)  NDCG=1.000  MRR=1.000  Violations=2%
+  complexity               1/6 (17%)  NDCG=0.983  MRR=1.000  Violations=0%
+  multi-constraint         1/6 (17%)  NDCG=0.989  MRR=1.000  Violations=2%
+  negative-preference      1/5 (20%)  NDCG=1.000  MRR=1.000  Violations=0%
+  mood-vibe                2/7 (29%)  NDCG=1.000  MRR=1.000  Violations=0%
+  real-user-feedback       1/3 (33%)  NDCG=0.940  MRR=1.000  Violations=0%
+  free-text-intent         4/11 (36%)  NDCG=0.991  MRR=1.000  Violations=8%
+  designer-search          2/5 (40%)  NDCG=0.842  MRR=1.000  Violations=0%
+  party-game               2/4 (50%)  NDCG=1.000  MRR=1.000  Violations=10%
+  theme-focused            10/18 (56%)  NDCG=0.954  MRR=1.000  Violations=0%
+  similar-to               5/8 (63%)  NDCG=1.000  MRR=1.000  Violations=0%
+  edge-case                14/14 (100%)  NDCG=0.993  MRR=1.000  Violations=0%
+  video-game               4/4 (100%)  NDCG=1.000  MRR=1.000  Violations=0%
+  regression               5/5 (100%)  NDCG=1.000  MRR=1.000  Violations=0%
+
+  FAILURE TYPES
+------------------------------------------------------------------------
+  missing-ideal-game           71 cases
+  llm-judge-low-score          14 cases
+  constraint-violation         7 cases
+  anti-game-present            1 cases
+
+  WORST 20 CASES
+------------------------------------------------------------------------
+  [free-text-intent-124] "my wife hates board games, what would she act" Judge=3/10 missing=[Azul, Codenames]
+    Top 5: Carcassonne | The Mind | Hunted: Kobayashi Tower (2nd Edition) | Atmosfear: Interactive App edition | Hedbanz Adulting
+    Judge: The recommendations primarily consist of board games, which contradicts the user's query about finding games for someone
+  [mechanic-focused-009] "roll and write game" Judge=4/10 missing=[Yahtzee]
+    Top 5: Super-Skill Pinball: 4-Cade | Rail Baron | Vroom Vroom | Basari | Imaginiff
+    Judge: The results include some games that utilize rolling mechanics, but they do not fit the 'roll and write' genre specifical
+  [theme-focused-026] "medieval castle building game" Judge=4/10 missing=[Carcassonne, The Castles of Burgundy]
+    Top 5: Castles of Mad King Ludwig | Ginkgopolis | Caverna: The Cave Farmers | Everdell | Suburbia
+    Judge: The results do not match the user's request for a 'medieval castle building game.' While some games involve building or 
+  [player-count-043] "party game for 6 or more people" Judge=4/10 missing=[Codenames, Telestrations]
+    Top 5: Taboo | The Big Idea | Bausack | That's a Question! | Blood on the Clocktower
+    Judge: The results include several games that do not meet the user's requirement for 6 or more players. Specifically, games lik
+  [time-constraint-049] "at a convention, want to play something new, " Judge=4/10 missing=[Azul, Wingspan, Quacks of Quedlinburg, Ticket to Ride]
+    Top 5: Grand Tribunal | Keytown | Geeks: The Convention | Keep Cool | Party-Time
+    Judge: The recommendations include several games that do not meet the player count requirement of 4 players, and many games are
+  [designer-search-066] "A game designed by Stefan Feld" Judge=4/10 missing=[The Castles of Burgundy, Bora Bora, Bruges, Notre Dame]
+    Top 5: Forum Trajanum | Outpost | Attila | Way Out West | Poker
+    Judge: The results include a mix of games, but none are designed by Stefan Feld, which is a critical constraint violation. Whil
+  [designer-search-070] "Vlaada Chvatil board games" Judge=4/10 missing=[Codenames, Mage Knight]
+    Top 5: Through the Ages: A Story of Civilization | Outpost | Attila | Way Out West | Poker
+    Judge: The results include some games designed by Vlaada Chvátil, but there are also several irrelevant games that do not match
+  [similar-to-071] "something like Catan but better" Judge=4/10 missing=[Concordia]
+    Top 5: Catan | Merchant of Venus | Serenissima | The Settlers of the Stone Age | Settlers of New Catan (and extra modules)
+    Judge: The results are heavily skewed towards various versions and expansions of Catan, which does not align with the user's re
+  [negative-preference-079] "strategy game but no war or fighting themes" Judge=4/10 missing=[Terraforming Mars, Wingspan]
+    Top 5: Le Havre | Outpost | Attila | Way Out West | Poker
+    Judge: While some of the games listed are strategy games, many of them do not align with the user's request for no war or fight
+  [multi-constraint-086] "heavy solo game I can sink 2 hours into" Judge=4/10 missing=[Mage Knight, Spirit Island]
+    Top 5: Zen Solo | Hope of the Stranded | The Mountain: A Solo Board Game Experience | Gamma Guild | Brutality Skirmish Wargame
+    Judge: While all games are solo and fit the player count requirement, none of the games are described as 'heavy' or suitable fo
+  [multi-constraint-087] "quick social party game for 6 people" Judge=6/10 [1 violations] missing=[Codenames]
+    Top 5: Taboo | True Colors | Subjective | The Big Idea | Bausack
+    Judge: The recommendations include several games that fit the criteria of being social party games for 6 people, but there are 
+  [mechanic-focused-003] "worker placement for beginners" Judge=6/10 missing=[Lords of Waterdeep, Stone Age]
+    Top 5: Little Town | The Pillars of the Earth | Bot Factory | Euphoria: Build a Better Dystopia | Quadropolis
+    Judge: Several games listed incorporate worker placement mechanics, which aligns with the user's query. However, some games, li
+  [mechanic-focused-016] "trick taking card game" Judge=6/10 missing=[The Crew, Fox in the Forest]
+    Top 5: Diamonds | Ghosts of Christmas | Tax the Rich | Xylotar | Tournament at Avalon
+    Judge: The results include several trick-taking card games, which aligns with the user's query. However, there are some games t
+  [mechanic-focused-018] "negotiation and trading game" Judge=6/10 missing=[Chinatown]
+    Top 5: Bohnanza | Acquire | Borderlands | Cosmic Encounter | Catan
+    Judge: The results include several games that feature negotiation and trading mechanics, which aligns with the user's query. Ho
+  [theme-focused-033] "Lovecraftian Cthulhu horror game" Judge=6/10 missing=[Eldritch Horror]
+    Top 5: Arkham Horror | All Manor of Evil | Arkham Horror (Third Edition) | Reign of Cthulhu | Cultists of Cthulhu
+    Judge: The results include several relevant Lovecraftian horror games, particularly 'Arkham Horror' and 'Reign of Cthulhu', whi
+  [player-count-045] "game for 8 or more people" Judge=6/10 missing=[Codenames]
+    Top 5: Werewolf: A Party Game for Devious People | The Search for the Lost Dutchman′s Gold Mine | 25 Words or Less: People, Places and Things Edition | Bad People | Trivial Pursuit: Pocket Player Set – TP's People
+    Judge: The recommendations include several games that can accommodate 8 or more players, which aligns with the user's request. 
+  [complexity-053] "light family game anyone can play" Judge=6/10 missing=[Ticket to Ride, Azul]
+    Top 5: Carcassonne | UNO | Clue | Boggle | SET
+    Judge: The recommendations include a mix of suitable family games that are light and can accommodate various player counts. How
+  [complexity-057] "medium weight euro game" Judge=6/10 missing=[Viticulture, Concordia]
+    Top 5: Paladins of the West Kingdom | Architects of the West Kingdom | Agricola (Revised Edition) | Le Havre | Raiders of the North Sea
+    Judge: Several games match the medium weight criteria, but there are also games that exceed the weight limit. The recommendatio
+  [mood-vibe-059] "chill relaxing game for 2" Judge=6/10 missing=[Patchwork, Jaipur]
+    Top 5: Parikrama | Finding Calm | Mhing | Philosophy | Chill Out!
+    Judge: The results include several games that fit the criteria of being for 2 players and are generally relaxing or chill in na
+  [negative-preference-081] "party game without player elimination" Judge=6/10 missing=[Codenames]
+    Top 5: Just One | One Night Ultimate Werewolf | Mysterium | Deception: Murder in Hong Kong | Bad People
+    Judge: The recommendations include several party games, but there are notable issues with player elimination mechanics in some 
+
+========================================================================

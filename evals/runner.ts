@@ -210,6 +210,26 @@ function computeAggregateMetrics(cases: CaseResult[]): AggregateMetrics {
     ? judgedCases.reduce((s, c) => s + c.llmJudgeScore!, 0) / judgedCases.length
     : undefined;
 
+  // Catalog coverage: how many unique games appeared across all recommendations
+  const uniqueGameIds = new Set<string>();
+  for (const c of cases) {
+    for (const r of c.results) {
+      if (r.id) uniqueGameIds.add(r.id);
+    }
+  }
+  const catalogCoverage = uniqueGameIds.size / 81000; // approximate catalog size
+
+  // Constraint violations by type
+  const violationsByType: Record<string, number> = {};
+  let trustBusters = 0;
+  for (const c of cases) {
+    for (const v of c.constraintViolations) {
+      violationsByType[v.type] = (violationsByType[v.type] ?? 0) + 1;
+    }
+    // Trust busters: anti-games found (obviously wrong results)
+    trustBusters += c.antiGamesFound.length;
+  }
+
   return {
     avgNdcg10: avg(c => c.metrics.ndcg10),
     avgPrecision10: avg(c => c.metrics.precision10),
@@ -220,6 +240,9 @@ function computeAggregateMetrics(cases: CaseResult[]): AggregateMetrics {
     avgLlmJudgeScore: avgJudge,
     p50LatencyMs: p50,
     p95LatencyMs: p95,
+    catalogCoverage,
+    constraintViolationsByType: violationsByType,
+    trustBusterCount: trustBusters,
   };
 }
 
@@ -337,6 +360,19 @@ function formatReport(run: EvalRun): string {
     lines.push(`  LLM Judge Score: ${m.avgLlmJudgeScore.toFixed(2)}/10`);
   }
   lines.push(`  Latency p50/p95: ${m.p50LatencyMs}ms / ${m.p95LatencyMs}ms`);
+  if (m.catalogCoverage != null) {
+    lines.push(`  Catalog Coverage: ${(m.catalogCoverage * 100).toFixed(1)}% (${Math.round(m.catalogCoverage * 81000)} unique games)`);
+  }
+  if (m.trustBusterCount != null && m.trustBusterCount > 0) {
+    lines.push(`  Trust Busters:   ${m.trustBusterCount} (obviously wrong results)`);
+  }
+  if (m.constraintViolationsByType && Object.keys(m.constraintViolationsByType).length > 0) {
+    const parts = Object.entries(m.constraintViolationsByType)
+      .sort((a, b) => b[1] - a[1])
+      .map(([type, count]) => `${type}=${count}`)
+      .join(', ');
+    lines.push(`  Violations by type: ${parts}`);
+  }
 
   // Regression
   if (run.regression) {

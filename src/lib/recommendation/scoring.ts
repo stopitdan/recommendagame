@@ -23,6 +23,7 @@ import type { Game } from '@/types/game';
 import type { QuestionnaireState, TimePreset } from '@/types/questionnaire';
 import { TIME_PRESETS } from '@/types/questionnaire';
 import type { ParsedPreferences } from '@/lib/llm/types';
+import { mechanicMatches } from './mechanic-aliases';
 
 // ─── Types ───────────────────────────────────────────────────
 

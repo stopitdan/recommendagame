@@ -1,0 +1,98 @@
+
+========================================================================
+  BOREDGAME.LOL EVALUATION REPORT
+  Run ID: 2026-04-05T04-57-11
+  2026-04-05T04:57:11.341Z -> 2026-04-05T04:58:08.566Z
+  Duration: 57.2s | Cases: 50 | Concurrency: 8
+========================================================================
+
+  OVERALL RESULTS
+------------------------------------------------------------------------
+  Pass Rate:       7/50 (14.0%)
+  Avg NDCG@10:     0.5391
+  Avg Precision@10: 0.5960
+  Avg MRR:         0.6000
+  Avg Hit Rate@5:  0.6000
+  Constraint Viol: 0.8%
+  Latency p50/p95: 13259ms / 15497ms
+  Catalog Coverage: 0.5% (436 unique games)
+  Trust Busters:   2 (obviously wrong results)
+  Violations by type: time=4
+
+  REGRESSION vs 2026-04-05T04-41-09
+------------------------------------------------------------------------
+  Pass Rate Delta: -0.5440
+  NDCG Delta:      -0.4464
+  MRR Delta:       -0.3984
+  Fixed (3):
+    + mechanic-focused-001: "deck building game" -- was failing, now passing
+    + mechanic-focused-012: "route building train game" -- was failing, now passing
+    + mechanic-focused-018: "negotiation and trading game" -- was failing, now passing
+  New Failures (8):
+    - theme-focused-021: "anime themed board game" -- was passing, now failing
+    - theme-focused-029: "cyberpunk sci-fi game" -- was passing, now failing
+    - theme-focused-031: "viking themed game" -- was passing, now failing
+    - theme-focused-032: "western cowboy themed game" -- was passing, now failing
+    - theme-focused-035: "detective crime solving game" -- was passing, now failing
+    - theme-focused-036: "dinosaur themed board game" -- was passing, now failing
+    - theme-focused-038: "military war strategy game" -- was passing, now failing
+    - player-count-044: "best games for exactly 3 players" -- was passing, now failing
+
+  PER-CATEGORY BREAKDOWN
+------------------------------------------------------------------------
+  player-count             0/8 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  time-constraint          0/4 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  theme-focused            3/18 (17%)  NDCG=0.486  MRR=0.556  Violations=0%
+  mechanic-focused         4/20 (20%)  NDCG=0.910  MRR=1.000  Violations=2%
+
+  FAILURE TYPES
+------------------------------------------------------------------------
+  missing-ideal-game           21 cases
+  api-error                    20 cases
+  anti-game-present            2 cases
+  constraint-violation         1 cases
+
+  WORST 20 CASES
+------------------------------------------------------------------------
+  [mechanic-focused-003] "worker placement for beginners" missing=[Lords of Waterdeep, Stone Age] BAD=[Agricola]
+    Top 5: Architects of the West Kingdom | Istanbul | Creature Comforts | Everdell | Tokaido
+  [mechanic-focused-002] "fast deck builder under 30 minutes" [4 violations]
+    Top 5: Star Realms | Dominion | Century: Spice Road | Magic: The Gathering | Secret Hitler
+  [mechanic-focused-004] "medium weight worker placement game" missing=[Viticulture, Agricola]
+    Top 5: Russian Railroads | Way Out West | Silverton | Paladins of the West Kingdom | Ora et Labora
+  [mechanic-focused-005] "competitive area control game for 4 players" missing=[Blood Rage, Kemet]
+    Top 5: Root | Capitol | Attila | Evo | The Gardens of the Alhambra
+  [mechanic-focused-006] "engine building board game" missing=[Wingspan, Gizmos]
+    Top 5: Terraforming Mars | Ginkgopolis | Maracaibo | Fields of Arle | Nucleum
+  [mechanic-focused-007] "social deduction game for a big group" missing=[Secret Hitler]
+    Top 5: The Resistance: Avalon | BANG! The Dice Game | Shadow Hunters | Mafia de Cuba | Werewords
+  [mechanic-focused-008] "tile placement game" missing=[Azul]
+    Top 5: Carcassonne | Tsuro | Reef | Steam | Dungeon Lords
+  [mechanic-focused-009] "roll and write game" missing=[Yahtzee]
+    Top 5: Super-Skill Pinball: 4-Cade | Rail Baron | Trivial Pursuit: Genus Edition | Basari | Imaginiff
+  [mechanic-focused-010] "push your luck game" missing=[Quacks of Quedlinburg]
+    Top 5: Age of War | Cubitos | Heat: Pedal to the Metal | Formula Dé | Samurai Spirit
+  [mechanic-focused-011] "card drafting game" missing=[7 Wonders, Sushi Go]
+    Top 5: Edge of Darkness: Guildmaster Edition | I should have known that! | Wongar | Space Explorers | Space Beans
+  [mechanic-focused-013] "auction and bidding game" missing=[Ra]
+    Top 5: Modern Art | Through the Ages: A New Story of Civilization | Power Grid | You're Bluffing! | Azteca
+  [mechanic-focused-015] "bag building board game" missing=[Quacks of Quedlinburg, Orleans]
+    Top 5: Lost Ruins of Arnak | Century: Spice Road | Dominion | Star Realms
+  [mechanic-focused-016] "trick taking card game" missing=[The Crew, Fox in the Forest]
+    Top 5: Wizard | Indulgence | Rage | Marshmallow Test | Nyet!
+  [mechanic-focused-017] "asymmetric game where everyone has different " missing=[Vast]
+    Top 5: Root | Abduction | Champions of Midgard | Legends of Andor | Eldritch Horror
+  [mechanic-focused-019] "pattern building puzzle game" missing=[Sagrada]
+    Top 5: Azul | Dream Home | Skyjo | Dutch Blitz | Super Mega Lucky Box
+  [mechanic-focused-020] "set collection card game" missing=[Ticket to Ride]
+    Top 5: Fantasy Realms | Bärenpark | Harmonies | Faraway | Canvas
+  [theme-focused-021] "anime themed board game" BAD=[UNO]
+    Top 5: Dixit | Everdell | UNO | Legendary: A Marvel Deck Building Game | Exploding Kittens
+  [theme-focused-022] "space exploration game" missing=[Terraforming Mars]
+    Top 5: Twilight Imperium: Fourth Edition | Star Wars: Outer Rim | Domain: The Warlock's Challenge | Eclipse: Second Dawn for the Galaxy | Firefly: The Game
+  [theme-focused-024] "fantasy adventure game with quests" missing=[Descent]
+    Top 5: Gloomhaven | The 7th Continent | T.I.M.E Stories | Arkham Horror: The Card Game | Eldritch Horror
+  [theme-focused-026] "medieval castle building game" missing=[Carcassonne, The Castles of Burgundy]
+    Top 5: Ora et Labora | Endless Winter: Paleoamericans | Clans of Caledonia | Newton | Distilled
+
+========================================================================

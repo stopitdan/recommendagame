@@ -1,0 +1,129 @@
+
+========================================================================
+  BOREDGAME.LOL EVALUATION REPORT
+  Run ID: 2026-04-05T04-26-22
+  2026-04-05T04:26:22.662Z -> 2026-04-05T04:31:30.784Z
+  Duration: 308.1s | Cases: 130 | Concurrency: 5
+========================================================================
+
+  OVERALL RESULTS
+------------------------------------------------------------------------
+  Pass Rate:       67/130 (51.5%)
+  Avg NDCG@10:     0.9516
+  Avg Precision@10: 0.9992
+  Avg MRR:         1.0000
+  Avg Hit Rate@5:  1.0000
+  Constraint Viol: 1.4%
+  LLM Judge Score: 7.20/10
+  Latency p50/p95: 9346ms / 11242ms
+
+  REGRESSION vs 2026-04-05T04-11-58
+------------------------------------------------------------------------
+  Pass Rate Delta: +0.0923
+  NDCG Delta:      -0.0233
+  MRR Delta:       +0.0000
+  Fixed (14):
+    + mechanic-focused-004: "medium weight worker placement game" -- was failing, now passing
+    + mechanic-focused-010: "push your luck game" -- was failing, now passing
+    + theme-focused-028: "nature themed game about animals" -- was failing, now passing
+    + theme-focused-033: "Lovecraftian Cthulhu horror game" -- was failing, now passing
+    + theme-focused-037: "farming themed game" -- was failing, now passing
+    + player-count-046: "game I can play solo or with a friend" -- was failing, now passing
+    + mood-vibe-059: "chill relaxing game for 2" -- was failing, now passing
+    + mood-vibe-062: "brain teaser puzzle game that makes you think" -- was failing, now passing
+    + mood-vibe-064: "story-driven immersive experience" -- was failing, now passing
+    + similar-to-078: "board game like Among Us" -- was failing, now passing
+  New Failures (2):
+    - theme-focused-023: "zombie survival board game" -- was passing, now failing
+    - designer-search-069: "games by Reiner Knizia" -- was passing, now failing
+
+  PER-CATEGORY BREAKDOWN
+------------------------------------------------------------------------
+  mechanic-focused         3/20 (15%)  NDCG=0.922  MRR=1.000  Violations=2%
+  time-constraint          1/6 (17%)  NDCG=1.000  MRR=1.000  Violations=3%
+  complexity               1/6 (17%)  NDCG=1.000  MRR=1.000  Violations=0%
+  designer-search          1/5 (20%)  NDCG=0.715  MRR=1.000  Violations=0%
+  player-count             2/8 (25%)  NDCG=0.904  MRR=1.000  Violations=0%
+  multi-constraint         2/6 (33%)  NDCG=0.940  MRR=1.000  Violations=7%
+  real-user-feedback       1/3 (33%)  NDCG=0.929  MRR=1.000  Violations=0%
+  free-text-intent         5/11 (45%)  NDCG=0.993  MRR=1.000  Violations=7%
+  party-game               2/4 (50%)  NDCG=1.000  MRR=1.000  Violations=0%
+  negative-preference      3/5 (60%)  NDCG=0.976  MRR=1.000  Violations=0%
+  theme-focused            12/18 (67%)  NDCG=0.942  MRR=1.000  Violations=0%
+  mood-vibe                5/7 (71%)  NDCG=0.958  MRR=1.000  Violations=0%
+  similar-to               6/8 (75%)  NDCG=0.987  MRR=1.000  Violations=0%
+  edge-case                14/14 (100%)  NDCG=0.977  MRR=1.000  Violations=0%
+  video-game               4/4 (100%)  NDCG=1.000  MRR=1.000  Violations=0%
+  regression               5/5 (100%)  NDCG=1.000  MRR=1.000  Violations=0%
+
+  FAILURE TYPES
+------------------------------------------------------------------------
+  missing-ideal-game           61 cases
+  llm-judge-low-score          10 cases
+  constraint-violation         7 cases
+  anti-game-present            1 cases
+
+  WORST 20 CASES
+------------------------------------------------------------------------
+  [similar-to-071] "something like Catan but better" Judge=2/10 missing=[Concordia]
+    Top 5: Catan | Settlers of New Catan (and extra modules) | De Kolonisten van Catan: De Specialisten | Catan Histories: Rise of the Inkas | Catan Scenario: Crop Trust
+    Judge: All results are variations or expansions of Catan, which does not align with the user's request for something 'like Cata
+  [mechanic-focused-009] "roll and write game" Judge=4/10 missing=[Yahtzee]
+    Top 5: Super-Skill Pinball: 4-Cade | Rail Baron | Trivial Pursuit: Genus Edition | Basari | Colosseum
+    Judge: The results include some games that utilize rolling mechanics, but they do not fit the 'roll and write' genre specifical
+  [player-count-043] "party game for 6 or more people" Judge=4/10 missing=[Codenames, Telestrations]
+    Top 5: The Resistance | Dixit | Shadow Hunters | Smarty Party! | Skull
+    Judge: The results include several games that do not meet the user's requirement for a player count of 6 or more. While some ga
+  [free-text-intent-124] "my wife hates board games, what would she act" Judge=4/10 missing=[Azul, Codenames]
+    Top 5: Taboo | The Mind | Love 2 Hate: A Party Game for Inappropriate People | Hedbanz Adulting | The Game of Life: The Marvelous Mrs. Maisel Edition
+    Judge: The recommendations are primarily board games, which is a constraint violation since the user specified that their wife 
+  [mechanic-focused-002] "fast deck builder under 30 minutes" Judge=5/10 [4 violations] missing=[Star Realms]
+    Top 5: Dominion | AWS BuilderCards | Albedo | That's Wizard! | Ascension: Deckbuilding Game
+    Judge: The recommendations include several games that fit the user's request for fast deck builders under 30 minutes. However, 
+  [player-count-045] "game for 8 or more people" Judge=5/10 missing=[Codenames]
+    Top 5: Werewolf: A Party Game for Devious People | 4-Bidden Words | Chronology | Secret Hitler | 8 Out Of 10 Cats
+    Judge: The results include a mix of games that can accommodate 8 or more players, but several games fall short of the minimum p
+  [free-text-intent-120] "something quick to decompress during a work f" Judge=5/10 [5 violations]
+    Top 5: The Mind | The Crew: The Quest for Planet Nine | Carcassonne | PDQ: The Pretty Darn Quick Word Game | Décorum
+    Judge: The recommendations include a mix of quick games and some that exceed the user's time constraint. While several games li
+  [time-constraint-047] "quick filler game under 15 minutes" Judge=6/10 [1 violations] missing=[Love Letter, Coup]
+    Top 5: The Mind | A game about quickly matching words to pictures but never words to words or pictures to pictures. | Kablamo | Blink | Fairy
+    Judge: The recommendations include several games that fit the time constraint of under 15 minutes, but there is one clear viola
+  [multi-constraint-087] "quick social party game for 6 people" Judge=6/10 [4 violations] missing=[Codenames]
+    Top 5: True Colors | Taboo | Subjective | Wat'n dat!? | The Big Idea
+    Judge: Several games are relevant to the user's request for a quick social party game for 6 people, but there are also a number
+  [mechanic-focused-003] "worker placement for beginners" Judge=6/10 missing=[Lords of Waterdeep, Stone Age]
+    Top 5: Little Town | Way Out West | Silverton | Keytown | Age of Dirt: A Game of Uncivilization
+    Judge: The recommendations include several worker placement games suitable for beginners, but there are some mismatches in comp
+  [mechanic-focused-006] "engine building board game" Judge=6/10 missing=[Terraforming Mars, Wingspan, Gizmos]
+    Top 5: Ark Nova | Patchwork | Age of Innovation | Photosynthesis | Terra Mystica
+    Judge: The results include several relevant engine building games like Ark Nova, Age of Innovation, and Terra Mystica, which al
+  [mechanic-focused-007] "social deduction game for a big group" Judge=6/10 missing=[Secret Hitler, The Resistance, Werewolf]
+    Top 5: Blood on the Clocktower | True Colors | Crack the Case | Subjective | Gooseberry
+    Judge: While there are some relevant games in the results, several of them do not meet the user’s request for a social deductio
+  [theme-focused-026] "medieval castle building game" Judge=6/10 missing=[Carcassonne, The Castles of Burgundy]
+    Top 5: Ora et Labora | Vikings | Praga Caput Regni | Medieval Merchant | Age of Innovation
+    Judge: The results include several games that are medieval-themed and involve building or economic mechanics, which aligns with
+  [theme-focused-027] "horror mystery investigation game" Judge=6/10 missing=[Arkham Horror, Betrayal at House on the Hill]
+    Top 5: Bureau of Investigation: Investigations in Arkham & Elsewhere | Mystery Party in the Box: El Misterio de los Muertos Vivientes | EXIT: The Game – The Catacombs of Horror | Arkham Investigator | AVGhost: Paranormal Investigation
+    Judge: The results include several relevant horror mystery investigation games, but there are also some games that do not fit t
+  [player-count-040] "thematic solo games" Judge=6/10 missing=[Spirit Island]
+    Top 5: Friday | Arkham Horror: The Card Game | Bargain Basement Bathysphere | Elder Sign | The Lord of the Rings: The Card Game
+    Judge: The recommendations include several thematic solo games, but there are also games that allow for more than one player, w
+  [complexity-054] "heavy complex strategy game for experienced p" Judge=6/10 missing=[Brass: Birmingham, Gaia Project]
+    Top 5: Dominant Species | A Feast for Odin | Agricola (Revised Edition) | Anachrony | Beyond the Sun
+    Judge: The recommendations include several games that are complex and strategic, with weights mostly within the specified range
+  [designer-search-070] "Vlaada Chvatil board games" Judge=6/10 missing=[Codenames]
+    Top 5: Through the Ages: A Story of Civilization | Prophecy | Graenaland | Tash-Kalar: Arena of Legends | Outpost
+    Judge: The results include several games designed by Vlaada Chvátil, such as 'Through the Ages' and 'Tash-Kalar', which are rel
+  [multi-constraint-085] "cooperative family game for 4 players, about " Judge=6/10 missing=[Pandemic]
+    Top 5: Harry Potter: Hogwarts Battle | Forbidden Island | Ensemble | Hanabi | The Crew: Family Adventure
+    Judge: The recommendations include several cooperative games suitable for 4 players, but there are also games that do not meet 
+  [multi-constraint-086] "heavy solo game I can sink 2 hours into" Judge=6/10 missing=[Mage Knight, Spirit Island]
+    Top 5: Gloomhaven | The Great Race: Duel | Beyond Humanity: Colonies | League of Dungeoneers | A Feast for Odin
+    Judge: The recommendations include several games that fit the criteria of being heavy solo games, but many of them allow for 2 
+  [real-user-feedback-106] "a cooperative game where players are diseases" Judge=6/10 missing=[Pandemic]
+    Top 5: Raxxon | Carnival Zombie: 2nd Edition | Arkham Horror | Dawn of the Zeds (Third Edition) | Dead of Winter: The Long Night
+    Judge: While several games in the results are cooperative and have horror elements, none of them specifically focus on players 
+
+========================================================================

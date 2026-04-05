@@ -14,7 +14,10 @@
     "eval:full": "npx tsx evals/runner.ts --concurrency=8",
     "eval:generate": "npx tsx evals/generate-cases.ts",
     "eval:compare": "npx tsx evals/compare-runs.ts",
-    "eval:summary": "npx tsx evals/summary.ts"
+    "eval:summary": "npx tsx evals/summary.ts",
+    "eval:analyze": "npx tsx evals/analyze-failures.ts",
+    "eval:expand": "npx tsx evals/generate-expanded-cases.ts",
+    "eval:history": "npx tsx evals/summary.ts --all"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

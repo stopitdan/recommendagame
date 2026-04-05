@@ -181,6 +181,12 @@ export interface AggregateMetrics {
   avgLlmJudgeScore?: number;
   p50LatencyMs: number;
   p95LatencyMs: number;
+  /** What % of the game catalog appeared in any recommendation across all cases */
+  catalogCoverage?: number;
+  /** Constraint violations broken down by type */
+  constraintViolationsByType?: Record<string, number>;
+  /** Number of "trust buster" results (obviously wrong recommendations) */
+  trustBusterCount?: number;
 }
 
 export interface CategorySummary {

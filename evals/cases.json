@@ -3084,5 +3084,2772 @@
     "tags": [
       "regression"
     ]
+  },
+  {
+    "id": "mechanic-focused-131",
+    "name": "Deck builder casual phrasing",
+    "category": "mechanic-focused",
+    "query": "i wanna build a deck",
+    "idealGames": [
+      {
+        "name": "Dominion",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not deck building"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-132",
+    "name": "Deck builder question form",
+    "category": "mechanic-focused",
+    "query": "whats the best deck building game?",
+    "idealGames": [
+      {
+        "name": "Dominion",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-133",
+    "name": "Deckbuilder one word",
+    "category": "mechanic-focused",
+    "query": "deckbuilder",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not a deckbuilder"
+      },
+      {
+        "name": "Chess",
+        "reason": "Not a deckbuilder"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-134",
+    "name": "Deck builder with typo",
+    "category": "mechanic-focused",
+    "query": "deck biulding game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not deck building"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "tags": [
+      "typo"
+    ]
+  },
+  {
+    "id": "mechanic-focused-135",
+    "name": "Worker placement slang",
+    "category": "mechanic-focused",
+    "query": "good wp game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not worker placement"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "mechanic-focused-136",
+    "name": "Worker placement descriptive",
+    "category": "mechanic-focused",
+    "query": "game where you place workers on spots to take actions",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not worker placement"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-137",
+    "name": "Area control descriptive",
+    "category": "mechanic-focused",
+    "query": "game about controlling territory on a map",
+    "idealGames": [
+      {
+        "name": "Root",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Azul",
+        "reason": "No territory control"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-138",
+    "name": "Engine builder combo",
+    "category": "mechanic-focused",
+    "query": "game where you build combos that get better each turn",
+    "idealGames": [
+      {
+        "name": "Wingspan",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-139",
+    "name": "Mechanic: hand management",
+    "category": "mechanic-focused",
+    "query": "hand management card game",
+    "idealGames": [
+      {
+        "name": "Terraforming Mars",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Chess",
+        "reason": "Not hand management"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-140",
+    "name": "Mechanic: pick up and deliver",
+    "category": "mechanic-focused",
+    "query": "pick up and deliver board game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not pick up and deliver"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-141",
+    "name": "Mechanic: programming movement",
+    "category": "mechanic-focused",
+    "query": "programmed movement robot game",
+    "idealGames": [
+      {
+        "name": "RoboRally",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-142",
+    "name": "Mechanic: resource management",
+    "category": "mechanic-focused",
+    "query": "resource management strategy game",
+    "idealGames": [
+      {
+        "name": "Terraforming Mars",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not resource management"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-143",
+    "name": "Mechanic: hidden movement",
+    "category": "mechanic-focused",
+    "query": "hidden movement deduction game",
+    "idealGames": [
+      {
+        "name": "Scotland Yard",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-144",
+    "name": "Mechanic: dice rolling combat",
+    "category": "mechanic-focused",
+    "query": "dice rolling combat game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Codenames",
+        "reason": "Not dice rolling combat"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-145",
+    "name": "Mechanic: tableau building",
+    "category": "mechanic-focused",
+    "query": "tableau building card game",
+    "idealGames": [
+      {
+        "name": "Wingspan",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-146",
+    "name": "Mechanic: network building",
+    "category": "mechanic-focused",
+    "query": "network building game",
+    "idealGames": [
+      {
+        "name": "Ticket to Ride",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-147",
+    "name": "Mechanic: variable setup",
+    "category": "mechanic-focused",
+    "query": "game with variable setup for replayability",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-148",
+    "name": "Mechanic: memory",
+    "category": "mechanic-focused",
+    "query": "memory matching game for kids",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Gloomhaven",
+        "reason": "Not memory"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-149",
+    "name": "Mechanic: modular board",
+    "category": "mechanic-focused",
+    "query": "game with modular board that changes every time",
+    "idealGames": [
+      {
+        "name": "Catan",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-150",
+    "name": "Mechanic: simultaneous action",
+    "category": "mechanic-focused",
+    "query": "simultaneous action selection game",
+    "idealGames": [
+      {
+        "name": "7 Wonders",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-151",
+    "name": "Mechanic: real-time",
+    "category": "mechanic-focused",
+    "query": "real-time board game no turns",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-152",
+    "name": "Mechanic: storytelling",
+    "category": "mechanic-focused",
+    "query": "storytelling game where you make up stories",
+    "idealGames": [
+      {
+        "name": "Dixit",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-153",
+    "name": "Mechanic: point to point movement",
+    "category": "mechanic-focused",
+    "query": "point to point movement war game",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-154",
+    "name": "Mechanic: press your luck",
+    "category": "mechanic-focused",
+    "query": "press your luck gambling feel game",
+    "idealGames": [
+      {
+        "name": "Quacks of Quedlinburg",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-155",
+    "name": "Theme: greek mythology",
+    "category": "theme-focused",
+    "query": "ancient greek mythology board game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not greek mythology themed"
+      },
+      {
+        "name": "Codenames",
+        "reason": "Not greek mythology themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-156",
+    "name": "Theme: roman empire",
+    "category": "theme-focused",
+    "query": "roman empire themed strategy game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not roman empire themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-157",
+    "name": "Theme: samurai japan",
+    "category": "theme-focused",
+    "query": "samurai themed japanese game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not samurai japan themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-158",
+    "name": "Theme: steampunk",
+    "category": "theme-focused",
+    "query": "steampunk themed game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not steampunk themed"
+      },
+      {
+        "name": "Catan",
+        "reason": "Not steampunk themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-159",
+    "name": "Theme: post-apocalyptic",
+    "category": "theme-focused",
+    "query": "post-apocalyptic survival game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Azul",
+        "reason": "Not post-apocalyptic themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-160",
+    "name": "Theme: underwater ocean",
+    "category": "theme-focused",
+    "query": "underwater ocean exploration game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not underwater ocean themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-161",
+    "name": "Theme: jungle exploration",
+    "category": "theme-focused",
+    "query": "jungle exploration adventure game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Chess",
+        "reason": "Not jungle exploration themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-162",
+    "name": "Theme: arctic polar",
+    "category": "theme-focused",
+    "query": "arctic themed survival game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not arctic polar themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-163",
+    "name": "Theme: cats",
+    "category": "theme-focused",
+    "query": "cat themed board game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Chess",
+        "reason": "Not cats themed"
+      },
+      {
+        "name": "Risk",
+        "reason": "Not cats themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-164",
+    "name": "Theme: dogs",
+    "category": "theme-focused",
+    "query": "dog themed board game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Chess",
+        "reason": "Not dogs themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-165",
+    "name": "Theme: cooking food",
+    "category": "theme-focused",
+    "query": "cooking themed board game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Gloomhaven",
+        "reason": "Not cooking food themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-166",
+    "name": "Theme: wine",
+    "category": "theme-focused",
+    "query": "wine themed board game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not wine themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-167",
+    "name": "Theme: dragons",
+    "category": "theme-focused",
+    "query": "dragon themed board game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not dragons themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-168",
+    "name": "Theme: robots",
+    "category": "theme-focused",
+    "query": "robot themed board game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not robots themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-169",
+    "name": "Theme: spies espionage",
+    "category": "theme-focused",
+    "query": "spy espionage themed game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Agricola",
+        "reason": "Not spies espionage themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-170",
+    "name": "Theme: racing",
+    "category": "theme-focused",
+    "query": "racing themed board game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Gloomhaven",
+        "reason": "Not racing themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-171",
+    "name": "Theme: sports",
+    "category": "theme-focused",
+    "query": "sports themed board game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Arkham Horror",
+        "reason": "Not sports themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-172",
+    "name": "Theme: music",
+    "category": "theme-focused",
+    "query": "music themed board game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Risk",
+        "reason": "Not music themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-173",
+    "name": "Theme: art",
+    "category": "theme-focused",
+    "query": "art themed board game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Risk",
+        "reason": "Not art themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-174",
+    "name": "Theme: building construction",
+    "category": "theme-focused",
+    "query": "building and construction themed game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Chess",
+        "reason": "Not building construction themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-175",
+    "name": "Theme: magic wizards",
+    "category": "theme-focused",
+    "query": "magic wizard themed game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not magic wizards themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-176",
+    "name": "Theme: superheroes",
+    "category": "theme-focused",
+    "query": "superhero themed board game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Agricola",
+        "reason": "Not superheroes themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-177",
+    "name": "Theme: time travel",
+    "category": "theme-focused",
+    "query": "time travel themed game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not time travel themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-178",
+    "name": "Theme: fairy tale",
+    "category": "theme-focused",
+    "query": "fairy tale themed game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Risk",
+        "reason": "Not fairy tale themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-179",
+    "name": "Theme: mythology",
+    "category": "theme-focused",
+    "query": "mythology themed game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not mythology themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-180",
+    "name": "Theme: city building",
+    "category": "theme-focused",
+    "query": "city building game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Chess",
+        "reason": "Not city building themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-181",
+    "name": "Theme: civilization",
+    "category": "theme-focused",
+    "query": "civilization building game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not civilization themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-182",
+    "name": "Theme: trading merchants",
+    "category": "theme-focused",
+    "query": "trading and merchant themed game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Chess",
+        "reason": "Not trading merchants themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-183",
+    "name": "Theme: exploration",
+    "category": "theme-focused",
+    "query": "exploration and discovery game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not exploration themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-184",
+    "name": "Theme: politics",
+    "category": "theme-focused",
+    "query": "political themed game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Azul",
+        "reason": "Not politics themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-185",
+    "name": "Theme: mafia crime",
+    "category": "theme-focused",
+    "query": "mafia and organized crime game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Wingspan",
+        "reason": "Not mafia crime themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-186",
+    "name": "Theme: space opera",
+    "category": "theme-focused",
+    "query": "epic space opera game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Azul",
+        "reason": "Not space opera themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-187",
+    "name": "Theme: horror gothic",
+    "category": "theme-focused",
+    "query": "gothic horror game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Catan",
+        "reason": "Not horror gothic themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-188",
+    "name": "Theme: wwii",
+    "category": "theme-focused",
+    "query": "WWII themed war game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Azul",
+        "reason": "Not wwii themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-189",
+    "name": "Theme: cold war",
+    "category": "theme-focused",
+    "query": "cold war themed game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Azul",
+        "reason": "Not cold war themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-190",
+    "name": "Theme: prehistoric",
+    "category": "theme-focused",
+    "query": "prehistoric caveman game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not prehistoric themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-191",
+    "name": "Theme: insects bugs",
+    "category": "theme-focused",
+    "query": "insect and bug themed game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Risk",
+        "reason": "Not insects bugs themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-192",
+    "name": "Theme: flowers garden",
+    "category": "theme-focused",
+    "query": "flower garden themed game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Risk",
+        "reason": "Not flowers garden themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-193",
+    "name": "Theme: forest woodland",
+    "category": "theme-focused",
+    "query": "forest and woodland themed game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Risk",
+        "reason": "Not forest woodland themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "player-count-194",
+    "name": "Exactly 1 player",
+    "category": "player-count",
+    "query": "best board game for exactly 1 player",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Codenames",
+        "reason": "Needs 4+ players"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 1,
+      "max": 1
+    }
+  },
+  {
+    "id": "player-count-195",
+    "name": "Exactly 2 players",
+    "category": "player-count",
+    "query": "best board game for exactly 2 players",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Codenames",
+        "reason": "Needs 4+ players"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 2,
+      "max": 2
+    }
+  },
+  {
+    "id": "player-count-196",
+    "name": "Exactly 3 players",
+    "category": "player-count",
+    "query": "best board game for exactly 3 players",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 3,
+      "max": 3
+    }
+  },
+  {
+    "id": "player-count-197",
+    "name": "Exactly 4 players",
+    "category": "player-count",
+    "query": "best board game for exactly 4 players",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 4,
+      "max": 4
+    }
+  },
+  {
+    "id": "player-count-198",
+    "name": "Exactly 5 players",
+    "category": "player-count",
+    "query": "best board game for exactly 5 players",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 5,
+      "max": 5
+    }
+  },
+  {
+    "id": "player-count-199",
+    "name": "Exactly 6 players",
+    "category": "player-count",
+    "query": "best board game for exactly 6 players",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 6,
+      "max": 6
+    }
+  },
+  {
+    "id": "player-count-200",
+    "name": "Exactly 7 players",
+    "category": "player-count",
+    "query": "best board game for exactly 7 players",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 7,
+      "max": 7
+    }
+  },
+  {
+    "id": "player-count-201",
+    "name": "Exactly 8 players",
+    "category": "player-count",
+    "query": "best board game for exactly 8 players",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 8,
+      "max": 8
+    }
+  },
+  {
+    "id": "player-count-202",
+    "name": "Exactly 9 players",
+    "category": "player-count",
+    "query": "best board game for exactly 9 players",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 9,
+      "max": 9
+    }
+  },
+  {
+    "id": "player-count-203",
+    "name": "Exactly 10 players",
+    "category": "player-count",
+    "query": "best board game for exactly 10 players",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 10,
+      "max": 10
+    }
+  },
+  {
+    "id": "player-count-204",
+    "name": "Couple game",
+    "category": "player-count",
+    "query": "game for couples",
+    "idealGames": [
+      {
+        "name": "Patchwork",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 2,
+      "max": 2
+    }
+  },
+  {
+    "id": "player-count-205",
+    "name": "Big family 5p",
+    "category": "player-count",
+    "query": "game for a family of 5",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Patchwork",
+        "reason": "2p only"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 5,
+      "max": 5
+    }
+  },
+  {
+    "id": "time-constraint-206",
+    "name": "Time: 5 minute game",
+    "category": "time-constraint",
+    "query": "5 minute game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Twilight Imperium",
+        "reason": "Way too long"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "maxMinutes": 5,
+      "timeStrictness": "hard"
+    }
+  },
+  {
+    "id": "time-constraint-207",
+    "name": "Time: 10 minute filler",
+    "category": "time-constraint",
+    "query": "10 minute filler",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Twilight Imperium",
+        "reason": "Way too long"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "maxMinutes": 10,
+      "timeStrictness": "hard"
+    }
+  },
+  {
+    "id": "time-constraint-208",
+    "name": "Time: under 20 minutes",
+    "category": "time-constraint",
+    "query": "under 20 minutes",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Twilight Imperium",
+        "reason": "Way too long"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "maxMinutes": 20,
+      "timeStrictness": "hard"
+    }
+  },
+  {
+    "id": "time-constraint-209",
+    "name": "Time: around 45 minutes",
+    "category": "time-constraint",
+    "query": "around 45 minutes",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "maxMinutes": 45,
+      "timeStrictness": "soft"
+    }
+  },
+  {
+    "id": "time-constraint-210",
+    "name": "Time: about 2 hours",
+    "category": "time-constraint",
+    "query": "about 2 hours",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "maxMinutes": 120,
+      "timeStrictness": "soft"
+    }
+  },
+  {
+    "id": "time-constraint-211",
+    "name": "Time: all day game marathon",
+    "category": "time-constraint",
+    "query": "all day game marathon",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "maxMinutes": 480,
+      "timeStrictness": "soft"
+    }
+  },
+  {
+    "id": "time-constraint-212",
+    "name": "Time: no more than 60 minutes",
+    "category": "time-constraint",
+    "query": "no more than 60 minutes",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "maxMinutes": 60,
+      "timeStrictness": "hard"
+    }
+  },
+  {
+    "id": "time-constraint-213",
+    "name": "Time: less than 90 minutes",
+    "category": "time-constraint",
+    "query": "less than 90 minutes",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "maxMinutes": 90,
+      "timeStrictness": "hard"
+    }
+  },
+  {
+    "id": "complexity-214",
+    "name": "Super simple for non-gamers",
+    "category": "complexity",
+    "query": "simplest possible game for someone who has never played a board game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Gloomhaven",
+        "reason": "Way too complex"
+      },
+      {
+        "name": "Brass: Birmingham",
+        "reason": "Way too complex"
+      },
+      {
+        "name": "Twilight Imperium",
+        "reason": "Way too complex"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "complexity": {
+        "min": 1,
+        "max": 1.5
+      }
+    }
+  },
+  {
+    "id": "complexity-215",
+    "name": "Brain-melting heavy",
+    "category": "complexity",
+    "query": "heaviest most complex brain-burning game possible",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Too simple"
+      },
+      {
+        "name": "Love Letter",
+        "reason": "Too simple"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "complexity": {
+        "min": 4,
+        "max": 5
+      }
+    }
+  },
+  {
+    "id": "complexity-216",
+    "name": "Step up from Catan",
+    "category": "complexity",
+    "query": "something a bit heavier than Catan",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "complexity": {
+        "min": 2.5,
+        "max": 3.5
+      }
+    }
+  },
+  {
+    "id": "designer-search-217",
+    "name": "Designer: Jamey Stegmaier",
+    "category": "designer-search",
+    "query": "games by Jamey Stegmaier",
+    "idealGames": [
+      {
+        "name": "Viticulture",
+        "relevance": 3
+      },
+      {
+        "name": "Wingspan",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "designer": "Jamey Stegmaier"
+    }
+  },
+  {
+    "id": "designer-search-218",
+    "name": "Designer: Cole Wehrle",
+    "category": "designer-search",
+    "query": "Cole Wehrle games",
+    "idealGames": [
+      {
+        "name": "Root",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "designer": "Cole Wehrle"
+    }
+  },
+  {
+    "id": "designer-search-219",
+    "name": "Designer: Alexander Pfister",
+    "category": "designer-search",
+    "query": "Alexander Pfister board games",
+    "idealGames": [
+      {
+        "name": "Great Western Trail",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "designer": "Alexander Pfister"
+    }
+  },
+  {
+    "id": "designer-search-220",
+    "name": "Designer: Bruno Cathala",
+    "category": "designer-search",
+    "query": "Bruno Cathala games",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "designer": "Bruno Cathala"
+    }
+  },
+  {
+    "id": "designer-search-221",
+    "name": "Designer: Matt Leacock",
+    "category": "designer-search",
+    "query": "Matt Leacock cooperative games",
+    "idealGames": [
+      {
+        "name": "Pandemic",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "designer": "Matt Leacock"
+    }
+  },
+  {
+    "id": "designer-search-222",
+    "name": "Designer: Eric Lang",
+    "category": "designer-search",
+    "query": "Eric Lang board games",
+    "idealGames": [
+      {
+        "name": "Blood Rage",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "designer": "Eric Lang"
+    }
+  },
+  {
+    "id": "designer-search-223",
+    "name": "Designer: Phil Walker-Harding",
+    "category": "designer-search",
+    "query": "Phil Walker-Harding games",
+    "idealGames": [
+      {
+        "name": "Sushi Go",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "designer": "Phil Walker-Harding"
+    }
+  },
+  {
+    "id": "similar-to-224",
+    "name": "Similar: like Ticket to Ride but more complex",
+    "category": "similar-to",
+    "query": "like Ticket to Ride but more complex",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not what was asked"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "similar-to-225",
+    "name": "Similar: something like Wingspan but competitive",
+    "category": "similar-to",
+    "query": "something like Wingspan but competitive",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "similar-to-226",
+    "name": "Similar: like Azul but for more players",
+    "category": "similar-to",
+    "query": "like Azul but for more players",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "similar-to-227",
+    "name": "Similar: like Pandemic but competitive",
+    "category": "similar-to",
+    "query": "like Pandemic but competitive",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "similar-to-228",
+    "name": "Similar: like Root but simpler",
+    "category": "similar-to",
+    "query": "like Root but simpler",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "similar-to-229",
+    "name": "Similar: Catan but without the luck",
+    "category": "similar-to",
+    "query": "Catan but without the luck",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "similar-to-230",
+    "name": "Similar: like 7 Wonders but for 2 players",
+    "category": "similar-to",
+    "query": "like 7 Wonders but for 2 players",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "7 Wonders Duel",
+        "reason": "Not what was asked"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "similar-to-231",
+    "name": "Similar: like Dominion but more interaction",
+    "category": "similar-to",
+    "query": "like Dominion but more interaction",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "similar-to-232",
+    "name": "Similar: like Spirit Island but less complex",
+    "category": "similar-to",
+    "query": "like Spirit Island but less complex",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "similar-to-233",
+    "name": "Similar: like Terraforming Mars but faster",
+    "category": "similar-to",
+    "query": "like Terraforming Mars but faster",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "similar-to-234",
+    "name": "Similar: like Codenames but more strategic",
+    "category": "similar-to",
+    "query": "like Codenames but more strategic",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "similar-to-235",
+    "name": "Similar: games in the style of Catan",
+    "category": "similar-to",
+    "query": "games in the style of Catan",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "similar-to-236",
+    "name": "Similar: board game version of Zelda",
+    "category": "similar-to",
+    "query": "board game version of Zelda",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "similar-to-237",
+    "name": "Similar: board game version of Civilization",
+    "category": "similar-to",
+    "query": "board game version of Civilization",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "similar-to-238",
+    "name": "Similar: board game like Settlers of Catan",
+    "category": "similar-to",
+    "query": "board game like Settlers of Catan",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "negative-preference-239",
+    "name": "Negative: strategy game with absolutely no lu",
+    "category": "negative-preference",
+    "query": "strategy game with absolutely no luck or randomness",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Violates negative preference"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "negative-preference-240",
+    "name": "Negative: game without any reading for kids w",
+    "category": "negative-preference",
+    "query": "game without any reading for kids who cant read",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "negative-preference-241",
+    "name": "Negative: board game that doesnt take up much",
+    "category": "negative-preference",
+    "query": "board game that doesnt take up much table space",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Twilight Imperium",
+        "reason": "Violates negative preference"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "negative-preference-242",
+    "name": "Negative: game with no conflict or attacking",
+    "category": "negative-preference",
+    "query": "game with no conflict or attacking",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "negative-preference-243",
+    "name": "Negative: game without miniatures, just cards",
+    "category": "negative-preference",
+    "query": "game without miniatures, just cards",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "negative-preference-244",
+    "name": "Negative: game that isnt euro style",
+    "category": "negative-preference",
+    "query": "game that isnt euro style",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "negative-preference-245",
+    "name": "Negative: not a deck builder",
+    "category": "negative-preference",
+    "query": "not a deck builder",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Dominion",
+        "reason": "Violates negative preference"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "negative-preference-246",
+    "name": "Negative: no cooperative games, I want to com",
+    "category": "negative-preference",
+    "query": "no cooperative games, I want to compete",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Pandemic",
+        "reason": "Violates negative preference"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "negative-preference-247",
+    "name": "Negative: nothing too long, max 45 minutes",
+    "category": "negative-preference",
+    "query": "nothing too long, max 45 minutes",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Twilight Imperium",
+        "reason": "Violates negative preference"
+      },
+      {
+        "name": "Gloomhaven",
+        "reason": "Violates negative preference"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "negative-preference-248",
+    "name": "Negative: no hidden traitor or lying mechanic",
+    "category": "negative-preference",
+    "query": "no hidden traitor or lying mechanics",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Secret Hitler",
+        "reason": "Violates negative preference"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "multi-constraint-249",
+    "name": "3-way: 2p+30min+light",
+    "category": "multi-constraint",
+    "query": "light 2 player game under 30 minutes",
+    "idealGames": [
+      {
+        "name": "Jaipur",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Twilight Imperium",
+        "reason": "Violates everything"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 2,
+      "max": 2
+    },
+    "constraints": {
+      "maxMinutes": 30,
+      "timeStrictness": "hard",
+      "complexity": {
+        "min": 1,
+        "max": 2
+      }
+    }
+  },
+  {
+    "id": "multi-constraint-250",
+    "name": "3-way: solo+heavy+long",
+    "category": "multi-constraint",
+    "query": "heavy solo game for a long evening",
+    "idealGames": [
+      {
+        "name": "Mage Knight",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Codenames",
+        "reason": "Not solo or heavy"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 1,
+      "max": 1
+    },
+    "constraints": {
+      "complexity": {
+        "min": 3.5,
+        "max": 5
+      }
+    }
+  },
+  {
+    "id": "multi-constraint-251",
+    "name": "4-way: 4p+60min+coop+family",
+    "category": "multi-constraint",
+    "query": "cooperative family game for 4, about an hour",
+    "idealGames": [
+      {
+        "name": "Pandemic",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 4,
+      "max": 4
+    },
+    "constraints": {
+      "maxMinutes": 60,
+      "timeStrictness": "soft",
+      "complexity": {
+        "min": 1,
+        "max": 2.5
+      }
+    }
+  },
+  {
+    "id": "multi-constraint-252",
+    "name": "Theme+mechanic+players",
+    "category": "multi-constraint",
+    "query": "fantasy deck building game for 2 players",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not fantasy or deck building"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 2,
+      "max": 2
+    }
+  },
+  {
+    "id": "multi-constraint-253",
+    "name": "Mood+time+players",
+    "category": "multi-constraint",
+    "query": "quick competitive game for 3-4 players",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Pandemic",
+        "reason": "Cooperative"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 3,
+      "max": 4
+    },
+    "constraints": {
+      "maxMinutes": 30,
+      "timeStrictness": "hard"
+    }
+  },
+  {
+    "id": "edge-case-254",
+    "name": "Edge: Very long rambling query",
+    "category": "edge-case",
+    "query": "so basically what happened was my friend came over last weekend and we were looking for something to play and she said she wanted something not too complicated because she just got off work and was tired but I wanted something with a bit of strategy to it and we only had about an hour before dinner so it couldnt be too long and there were just the two of us",
+    "idealGames": [],
+    "antiGames": [],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "edge-case-255",
+    "name": "Edge: All caps",
+    "category": "edge-case",
+    "query": "DECK BUILDING GAME FOR 2 PLAYERS",
+    "idealGames": [],
+    "antiGames": [],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "edge-case-256",
+    "name": "Edge: All lowercase",
+    "category": "edge-case",
+    "query": "best strategy board game ever made",
+    "idealGames": [],
+    "antiGames": [],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "edge-case-257",
+    "name": "Edge: Mixed languages",
+    "category": "edge-case",
+    "query": "un juego de estrategia para 4 jugadores board game",
+    "idealGames": [],
+    "antiGames": [],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "edge-case-258",
+    "name": "Edge: Repeated words",
+    "category": "edge-case",
+    "query": "game game game strategy strategy",
+    "idealGames": [],
+    "antiGames": [],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "edge-case-259",
+    "name": "Edge: Just numbers",
+    "category": "edge-case",
+    "query": "2 4 30",
+    "idealGames": [],
+    "antiGames": [],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "edge-case-260",
+    "name": "Edge: URL in query",
+    "category": "edge-case",
+    "query": "whats a good game like the one at boardgamegeek.com",
+    "idealGames": [],
+    "antiGames": [],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "edge-case-261",
+    "name": "Edge: Special characters",
+    "category": "edge-case",
+    "query": "!@#$%^&*() deck building",
+    "idealGames": [],
+    "antiGames": [],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "edge-case-262",
+    "name": "Edge: Very short",
+    "category": "edge-case",
+    "query": "fun",
+    "idealGames": [],
+    "antiGames": [],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "edge-case-263",
+    "name": "Edge: Just a game name",
+    "category": "edge-case",
+    "query": "Wingspan",
+    "idealGames": [],
+    "antiGames": [],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "edge-case-264",
+    "name": "Edge: Just a designer",
+    "category": "edge-case",
+    "query": "Uwe Rosenberg",
+    "idealGames": [],
+    "antiGames": [],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "edge-case-265",
+    "name": "Edge: Question format",
+    "category": "edge-case",
+    "query": "can you recommend a good board game?",
+    "idealGames": [],
+    "antiGames": [],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "edge-case-266",
+    "name": "Edge: Negative only",
+    "category": "edge-case",
+    "query": "I don't want anything",
+    "idealGames": [],
+    "antiGames": [],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "edge-case-267",
+    "name": "Edge: Mood only",
+    "category": "edge-case",
+    "query": "something chill",
+    "idealGames": [],
+    "antiGames": [],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "edge-case-268",
+    "name": "Edge: Occasion only",
+    "category": "edge-case",
+    "query": "Christmas gift",
+    "idealGames": [],
+    "antiGames": [],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "edge-case-269",
+    "name": "Edge: Age range only",
+    "category": "edge-case",
+    "query": "for a 10 year old",
+    "idealGames": [],
+    "antiGames": [],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "edge-case-270",
+    "name": "Edge: Budget reference",
+    "category": "edge-case",
+    "query": "cheap board game under $20",
+    "idealGames": [],
+    "antiGames": [],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "edge-case-271",
+    "name": "Edge: Award reference",
+    "category": "edge-case",
+    "query": "Spiel des Jahres winners",
+    "idealGames": [],
+    "antiGames": [],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "edge-case-272",
+    "name": "Edge: Comparison chain",
+    "category": "edge-case",
+    "query": "like Catan meets Dominion with a dash of Pandemic",
+    "idealGames": [],
+    "antiGames": [],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "edge-case-273",
+    "name": "Edge: Extremely specific",
+    "category": "edge-case",
+    "query": "a 2-player competitive tile-laying game about building a stained glass window in a cathedral, medium weight, about 30-40 minutes, designed by a Spanish designer",
+    "idealGames": [],
+    "antiGames": [],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "video-game-274",
+    "name": "Video: soulslike video game",
+    "category": "video-game",
+    "query": "soulslike video game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Catan",
+        "reason": "Board game, not video game"
+      },
+      {
+        "name": "Ticket to Ride",
+        "reason": "Board game, not video game"
+      }
+    ],
+    "gameTypes": [
+      "video"
+    ]
+  },
+  {
+    "id": "video-game-275",
+    "name": "Video: platformer video game",
+    "category": "video-game",
+    "query": "platformer video game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Catan",
+        "reason": "Board game, not video game"
+      }
+    ],
+    "gameTypes": [
+      "video"
+    ]
+  },
+  {
+    "id": "video-game-276",
+    "name": "Video: turn-based RPG",
+    "category": "video-game",
+    "query": "turn-based RPG",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Catan",
+        "reason": "Board game, not video game"
+      }
+    ],
+    "gameTypes": [
+      "video"
+    ]
+  },
+  {
+    "id": "video-game-277",
+    "name": "Video: 4X strategy video game",
+    "category": "video-game",
+    "query": "4X strategy video game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Catan",
+        "reason": "Board game, not video game"
+      }
+    ],
+    "gameTypes": [
+      "video"
+    ]
+  },
+  {
+    "id": "video-game-278",
+    "name": "Video: visual novel",
+    "category": "video-game",
+    "query": "visual novel",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Catan",
+        "reason": "Board game, not video game"
+      }
+    ],
+    "gameTypes": [
+      "video"
+    ]
+  },
+  {
+    "id": "video-game-279",
+    "name": "Video: city builder simulation game",
+    "category": "video-game",
+    "query": "city builder simulation game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Catan",
+        "reason": "Board game, not video game"
+      }
+    ],
+    "gameTypes": [
+      "video"
+    ]
+  },
+  {
+    "id": "video-game-280",
+    "name": "Video: survival crafting game",
+    "category": "video-game",
+    "query": "survival crafting game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Catan",
+        "reason": "Board game, not video game"
+      }
+    ],
+    "gameTypes": [
+      "video"
+    ]
+  },
+  {
+    "id": "video-game-281",
+    "name": "Video: battle royale video game",
+    "category": "video-game",
+    "query": "battle royale video game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Catan",
+        "reason": "Board game, not video game"
+      }
+    ],
+    "gameTypes": [
+      "video"
+    ]
+  },
+  {
+    "id": "video-game-282",
+    "name": "Video: indie pixel art game",
+    "category": "video-game",
+    "query": "indie pixel art game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Catan",
+        "reason": "Board game, not video game"
+      }
+    ],
+    "gameTypes": [
+      "video"
+    ]
+  },
+  {
+    "id": "video-game-283",
+    "name": "Video: couch co-op video game",
+    "category": "video-game",
+    "query": "couch co-op video game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Catan",
+        "reason": "Board game, not video game"
+      }
+    ],
+    "gameTypes": [
+      "video"
+    ]
+  },
+  {
+    "id": "video-game-284",
+    "name": "Video: JRPG with anime art",
+    "category": "video-game",
+    "query": "JRPG with anime art",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Catan",
+        "reason": "Board game, not video game"
+      }
+    ],
+    "gameTypes": [
+      "video"
+    ]
+  },
+  {
+    "id": "video-game-285",
+    "name": "Video: first person shooter",
+    "category": "video-game",
+    "query": "first person shooter",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Catan",
+        "reason": "Board game, not video game"
+      }
+    ],
+    "gameTypes": [
+      "video"
+    ]
+  },
+  {
+    "id": "video-game-286",
+    "name": "Video: puzzle game like Tetris",
+    "category": "video-game",
+    "query": "puzzle game like Tetris",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Catan",
+        "reason": "Board game, not video game"
+      }
+    ],
+    "gameTypes": [
+      "video"
+    ]
+  },
+  {
+    "id": "video-game-287",
+    "name": "Video: racing game",
+    "category": "video-game",
+    "query": "racing game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Catan",
+        "reason": "Board game, not video game"
+      }
+    ],
+    "gameTypes": [
+      "video"
+    ]
+  },
+  {
+    "id": "video-game-288",
+    "name": "Video: rhythm game",
+    "category": "video-game",
+    "query": "rhythm game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Catan",
+        "reason": "Board game, not video game"
+      }
+    ],
+    "gameTypes": [
+      "video"
+    ]
+  },
+  {
+    "id": "free-text-intent-289",
+    "name": "Intent: Emotional state",
+    "category": "free-text-intent",
+    "query": "im feeling stressed and need to unwind",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Gloomhaven",
+        "reason": "Inappropriate for context"
+      }
+    ]
+  },
+  {
+    "id": "free-text-intent-290",
+    "name": "Intent: Social context",
+    "category": "free-text-intent",
+    "query": "my in-laws are visiting and they dont play games",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Twilight Imperium",
+        "reason": "Inappropriate for context"
+      }
+    ]
+  },
+  {
+    "id": "free-text-intent-291",
+    "name": "Intent: Gift hunting",
+    "category": "free-text-intent",
+    "query": "birthday gift for someone who loves Catan",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Inappropriate for context"
+      }
+    ]
+  },
+  {
+    "id": "free-text-intent-292",
+    "name": "Intent: Nostalgia",
+    "category": "free-text-intent",
+    "query": "something that reminds me of playing games as a kid",
+    "idealGames": [],
+    "antiGames": []
+  },
+  {
+    "id": "free-text-intent-293",
+    "name": "Intent: Travel",
+    "category": "free-text-intent",
+    "query": "game I can bring on a plane in my carry-on",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Gloomhaven",
+        "reason": "Inappropriate for context"
+      }
+    ]
+  },
+  {
+    "id": "free-text-intent-294",
+    "name": "Intent: Educational",
+    "category": "free-text-intent",
+    "query": "educational game for my 8 year old",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Secret Hitler",
+        "reason": "Inappropriate for context"
+      }
+    ]
+  },
+  {
+    "id": "free-text-intent-295",
+    "name": "Intent: Date night",
+    "category": "free-text-intent",
+    "query": "romantic game for date night",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Risk",
+        "reason": "Inappropriate for context"
+      }
+    ]
+  },
+  {
+    "id": "free-text-intent-296",
+    "name": "Intent: Team building",
+    "category": "free-text-intent",
+    "query": "team building game for a corporate retreat",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Twilight Imperium",
+        "reason": "Inappropriate for context"
+      }
+    ]
+  },
+  {
+    "id": "free-text-intent-297",
+    "name": "Intent: Rainy day",
+    "category": "free-text-intent",
+    "query": "rainy day game for the family",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Gloomhaven",
+        "reason": "Inappropriate for context"
+      }
+    ]
+  },
+  {
+    "id": "free-text-intent-298",
+    "name": "Intent: Quick break",
+    "category": "free-text-intent",
+    "query": "game for a coffee break at work",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Twilight Imperium",
+        "reason": "Inappropriate for context"
+      }
+    ]
+  },
+  {
+    "id": "free-text-intent-299",
+    "name": "Intent: After dinner",
+    "category": "free-text-intent",
+    "query": "something to play after dinner",
+    "idealGames": [],
+    "antiGames": []
+  },
+  {
+    "id": "free-text-intent-300",
+    "name": "Intent: Long flight",
+    "category": "free-text-intent",
+    "query": "game for a long international flight",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Catan",
+        "reason": "Inappropriate for context"
+      }
+    ]
+  },
+  {
+    "id": "free-text-intent-301",
+    "name": "Intent: Waiting room",
+    "category": "free-text-intent",
+    "query": "game to play in a waiting room on my phone",
+    "idealGames": [],
+    "antiGames": []
+  },
+  {
+    "id": "free-text-intent-302",
+    "name": "Intent: Recovery",
+    "category": "free-text-intent",
+    "query": "relaxing game while recovering from surgery",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Risk",
+        "reason": "Inappropriate for context"
+      }
+    ]
+  },
+  {
+    "id": "free-text-intent-303",
+    "name": "Intent: Teach gaming",
+    "category": "free-text-intent",
+    "query": "game to introduce someone to the hobby",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Twilight Imperium",
+        "reason": "Inappropriate for context"
+      }
+    ]
+  },
+  {
+    "id": "regression-304",
+    "name": "Poker in any result",
+    "category": "regression",
+    "query": "thematic strategy game for 2-4 players",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Poker",
+        "reason": "REGRESSION: Poker appeared in board game results"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 2,
+      "max": 4
+    },
+    "tags": [
+      "regression",
+      "critical"
+    ]
+  },
+  {
+    "id": "regression-305",
+    "name": "UNO in strategy results",
+    "category": "regression",
+    "query": "deep strategy game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "REGRESSION: UNO in strategy results"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "tags": [
+      "regression"
+    ]
+  },
+  {
+    "id": "regression-306",
+    "name": "Chess in themed results",
+    "category": "regression",
+    "query": "zombie horror board game with miniatures",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Chess",
+        "reason": "REGRESSION: Chess in themed results"
+      },
+      {
+        "name": "Poker",
+        "reason": "REGRESSION: Poker in themed results"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "tags": [
+      "regression"
+    ]
+  },
+  {
+    "id": "regression-307",
+    "name": "Board games in video game results",
+    "category": "regression",
+    "query": "action RPG video game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Catan",
+        "reason": "Board game in video game results"
+      },
+      {
+        "name": "Ticket to Ride",
+        "reason": "Board game in video game results"
+      },
+      {
+        "name": "Azul",
+        "reason": "Board game in video game results"
+      }
+    ],
+    "gameTypes": [
+      "video"
+    ],
+    "tags": [
+      "regression"
+    ]
   }
 ]

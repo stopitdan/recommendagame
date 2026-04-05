@@ -1,0 +1,658 @@
+{
+  "runId": "2026-04-05T04-41-09",
+  "totalCases": 307,
+  "failedCases": 97,
+  "passRate": 0.6840390879478827,
+  "patterns": [
+    {
+      "pattern": "missing-famous-game",
+      "count": 89,
+      "cases": [
+        {
+          "id": "mechanic-focused-001",
+          "query": "deck building game",
+          "detail": "Missing: Dominion, Star Realms | Got: Legendary: A Marvel Deck Building Game, Legendary Encounters: A Predator Deck Building Game, Summer Camp"
+        },
+        {
+          "id": "mechanic-focused-003",
+          "query": "worker placement for beginners",
+          "detail": "Missing: Lords of Waterdeep, Stone Age | Got: Little Town, Bot Factory, Euphoria: Build a Better Dystopia"
+        },
+        {
+          "id": "mechanic-focused-004",
+          "query": "medium weight worker placement game",
+          "detail": "Missing: Viticulture, Agricola | Got: Paladins of the West Kingdom, Way Out West, Silverton"
+        },
+        {
+          "id": "mechanic-focused-005",
+          "query": "competitive area control game for 4 players",
+          "detail": "Missing: Blood Rage | Got: Root, Vindication, Quantum"
+        },
+        {
+          "id": "mechanic-focused-006",
+          "query": "engine building board game",
+          "detail": "Missing: Terraforming Mars, Wingspan, Gizmos | Got: Acquire, Patchwork, Photosynthesis"
+        },
+        {
+          "id": "mechanic-focused-007",
+          "query": "social deduction game for a big group",
+          "detail": "Missing: Secret Hitler, The Resistance | Got: Blood on the Clocktower, Salem 1692, The Werewolves of Miller's Hollow"
+        },
+        {
+          "id": "mechanic-focused-008",
+          "query": "tile placement game",
+          "detail": "Missing: Azul | Got: Carcassonne, Piazza, Neotopia"
+        },
+        {
+          "id": "mechanic-focused-009",
+          "query": "roll and write game",
+          "detail": "Missing: Yahtzee | Got: Super-Skill Pinball: 4-Cade, Rail Baron, Vroom Vroom"
+        },
+        {
+          "id": "mechanic-focused-010",
+          "query": "push your luck game",
+          "detail": "Missing: Quacks of Quedlinburg | Got: Diamant, Living Forest, Las Vegas"
+        },
+        {
+          "id": "mechanic-focused-011",
+          "query": "card drafting game",
+          "detail": "Missing: 7 Wonders, Sushi Go | Got: Space Explorers, Space Beans, I should have known that!"
+        },
+        {
+          "id": "mechanic-focused-012",
+          "query": "route building train game",
+          "detail": "Missing: Ticket to Ride | Got: Steam, 1846: The Race for the Midwest, Days of Steam"
+        },
+        {
+          "id": "mechanic-focused-013",
+          "query": "auction and bidding game",
+          "detail": "Missing: Ra, Power Grid | Got: Modern Art, Medici, Vault Wars"
+        },
+        {
+          "id": "mechanic-focused-015",
+          "query": "bag building board game",
+          "detail": "Missing: Quacks of Quedlinburg, Orleans | Got: War Chest, Meeples & Monsters, Design Town"
+        },
+        {
+          "id": "mechanic-focused-016",
+          "query": "trick taking card game",
+          "detail": "Missing: The Crew, Fox in the Forest | Got: Diamonds, Ghosts of Christmas, Tax the Rich"
+        },
+        {
+          "id": "mechanic-focused-017",
+          "query": "asymmetric game where everyone has different powers",
+          "detail": "Missing: Vast | Got: Root, Tainted Grail: The Fall of Avalon, Star Wars: Imperial Assault"
+        },
+        {
+          "id": "mechanic-focused-018",
+          "query": "negotiation and trading game",
+          "detail": "Missing: Chinatown | Got: Borderlands, Cosmic Encounter, Catan"
+        },
+        {
+          "id": "mechanic-focused-019",
+          "query": "pattern building puzzle game",
+          "detail": "Missing: Azul, Sagrada | Got: Katamino, Pindua, Wild Patterns"
+        },
+        {
+          "id": "mechanic-focused-020",
+          "query": "set collection card game",
+          "detail": "Missing: Ticket to Ride | Got: GAP, Manekinecollection, Onix"
+        },
+        {
+          "id": "theme-focused-022",
+          "query": "space exploration game",
+          "detail": "Missing: Terraforming Mars, Eclipse | Got: Twilight Imperium: Fourth Edition, Kepler-3042, Space Explorers"
+        },
+        {
+          "id": "theme-focused-024",
+          "query": "fantasy adventure game with quests",
+          "detail": "Missing: Gloomhaven, Descent | Got: Legends of Andor, Phantasy Realm, L'Ordre de Veiel: Chapitre II – L'Héritage du Roi"
+        },
+        {
+          "id": "theme-focused-026",
+          "query": "medieval castle building game",
+          "detail": "Missing: Carcassonne, The Castles of Burgundy | Got: Era: Medieval Age, Medieval Merchant, Vikings"
+        },
+        {
+          "id": "theme-focused-027",
+          "query": "horror mystery investigation game",
+          "detail": "Missing: Arkham Horror, Betrayal at House on the Hill | Got: Bureau of Investigation: Investigations in Arkham & Elsewhere, Mystery Party in the Box: El Misterio de los Muertos Vivientes, Arkham Investigator"
+        },
+        {
+          "id": "theme-focused-028",
+          "query": "nature themed game about animals",
+          "detail": "Missing: Everdell | Got: Wingspan, In the Footsteps of Darwin, Bärenpark"
+        },
+        {
+          "id": "theme-focused-033",
+          "query": "Lovecraftian Cthulhu horror game",
+          "detail": "Missing: Eldritch Horror | Got: Arkham Horror, Lovecraft Letter, Arkham Horror (Third Edition)"
+        },
+        {
+          "id": "theme-focused-034",
+          "query": "train game",
+          "detail": "Missing: Ticket to Ride | Got: Russian Railroads, Railways of the Lost Atlas, 1846: The Race for the Midwest"
+        },
+        {
+          "id": "theme-focused-037",
+          "query": "farming themed game",
+          "detail": "Missing: Agricola | Got: Viticulture, Fields of Green, Harvest"
+        },
+        {
+          "id": "player-count-039",
+          "query": "best solo board game",
+          "detail": "Missing: Mage Knight, Spirit Island | Got: For Northwood! A Solo Trick-Taking Game, Wonder Tales: Rumplestiltskin (solo mode), Everything Lost"
+        },
+        {
+          "id": "player-count-040",
+          "query": "thematic solo games",
+          "detail": "Missing: Mage Knight, Spirit Island, Arkham Horror: The Card Game | Got: Four Against Darkness, For Northwood! A Solo Trick-Taking Game, In Dreams"
+        },
+        {
+          "id": "player-count-041",
+          "query": "2 player strategy game under an hour",
+          "detail": "Missing: 7 Wonders Duel, Patchwork, Jaipur | Got: Tackle: Duell der Strategen, Attila, The Gardens of the Alhambra"
+        },
+        {
+          "id": "player-count-042",
+          "query": "date night game for 2",
+          "detail": "Missing: Patchwork, Jaipur, 7 Wonders Duel | Got: Fog of Love, Décorum, Sky Team"
+        },
+        {
+          "id": "player-count-043",
+          "query": "party game for 6 or more people",
+          "detail": "Missing: Codenames, Telestrations | Got: Taboo, The Big Idea, Bausack"
+        },
+        {
+          "id": "player-count-045",
+          "query": "game for 8 or more people",
+          "detail": "Missing: Codenames | Got: Werewolf: A Party Game for Devious People, 4-Bidden Words, Articulate!"
+        },
+        {
+          "id": "player-count-046",
+          "query": "game I can play solo or with a friend",
+          "detail": "Missing: Spirit Island | Got: Arkham Horror: The Card Game, Slay the Spire: The Board Game, For Northwood! A Solo Trick-Taking Game"
+        },
+        {
+          "id": "time-constraint-047",
+          "query": "quick filler game under 15 minutes",
+          "detail": "Missing: Love Letter, Coup | Got: Boggle, Kablamo, Fairy"
+        },
+        {
+          "id": "time-constraint-048",
+          "query": "game under 30 minutes",
+          "detail": "Missing: Azul | Got: 3 Minute Crazy Café, 5 Minutes, BreakScore"
+        },
+        {
+          "id": "time-constraint-049",
+          "query": "at a convention, want to play something new, 90 minutes, 4 p",
+          "detail": "Missing: Azul, Wingspan, Quacks of Quedlinburg, Ticket to Ride | Got: Tzolk'in: The Mayan Calendar, Clue, Kingscraft"
+        },
+        {
+          "id": "time-constraint-050",
+          "query": "epic all-day game for a gaming marathon",
+          "detail": "Missing: Twilight Imperium | Got: Tikal, Codenames: Duet, Lords of Waterdeep"
+        },
+        {
+          "id": "time-constraint-051",
+          "query": "about an hour long strategy game",
+          "detail": "Missing: Wingspan | Got: Poker, Attila, Timbuktu"
+        },
+        {
+          "id": "complexity-053",
+          "query": "light family game anyone can play",
+          "detail": "Missing: Ticket to Ride, Azul | Got: Carcassonne, UNO, Dungeon!"
+        },
+        {
+          "id": "complexity-054",
+          "query": "heavy complex strategy game for experienced players",
+          "detail": "Missing: Brass: Birmingham, Gaia Project | Got: Barrage, A Feast for Odin, Dominant Species"
+        },
+        {
+          "id": "complexity-055",
+          "query": "gateway game to get new players into the hobby",
+          "detail": "Missing: Catan, Ticket to Ride | Got: Carcassonne, The Crew: The Quest for Planet Nine, Sagrada"
+        },
+        {
+          "id": "complexity-057",
+          "query": "medium weight euro game",
+          "detail": "Missing: Viticulture, Concordia | Got: Architects of the West Kingdom, Ra, Mainports"
+        },
+        {
+          "id": "complexity-058",
+          "query": "a heavy strategic euro game with interesting decisions",
+          "detail": "Missing: Brass: Birmingham, Terraforming Mars, Gaia Project, Great Western Trail | Got: Outpost, Kings and Castles, Way Out West"
+        },
+        {
+          "id": "mood-vibe-059",
+          "query": "chill relaxing game for 2",
+          "detail": "Missing: Patchwork, Jaipur | Got: Tea for 2, Parikrama, Mhing"
+        },
+        {
+          "id": "mood-vibe-061",
+          "query": "cooperative game the whole family can play together",
+          "detail": "Missing: Pandemic, Forbidden Island | Got: The Mind, Shadows in the Forest, Sharp Shooters"
+        },
+        {
+          "id": "mood-vibe-062",
+          "query": "brain teaser puzzle game that makes you think",
+          "detail": "Missing: Azul | Got: EXIT: The Game – Dead Man on the Orient Express, Ubongo, Unlock!: Escape Adventures"
+        },
+        {
+          "id": "mood-vibe-063",
+          "query": "social game with lots of laughing",
+          "detail": "Missing: Codenames, Telestrations | Got: Spyfall, True Colors, Slip It In"
+        },
+        {
+          "id": "mood-vibe-064",
+          "query": "story-driven immersive experience",
+          "detail": "Missing: Gloomhaven | Got: T.I.M.E Stories, Adventure Games: Im Nebelreich, Adventure Games: Monochrome Inc."
+        },
+        {
+          "id": "designer-search-066",
+          "query": "A game designed by Stefan Feld",
+          "detail": "Missing: The Castles of Burgundy, Bora Bora, Bruges, Notre Dame | Got: Forum Trajanum, Outpost, Attila"
+        },
+        {
+          "id": "designer-search-068",
+          "query": "Uwe Rosenberg games",
+          "detail": "Missing: Caverna | Got: A Feast for Odin, Fields of Arle, Agricola (Revised Edition)"
+        },
+        {
+          "id": "designer-search-070",
+          "query": "Vlaada Chvatil board games",
+          "detail": "Missing: Codenames, Mage Knight | Got: Through the Ages: A Story of Civilization, Outpost, Attila"
+        },
+        {
+          "id": "similar-to-071",
+          "query": "something like Catan but better",
+          "detail": "Missing: Concordia | Got: Catan, Merchant of Venus, Serenissima"
+        },
+        {
+          "id": "similar-to-073",
+          "query": "something like Stardew Valley but a board game",
+          "detail": "Missing: Agricola, Viticulture | Got: Mythwind, Above and Below, Three Sisters"
+        },
+        {
+          "id": "similar-to-078",
+          "query": "board game like Among Us",
+          "detail": "Missing: Secret Hitler, The Resistance | Got: Deception: Murder in Hong Kong, Mirror of Truth, Millions of Dollars"
+        },
+        {
+          "id": "negative-preference-079",
+          "query": "strategy game but no war or fighting themes",
+          "detail": "Missing: Terraforming Mars, Wingspan | Got: Le Havre, Outpost, Attila"
+        },
+        {
+          "id": "negative-preference-080",
+          "query": "strategy game with no dice rolling",
+          "detail": "Missing: Concordia | Got: Paladins of the West Kingdom, Dominant Species, Architects of the West Kingdom"
+        },
+        {
+          "id": "negative-preference-081",
+          "query": "party game without player elimination",
+          "detail": "Missing: Codenames | Got: Taboo, True Colors, Wat'n dat!?"
+        },
+        {
+          "id": "negative-preference-083",
+          "query": "cooperative game with no hidden traitor",
+          "detail": "Missing: Pandemic, Spirit Island | Got: The Mind, Frosthaven, Sentinels of the Multiverse"
+        },
+        {
+          "id": "multi-constraint-084",
+          "query": "competitive game for 2 players, about 30 minutes, medium wei",
+          "detail": "Missing: 7 Wonders Duel, Jaipur | Got: Star Realms, Sabotage, Balance Duels"
+        },
+        {
+          "id": "multi-constraint-085",
+          "query": "cooperative family game for 4 players, about an hour",
+          "detail": "Missing: Pandemic | Got: Harry Potter: Hogwarts Battle, Forbidden Island, Ensemble"
+        },
+        {
+          "id": "multi-constraint-086",
+          "query": "heavy solo game I can sink 2 hours into",
+          "detail": "Missing: Mage Knight, Spirit Island | Got: Zen Solo, Hope of the Stranded, The Mountain: A Solo Board Game Experience"
+        },
+        {
+          "id": "multi-constraint-087",
+          "query": "quick social party game for 6 people",
+          "detail": "Missing: Codenames | Got: Taboo, True Colors, Subjective"
+        },
+        {
+          "id": "multi-constraint-089",
+          "query": "heavy 4X space game for 3-4 players",
+          "detail": "Missing: Eclipse | Got: Twilight Imperium: Fourth Edition, InterSpace, Quest for Gaia"
+        },
+        {
+          "id": "real-user-feedback-105",
+          "query": "I want a game about exploring dungeons with friends, fightin",
+          "detail": "Missing: Gloomhaven, Descent | Got: Dungeons and Dinos, Adventure Party: The Role-Playing Party Game, Dungeon Dwellers"
+        },
+        {
+          "id": "real-user-feedback-106",
+          "query": "a cooperative game where players are diseases trying to wipe",
+          "detail": "Missing: Pandemic | Got: Virus, Cthulhu: Death May Die, Dawn of the Zeds (Third Edition)"
+        },
+        {
+          "id": "party-game-111",
+          "query": "game for Thanksgiving with non-gamers",
+          "detail": "Missing: Codenames, Ticket to Ride | Got: Just One, Geek Out! Pop Culture Party, Boom Party"
+        },
+        {
+          "id": "party-game-112",
+          "query": "ice breaker game for a work event",
+          "detail": "Missing: Codenames | Got: Taboo, Two Truths and a Lie, Anybody's Guess"
+        },
+        {
+          "id": "free-text-intent-116",
+          "query": "we want to argue and betray each other",
+          "detail": "Missing: Secret Hitler | Got: Blood on the Clocktower, Millions of Dollars, Hello Neighbor: The Secret Neighbor Party Game"
+        },
+        {
+          "id": "free-text-intent-117",
+          "query": "something I can teach anyone in 2 minutes and play in 15",
+          "detail": "Missing: Love Letter, Coup | Got: Quick Cups, That's It!, 3 Second Try"
+        },
+        {
+          "id": "free-text-intent-119",
+          "query": "game for me and my partner, nothing too competitive",
+          "detail": "Missing: Patchwork | Got: Codenames: Duet, Fog of Love, Décorum"
+        },
+        {
+          "id": "free-text-intent-124",
+          "query": "my wife hates board games, what would she actually enjoy",
+          "detail": "Missing: Azul, Codenames | Got: Taboo, The Mind, Hedbanz Adulting"
+        },
+        {
+          "id": "mechanic-focused-131",
+          "query": "i wanna build a deck",
+          "detail": "Missing: Dominion | Got: Bitoku, Le Havre, Ginkgopolis"
+        },
+        {
+          "id": "mechanic-focused-132",
+          "query": "whats the best deck building game?",
+          "detail": "Missing: Dominion | Got: DC Deck-Building Game, Summer Camp, Flip City"
+        },
+        {
+          "id": "mechanic-focused-138",
+          "query": "game where you build combos that get better each turn",
+          "detail": "Missing: Wingspan | Got: Underwater Cities, Age of Innovation, Ark Nova"
+        },
+        {
+          "id": "mechanic-focused-139",
+          "query": "hand management card game",
+          "detail": "Missing: Terraforming Mars | Got: The Mind, Brokies, Color Flush"
+        },
+        {
+          "id": "mechanic-focused-143",
+          "query": "hidden movement deduction game",
+          "detail": "Missing: Scotland Yard | Got: Blood on the Clocktower, Within Walls, Millions of Dollars"
+        },
+        {
+          "id": "mechanic-focused-145",
+          "query": "tableau building card game",
+          "detail": "Missing: Wingspan | Got: Books of Time, Town Builder: Coevorden, Earth"
+        },
+        {
+          "id": "mechanic-focused-146",
+          "query": "network building game",
+          "detail": "Missing: Ticket to Ride | Got: Milestones, Twixt, Quantum"
+        },
+        {
+          "id": "mechanic-focused-149",
+          "query": "game with modular board that changes every time",
+          "detail": "Missing: Catan | Got: Cryptid, Mini Rails, Clank! In! Space!: A Deck-Building Adventure"
+        },
+        {
+          "id": "mechanic-focused-150",
+          "query": "simultaneous action selection game",
+          "detail": "Missing: 7 Wonders | Got: Nidavellir, Welcome to the Moon, Fog of Love"
+        },
+        {
+          "id": "mechanic-focused-152",
+          "query": "storytelling game where you make up stories",
+          "detail": "Missing: Dixit | Got: Wing It: The Game of Extreme Storytelling, Miskatonic Tales: Journey to Innsmouth, T.I.M.E Stories"
+        },
+        {
+          "id": "mechanic-focused-154",
+          "query": "press your luck gambling feel game",
+          "detail": "Missing: Quacks of Quedlinburg | Got: Ya Blew It!, Chance it, Family Inc."
+        },
+        {
+          "id": "player-count-204",
+          "query": "game for couples",
+          "detail": "Missing: Patchwork | Got: Fog of Love, Décorum, Sky Team"
+        },
+        {
+          "id": "designer-search-217",
+          "query": "games by Jamey Stegmaier",
+          "detail": "Missing: Viticulture, Wingspan | Got: Scythe, Outpost, Attila"
+        },
+        {
+          "id": "designer-search-219",
+          "query": "Alexander Pfister board games",
+          "detail": "Missing: Great Western Trail | Got: Maracaibo, GIPF, Kartenschach"
+        },
+        {
+          "id": "designer-search-222",
+          "query": "Eric Lang board games",
+          "detail": "Missing: Blood Rage | Got: Eldritch Horror, Apex Legends: The Board Game, Cthulhu: Death May Die"
+        },
+        {
+          "id": "designer-search-223",
+          "query": "Phil Walker-Harding games",
+          "detail": "Missing: Sushi Go | Got: Bärenpark, Loot, Careers"
+        },
+        {
+          "id": "multi-constraint-249",
+          "query": "light 2 player game under 30 minutes",
+          "detail": "Missing: Jaipur | Got: Tsuro, Knight Line, Spotlight"
+        },
+        {
+          "id": "multi-constraint-251",
+          "query": "cooperative family game for 4, about an hour",
+          "detail": "Missing: Pandemic | Got: Dorfromantik: The Board Game, Forbidden Island, Ensemble"
+        }
+      ]
+    },
+    {
+      "pattern": "llm-judge-low-score",
+      "count": 12,
+      "cases": [
+        {
+          "id": "player-count-043",
+          "query": "party game for 6 or more people",
+          "detail": "Score: 4/10 - The results include several games that do not meet the user's requirement for 6 or more players. Spe"
+        },
+        {
+          "id": "designer-search-066",
+          "query": "A game designed by Stefan Feld",
+          "detail": "Score: 4/10 - The results include a mix of games, but none are designed by Stefan Feld, which is a critical constr"
+        },
+        {
+          "id": "designer-search-070",
+          "query": "Vlaada Chvatil board games",
+          "detail": "Score: 4/10 - The results include some games designed by Vlaada Chvátil, but many of the games listed are not desi"
+        },
+        {
+          "id": "similar-to-071",
+          "query": "something like Catan but better",
+          "detail": "Score: 4/10 - The results are heavily skewed towards various versions and expansions of Catan, which does not alig"
+        },
+        {
+          "id": "negative-preference-079",
+          "query": "strategy game but no war or fighting themes",
+          "detail": "Score: 4/10 - While some games like Le Havre and Serenissima fit the strategy genre and do not involve war or figh"
+        },
+        {
+          "id": "multi-constraint-086",
+          "query": "heavy solo game I can sink 2 hours into",
+          "detail": "Score: 4/10 - While all games listed are solo and fit the player count requirement, they do not match the user's r"
+        },
+        {
+          "id": "free-text-intent-124",
+          "query": "my wife hates board games, what would she actually enjoy",
+          "detail": "Score: 4/10 - The recommendations primarily consist of party games and word games, which may not align with the us"
+        },
+        {
+          "id": "time-constraint-206",
+          "query": "5 minute game",
+          "detail": "Score: 4/10 - The results include some games that meet the 5-minute constraint, but there are several games that e"
+        },
+        {
+          "id": "designer-search-217",
+          "query": "games by Jamey Stegmaier",
+          "detail": "Score: 4/10 - The results include some games designed by Jamey Stegmaier, but there are also several games that ar"
+        },
+        {
+          "id": "designer-search-219",
+          "query": "Alexander Pfister board games",
+          "detail": "Score: 4/10 - The results include a mix of games, but only the first result, Maracaibo, is designed by Alexander P"
+        },
+        {
+          "id": "designer-search-222",
+          "query": "Eric Lang board games",
+          "detail": "Score: 4/10 - The results include several games designed by Eric Lang, but many of the games listed do not match t"
+        },
+        {
+          "id": "designer-search-223",
+          "query": "Phil Walker-Harding games",
+          "detail": "Score: 4/10 - The results include several games designed by Phil Walker-Harding, but many of the games listed are "
+        }
+      ]
+    },
+    {
+      "pattern": "constraint-violation",
+      "count": 9,
+      "cases": [
+        {
+          "id": "mechanic-focused-002",
+          "query": "fast deck builder under 30 minutes",
+          "detail": "#3 POWER: Takes 36min, limit is 30min (hard); #4 Palaces: Takes 45min, limit is 30min (hard); #7 Little Factory: Takes 40min, limit is 30min (hard)"
+        },
+        {
+          "id": "time-constraint-048",
+          "query": "game under 30 minutes",
+          "detail": "#8 Title Bout II: Takes 45min, limit is 30min (hard)"
+        },
+        {
+          "id": "multi-constraint-087",
+          "query": "quick social party game for 6 people",
+          "detail": "#6 Blood on the Clocktower: Takes 120min, limit is 30min (soft)"
+        },
+        {
+          "id": "party-game-112",
+          "query": "ice breaker game for a work event",
+          "detail": "#2 Two Truths and a Lie: Game is party, user wants board; #5 Would You Rather: Game is party, user wants board; #6 Mafia / Werewolf: Game is party, user wants board"
+        },
+        {
+          "id": "free-text-intent-117",
+          "query": "something I can teach anyone in 2 minutes and play in 15",
+          "detail": "#6 Codetalk: Takes 20min, limit is 15min (hard); #9 Quick Link: Takes 20min, limit is 15min (hard)"
+        },
+        {
+          "id": "free-text-intent-120",
+          "query": "something quick to decompress during a work from home break",
+          "detail": "#5 Décorum: Takes 45min, limit is 20min (soft); #6 Star Trek: Lower Decks – Buffer Time: The Card Game: Takes 40min, limit is 20min (soft); #7 Carcassonne: Takes 45min, limit is 20min (soft)"
+        },
+        {
+          "id": "free-text-intent-125",
+          "query": "game I can play on an airplane",
+          "detail": "#2 Wingspan: Takes 70min, limit is 30min (soft); #6 PARKS: Takes 60min, limit is 30min (soft); #7 Pocket Planet: Takes 60min, limit is 30min (soft)"
+        },
+        {
+          "id": "time-constraint-206",
+          "query": "5 minute game",
+          "detail": "#2 5 Minute Chase: Takes 15min, limit is 5min (hard); #4 Dao: Takes 10min, limit is 5min (hard); #5 Last Minute: Takes 20min, limit is 5min (hard)"
+        },
+        {
+          "id": "time-constraint-208",
+          "query": "under 20 minutes",
+          "detail": "#2 5 Minutes: Takes 30min, limit is 20min (hard)"
+        }
+      ]
+    },
+    {
+      "pattern": "anti-game-present",
+      "count": 3,
+      "cases": [
+        {
+          "id": "free-text-intent-122",
+          "query": "game for a road trip in the car",
+          "detail": "Found: Catan"
+        },
+        {
+          "id": "similar-to-230",
+          "query": "like 7 Wonders but for 2 players",
+          "detail": "Found: 7 Wonders Duel"
+        },
+        {
+          "id": "regression-304",
+          "query": "thematic strategy game for 2-4 players",
+          "detail": "Found: Poker"
+        }
+      ]
+    }
+  ],
+  "missingGameFrequency": {
+    "Codenames": 9,
+    "Ticket to Ride": 8,
+    "Wingspan": 7,
+    "Azul": 7,
+    "Terraforming Mars": 5,
+    "Spirit Island": 5,
+    "Patchwork": 5,
+    "Jaipur": 5,
+    "Pandemic": 5,
+    "Viticulture": 4,
+    "Quacks of Quedlinburg": 4,
+    "Mage Knight": 4,
+    "Dominion": 3,
+    "Agricola": 3,
+    "Secret Hitler": 3,
+    "Gloomhaven": 3,
+    "7 Wonders Duel": 3,
+    "Concordia": 3,
+    "Blood Rage": 2,
+    "The Resistance": 2,
+    "7 Wonders": 2,
+    "Sushi Go": 2,
+    "Eclipse": 2,
+    "Descent": 2,
+    "The Castles of Burgundy": 2,
+    "Telestrations": 2,
+    "Love Letter": 2,
+    "Coup": 2,
+    "Brass: Birmingham": 2,
+    "Gaia Project": 2,
+    "Catan": 2,
+    "Great Western Trail": 2,
+    "Star Realms": 1,
+    "Lords of Waterdeep": 1,
+    "Stone Age": 1,
+    "Gizmos": 1,
+    "Yahtzee": 1,
+    "Ra": 1,
+    "Power Grid": 1,
+    "Orleans": 1,
+    "The Crew": 1,
+    "Fox in the Forest": 1,
+    "Vast": 1,
+    "Chinatown": 1,
+    "Sagrada": 1,
+    "Carcassonne": 1,
+    "Arkham Horror": 1,
+    "Betrayal at House on the Hill": 1,
+    "Everdell": 1,
+    "Eldritch Horror": 1,
+    "Arkham Horror: The Card Game": 1,
+    "Twilight Imperium": 1,
+    "Forbidden Island": 1,
+    "Bora Bora": 1,
+    "Bruges": 1,
+    "Notre Dame": 1,
+    "Caverna": 1,
+    "Scotland Yard": 1,
+    "Dixit": 1
+  }
+}

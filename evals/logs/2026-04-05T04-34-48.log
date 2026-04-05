@@ -1,0 +1,130 @@
+
+========================================================================
+  BOREDGAME.LOL EVALUATION REPORT
+  Run ID: 2026-04-05T04-34-48
+  2026-04-05T04:34:48.689Z -> 2026-04-05T04:39:56.533Z
+  Duration: 307.8s | Cases: 130 | Concurrency: 5
+========================================================================
+
+  OVERALL RESULTS
+------------------------------------------------------------------------
+  Pass Rate:       58/130 (44.6%)
+  Avg NDCG@10:     0.9620
+  Avg Precision@10: 0.9992
+  Avg MRR:         1.0000
+  Avg Hit Rate@5:  1.0000
+  Constraint Viol: 1.2%
+  LLM Judge Score: 7.18/10
+  Latency p50/p95: 9397ms / 11682ms
+
+  REGRESSION vs 2026-04-05T04-26-22
+------------------------------------------------------------------------
+  Pass Rate Delta: -0.0692
+  NDCG Delta:      +0.0103
+  MRR Delta:       +0.0000
+  Fixed (3):
+    + theme-focused-023: "zombie survival board game" -- was failing, now passing
+    + designer-search-069: "games by Reiner Knizia" -- was failing, now passing
+    + real-user-feedback-105: "I want a game about exploring dungeons with friend" -- was failing, now passing
+  New Failures (12):
+    - mechanic-focused-004: "medium weight worker placement game" -- was passing, now failing
+    - theme-focused-028: "nature themed game about animals" -- was passing, now failing
+    - theme-focused-033: "Lovecraftian Cthulhu horror game" -- was passing, now failing
+    - theme-focused-037: "farming themed game" -- was passing, now failing
+    - player-count-046: "game I can play solo or with a friend" -- was passing, now failing
+    - mood-vibe-059: "chill relaxing game for 2" -- was passing, now failing
+    - mood-vibe-062: "brain teaser puzzle game that makes you think" -- was passing, now failing
+    - mood-vibe-064: "story-driven immersive experience" -- was passing, now failing
+    - similar-to-078: "board game like Among Us" -- was passing, now failing
+    - negative-preference-081: "party game without player elimination" -- was passing, now failing
+
+  PER-CATEGORY BREAKDOWN
+------------------------------------------------------------------------
+  mechanic-focused         2/20 (10%)  NDCG=0.888  MRR=1.000  Violations=2%
+  player-count             1/8 (13%)  NDCG=0.984  MRR=1.000  Violations=0%
+  time-constraint          1/6 (17%)  NDCG=1.000  MRR=1.000  Violations=2%
+  complexity               1/6 (17%)  NDCG=0.964  MRR=1.000  Violations=0%
+  negative-preference      1/5 (20%)  NDCG=0.982  MRR=1.000  Violations=0%
+  mood-vibe                2/7 (29%)  NDCG=1.000  MRR=1.000  Violations=0%
+  multi-constraint         2/6 (33%)  NDCG=0.981  MRR=1.000  Violations=2%
+  free-text-intent         4/11 (36%)  NDCG=0.993  MRR=1.000  Violations=8%
+  designer-search          2/5 (40%)  NDCG=0.780  MRR=1.000  Violations=0%
+  party-game               2/4 (50%)  NDCG=1.000  MRR=1.000  Violations=0%
+  theme-focused            10/18 (56%)  NDCG=0.959  MRR=1.000  Violations=0%
+  similar-to               5/8 (63%)  NDCG=1.000  MRR=1.000  Violations=0%
+  real-user-feedback       2/3 (67%)  NDCG=0.945  MRR=1.000  Violations=0%
+  edge-case                14/14 (100%)  NDCG=0.993  MRR=1.000  Violations=0%
+  video-game               4/4 (100%)  NDCG=1.000  MRR=1.000  Violations=0%
+  regression               5/5 (100%)  NDCG=1.000  MRR=1.000  Violations=0%
+
+  FAILURE TYPES
+------------------------------------------------------------------------
+  missing-ideal-game           69 cases
+  llm-judge-low-score          11 cases
+  constraint-violation         6 cases
+  anti-game-present            1 cases
+
+  WORST 20 CASES
+------------------------------------------------------------------------
+  [designer-search-066] "A game designed by Stefan Feld" Judge=2/10 missing=[The Castles of Burgundy, Trajan, Bora Bora, Bruges, Notre Dame]
+    Top 5: In the Year of the Dragon | Outpost | Attila | Way Out West | Poker
+    Judge: None of the games listed are designed by Stefan Feld, which is a critical constraint violation. The results are all unre
+  [theme-focused-026] "medieval castle building game" Judge=4/10 missing=[Carcassonne, The Castles of Burgundy]
+    Top 5: Castles of Mad King Ludwig | Ginkgopolis | Everdell | Suburbia | Honey Buzz
+    Judge: The results do not match the user's request for a 'medieval castle building game.' While some games involve city buildin
+  [player-count-043] "party game for 6 or more people" Judge=4/10 missing=[Codenames, Telestrations]
+    Top 5: Taboo | The Big Idea | Bausack | That's a Question! | Blood on the Clocktower
+    Judge: The results include several games that do not meet the user's requirement for 6 or more players. Specifically, games lik
+  [designer-search-070] "Vlaada Chvatil board games" Judge=4/10 missing=[Codenames, Mage Knight]
+    Top 5: Through the Ages: A Story of Civilization | Outpost | Attila | Way Out West | Poker
+    Judge: The results include a mix of games, but none are designed by Vlaada Chvátil, which is a significant constraint violation
+  [similar-to-071] "something like Catan but better" Judge=4/10 missing=[Concordia]
+    Top 5: Catan | Merchant of Venus | Serenissima | The Settlers of the Stone Age | Settlers of New Catan (and extra modules)
+    Judge: The results are heavily skewed towards various versions and expansions of Catan, which does not align with the user's re
+  [multi-constraint-086] "heavy solo game I can sink 2 hours into" Judge=4/10 missing=[Mage Knight, Spirit Island]
+    Top 5: Zen Solo | Hope of the Stranded | The Mountain: A Solo Board Game Experience | Gamma Guild | Brutality Skirmish Wargame
+    Judge: While all games listed are solo and fit the player count requirement, they do not match the user's request for a 'heavy'
+  [free-text-intent-124] "my wife hates board games, what would she act" Judge=4/10 missing=[Azul, Codenames]
+    Top 5: Carcassonne | The Mind | Compatibility | Smart Ass | Taboo
+    Judge: The recommendations are primarily board games, which the user indicated their wife hates. While some games have low comp
+  [free-text-intent-125] "game I can play on an airplane" Judge=5/10 [3 violations]
+    Top 5: Palm Island | Wingspan | Cascadia | Pocket Planet | Micro City
+    Judge: The recommendations include a mix of relevant and irrelevant results. While some games like Palm Island, Micro City, and
+  [mechanic-focused-002] "fast deck builder under 30 minutes" Judge=6/10 [4 violations] missing=[Star Realms]
+    Top 5: Dominion | AWS BuilderCards | Albedo | That's Wizard! | Ascension: Deckbuilding Game
+    Judge: Several games match the user's request for fast deck builders under 30 minutes, but there are also multiple games that e
+  [multi-constraint-087] "quick social party game for 6 people" Judge=6/10 [1 violations] missing=[Codenames]
+    Top 5: Taboo | True Colors | Subjective | The Big Idea | Bausack
+    Judge: The recommendations include several games that fit the criteria of being social party games for 6 people, but there are 
+  [mechanic-focused-003] "worker placement for beginners" Judge=6/10 missing=[Lords of Waterdeep, Stone Age]
+    Top 5: Little Town | Way Out West | Silverton | Keytown | Age of Dirt: A Game of Uncivilization
+    Judge: The recommendations include several worker placement games suitable for beginners, but there are a few mismatches in ter
+  [mechanic-focused-004] "medium weight worker placement game" Judge=6/10 missing=[Viticulture]
+    Top 5: Village | Architects of the West Kingdom | Lost Ruins of Arnak | Marco Polo II: In the Service of the Khan | Agricola (Revised Edition)
+    Judge: The recommendations include several medium weight worker placement games, such as 'Agricola (Revised Edition)', which is
+  [mechanic-focused-006] "engine building board game" Judge=6/10 missing=[Terraforming Mars, Wingspan, Gizmos]
+    Top 5: Ark Nova | Patchwork | Age of Innovation | Photosynthesis | Terra Mystica
+    Judge: The results include several games that are relevant to engine building, such as Ark Nova and Terra Mystica, which fit th
+  [mechanic-focused-007] "social deduction game for a big group" Judge=6/10 missing=[Secret Hitler, The Resistance, Werewolf]
+    Top 5: Blood on the Clocktower | True Colors | Crack the Case | Subjective | Gooseberry
+    Judge: While there are some relevant games in the list, several do not meet the player count requirement or are not strictly so
+  [mechanic-focused-016] "trick taking card game" Judge=6/10 missing=[The Crew, Fox in the Forest]
+    Top 5: Diamonds | Ghosts of Christmas | Tax the Rich | Tournament at Avalon | Voodoo Prince
+    Judge: The results include several trick-taking card games, which aligns with the user's query. However, there are multiple gam
+  [mechanic-focused-017] "asymmetric game where everyone has different " Judge=6/10 missing=[Vast]
+    Top 5: Root | Tapestry | Tainted Grail: The Fall of Avalon | Descent: Journeys in the Dark (Second Edition) | Marvel Villainous: Twisted Ambitions
+    Judge: While several games in the results feature asymmetric gameplay with different powers, such as Marvel Villainous, others 
+  [mechanic-focused-018] "negotiation and trading game" Judge=6/10 missing=[Chinatown]
+    Top 5: Bohnanza | Borderlands | Cosmic Encounter | Catan | The Binding of Isaac: Four Souls
+    Judge: Several games match the negotiation and trading theme, but there are notable mismatches in player counts and some irrele
+  [player-count-045] "game for 8 or more people" Judge=6/10 missing=[Codenames]
+    Top 5: The Search for the Lost Dutchman′s Gold Mine | 25 Words or Less: People, Places and Things Edition | Bad People | Spurt að leikslokum | Trivial Pursuit: Pocket Player Set – TP's People
+    Judge: The recommendations include several games that can accommodate 8 or more players, but there are also games that do not m
+  [complexity-053] "light family game anyone can play" Judge=6/10 missing=[Ticket to Ride, Azul]
+    Top 5: Carcassonne | UNO | Clue | You're Bluffing! | Boggle
+    Judge: The recommendations include several family games that are light and suitable for a variety of players. However, there ar
+  [complexity-054] "heavy complex strategy game for experienced p" Judge=6/10 missing=[Brass: Birmingham, Gaia Project]
+    Top 5: Dominant Species | A Feast for Odin | Anachrony | Agricola (Revised Edition) | Beyond the Sun
+    Judge: The recommendations include several games that are complex and suitable for experienced players, with weights mostly wit
+
+========================================================================

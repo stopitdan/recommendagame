@@ -1,0 +1,118 @@
+
+========================================================================
+  BOREDGAME.LOL EVALUATION REPORT
+  Run ID: 2026-04-05T04-41-09
+  2026-04-05T04:41:09.005Z -> 2026-04-05T04:53:27.165Z
+  Duration: 738.2s | Cases: 307 | Concurrency: 5
+========================================================================
+
+  OVERALL RESULTS
+------------------------------------------------------------------------
+  Pass Rate:       210/307 (68.4%)
+  Avg NDCG@10:     0.9855
+  Avg Precision@10: 0.9987
+  Avg MRR:         0.9984
+  Avg Hit Rate@5:  1.0000
+  Constraint Viol: 1.0%
+  LLM Judge Score: 7.14/10
+  Latency p50/p95: 9566ms / 12250ms
+
+  REGRESSION vs 2026-04-05T04-34-48
+------------------------------------------------------------------------
+  Pass Rate Delta: +0.2379
+  NDCG Delta:      +0.0235
+  MRR Delta:       -0.0016
+  New Failures (3):
+    - mechanic-focused-010: "push your luck game" -- was passing, now failing
+    - multi-constraint-089: "heavy 4X space game for 3-4 players" -- was passing, now failing
+    - real-user-feedback-105: "I want a game about exploring dungeons with friend" -- was passing, now failing
+
+  PER-CATEGORY BREAKDOWN
+------------------------------------------------------------------------
+  mood-vibe                2/7 (29%)  NDCG=0.956  MRR=1.000  Violations=0%
+  mechanic-focused         14/44 (32%)  NDCG=0.975  MRR=1.000  Violations=1%
+  real-user-feedback       1/3 (33%)  NDCG=0.940  MRR=1.000  Violations=0%
+  multi-constraint         4/11 (36%)  NDCG=0.994  MRR=1.000  Violations=2%
+  designer-search          5/12 (42%)  NDCG=0.888  MRR=1.000  Violations=0%
+  complexity               4/9 (44%)  NDCG=0.989  MRR=1.000  Violations=0%
+  time-constraint          7/14 (50%)  NDCG=1.000  MRR=1.000  Violations=9%
+  party-game               2/4 (50%)  NDCG=1.000  MRR=1.000  Violations=10%
+  player-count             12/20 (60%)  NDCG=1.000  MRR=1.000  Violations=0%
+  free-text-intent         19/26 (73%)  NDCG=0.997  MRR=1.000  Violations=3%
+  negative-preference      11/15 (73%)  NDCG=1.000  MRR=1.000  Violations=0%
+  similar-to               19/23 (83%)  NDCG=0.986  MRR=0.978  Violations=0%
+  theme-focused            49/57 (86%)  NDCG=0.986  MRR=1.000  Violations=0%
+  regression               8/9 (89%)  NDCG=0.993  MRR=1.000  Violations=0%
+  edge-case                34/34 (100%)  NDCG=0.997  MRR=1.000  Violations=0%
+  video-game               19/19 (100%)  NDCG=1.000  MRR=1.000  Violations=0%
+
+  FAILURE TYPES
+------------------------------------------------------------------------
+  missing-ideal-game           89 cases
+  llm-judge-low-score          34 cases
+  constraint-violation         11 cases
+  anti-game-present            3 cases
+
+  WORST 20 CASES
+------------------------------------------------------------------------
+  [player-count-043] "party game for 6 or more people" Judge=4/10 missing=[Codenames, Telestrations]
+    Top 5: Taboo | The Big Idea | Bausack | That's a Question! | Blood on the Clocktower
+    Judge: The results include several games that do not meet the user's requirement for 6 or more players. Specifically, games lik
+  [designer-search-066] "A game designed by Stefan Feld" Judge=4/10 missing=[The Castles of Burgundy, Bora Bora, Bruges, Notre Dame]
+    Top 5: Forum Trajanum | Outpost | Attila | Way Out West | Poker
+    Judge: The results include a mix of games, but none are designed by Stefan Feld, which is a critical constraint violation. Whil
+  [designer-search-070] "Vlaada Chvatil board games" Judge=4/10 missing=[Codenames, Mage Knight]
+    Top 5: Through the Ages: A Story of Civilization | Outpost | Attila | Way Out West | Poker
+    Judge: The results include some games designed by Vlaada Chvátil, but many of the games listed are not designed by him, which i
+  [similar-to-071] "something like Catan but better" Judge=4/10 missing=[Concordia]
+    Top 5: Catan | Merchant of Venus | Serenissima | The Settlers of the Stone Age | Settlers of New Catan (and extra modules)
+    Judge: The results are heavily skewed towards various versions and expansions of Catan, which does not align with the user's re
+  [negative-preference-079] "strategy game but no war or fighting themes" Judge=4/10 missing=[Terraforming Mars, Wingspan]
+    Top 5: Le Havre | Outpost | Attila | Way Out West | Poker
+    Judge: While some games like Le Havre and Serenissima fit the strategy genre and do not involve war or fighting themes, several
+  [multi-constraint-086] "heavy solo game I can sink 2 hours into" Judge=4/10 missing=[Mage Knight, Spirit Island]
+    Top 5: Zen Solo | Hope of the Stranded | The Mountain: A Solo Board Game Experience | Gamma Guild | Brutality Skirmish Wargame
+    Judge: While all games listed are solo and fit the player count requirement, they do not match the user's request for a 'heavy'
+  [free-text-intent-124] "my wife hates board games, what would she act" Judge=4/10 missing=[Azul, Codenames]
+    Top 5: Taboo | The Mind | Hedbanz Adulting | Smart Ass | Compatibility
+    Judge: The recommendations primarily consist of party games and word games, which may not align with the user's wife's dislike 
+  [time-constraint-206] "5 minute game" Judge=4/10 [7 violations]
+    Top 5: 5 Minuten Puzzle | 5 Minute Chase | Bitten: A Game of Survival | Dao | Last Minute
+    Judge: The results include some games that meet the 5-minute constraint, but there are several games that exceed this limit sig
+  [designer-search-217] "games by Jamey Stegmaier" Judge=4/10 missing=[Viticulture, Wingspan]
+    Top 5: Scythe | Outpost | Attila | Way Out West | Poker
+    Judge: The results include some games designed by Jamey Stegmaier, but there are also several games that are not designed by hi
+  [designer-search-219] "Alexander Pfister board games" Judge=4/10 missing=[Great Western Trail]
+    Top 5: Maracaibo | GIPF | Kartenschach | Chain Reaction | Ra: Strategy Among Hexagons
+    Judge: The results include a mix of games, but only the first result, Maracaibo, is designed by Alexander Pfister. The other ga
+  [designer-search-222] "Eric Lang board games" Judge=4/10 missing=[Blood Rage]
+    Top 5: Eldritch Horror | Apex Legends: The Board Game | Cthulhu: Death May Die | Elder Sign | Dune: Imperium
+    Judge: The results include several games designed by Eric Lang, but many of the games listed do not match the user's request fo
+  [designer-search-223] "Phil Walker-Harding games" Judge=4/10 missing=[Sushi Go]
+    Top 5: Bärenpark | Loot | Careers | Cartagena | Ligretto
+    Judge: The results include several games designed by Phil Walker-Harding, but many of the games listed are not directly associa
+  [time-constraint-049] "at a convention, want to play something new, " missing=[Azul, Wingspan, Quacks of Quedlinburg, Ticket to Ride]
+    Top 5: Tzolk'in: The Mayan Calendar | Clue | Kingscraft | Trapwords | SET
+  [complexity-057] "medium weight euro game" Judge=5/10 missing=[Viticulture, Concordia]
+    Top 5: Architects of the West Kingdom | Ra | Mainports | Le Havre | Tigris & Euphrates
+    Judge: The results include a mix of relevant and irrelevant games. While some games like 'Architects of the West Kingdom' and '
+  [mechanic-focused-150] "simultaneous action selection game" Judge=5/10 missing=[7 Wonders]
+    Top 5: Nidavellir | Welcome to the Moon | Fog of Love | Sushi Go! | It's a Wonderful World
+    Judge: The results include some games that feature simultaneous action selection mechanics, but there are also several games th
+  [multi-constraint-087] "quick social party game for 6 people" Judge=6/10 [1 violations] missing=[Codenames]
+    Top 5: Taboo | True Colors | Subjective | The Big Idea | Bausack
+    Judge: The recommendations include several games that fit the criteria of being social party games for 6 people, but there are 
+  [mechanic-focused-002] "fast deck builder under 30 minutes" Judge=6/10 [4 violations]
+    Top 5: Dominion | Star Realms | POWER | Palaces | Deck of Spies
+    Judge: Several recommendations are relevant to the user's request for fast deck builders, but there are notable violations of t
+  [mechanic-focused-003] "worker placement for beginners" Judge=6/10 missing=[Lords of Waterdeep, Stone Age]
+    Top 5: Little Town | Bot Factory | Euphoria: Build a Better Dystopia | Quadropolis | The Manhattan Project: Energy Empire
+    Judge: The recommendations include several worker placement games suitable for beginners, but there are also some games that do
+  [mechanic-focused-004] "medium weight worker placement game" Judge=6/10 missing=[Viticulture, Agricola]
+    Top 5: Paladins of the West Kingdom | Way Out West | Silverton | Keytown | Monolith: The Strategy Game
+    Judge: The results include several worker placement games, which is relevant to the user's query. However, there are some games
+  [mechanic-focused-006] "engine building board game" Judge=6/10 missing=[Terraforming Mars, Wingspan, Gizmos]
+    Top 5: Acquire | Patchwork | Photosynthesis | Age of Innovation | Tigris & Euphrates
+    Judge: The results include several games that are related to economic and strategy themes, which can be associated with engine 
+
+========================================================================
