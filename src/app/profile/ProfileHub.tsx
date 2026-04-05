@@ -370,10 +370,10 @@ export default function ProfileHub() {
                   <Box key={og.game_id} sx={{ position: 'relative' }}>
                     <GameCard game={og.game} showFavorite={false} />
                     <Chip
-                      label={og.source === 'bgg' ? 'BGG' : 'Added manually'}
+                      label={og.source === 'bgg' ? 'BGG' : og.source === 'steam' ? 'Steam' : 'Manual'}
                       size="small"
                       variant="outlined"
-                      color={og.source === 'bgg' ? 'primary' : 'default'}
+                      color={og.source === 'bgg' ? 'primary' : og.source === 'steam' ? 'secondary' : 'default'}
                       sx={{ position: 'absolute', top: 8, right: 8 }}
                     />
                   </Box>
@@ -494,5 +494,62 @@ export default function ProfileHub() {
         </Stack>
       )}
     </Container>
+  );
+}
+
+/** Inline search-and-add card for the Collection tab */
+function ManualAddCard({ ownedGameIds, onAdd }: { ownedGameIds: Set<string>; onAdd: (game: Game) => void }) {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [adding, setAdding] = useState<string | null>(null);
+  const [justAdded, setJustAdded] = useState<string | null>(null);
+
+  async function handleSelect(gameId: string, gameName: string) {
+    if (ownedGameIds.has(gameId)) return;
+    setAdding(gameId);
+    try {
+      const res = await fetch('/api/owned', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ gameId }),
+      });
+      if (res.ok) {
+        // Fetch the full game data so we can display it
+        const gameRes = await fetch(`/api/games/${encodeURIComponent(gameId)}`);
+        if (gameRes.ok) {
+          const data = await gameRes.json();
+          if (data.game) onAdd(data.game);
+        }
+        setJustAdded(gameName);
+        setSearchQuery('');
+        setTimeout(() => setJustAdded(null), 3000);
+      }
+    } finally {
+      setAdding(null);
+    }
+  }
+
+  return (
+    <Card variant="outlined" sx={{ borderColor: 'divider' }}>
+      <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+        <Box sx={{ color: 'primary.main', display: 'flex' }}><Search size={20} /></Box>
+        <Typography variant="body2" sx={{ minWidth: 140 }}>
+          Add a game manually
+        </Typography>
+        <Box sx={{ flex: 1, minWidth: 200 }}>
+          <SearchAutocomplete
+            value={searchQuery}
+            onChange={setSearchQuery}
+            onSubmit={() => {}}
+            onSelect={handleSelect}
+            placeholder="Search by name..."
+          />
+        </Box>
+      </CardContent>
+      {justAdded && (
+        <Alert severity="success" sx={{ mx: 2, mb: 2 }}>
+          Added <strong>{justAdded}</strong> to your collection!
+        </Alert>
+      )}
+    </Card>
   );
 }
