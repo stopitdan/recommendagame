@@ -1,0 +1,120 @@
+
+========================================================================
+  BOREDGAME.LOL EVALUATION REPORT
+  Run ID: 2026-04-05T05-56-19
+  2026-04-05T05:56:19.259Z -> 2026-04-05T05:59:52.885Z
+  Duration: 213.6s | Cases: 307 | Concurrency: 5
+========================================================================
+
+  OVERALL RESULTS
+------------------------------------------------------------------------
+  Pass Rate:       25/307 (8.1%)
+  Avg NDCG@10:     0.2723
+  Avg Precision@10: 0.2831
+  Avg MRR:         0.2834
+  Avg Hit Rate@5:  0.2834
+  Constraint Viol: 0.2%
+  LLM Judge Score: 7.44/10
+  Latency p50/p95: 11ms / 10514ms
+  Catalog Coverage: 1.6% (1298 unique games)
+  Trust Busters:   1 (obviously wrong results)
+  Violations by type: time=7
+
+  REGRESSION vs 2026-04-05T04-57-11
+------------------------------------------------------------------------
+  Pass Rate Delta: -0.0586
+  NDCG Delta:      -0.2668
+  MRR Delta:       -0.3166
+  Fixed (11):
+    + mechanic-focused-004: "medium weight worker placement game" -- was failing, now passing
+    + mechanic-focused-010: "push your luck game" -- was failing, now passing
+    + theme-focused-021: "anime themed board game" -- was failing, now passing
+    + theme-focused-028: "nature themed game about animals" -- was failing, now passing
+    + theme-focused-029: "cyberpunk sci-fi game" -- was failing, now passing
+    + theme-focused-031: "viking themed game" -- was failing, now passing
+    + theme-focused-032: "western cowboy themed game" -- was failing, now passing
+    + theme-focused-035: "detective crime solving game" -- was failing, now passing
+    + theme-focused-036: "dinosaur themed board game" -- was failing, now passing
+    + theme-focused-038: "military war strategy game" -- was failing, now passing
+  New Failures (4):
+    - mechanic-focused-001: "deck building game" -- was passing, now failing
+    - mechanic-focused-012: "route building train game" -- was passing, now failing
+    - mechanic-focused-018: "negotiation and trading game" -- was passing, now failing
+    - theme-focused-023: "zombie survival board game" -- was passing, now failing
+
+  PER-CATEGORY BREAKDOWN
+------------------------------------------------------------------------
+  multi-constraint         0/11 (0%)  NDCG=0.364  MRR=0.364  Violations=1%
+  edge-case                0/34 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  real-user-feedback       0/3 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  video-game               0/19 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  party-game               0/4 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  free-text-intent         0/26 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  regression               0/9 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  player-count             1/20 (5%)  NDCG=0.400  MRR=0.400  Violations=0%
+  negative-preference      1/15 (7%)  NDCG=0.326  MRR=0.333  Violations=0%
+  mechanic-focused         3/44 (7%)  NDCG=0.428  MRR=0.455  Violations=1%
+  time-constraint          1/14 (7%)  NDCG=0.429  MRR=0.429  Violations=1%
+  complexity               1/9 (11%)  NDCG=0.667  MRR=0.667  Violations=0%
+  mood-vibe                1/7 (14%)  NDCG=0.975  MRR=1.000  Violations=0%
+  designer-search          2/12 (17%)  NDCG=0.325  MRR=0.417  Violations=0%
+  theme-focused            10/57 (18%)  NDCG=0.302  MRR=0.316  Violations=0%
+  similar-to               5/23 (22%)  NDCG=0.345  MRR=0.348  Violations=0%
+
+  FAILURE TYPES
+------------------------------------------------------------------------
+  api-error                    220 cases
+  missing-ideal-game           62 cases
+  llm-judge-low-score          6 cases
+  constraint-violation         4 cases
+  anti-game-present            1 cases
+
+  WORST 20 CASES
+------------------------------------------------------------------------
+  [designer-search-066] "A game designed by Stefan Feld" Judge=2/10 missing=[The Castles of Burgundy, Trajan, Bora Bora, Bruges, Notre Dame]
+    Top 5: In the Year of the Dragon | Outpost | Attila | Way Out West | Poker
+    Judge: None of the games listed are designed by Stefan Feld, which is a critical constraint violation. The results are all unre
+  [designer-search-070] "Vlaada Chvatil board games" Judge=2/10 missing=[Codenames, Mage Knight]
+    Top 5: Through the Ages: A Story of Civilization | Outpost | Attila | Way Out West | Poker
+    Judge: The results do not include any games designed by Vlaada Chvátil, which is a critical constraint violation. Additionally,
+  [player-count-043] "party game for 6 or more people" Judge=4/10 missing=[Codenames, Telestrations]
+    Top 5: Taboo | The Big Idea | Bausack | That's a Question! | Blood on the Clocktower
+    Judge: The results include several games that do not meet the user's requirement for 6 or more players. Specifically, games lik
+  [similar-to-071] "something like Catan but better" Judge=4/10 missing=[Concordia]
+    Top 5: Catan | Merchant of Venus | Serenissima | The Settlers of the Stone Age | Settlers of New Catan (and extra modules)
+    Judge: The results are heavily skewed towards various versions and expansions of Catan, which does not align with the user's re
+  [multi-constraint-086] "heavy solo game I can sink 2 hours into" Judge=4/10 missing=[Mage Knight, Spirit Island]
+    Top 5: Zen Solo | Hope of the Stranded | The Mountain: A Solo Board Game Experience | Gamma Guild | Brutality Skirmish Wargame
+    Judge: While all games listed are solo and fit the player count requirement, they do not match the user's request for a 'heavy'
+  [multi-constraint-088] "cooperative deck building game for 2"
+    Top 5: 
+  [multi-constraint-089] "heavy 4X space game for 3-4 players" missing=[Eclipse, Twilight Imperium]
+    Top 5: 
+  [edge-case-090] "I'm bored what should I play"
+    Top 5: 
+  [edge-case-091] "fun"
+    Top 5: 
+  [edge-case-092] "strategy"
+    Top 5: 
+  [edge-case-093] "🎲🗡️🧙‍♂️"
+    Top 5: 
+  [edge-case-094] "board games are boring convince me otherwise"
+    Top 5: 
+  [edge-case-095] "game for 100 players that takes 5 minutes and"
+    Top 5: 
+  [edge-case-096] "best pizza in NYC"
+    Top 5: 
+  [edge-case-097] "dekc bilder with workar playsment"
+    Top 5: 
+  [edge-case-098] "juego de estrategia para 4 jugadores"
+    Top 5: 
+  [edge-case-099] "cave farming worker placement by Rosenberg" missing=[Caverna]
+    Top 5: 
+  [edge-case-100] "quick game that takes all day, simple but ext"
+    Top 5: 
+  [edge-case-101] "Catan" missing=[Catan]
+    Top 5: 
+  [edge-case-102] "..."
+    Top 5: 
+
+========================================================================

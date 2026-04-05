@@ -145,6 +145,14 @@ export async function POST(request: NextRequest) {
   if (body.llmParsed?.moods?.length) {
     body.moods = [...new Set([...body.moods, ...body.llmParsed.moods])];
   }
+  // Merge LLM-parsed complexity if client sent default wide-open range
+  if (body.llmParsed?.complexity && body.complexity.min === 1 && body.complexity.max === 5) {
+    body.complexity = body.llmParsed.complexity;
+  }
+  // Merge LLM-parsed player count if client sent default wide-open range
+  if (body.llmParsed?.playerCount && body.playerCount.min <= 1 && body.playerCount.max >= 8) {
+    body.playerCount = body.llmParsed.playerCount;
+  }
 
   const limit = Math.min(body.limit ?? DEFAULT_RESULT_LIMIT, MAX_RESULT_LIMIT);
   const popularity: PopularityMode = body.popularity ?? 'popular';
@@ -980,7 +988,7 @@ const BGG_MECHANIC_ALIASES: Record<string, string[]> = {
   'social deduction': ['Hidden Roles', 'Traitor Game', 'Voting'],
   'hidden role': ['Hidden Roles', 'Traitor Game'],
   'route building': ['Route/Network Building', 'Network and Route Building'],
-  'roll and write': ['Roll-and-Write', 'Roll / Spin and Move'],
+  'roll and write': ['Roll-and-Write'],
   'action points': ['Action Points', 'Action/Event'],
   'modular board': ['Modular Board'],
   'variable player powers': ['Variable Player Powers'],

@@ -87,6 +87,23 @@ When importing new games, changing the recommendation system, adding new data so
 
 These pages display overlapping stats (total games indexed, per-source game counts, number of recommendation layers, data source names). They must always agree. When in doubt, check both files.
 
+## Skills / Slash Commands
+
+Custom skills live in `.claude/skills/`. When creating a new skill:
+
+1. Create the directory and `SKILL.md` file in `.claude/skills/<skill-name>/`
+2. **Add it to the project allow list** in `.claude/settings.json` under `permissions.allow`. Add entries for both `Edit` and `Read` on the skill path, e.g.:
+   ```
+   "Edit(/.claude/skills/<skill-name>/**)",
+   "Read(/.claude/skills/<skill-name>/**)"
+   ```
+   This prevents the user from having to click "allow" when the skill is invoked.
+
+Current skills:
+- `/run-evals` -- Run the eval suite, show summary/comparison/failure analysis
+- `/enhance-evals` -- Improve the eval system (metrics, judge, criteria, reporting)
+- `/increase-evals` -- Generate more eval test cases toward 5,000 target
+
 ## Documentation
 
 `docs/` contains architecture docs, decision records, a roadmap, and playbooks (`docs/playbooks/`) with step-by-step guides for common tasks like adding pages, API adapters, tests, and Supabase migrations. Check `docs/roadmap-overrides.json` for user-toggled roadmap status changes.

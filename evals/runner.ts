@@ -10,13 +10,13 @@
  * - Per-category breakdown reporting
  *
  * Usage:
- *   npx tsx evals/run.ts                     # Full suite
- *   npx tsx evals/run.ts --concurrency=15    # More parallel
- *   npx tsx evals/run.ts --category=mechanic-focused
- *   npx tsx evals/run.ts --tag=regression    # Only regression tests
- *   npx tsx evals/run.ts --no-judge          # Skip LLM judge
- *   npx tsx evals/run.ts --limit=50          # First 50 cases
- *   npx tsx evals/run.ts --quick             # Hardcoded cases only, no judge
+ *   npx tsx evals/runner.ts                     # Full suite
+ *   npx tsx evals/runner.ts --concurrency=15    # More parallel
+ *   npx tsx evals/runner.ts --category=mechanic-focused
+ *   npx tsx evals/runner.ts --tag=regression    # Only regression tests
+ *   npx tsx evals/runner.ts --no-judge          # Skip LLM judge
+ *   npx tsx evals/runner.ts --limit=50          # First 50 cases
+ *   npx tsx evals/runner.ts --quick             # Hardcoded cases only, no judge
  */
 
 import * as fs from 'fs';

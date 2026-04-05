@@ -142,6 +142,27 @@ function computeAdaptiveWeights(
     w.moodAlignment *= 1.5;
   }
 
+  // Broad query quality tiebreaker: when query has few constraints, boost
+  // quality/popularity so that among equally-relevant games, the community's
+  // top picks (Dominion for deck building, Codenames for party) rise to the top.
+  const constraintCount = [
+    pcRange <= 3 && prefs.playerCount.min > 1,
+    llm?.maxMinutes != null,
+    cxRange <= 2 && (prefs.complexity.min > 1 || prefs.complexity.max < 5),
+    prefs.moods.length > 0,
+    (llm?.designers?.length ?? 0) > 0,
+    (llm?.similarTo?.length ?? 0) > 0,
+    (llm?.excludedGenres?.length ?? 0) > 0,
+  ].filter(Boolean).length;
+
+  if (constraintCount <= 1) {
+    w.qualitySignal *= 4.0;
+    w.popularitySignal *= 4.0;
+  } else if (constraintCount === 2) {
+    w.qualitySignal *= 2.0;
+    w.popularitySignal *= 2.0;
+  }
+
   // Renormalize to sum to 1.0
   const sum = Object.values(w).reduce((a, b) => a + b, 0);
   if (sum > 0) {
@@ -769,6 +790,7 @@ function scoreFreeTextLLM(game: Game, parsed: ParsedPreferences): number {
 
   // Designer match (strongest signal -- if user asked for a specific designer,
   // this should dominate. A game by the right designer scores 1.0, wrong designer 0.0)
+  // Designer match: binary gate. Right designer = massive boost, wrong = penalty.
   if (parsed.designers?.length > 0) {
     let designerHits = 0;
     for (const designer of parsed.designers) {
@@ -777,21 +799,27 @@ function scoreFreeTextLLM(game: Game, parsed: ParsedPreferences): number {
         designerHits++;
       }
     }
-    // Weight designer match very heavily (1.5x) to dominate the score
-    totalScore += (designerHits / parsed.designers.length) * 1.5;
+    const designerRatio = designerHits / parsed.designers.length;
+    if (designerRatio > 0) {
+      totalScore += 2.0; // Right designer: massive boost
+    } else {
+      totalScore -= 0.8; // Wrong designer: heavy penalty
+    }
     totalChecks++;
   }
 
-  // Mechanics match (very strong signal -- LLM identified specific mechanics)
+  // Mechanics match: alias-aware matching bridges BGG naming
+  // ("Deck Building" -> "Deck, Bag, and Pool Building")
   if (parsed.mechanics.length > 0) {
     let mechanicHits = 0;
     for (const mech of parsed.mechanics) {
-      const lower = mech.toLowerCase();
-      if (gameMechanics.some((gm) => gm.includes(lower) || lower.includes(gm))) {
+      if (gameMechanics.some((gm) => mechanicMatches(mech, gm))) {
         mechanicHits++;
       }
     }
-    totalScore += (mechanicHits / parsed.mechanics.length) * 1.0;
+    const mechanicRatio = mechanicHits / parsed.mechanics.length;
+    totalScore += mechanicRatio * 1.2;
+    if (mechanicRatio === 0) totalScore -= 0.3; // Penalty for zero match
     totalChecks++;
   }
 
@@ -856,6 +884,16 @@ function scoreFreeTextLLM(game: Game, parsed: ParsedPreferences): number {
       const found = allTags.some((t) => t.includes(lower) || lower.includes(t))
         || gameDesc.includes(lower);
       if (found) totalScore += 0.1;
+    }
+  }
+
+  // Similar-to: "like Catan but better" wants ALTERNATIVES, not Catan itself.
+  if (parsed.similarTo?.length > 0) {
+    for (const similar of parsed.similarTo) {
+      const lower = similar.toLowerCase();
+      if (gameName.includes(lower) || lower.includes(gameName)) {
+        totalScore -= 0.5; // Penalize the referenced game and its variants
+      }
     }
   }
 

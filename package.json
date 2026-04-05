@@ -17,7 +17,8 @@
     "eval:summary": "npx tsx evals/summary.ts",
     "eval:analyze": "npx tsx evals/analyze-failures.ts",
     "eval:expand": "npx tsx evals/generate-expanded-cases.ts",
-    "eval:history": "npx tsx evals/summary.ts --all"
+    "eval:history": "npx tsx evals/summary.ts --all",
+    "eval:generate-massive": "npx tsx evals/generate-massive.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
