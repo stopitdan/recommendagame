@@ -18,9 +18,10 @@ import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { Heart, Star, ClipboardList, Package, Puzzle, Gamepad2 } from 'lucide-react';
+import { Heart, Star, ClipboardList, Package, Puzzle, Gamepad2, Search, Plus } from 'lucide-react';
 import type { ReactNode } from 'react';
 import GameCard from '@/components/GameCard';
+import SearchAutocomplete from '@/components/SearchAutocomplete';
 import type { Game } from '@/types/game';
 
 interface OwnedGame {
