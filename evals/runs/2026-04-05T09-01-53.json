@@ -1,0 +1,7746 @@
+{
+  "runId": "2026-04-05T09-01-53",
+  "startedAt": "2026-04-05T09:01:53.199Z",
+  "finishedAt": "2026-04-05T09:01:54.930Z",
+  "durationSeconds": 1.731,
+  "totalCases": 307,
+  "passedCases": 0,
+  "failedCases": 307,
+  "passRate": 0,
+  "aggregateMetrics": {
+    "avgNdcg10": 0,
+    "avgPrecision10": 0,
+    "avgMrr": 0,
+    "avgHitRate5": 0,
+    "avgConstraintViolationRate": 0,
+    "avgLatencyMs": 11.110749185667752,
+    "p50LatencyMs": 10,
+    "p95LatencyMs": 14,
+    "catalogCoverage": 0,
+    "constraintViolationsByType": {},
+    "trustBusterCount": 0
+  },
+  "categoryBreakdown": {
+    "mechanic-focused": {
+      "totalCases": 45,
+      "passedCases": 0,
+      "passRate": 0,
+      "avgNdcg10": 0,
+      "avgMrr": 0,
+      "avgConstraintViolationRate": 0
+    },
+    "theme-focused": {
+      "totalCases": 57,
+      "passedCases": 0,
+      "passRate": 0,
+      "avgNdcg10": 0,
+      "avgMrr": 0,
+      "avgConstraintViolationRate": 0
+    },
+    "player-count": {
+      "totalCases": 20,
+      "passedCases": 0,
+      "passRate": 0,
+      "avgNdcg10": 0,
+      "avgMrr": 0,
+      "avgConstraintViolationRate": 0
+    },
+    "time-constraint": {
+      "totalCases": 14,
+      "passedCases": 0,
+      "passRate": 0,
+      "avgNdcg10": 0,
+      "avgMrr": 0,
+      "avgConstraintViolationRate": 0
+    },
+    "complexity": {
+      "totalCases": 9,
+      "passedCases": 0,
+      "passRate": 0,
+      "avgNdcg10": 0,
+      "avgMrr": 0,
+      "avgConstraintViolationRate": 0
+    },
+    "mood-vibe": {
+      "totalCases": 7,
+      "passedCases": 0,
+      "passRate": 0,
+      "avgNdcg10": 0,
+      "avgMrr": 0,
+      "avgConstraintViolationRate": 0
+    },
+    "designer-search": {
+      "totalCases": 12,
+      "passedCases": 0,
+      "passRate": 0,
+      "avgNdcg10": 0,
+      "avgMrr": 0,
+      "avgConstraintViolationRate": 0
+    },
+    "similar-to": {
+      "totalCases": 23,
+      "passedCases": 0,
+      "passRate": 0,
+      "avgNdcg10": 0,
+      "avgMrr": 0,
+      "avgConstraintViolationRate": 0
+    },
+    "negative-preference": {
+      "totalCases": 15,
+      "passedCases": 0,
+      "passRate": 0,
+      "avgNdcg10": 0,
+      "avgMrr": 0,
+      "avgConstraintViolationRate": 0
+    },
+    "multi-constraint": {
+      "totalCases": 11,
+      "passedCases": 0,
+      "passRate": 0,
+      "avgNdcg10": 0,
+      "avgMrr": 0,
+      "avgConstraintViolationRate": 0
+    },
+    "edge-case": {
+      "totalCases": 33,
+      "passedCases": 0,
+      "passRate": 0,
+      "avgNdcg10": 0,
+      "avgMrr": 0,
+      "avgConstraintViolationRate": 0
+    },
+    "real-user-feedback": {
+      "totalCases": 3,
+      "passedCases": 0,
+      "passRate": 0,
+      "avgNdcg10": 0,
+      "avgMrr": 0,
+      "avgConstraintViolationRate": 0
+    },
+    "video-game": {
+      "totalCases": 19,
+      "passedCases": 0,
+      "passRate": 0,
+      "avgNdcg10": 0,
+      "avgMrr": 0,
+      "avgConstraintViolationRate": 0
+    },
+    "party-game": {
+      "totalCases": 4,
+      "passedCases": 0,
+      "passRate": 0,
+      "avgNdcg10": 0,
+      "avgMrr": 0,
+      "avgConstraintViolationRate": 0
+    },
+    "free-text-intent": {
+      "totalCases": 26,
+      "passedCases": 0,
+      "passRate": 0,
+      "avgNdcg10": 0,
+      "avgMrr": 0,
+      "avgConstraintViolationRate": 0
+    },
+    "regression": {
+      "totalCases": 9,
+      "passedCases": 0,
+      "passRate": 0,
+      "avgNdcg10": 0,
+      "avgMrr": 0,
+      "avgConstraintViolationRate": 0
+    }
+  },
+  "failureDistribution": {
+    "api-error": 307
+  },
+  "worstCases": [
+    {
+      "caseId": "mechanic-focused-001",
+      "category": "mechanic-focused",
+      "query": "deck building game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Dominion",
+        "Star Realms"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 44,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-002",
+      "category": "mechanic-focused",
+      "query": "fast deck builder under 30 minutes",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Star Realms",
+        "Dominion"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 30,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-003",
+      "category": "mechanic-focused",
+      "query": "worker placement for beginners",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Lords of Waterdeep",
+        "Stone Age"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 18,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-004",
+      "category": "mechanic-focused",
+      "query": "medium weight worker placement game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Viticulture",
+        "Agricola"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-005",
+      "category": "mechanic-focused",
+      "query": "competitive area control game for 4 players",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Root",
+        "Blood Rage",
+        "Kemet"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 13,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-006",
+      "category": "mechanic-focused",
+      "query": "engine building board game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Terraforming Mars",
+        "Wingspan",
+        "Gizmos"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 16,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-007",
+      "category": "mechanic-focused",
+      "query": "social deduction game for a big group",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Secret Hitler",
+        "The Resistance",
+        "Werewolf"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 14,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-008",
+      "category": "mechanic-focused",
+      "query": "tile placement game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Azul",
+        "Carcassonne"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-009",
+      "category": "mechanic-focused",
+      "query": "roll and write game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Yahtzee"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 13,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-010",
+      "category": "mechanic-focused",
+      "query": "push your luck game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Quacks of Quedlinburg"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-011",
+      "category": "mechanic-focused",
+      "query": "card drafting game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "7 Wonders",
+        "Sushi Go"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-012",
+      "category": "mechanic-focused",
+      "query": "route building train game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Ticket to Ride"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-013",
+      "category": "mechanic-focused",
+      "query": "auction and bidding game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Ra",
+        "Power Grid"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-014",
+      "category": "mechanic-focused",
+      "query": "legacy campaign game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Gloomhaven"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-015",
+      "category": "mechanic-focused",
+      "query": "bag building board game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Quacks of Quedlinburg",
+        "Orleans"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-016",
+      "category": "mechanic-focused",
+      "query": "trick taking card game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "The Crew",
+        "Fox in the Forest"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-017",
+      "category": "mechanic-focused",
+      "query": "asymmetric game where everyone has different powers",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Root",
+        "Vast"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-018",
+      "category": "mechanic-focused",
+      "query": "negotiation and trading game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Catan",
+        "Chinatown"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-019",
+      "category": "mechanic-focused",
+      "query": "pattern building puzzle game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Azul",
+        "Sagrada"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-020",
+      "category": "mechanic-focused",
+      "query": "set collection card game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Ticket to Ride"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    }
+  ],
+  "cases": [
+    {
+      "caseId": "mechanic-focused-001",
+      "category": "mechanic-focused",
+      "query": "deck building game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Dominion",
+        "Star Realms"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 44,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-002",
+      "category": "mechanic-focused",
+      "query": "fast deck builder under 30 minutes",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Star Realms",
+        "Dominion"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 30,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-003",
+      "category": "mechanic-focused",
+      "query": "worker placement for beginners",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Lords of Waterdeep",
+        "Stone Age"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 18,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-004",
+      "category": "mechanic-focused",
+      "query": "medium weight worker placement game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Viticulture",
+        "Agricola"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-005",
+      "category": "mechanic-focused",
+      "query": "competitive area control game for 4 players",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Root",
+        "Blood Rage",
+        "Kemet"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 13,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-006",
+      "category": "mechanic-focused",
+      "query": "engine building board game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Terraforming Mars",
+        "Wingspan",
+        "Gizmos"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 16,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-007",
+      "category": "mechanic-focused",
+      "query": "social deduction game for a big group",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Secret Hitler",
+        "The Resistance",
+        "Werewolf"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 14,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-008",
+      "category": "mechanic-focused",
+      "query": "tile placement game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Azul",
+        "Carcassonne"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-009",
+      "category": "mechanic-focused",
+      "query": "roll and write game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Yahtzee"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 13,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-010",
+      "category": "mechanic-focused",
+      "query": "push your luck game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Quacks of Quedlinburg"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-011",
+      "category": "mechanic-focused",
+      "query": "card drafting game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "7 Wonders",
+        "Sushi Go"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-012",
+      "category": "mechanic-focused",
+      "query": "route building train game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Ticket to Ride"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-013",
+      "category": "mechanic-focused",
+      "query": "auction and bidding game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Ra",
+        "Power Grid"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-014",
+      "category": "mechanic-focused",
+      "query": "legacy campaign game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Gloomhaven"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-015",
+      "category": "mechanic-focused",
+      "query": "bag building board game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Quacks of Quedlinburg",
+        "Orleans"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-016",
+      "category": "mechanic-focused",
+      "query": "trick taking card game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "The Crew",
+        "Fox in the Forest"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-017",
+      "category": "mechanic-focused",
+      "query": "asymmetric game where everyone has different powers",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Root",
+        "Vast"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-018",
+      "category": "mechanic-focused",
+      "query": "negotiation and trading game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Catan",
+        "Chinatown"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-019",
+      "category": "mechanic-focused",
+      "query": "pattern building puzzle game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Azul",
+        "Sagrada"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-020",
+      "category": "mechanic-focused",
+      "query": "set collection card game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Ticket to Ride"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-021",
+      "category": "theme-focused",
+      "query": "anime themed board game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-022",
+      "category": "theme-focused",
+      "query": "space exploration game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Terraforming Mars",
+        "Eclipse"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-023",
+      "category": "theme-focused",
+      "query": "zombie survival board game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Zombicide",
+        "Dead of Winter"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-024",
+      "category": "theme-focused",
+      "query": "fantasy adventure game with quests",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Gloomhaven",
+        "Descent"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-025",
+      "category": "theme-focused",
+      "query": "pirate themed board game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-026",
+      "category": "theme-focused",
+      "query": "medieval castle building game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Carcassonne",
+        "The Castles of Burgundy"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-027",
+      "category": "theme-focused",
+      "query": "horror mystery investigation game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Arkham Horror",
+        "Betrayal at House on the Hill"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-028",
+      "category": "theme-focused",
+      "query": "nature themed game about animals",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Wingspan",
+        "Everdell"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-029",
+      "category": "theme-focused",
+      "query": "cyberpunk sci-fi game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Android: Netrunner"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-030",
+      "category": "theme-focused",
+      "query": "ancient egypt themed game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Ra"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 8,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-031",
+      "category": "theme-focused",
+      "query": "viking themed game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-032",
+      "category": "theme-focused",
+      "query": "western cowboy themed game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Great Western Trail"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-033",
+      "category": "theme-focused",
+      "query": "Lovecraftian Cthulhu horror game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Arkham Horror",
+        "Eldritch Horror"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-034",
+      "category": "theme-focused",
+      "query": "train game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Ticket to Ride"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-035",
+      "category": "theme-focused",
+      "query": "detective crime solving game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-036",
+      "category": "theme-focused",
+      "query": "dinosaur themed board game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-037",
+      "category": "theme-focused",
+      "query": "farming themed game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Agricola",
+        "Viticulture"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-038",
+      "category": "theme-focused",
+      "query": "military war strategy game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "player-count-039",
+      "category": "player-count",
+      "query": "best solo board game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Mage Knight",
+        "Spirit Island"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "player-count-040",
+      "category": "player-count",
+      "query": "thematic solo games",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Mage Knight",
+        "Spirit Island",
+        "Arkham Horror: The Card Game"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "player-count-041",
+      "category": "player-count",
+      "query": "2 player strategy game under an hour",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "7 Wonders Duel",
+        "Patchwork",
+        "Jaipur"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 16,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "player-count-042",
+      "category": "player-count",
+      "query": "date night game for 2",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Patchwork",
+        "Jaipur",
+        "7 Wonders Duel"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 16,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "player-count-043",
+      "category": "player-count",
+      "query": "party game for 6 or more people",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Codenames",
+        "Telestrations"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "player-count-044",
+      "category": "player-count",
+      "query": "best games for exactly 3 players",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "player-count-045",
+      "category": "player-count",
+      "query": "game for 8 or more people",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Codenames",
+        "Werewolf"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "player-count-046",
+      "category": "player-count",
+      "query": "game I can play solo or with a friend",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Spirit Island"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "time-constraint-047",
+      "category": "time-constraint",
+      "query": "quick filler game under 15 minutes",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Love Letter",
+        "Coup"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 32,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "time-constraint-048",
+      "category": "time-constraint",
+      "query": "game under 30 minutes",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Azul"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 32,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "time-constraint-049",
+      "category": "time-constraint",
+      "query": "at a convention, want to play something new, 90 minutes, 4 players",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Azul",
+        "Wingspan",
+        "Quacks of Quedlinburg",
+        "Ticket to Ride"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "time-constraint-050",
+      "category": "time-constraint",
+      "query": "epic all-day game for a gaming marathon",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Twilight Imperium"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "time-constraint-051",
+      "category": "time-constraint",
+      "query": "about an hour long strategy game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Wingspan"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "time-constraint-052",
+      "category": "time-constraint",
+      "query": "game I can play on a lunch break",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "complexity-053",
+      "category": "complexity",
+      "query": "light family game anyone can play",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Ticket to Ride",
+        "Azul"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "complexity-054",
+      "category": "complexity",
+      "query": "heavy complex strategy game for experienced players",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Brass: Birmingham",
+        "Gaia Project"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "complexity-055",
+      "category": "complexity",
+      "query": "gateway game to get new players into the hobby",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Catan",
+        "Ticket to Ride",
+        "Azul"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "complexity-056",
+      "category": "complexity",
+      "query": "game for kids under 10",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "complexity-057",
+      "category": "complexity",
+      "query": "medium weight euro game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Viticulture",
+        "Concordia"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "complexity-058",
+      "category": "complexity",
+      "query": "a heavy strategic euro game with interesting decisions",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Brass: Birmingham",
+        "Terraforming Mars",
+        "Gaia Project",
+        "Great Western Trail"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mood-vibe-059",
+      "category": "mood-vibe",
+      "query": "chill relaxing game for 2",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Patchwork",
+        "Jaipur"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 13,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mood-vibe-060",
+      "category": "mood-vibe",
+      "query": "cutthroat competitive game where you can screw people over",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mood-vibe-061",
+      "category": "mood-vibe",
+      "query": "cooperative game the whole family can play together",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Pandemic",
+        "Forbidden Island"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mood-vibe-062",
+      "category": "mood-vibe",
+      "query": "brain teaser puzzle game that makes you think",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Azul"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mood-vibe-063",
+      "category": "mood-vibe",
+      "query": "social game with lots of laughing",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Codenames",
+        "Telestrations"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 8,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mood-vibe-064",
+      "category": "mood-vibe",
+      "query": "story-driven immersive experience",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Gloomhaven"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mood-vibe-065",
+      "category": "mood-vibe",
+      "query": "A very thematic euro-style game that takes about an hour, is quick to learn, and you could take to the pub",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Azul"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "designer-search-066",
+      "category": "designer-search",
+      "query": "A game designed by Stefan Feld",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "The Castles of Burgundy",
+        "Trajan",
+        "Bora Bora",
+        "Bruges",
+        "Notre Dame"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "designer-search-067",
+      "category": "designer-search",
+      "query": "A worker placement game designed by Uwe Rosenberg where you play as cave dwelling farmers",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Caverna"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 13,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "designer-search-068",
+      "category": "designer-search",
+      "query": "Uwe Rosenberg games",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Agricola",
+        "Caverna",
+        "Patchwork"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "designer-search-069",
+      "category": "designer-search",
+      "query": "games by Reiner Knizia",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Ra",
+        "Tigris & Euphrates"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 8,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "designer-search-070",
+      "category": "designer-search",
+      "query": "Vlaada Chvatil board games",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Codenames",
+        "Mage Knight"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 8,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "similar-to-071",
+      "category": "similar-to",
+      "query": "something like Catan but better",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Concordia"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 8,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "similar-to-072",
+      "category": "similar-to",
+      "query": "like Catan but less random",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "similar-to-073",
+      "category": "similar-to",
+      "query": "something like Stardew Valley but a board game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Agricola",
+        "Viticulture"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "similar-to-074",
+      "category": "similar-to",
+      "query": "something like Gloomhaven but shorter sessions",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "similar-to-075",
+      "category": "similar-to",
+      "query": "board game like Dark Souls",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "similar-to-076",
+      "category": "similar-to",
+      "query": "Slay the Spire as a board game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 13,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "similar-to-077",
+      "category": "similar-to",
+      "query": "something like Minecraft",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 15,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "similar-to-078",
+      "category": "similar-to",
+      "query": "board game like Among Us",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Secret Hitler",
+        "The Resistance"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "negative-preference-079",
+      "category": "negative-preference",
+      "query": "strategy game but no war or fighting themes",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Terraforming Mars",
+        "Wingspan"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "negative-preference-080",
+      "category": "negative-preference",
+      "query": "strategy game with no dice rolling",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Concordia"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "negative-preference-081",
+      "category": "negative-preference",
+      "query": "party game without player elimination",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Codenames"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "negative-preference-082",
+      "category": "negative-preference",
+      "query": "game thats not too random or luck based",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "negative-preference-083",
+      "category": "negative-preference",
+      "query": "cooperative game with no hidden traitor",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Pandemic",
+        "Spirit Island"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 8,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "multi-constraint-084",
+      "category": "multi-constraint",
+      "query": "competitive game for 2 players, about 30 minutes, medium weight",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "7 Wonders Duel",
+        "Jaipur"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "multi-constraint-085",
+      "category": "multi-constraint",
+      "query": "cooperative family game for 4 players, about an hour",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Pandemic",
+        "Forbidden Island"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "multi-constraint-086",
+      "category": "multi-constraint",
+      "query": "heavy solo game I can sink 2 hours into",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Mage Knight",
+        "Spirit Island"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 14,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "multi-constraint-087",
+      "category": "multi-constraint",
+      "query": "quick social party game for 6 people",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Codenames"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 13,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "multi-constraint-088",
+      "category": "multi-constraint",
+      "query": "cooperative deck building game for 2",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "multi-constraint-089",
+      "category": "multi-constraint",
+      "query": "heavy 4X space game for 3-4 players",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Eclipse",
+        "Twilight Imperium"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-090",
+      "category": "edge-case",
+      "query": "I'm bored what should I play",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-091",
+      "category": "edge-case",
+      "query": "fun",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-092",
+      "category": "edge-case",
+      "query": "strategy",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-093",
+      "category": "edge-case",
+      "query": "🎲🗡️🧙‍♂️",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-094",
+      "category": "edge-case",
+      "query": "board games are boring convince me otherwise",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-095",
+      "category": "edge-case",
+      "query": "game for 100 players that takes 5 minutes and is extremely complex",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-096",
+      "category": "edge-case",
+      "query": "best pizza in NYC",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 13,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-097",
+      "category": "edge-case",
+      "query": "dekc bilder with workar playsment",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-098",
+      "category": "edge-case",
+      "query": "juego de estrategia para 4 jugadores",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-099",
+      "category": "edge-case",
+      "query": "cave farming worker placement by Rosenberg",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Caverna"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-100",
+      "category": "edge-case",
+      "query": "quick game that takes all day, simple but extremely complex",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-101",
+      "category": "edge-case",
+      "query": "Catan",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Catan"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-102",
+      "category": "edge-case",
+      "query": "...",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-103",
+      "category": "edge-case",
+      "query": "lol i jst wnt 2 play smth fun w friends",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "real-user-feedback-104",
+      "category": "real-user-feedback",
+      "query": "hidden gems, obscure games nobody knows about",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 13,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "real-user-feedback-105",
+      "category": "real-user-feedback",
+      "query": "I want a game about exploring dungeons with friends, fighting monsters, and leveling up characters",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Gloomhaven",
+        "Descent"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "real-user-feedback-106",
+      "category": "real-user-feedback",
+      "query": "a cooperative game where players are diseases trying to wipe out humanity",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Pandemic"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "video-game-107",
+      "category": "video-game",
+      "query": "roguelike video game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "video-game-108",
+      "category": "video-game",
+      "query": "cozy farming game like Stardew Valley",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "video-game-109",
+      "category": "video-game",
+      "query": "metroidvania with great art",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "video-game-110",
+      "category": "video-game",
+      "query": "open world RPG with character creation",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "party-game-111",
+      "category": "party-game",
+      "query": "game for Thanksgiving with non-gamers",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Codenames",
+        "Ticket to Ride"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "party-game-112",
+      "category": "party-game",
+      "query": "ice breaker game for a work event",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Codenames"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "party-game-113",
+      "category": "party-game",
+      "query": "game for a drinking game night with friends",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 13,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "party-game-114",
+      "category": "party-game",
+      "query": "game for a kids birthday party",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "free-text-intent-115",
+      "category": "free-text-intent",
+      "query": "I just want to build stuff and be creative",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "free-text-intent-116",
+      "category": "free-text-intent",
+      "query": "we want to argue and betray each other",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Secret Hitler"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "free-text-intent-117",
+      "category": "free-text-intent",
+      "query": "something I can teach anyone in 2 minutes and play in 15",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Love Letter",
+        "Coup"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "free-text-intent-118",
+      "category": "free-text-intent",
+      "query": "surprise me with something good",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "free-text-intent-119",
+      "category": "free-text-intent",
+      "query": "game for me and my partner, nothing too competitive",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Patchwork"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "free-text-intent-120",
+      "category": "free-text-intent",
+      "query": "something quick to decompress during a work from home break",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "free-text-intent-121",
+      "category": "free-text-intent",
+      "query": "game I can play while camping, no table needed",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "free-text-intent-122",
+      "category": "free-text-intent",
+      "query": "game for a road trip in the car",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 13,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "free-text-intent-123",
+      "category": "free-text-intent",
+      "query": "game that feels like Game of Thrones",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 13,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "free-text-intent-124",
+      "category": "free-text-intent",
+      "query": "my wife hates board games, what would she actually enjoy",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Azul",
+        "Codenames"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "free-text-intent-125",
+      "category": "free-text-intent",
+      "query": "game I can play on an airplane",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "regression-126",
+      "category": "regression",
+      "query": "anime themed board game fun for groups",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "regression-127",
+      "category": "regression",
+      "query": "thematic euro game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "regression-128",
+      "category": "regression",
+      "query": "solo strategy game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "regression-129",
+      "category": "regression",
+      "query": "90 minute game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "regression-130",
+      "category": "regression",
+      "query": "hidden gem board games nobody talks about",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-131",
+      "category": "mechanic-focused",
+      "query": "i wanna build a deck",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Dominion"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-132",
+      "category": "mechanic-focused",
+      "query": "whats the best deck building game?",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Dominion"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-133",
+      "category": "mechanic-focused",
+      "query": "deckbuilder",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-134",
+      "category": "mechanic-focused",
+      "query": "deck biulding game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-135",
+      "category": "mechanic-focused",
+      "query": "good wp game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-136",
+      "category": "mechanic-focused",
+      "query": "game where you place workers on spots to take actions",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-137",
+      "category": "mechanic-focused",
+      "query": "game about controlling territory on a map",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Root"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-138",
+      "category": "mechanic-focused",
+      "query": "game where you build combos that get better each turn",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Wingspan"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-139",
+      "category": "mechanic-focused",
+      "query": "hand management card game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Terraforming Mars"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-140",
+      "category": "mechanic-focused",
+      "query": "pick up and deliver board game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-141",
+      "category": "mechanic-focused",
+      "query": "programmed movement robot game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "RoboRally"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-142",
+      "category": "mechanic-focused",
+      "query": "resource management strategy game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Terraforming Mars"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-143",
+      "category": "mechanic-focused",
+      "query": "hidden movement deduction game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Scotland Yard"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-144",
+      "category": "mechanic-focused",
+      "query": "dice rolling combat game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-145",
+      "category": "mechanic-focused",
+      "query": "tableau building card game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Wingspan"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-146",
+      "category": "mechanic-focused",
+      "query": "network building game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Ticket to Ride"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-147",
+      "category": "mechanic-focused",
+      "query": "game with variable setup for replayability",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-148",
+      "category": "mechanic-focused",
+      "query": "memory matching game for kids",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-149",
+      "category": "mechanic-focused",
+      "query": "game with modular board that changes every time",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Catan"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-150",
+      "category": "mechanic-focused",
+      "query": "simultaneous action selection game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "7 Wonders"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 14,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-151",
+      "category": "mechanic-focused",
+      "query": "real-time board game no turns",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-152",
+      "category": "mechanic-focused",
+      "query": "storytelling game where you make up stories",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Dixit"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 8,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-153",
+      "category": "mechanic-focused",
+      "query": "point to point movement war game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-154",
+      "category": "mechanic-focused",
+      "query": "press your luck gambling feel game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Quacks of Quedlinburg"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-155",
+      "category": "theme-focused",
+      "query": "ancient greek mythology board game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-156",
+      "category": "theme-focused",
+      "query": "roman empire themed strategy game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-157",
+      "category": "theme-focused",
+      "query": "samurai themed japanese game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-158",
+      "category": "theme-focused",
+      "query": "steampunk themed game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-159",
+      "category": "theme-focused",
+      "query": "post-apocalyptic survival game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-160",
+      "category": "theme-focused",
+      "query": "underwater ocean exploration game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 14,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-161",
+      "category": "theme-focused",
+      "query": "jungle exploration adventure game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-162",
+      "category": "theme-focused",
+      "query": "arctic themed survival game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-163",
+      "category": "theme-focused",
+      "query": "cat themed board game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-164",
+      "category": "theme-focused",
+      "query": "dog themed board game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 8,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-165",
+      "category": "theme-focused",
+      "query": "cooking themed board game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 8,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-166",
+      "category": "theme-focused",
+      "query": "wine themed board game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-167",
+      "category": "theme-focused",
+      "query": "dragon themed board game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-168",
+      "category": "theme-focused",
+      "query": "robot themed board game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-169",
+      "category": "theme-focused",
+      "query": "spy espionage themed game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-170",
+      "category": "theme-focused",
+      "query": "racing themed board game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-171",
+      "category": "theme-focused",
+      "query": "sports themed board game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-172",
+      "category": "theme-focused",
+      "query": "music themed board game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 8,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-173",
+      "category": "theme-focused",
+      "query": "art themed board game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-174",
+      "category": "theme-focused",
+      "query": "building and construction themed game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-175",
+      "category": "theme-focused",
+      "query": "magic wizard themed game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-176",
+      "category": "theme-focused",
+      "query": "superhero themed board game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-177",
+      "category": "theme-focused",
+      "query": "time travel themed game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-178",
+      "category": "theme-focused",
+      "query": "fairy tale themed game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-179",
+      "category": "theme-focused",
+      "query": "mythology themed game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-180",
+      "category": "theme-focused",
+      "query": "city building game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-181",
+      "category": "theme-focused",
+      "query": "civilization building game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-182",
+      "category": "theme-focused",
+      "query": "trading and merchant themed game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-183",
+      "category": "theme-focused",
+      "query": "exploration and discovery game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-184",
+      "category": "theme-focused",
+      "query": "political themed game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-185",
+      "category": "theme-focused",
+      "query": "mafia and organized crime game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-186",
+      "category": "theme-focused",
+      "query": "epic space opera game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-187",
+      "category": "theme-focused",
+      "query": "gothic horror game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-188",
+      "category": "theme-focused",
+      "query": "WWII themed war game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 13,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-189",
+      "category": "theme-focused",
+      "query": "cold war themed game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 14,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-190",
+      "category": "theme-focused",
+      "query": "prehistoric caveman game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-191",
+      "category": "theme-focused",
+      "query": "insect and bug themed game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-192",
+      "category": "theme-focused",
+      "query": "flower garden themed game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "theme-focused-193",
+      "category": "theme-focused",
+      "query": "forest and woodland themed game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "player-count-194",
+      "category": "player-count",
+      "query": "best board game for exactly 1 player",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "player-count-195",
+      "category": "player-count",
+      "query": "best board game for exactly 2 players",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 13,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "player-count-196",
+      "category": "player-count",
+      "query": "best board game for exactly 3 players",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 13,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "player-count-197",
+      "category": "player-count",
+      "query": "best board game for exactly 4 players",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "player-count-198",
+      "category": "player-count",
+      "query": "best board game for exactly 5 players",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 8,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "player-count-199",
+      "category": "player-count",
+      "query": "best board game for exactly 6 players",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "player-count-200",
+      "category": "player-count",
+      "query": "best board game for exactly 7 players",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "player-count-201",
+      "category": "player-count",
+      "query": "best board game for exactly 8 players",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "player-count-202",
+      "category": "player-count",
+      "query": "best board game for exactly 9 players",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "player-count-203",
+      "category": "player-count",
+      "query": "best board game for exactly 10 players",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "player-count-204",
+      "category": "player-count",
+      "query": "game for couples",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Patchwork"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "player-count-205",
+      "category": "player-count",
+      "query": "game for a family of 5",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "time-constraint-206",
+      "category": "time-constraint",
+      "query": "5 minute game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "time-constraint-207",
+      "category": "time-constraint",
+      "query": "10 minute filler",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "time-constraint-208",
+      "category": "time-constraint",
+      "query": "under 20 minutes",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "time-constraint-209",
+      "category": "time-constraint",
+      "query": "around 45 minutes",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "time-constraint-210",
+      "category": "time-constraint",
+      "query": "about 2 hours",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "time-constraint-211",
+      "category": "time-constraint",
+      "query": "all day game marathon",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 8,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "time-constraint-212",
+      "category": "time-constraint",
+      "query": "no more than 60 minutes",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 8,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "time-constraint-213",
+      "category": "time-constraint",
+      "query": "less than 90 minutes",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "complexity-214",
+      "category": "complexity",
+      "query": "simplest possible game for someone who has never played a board game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "complexity-215",
+      "category": "complexity",
+      "query": "heaviest most complex brain-burning game possible",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 14,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "complexity-216",
+      "category": "complexity",
+      "query": "something a bit heavier than Catan",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 13,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "designer-search-217",
+      "category": "designer-search",
+      "query": "games by Jamey Stegmaier",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Viticulture",
+        "Wingspan"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "designer-search-218",
+      "category": "designer-search",
+      "query": "Cole Wehrle games",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Root"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "designer-search-219",
+      "category": "designer-search",
+      "query": "Alexander Pfister board games",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Great Western Trail"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "designer-search-220",
+      "category": "designer-search",
+      "query": "Bruno Cathala games",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "designer-search-221",
+      "category": "designer-search",
+      "query": "Matt Leacock cooperative games",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Pandemic"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 61,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "designer-search-222",
+      "category": "designer-search",
+      "query": "Eric Lang board games",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Blood Rage"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 60,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "designer-search-223",
+      "category": "designer-search",
+      "query": "Phil Walker-Harding games",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Sushi Go"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "similar-to-224",
+      "category": "similar-to",
+      "query": "like Ticket to Ride but more complex",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "similar-to-225",
+      "category": "similar-to",
+      "query": "something like Wingspan but competitive",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 8,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "similar-to-226",
+      "category": "similar-to",
+      "query": "like Azul but for more players",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "similar-to-227",
+      "category": "similar-to",
+      "query": "like Pandemic but competitive",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "similar-to-228",
+      "category": "similar-to",
+      "query": "like Root but simpler",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "similar-to-229",
+      "category": "similar-to",
+      "query": "Catan but without the luck",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "similar-to-230",
+      "category": "similar-to",
+      "query": "like 7 Wonders but for 2 players",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "similar-to-231",
+      "category": "similar-to",
+      "query": "like Dominion but more interaction",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "similar-to-232",
+      "category": "similar-to",
+      "query": "like Spirit Island but less complex",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "similar-to-233",
+      "category": "similar-to",
+      "query": "like Terraforming Mars but faster",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "similar-to-234",
+      "category": "similar-to",
+      "query": "like Codenames but more strategic",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "similar-to-235",
+      "category": "similar-to",
+      "query": "games in the style of Catan",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "similar-to-236",
+      "category": "similar-to",
+      "query": "board game version of Zelda",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 8,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "similar-to-237",
+      "category": "similar-to",
+      "query": "board game version of Civilization",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "similar-to-238",
+      "category": "similar-to",
+      "query": "board game like Settlers of Catan",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "negative-preference-239",
+      "category": "negative-preference",
+      "query": "strategy game with absolutely no luck or randomness",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 8,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "negative-preference-240",
+      "category": "negative-preference",
+      "query": "game without any reading for kids who cant read",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "negative-preference-241",
+      "category": "negative-preference",
+      "query": "board game that doesnt take up much table space",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "negative-preference-242",
+      "category": "negative-preference",
+      "query": "game with no conflict or attacking",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 13,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "negative-preference-243",
+      "category": "negative-preference",
+      "query": "game without miniatures, just cards",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 14,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "negative-preference-244",
+      "category": "negative-preference",
+      "query": "game that isnt euro style",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "negative-preference-245",
+      "category": "negative-preference",
+      "query": "not a deck builder",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "negative-preference-246",
+      "category": "negative-preference",
+      "query": "no cooperative games, I want to compete",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "negative-preference-247",
+      "category": "negative-preference",
+      "query": "nothing too long, max 45 minutes",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "negative-preference-248",
+      "category": "negative-preference",
+      "query": "no hidden traitor or lying mechanics",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "multi-constraint-249",
+      "category": "multi-constraint",
+      "query": "light 2 player game under 30 minutes",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Jaipur"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "multi-constraint-250",
+      "category": "multi-constraint",
+      "query": "heavy solo game for a long evening",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Mage Knight"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 8,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "multi-constraint-251",
+      "category": "multi-constraint",
+      "query": "cooperative family game for 4, about an hour",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Pandemic"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "multi-constraint-252",
+      "category": "multi-constraint",
+      "query": "fantasy deck building game for 2 players",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "multi-constraint-253",
+      "category": "multi-constraint",
+      "query": "quick competitive game for 3-4 players",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-254",
+      "category": "edge-case",
+      "query": "so basically what happened was my friend came over last weekend and we were looking for something to play and she said she wanted something not too complicated because she just got off work and was tired but I wanted something with a bit of strategy to it and we only had about an hour before dinner so it couldnt be too long and there were just the two of us",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-255",
+      "category": "edge-case",
+      "query": "DECK BUILDING GAME FOR 2 PLAYERS",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-256",
+      "category": "edge-case",
+      "query": "best strategy board game ever made",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-257",
+      "category": "edge-case",
+      "query": "un juego de estrategia para 4 jugadores board game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-258",
+      "category": "edge-case",
+      "query": "game game game strategy strategy",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 14,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-259",
+      "category": "edge-case",
+      "query": "2 4 30",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 14,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-260",
+      "category": "edge-case",
+      "query": "whats a good game like the one at boardgamegeek.com",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 14,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-261",
+      "category": "edge-case",
+      "query": "!@#$%^&*() deck building",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 14,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-263",
+      "category": "edge-case",
+      "query": "Wingspan",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-264",
+      "category": "edge-case",
+      "query": "Uwe Rosenberg",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-265",
+      "category": "edge-case",
+      "query": "can you recommend a good board game?",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-266",
+      "category": "edge-case",
+      "query": "I don't want anything",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-267",
+      "category": "edge-case",
+      "query": "something chill",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-268",
+      "category": "edge-case",
+      "query": "Christmas gift",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-269",
+      "category": "edge-case",
+      "query": "for a 10 year old",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-270",
+      "category": "edge-case",
+      "query": "cheap board game under $20",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 13,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-271",
+      "category": "edge-case",
+      "query": "Spiel des Jahres winners",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-272",
+      "category": "edge-case",
+      "query": "like Catan meets Dominion with a dash of Pandemic",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "edge-case-273",
+      "category": "edge-case",
+      "query": "a 2-player competitive tile-laying game about building a stained glass window in a cathedral, medium weight, about 30-40 minutes, designed by a Spanish designer",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "video-game-274",
+      "category": "video-game",
+      "query": "soulslike video game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "video-game-275",
+      "category": "video-game",
+      "query": "platformer video game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "video-game-276",
+      "category": "video-game",
+      "query": "turn-based RPG",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 8,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "video-game-277",
+      "category": "video-game",
+      "query": "4X strategy video game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "video-game-278",
+      "category": "video-game",
+      "query": "visual novel",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "video-game-279",
+      "category": "video-game",
+      "query": "city builder simulation game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "video-game-280",
+      "category": "video-game",
+      "query": "survival crafting game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "video-game-281",
+      "category": "video-game",
+      "query": "battle royale video game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "video-game-282",
+      "category": "video-game",
+      "query": "indie pixel art game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "video-game-283",
+      "category": "video-game",
+      "query": "couch co-op video game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "video-game-284",
+      "category": "video-game",
+      "query": "JRPG with anime art",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "video-game-285",
+      "category": "video-game",
+      "query": "first person shooter",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "video-game-286",
+      "category": "video-game",
+      "query": "puzzle game like Tetris",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "video-game-287",
+      "category": "video-game",
+      "query": "racing game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 8,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "video-game-288",
+      "category": "video-game",
+      "query": "rhythm game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "free-text-intent-289",
+      "category": "free-text-intent",
+      "query": "im feeling stressed and need to unwind",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "free-text-intent-290",
+      "category": "free-text-intent",
+      "query": "my in-laws are visiting and they dont play games",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "free-text-intent-291",
+      "category": "free-text-intent",
+      "query": "birthday gift for someone who loves Catan",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 11,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "free-text-intent-292",
+      "category": "free-text-intent",
+      "query": "something that reminds me of playing games as a kid",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "free-text-intent-293",
+      "category": "free-text-intent",
+      "query": "game I can bring on a plane in my carry-on",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 8,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "free-text-intent-294",
+      "category": "free-text-intent",
+      "query": "educational game for my 8 year old",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "free-text-intent-295",
+      "category": "free-text-intent",
+      "query": "romantic game for date night",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "free-text-intent-296",
+      "category": "free-text-intent",
+      "query": "team building game for a corporate retreat",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "free-text-intent-297",
+      "category": "free-text-intent",
+      "query": "rainy day game for the family",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 8,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "free-text-intent-298",
+      "category": "free-text-intent",
+      "query": "game for a coffee break at work",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 12,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "free-text-intent-299",
+      "category": "free-text-intent",
+      "query": "something to play after dinner",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 13,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "free-text-intent-300",
+      "category": "free-text-intent",
+      "query": "game for a long international flight",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "free-text-intent-301",
+      "category": "free-text-intent",
+      "query": "game to play in a waiting room on my phone",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "free-text-intent-302",
+      "category": "free-text-intent",
+      "query": "relaxing game while recovering from surgery",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "free-text-intent-303",
+      "category": "free-text-intent",
+      "query": "game to introduce someone to the hobby",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "regression-304",
+      "category": "regression",
+      "query": "thematic strategy game for 2-4 players",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 8,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "regression-305",
+      "category": "regression",
+      "query": "deep strategy game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "regression-306",
+      "category": "regression",
+      "query": "zombie horror board game with miniatures",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 9,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "regression-307",
+      "category": "regression",
+      "query": "action RPG video game",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-00308",
+      "category": "mechanic-focused",
+      "query": "game where you build your deck of cards over time",
+      "passed": false,
+      "results": [],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Dominion"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "api-error"
+      ],
+      "latencyMs": 10,
+      "metrics": {
+        "ndcg10": 0,
+        "precision10": 0,
+        "mrr": 0,
+        "hitRate5": 0,
+        "constraintViolationRate": 0
+      }
+    }
+  ],
+  "config": {
+    "apiUrl": "http://localhost:1337",
+    "concurrency": 2,
+    "useLlmJudge": true,
+    "limit": 307
+  },
+  "regression": {
+    "previousRunId": "2026-04-05T09-00-00",
+    "passRateDelta": -0.005284015852047556,
+    "ndcgDelta": -0.00917177775545714,
+    "mrrDelta": -0.01023778071334214,
+    "newFailures": [
+      "mechanic-focused-003: \"worker placement for beginners\" -- was passing, now failing",
+      "mechanic-focused-007: \"social deduction game for a big group\" -- was passing, now failing",
+      "mechanic-focused-008: \"tile placement game\" -- was passing, now failing",
+      "mechanic-focused-009: \"roll and write game\" -- was passing, now failing",
+      "mechanic-focused-010: \"push your luck game\" -- was passing, now failing",
+      "mechanic-focused-011: \"card drafting game\" -- was passing, now failing",
+      "mechanic-focused-012: \"route building train game\" -- was passing, now failing",
+      "mechanic-focused-013: \"auction and bidding game\" -- was passing, now failing",
+      "mechanic-focused-014: \"legacy campaign game\" -- was passing, now failing",
+      "theme-focused-021: \"anime themed board game\" -- was passing, now failing",
+      "theme-focused-022: \"space exploration game\" -- was passing, now failing",
+      "theme-focused-023: \"zombie survival board game\" -- was passing, now failing",
+      "theme-focused-024: \"fantasy adventure game with quests\" -- was passing, now failing",
+      "theme-focused-025: \"pirate themed board game\" -- was passing, now failing",
+      "theme-focused-029: \"cyberpunk sci-fi game\" -- was passing, now failing",
+      "theme-focused-030: \"ancient egypt themed game\" -- was passing, now failing"
+    ],
+    "fixedFailures": [],
+    "regressions": [
+      "mechanic-focused-003",
+      "mechanic-focused-007",
+      "mechanic-focused-008",
+      "mechanic-focused-009",
+      "mechanic-focused-010",
+      "mechanic-focused-011",
+      "mechanic-focused-012",
+      "mechanic-focused-013",
+      "mechanic-focused-014",
+      "theme-focused-021",
+      "theme-focused-022",
+      "theme-focused-023",
+      "theme-focused-024",
+      "theme-focused-025",
+      "theme-focused-029",
+      "theme-focused-030"
+    ]
+  }
+}

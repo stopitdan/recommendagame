@@ -1,0 +1,103 @@
+
+========================================================================
+  BOREDGAME.LOL EVALUATION REPORT
+  Run ID: 2026-04-05T09-01-53
+  2026-04-05T09:01:53.199Z -> 2026-04-05T09:01:54.930Z
+  Duration: 1.7s | Cases: 307 | Concurrency: 2
+========================================================================
+
+  OVERALL RESULTS
+------------------------------------------------------------------------
+  Pass Rate:       0/307 (0.0%)
+  Avg NDCG@10:     0.0000
+  Avg Precision@10: 0.0000
+  Avg MRR:         0.0000
+  Avg Hit Rate@5:  0.0000
+  Constraint Viol: 0.0%
+  Latency p50/p95: 10ms / 14ms
+  Catalog Coverage: 0.0% (0 unique games)
+
+  REGRESSION vs 2026-04-05T09-00-00
+------------------------------------------------------------------------
+  Pass Rate Delta: -0.0053
+  NDCG Delta:      -0.0092
+  MRR Delta:       -0.0102
+  New Failures (16):
+    - mechanic-focused-003: "worker placement for beginners" -- was passing, now failing
+    - mechanic-focused-007: "social deduction game for a big group" -- was passing, now failing
+    - mechanic-focused-008: "tile placement game" -- was passing, now failing
+    - mechanic-focused-009: "roll and write game" -- was passing, now failing
+    - mechanic-focused-010: "push your luck game" -- was passing, now failing
+    - mechanic-focused-011: "card drafting game" -- was passing, now failing
+    - mechanic-focused-012: "route building train game" -- was passing, now failing
+    - mechanic-focused-013: "auction and bidding game" -- was passing, now failing
+    - mechanic-focused-014: "legacy campaign game" -- was passing, now failing
+    - theme-focused-021: "anime themed board game" -- was passing, now failing
+
+  PER-CATEGORY BREAKDOWN
+------------------------------------------------------------------------
+  mechanic-focused         0/45 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  theme-focused            0/57 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  player-count             0/20 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  time-constraint          0/14 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  complexity               0/9 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  mood-vibe                0/7 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  designer-search          0/12 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  similar-to               0/23 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  negative-preference      0/15 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  multi-constraint         0/11 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  edge-case                0/33 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  real-user-feedback       0/3 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  video-game               0/19 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  party-game               0/4 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  free-text-intent         0/26 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  regression               0/9 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+
+  FAILURE TYPES
+------------------------------------------------------------------------
+  api-error                    307 cases
+
+  WORST 20 CASES
+------------------------------------------------------------------------
+  [mechanic-focused-001] "deck building game" missing=[Dominion, Star Realms]
+    Top 5: 
+  [mechanic-focused-002] "fast deck builder under 30 minutes" missing=[Star Realms, Dominion]
+    Top 5: 
+  [mechanic-focused-003] "worker placement for beginners" missing=[Lords of Waterdeep, Stone Age]
+    Top 5: 
+  [mechanic-focused-004] "medium weight worker placement game" missing=[Viticulture, Agricola]
+    Top 5: 
+  [mechanic-focused-005] "competitive area control game for 4 players" missing=[Root, Blood Rage, Kemet]
+    Top 5: 
+  [mechanic-focused-006] "engine building board game" missing=[Terraforming Mars, Wingspan, Gizmos]
+    Top 5: 
+  [mechanic-focused-007] "social deduction game for a big group" missing=[Secret Hitler, The Resistance, Werewolf]
+    Top 5: 
+  [mechanic-focused-008] "tile placement game" missing=[Azul, Carcassonne]
+    Top 5: 
+  [mechanic-focused-009] "roll and write game" missing=[Yahtzee]
+    Top 5: 
+  [mechanic-focused-010] "push your luck game" missing=[Quacks of Quedlinburg]
+    Top 5: 
+  [mechanic-focused-011] "card drafting game" missing=[7 Wonders, Sushi Go]
+    Top 5: 
+  [mechanic-focused-012] "route building train game" missing=[Ticket to Ride]
+    Top 5: 
+  [mechanic-focused-013] "auction and bidding game" missing=[Ra, Power Grid]
+    Top 5: 
+  [mechanic-focused-014] "legacy campaign game" missing=[Gloomhaven]
+    Top 5: 
+  [mechanic-focused-015] "bag building board game" missing=[Quacks of Quedlinburg, Orleans]
+    Top 5: 
+  [mechanic-focused-016] "trick taking card game" missing=[The Crew, Fox in the Forest]
+    Top 5: 
+  [mechanic-focused-017] "asymmetric game where everyone has different " missing=[Root, Vast]
+    Top 5: 
+  [mechanic-focused-018] "negotiation and trading game" missing=[Catan, Chinatown]
+    Top 5: 
+  [mechanic-focused-019] "pattern building puzzle game" missing=[Azul, Sagrada]
+    Top 5: 
+  [mechanic-focused-020] "set collection card game" missing=[Ticket to Ride]
+    Top 5: 
+
+========================================================================

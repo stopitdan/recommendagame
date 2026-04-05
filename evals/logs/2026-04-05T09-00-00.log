@@ -1,0 +1,121 @@
+
+========================================================================
+  BOREDGAME.LOL EVALUATION REPORT
+  Run ID: 2026-04-05T09-00-00
+  2026-04-05T09:00:00.397Z -> 2026-04-05T09:01:11.995Z
+  Duration: 71.6s | Cases: 3028 | Concurrency: 8
+========================================================================
+
+  OVERALL RESULTS
+------------------------------------------------------------------------
+  Pass Rate:       16/3028 (0.5%)
+  Avg NDCG@10:     0.0092
+  Avg Precision@10: 0.0102
+  Avg MRR:         0.0102
+  Avg Hit Rate@5:  0.0102
+  Constraint Viol: 0.0%
+  LLM Judge Score: 7.42/10
+  Latency p50/p95: 12ms / 43ms
+  Catalog Coverage: 0.6% (467 unique games)
+  Violations by type: time=5
+
+  REGRESSION vs 2026-04-05T05-56-19
+------------------------------------------------------------------------
+  Pass Rate Delta: -0.0761
+  NDCG Delta:      -0.2631
+  MRR Delta:       -0.2731
+  Fixed (10):
+    + mechanic-focused-003: "worker placement for beginners" -- was failing, now passing
+    + mechanic-focused-007: "social deduction game for a big group" -- was failing, now passing
+    + mechanic-focused-008: "tile placement game" -- was failing, now passing
+    + mechanic-focused-009: "roll and write game" -- was failing, now passing
+    + mechanic-focused-011: "card drafting game" -- was failing, now passing
+    + mechanic-focused-012: "route building train game" -- was failing, now passing
+    + mechanic-focused-013: "auction and bidding game" -- was failing, now passing
+    + theme-focused-022: "space exploration game" -- was failing, now passing
+    + theme-focused-023: "zombie survival board game" -- was failing, now passing
+    + theme-focused-024: "fantasy adventure game with quests" -- was failing, now passing
+  New Failures (19):
+    - mechanic-focused-004: "medium weight worker placement game" -- was passing, now failing
+    - theme-focused-028: "nature themed game about animals" -- was passing, now failing
+    - theme-focused-031: "viking themed game" -- was passing, now failing
+    - theme-focused-032: "western cowboy themed game" -- was passing, now failing
+    - theme-focused-035: "detective crime solving game" -- was passing, now failing
+    - theme-focused-036: "dinosaur themed board game" -- was passing, now failing
+    - theme-focused-038: "military war strategy game" -- was passing, now failing
+    - player-count-044: "best games for exactly 3 players" -- was passing, now failing
+    - time-constraint-052: "game I can play on a lunch break" -- was passing, now failing
+    - complexity-056: "game for kids under 10" -- was passing, now failing
+
+  PER-CATEGORY BREAKDOWN
+------------------------------------------------------------------------
+  player-count             0/177 (0%)  NDCG=0.006  MRR=0.006  Violations=0%
+  time-constraint          0/164 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  complexity               0/112 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  mood-vibe                0/189 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  designer-search          0/116 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  similar-to               0/212 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  negative-preference      0/123 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  multi-constraint         0/384 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  edge-case                0/153 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  real-user-feedback       0/78 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  video-game               0/262 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  party-game               0/4 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  free-text-intent         0/159 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  regression               0/9 (0%)  NDCG=0.000  MRR=0.000  Violations=0%
+  mechanic-focused         9/530 (2%)  NDCG=0.034  MRR=0.038  Violations=0%
+  theme-focused            7/356 (2%)  NDCG=0.025  MRR=0.028  Violations=0%
+
+  FAILURE TYPES
+------------------------------------------------------------------------
+  api-error                    2997 cases
+  missing-ideal-game           14 cases
+  llm-judge-low-score          2 cases
+  constraint-violation         1 cases
+
+  WORST 20 CASES
+------------------------------------------------------------------------
+  [theme-focused-026] "medieval castle building game" Judge=4/10 missing=[Carcassonne, The Castles of Burgundy]
+    Top 5: Praga Caput Regni | Through the Ages: A New Story of Civilization | Ark Nova | Vikings | A Feast for Odin
+    Judge: The results include some medieval-themed games, but none of them focus specifically on castle building, which is a key a
+  [mechanic-focused-002] "fast deck builder under 30 minutes" Judge=5/10 [5 violations]
+    Top 5: Star Realms | Dominion | Century: Spice Road | Magic: The Gathering | Android: Netrunner
+    Judge: The recommendations include some relevant games that fit the user's request for fast deck builders under 30 minutes, suc
+  [theme-focused-031] "viking themed game"
+    Top 5: 
+  [theme-focused-032] "western cowboy themed game" missing=[Great Western Trail]
+    Top 5: 
+  [theme-focused-033] "Lovecraftian Cthulhu horror game" missing=[Arkham Horror, Eldritch Horror]
+    Top 5: 
+  [theme-focused-034] "train game" missing=[Ticket to Ride]
+    Top 5: 
+  [theme-focused-035] "detective crime solving game"
+    Top 5: 
+  [theme-focused-036] "dinosaur themed board game"
+    Top 5: 
+  [theme-focused-037] "farming themed game" missing=[Agricola, Viticulture]
+    Top 5: 
+  [theme-focused-038] "military war strategy game"
+    Top 5: 
+  [player-count-039] "best solo board game" missing=[Mage Knight, Spirit Island]
+    Top 5: 
+  [player-count-040] "thematic solo games" missing=[Mage Knight, Spirit Island, Arkham Horror: The Card Game]
+    Top 5: 
+  [player-count-041] "2 player strategy game under an hour" missing=[7 Wonders Duel, Patchwork, Jaipur]
+    Top 5: 
+  [player-count-042] "date night game for 2" missing=[Patchwork, Jaipur, 7 Wonders Duel]
+    Top 5: 
+  [player-count-043] "party game for 6 or more people" missing=[Codenames, Telestrations]
+    Top 5: 
+  [player-count-044] "best games for exactly 3 players"
+    Top 5: 
+  [player-count-045] "game for 8 or more people" missing=[Codenames, Werewolf]
+    Top 5: 
+  [player-count-046] "game I can play solo or with a friend" missing=[Spirit Island]
+    Top 5: 
+  [time-constraint-047] "quick filler game under 15 minutes" missing=[Love Letter, Coup]
+    Top 5: 
+  [time-constraint-048] "game under 30 minutes" missing=[Azul]
+    Top 5: 
+
+========================================================================
