@@ -337,11 +337,28 @@ export default function ProfileHub() {
             )}
           </Card>
 
+          {/* Manual add — search and add games */}
+          <ManualAddCard
+            ownedGameIds={new Set(ownedGames.map((og) => og.game_id))}
+            onAdd={(game) => {
+              setOwnedGames((prev) => [
+                { game_id: game.id, source: 'manual', added_at: new Date().toISOString(), game },
+                ...prev,
+              ]);
+            }}
+          />
+
           {ownedGames.length === 0 ? (
-            <Box sx={{ textAlign: 'center', py: 4 }}>
-              <Typography variant="body2" color="text.secondary">
-                You can also click the package icon on any game page to add it manually.
+            <Box sx={{ textAlign: 'center', py: 6 }}>
+              <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>
+                Your collection is empty
               </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                Import from BGG or Steam above, or search for games to add manually.
+              </Typography>
+              <Button variant="contained" onClick={() => router.push('/collection')}>
+                Browse and Add Games
+              </Button>
             </Box>
           ) : (
             <>
