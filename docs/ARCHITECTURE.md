@@ -22,7 +22,7 @@ graph TB
     end
 
     subgraph AI["AI Services (OpenAI)"]
-        LLM_PARSE["GPT-4o-mini Parser<br/>Free text -> structured prefs<br/>+ intentModifiers + comparisonBase"]
+        LLM_PARSE["GPT-4o-mini Parser<br/>Extracts structured preferences"]
         LLM_RERANK["GPT-4o Reranker<br/>Top 80 in, top 25 out"]
         LLM_EXPAND["GPT-4o-mini Expander<br/>Creative search terms"]
         EMBED["text-embedding-3-small<br/>1536-dim vectors<br/>100% catalog coverage"]

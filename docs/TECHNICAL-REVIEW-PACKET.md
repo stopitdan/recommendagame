@@ -78,7 +78,7 @@ graph TB
     end
 
     subgraph LLM["OpenAI Services"]
-        PARSE["GPT-4o-mini<br/>Preference Parser<br/>Free text -> structured prefs"]
+        PARSE["GPT-4o-mini<br/>Preference Parser"]
         EXPAND["GPT-4o-mini<br/>Query Expander<br/>Creative search terms"]
         RERANK["GPT-4o-mini<br/>Re-Ranker<br/>Semantic re-ordering"]
         ENRICH["GPT-4o-mini (batch)<br/>Metadata Enrichment<br/>Mood/vibe/audience tags"]
@@ -581,9 +581,9 @@ flowchart LR
     end
 
     subgraph Impact["Measured Results"]
-        I1["Dominion freeText:<br/>0 -> 1.0"]
+        I1["Dominion freeText:<br/>0 to 1.0"]
         I2["No Trivial Pursuit in<br/>roll-and-write results"]
-        I3["Feld games in top 10:<br/>1/10 -> 8/10"]
+        I3["Feld games in top 10:<br/>1/10 to 8/10"]
         I4["'beginners' now filters<br/>to complexity 1-2"]
         I5["'like Catan' returns<br/>alternatives, not Catan"]
         I6["Dominion beats Colony<br/>for 'deck building'"]
@@ -640,7 +640,7 @@ flowchart TD
         O3["6 parallel sources<br/>+ hard filtering"]
         O4["10-dim scoring + LLM rerank<br/>+ diversity MMR"]
         O5["3,028-case eval suite<br/>+ IR metrics + LLM judge"]
-        O6["Thumbs up/down -> CF<br/>+ rejection learning<br/>+ preference vector update"]
+        O6["Feedback: CF boost,<br/>rejection learning,<br/>preference vector update"]
     end
 
     S1 ---|"Implemented"| O1
