@@ -9,7 +9,6 @@ import Card from '@mui/material/Card';
 import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
 import Container from '@mui/material/Container';
-import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Tab from '@mui/material/Tab';
@@ -18,8 +17,7 @@ import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import {
-  Package, PackageCheck, Plus, Search, Puzzle, Gamepad2,
-  Type, PartyPopper, Trash2, Dice5, Library,
+  Package, PackageCheck, Plus, Search, Trash2, Library,
 } from 'lucide-react';
 import GameCard from '@/components/GameCard';
 import SearchAutocomplete from '@/components/SearchAutocomplete';
@@ -416,7 +414,7 @@ export default function CollectionView() {
             {!searchLoading && hasSearched && searchResults.length === 0 && (
               <Box sx={{ textAlign: 'center', py: 4 }}>
                 <Typography variant="body1" color="text.secondary">
-                  No games found for "{searchQuery}". Try a different search.
+                  No games found for &ldquo;{searchQuery}&rdquo;. Try a different search.
                 </Typography>
               </Box>
             )}

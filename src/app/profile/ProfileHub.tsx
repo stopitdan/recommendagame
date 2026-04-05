@@ -375,7 +375,7 @@ export default function ProfileHub() {
           ) : (
             <>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                {ownedGames.length} games in your collection. Use "My Collection Only" when searching to get picks from games you own.
+                {ownedGames.length} games in your collection. Use &ldquo;My Collection Only&rdquo; when searching to get picks from games you own.
               </Typography>
               {ownedGames.map((og) => (
                 og.game ? (
