@@ -52,6 +52,8 @@ async function runWithConcurrency<T>(
     while (index < total) {
       const currentIndex = index++;
       await fn(items[currentIndex], currentIndex);
+      // Small delay between requests to respect rate limits (30 req/60s)
+      await new Promise((r) => setTimeout(r, 2500));
     }
   }
 
@@ -86,6 +88,40 @@ async function queryRecommendAPI(
     });
 
     const latencyMs = Date.now() - start;
+
+    if (res.status === 429) {
+      // Rate limited -- wait and retry once
+      const retryAfter = parseInt(res.headers.get('retry-after') ?? '5', 10);
+      await new Promise((r) => setTimeout(r, (retryAfter || 5) * 1000));
+      const retryRes = await fetch(`${apiUrl}/api/recommend`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(60000),
+      });
+      const retryLatencyMs = Date.now() - start;
+      if (!retryRes.ok) {
+        return { results: [], latencyMs: retryLatencyMs, error: `HTTP ${retryRes.status} (after retry)` };
+      }
+      const retryData = await retryRes.json();
+      const retryResults: GameResult[] = (retryData.results ?? []).slice(0, 20).map((r: any) => ({
+        id: r.id ?? '',
+        name: r.name ?? '',
+        categories: r.categories ?? [],
+        mechanics: r.mechanics ?? [],
+        themes: r.themes ?? [],
+        minPlayers: r.playerCount?.min ?? r.min_players ?? null,
+        maxPlayers: r.playerCount?.max ?? r.max_players ?? null,
+        avgPlayTime: r.playTime?.average ?? r.avg_play_time ?? null,
+        complexity: r.complexity ?? null,
+        rating: r.rating ?? null,
+        ratingCount: r.ratingCount ?? r.rating_count ?? null,
+        types: r.types ?? [],
+        designers: r.designers ?? [],
+        _score: r._score ?? null,
+      }));
+      return { results: retryResults, latencyMs: retryLatencyMs };
+    }
 
     if (!res.ok) {
       return { results: [], latencyMs, error: `HTTP ${res.status}` };

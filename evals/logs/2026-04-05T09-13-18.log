@@ -1,0 +1,48 @@
+
+========================================================================
+  BOREDGAME.LOL EVALUATION REPORT
+  Run ID: 2026-04-05T09-13-18
+  2026-04-05T09:13:18.956Z -> 2026-04-05T09:14:10.983Z
+  Duration: 52.0s | Cases: 5 | Concurrency: 1
+========================================================================
+
+  OVERALL RESULTS
+------------------------------------------------------------------------
+  Pass Rate:       2/5 (40.0%)
+  Avg NDCG@10:     0.9026
+  Avg Precision@10: 1.0000
+  Avg MRR:         1.0000
+  Avg Hit Rate@5:  1.0000
+  Constraint Viol: 2.0%
+  Latency p50/p95: 8402ms / 9315ms
+  Catalog Coverage: 0.1% (88 unique games)
+  Violations by type: time=1
+
+  REGRESSION vs 2026-04-05T09-01-53
+------------------------------------------------------------------------
+  Pass Rate Delta: +0.4000
+  NDCG Delta:      +0.9026
+  MRR Delta:       +1.0000
+  Fixed (2):
+    + mechanic-focused-002: "fast deck builder under 30 minutes" -- was failing, now passing
+    + mechanic-focused-003: "worker placement for beginners" -- was failing, now passing
+
+  PER-CATEGORY BREAKDOWN
+------------------------------------------------------------------------
+  mechanic-focused         2/5 (40%)  NDCG=0.903  MRR=1.000  Violations=2%
+
+  FAILURE TYPES
+------------------------------------------------------------------------
+  missing-ideal-game           3 cases
+  constraint-violation         1 cases
+
+  WORST 20 CASES
+------------------------------------------------------------------------
+  [mechanic-focused-001] "deck building game" missing=[Star Realms]
+    Top 5: Dominion | Slay the Spire: The Board Game | L'Ordre de Veiel: Deckbuilding Tactique | Legendary: A Marvel Deck Building Game | Spirit Island
+  [mechanic-focused-004] "medium weight worker placement game" missing=[Viticulture]
+    Top 5: Dune: Imperium | Caverna: Cave vs Cave | Keyflower | Everdell | Gùgōng
+  [mechanic-focused-005] "competitive area control game for 4 players" missing=[Kemet]
+    Top 5: Root | Cyclades | Dune | Oath | Blood Rage
+
+========================================================================

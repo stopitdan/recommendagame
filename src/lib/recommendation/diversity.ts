@@ -24,9 +24,11 @@ import type { ScoredGame } from './scoring';
  * How much to weight diversity vs. raw score.
  * 0.0 = pure score ranking (no diversity)
  * 1.0 = pure diversity (ignore scores)
- * 0.2 = mild diversity nudge (recommended)
+ * 0.12 = gentle diversity nudge — prevents homogeneous results without
+ *        demoting relevant canonical games that share tags (e.g., both
+ *        Dominion and Star Realms should appear for "deck building")
  */
-const DIVERSITY_LAMBDA = 0.2;
+const DIVERSITY_LAMBDA = 0.12;
 
 /** Only apply diversity to the top N results (don't re-rank the tail) */
 const DIVERSITY_WINDOW = 30;

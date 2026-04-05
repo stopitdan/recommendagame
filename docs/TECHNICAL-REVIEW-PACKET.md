@@ -230,7 +230,7 @@ flowchart TD
     end
 
     subgraph S7["Stage 7: Rule-Based Scoring (10 dimensions)"]
-        SCORE["Genre (28%) + FreeText (22%) +<br/>Type (10%) + Players (8%) +<br/>Mood (8%) + Time (7%) +<br/>Complexity (7%) + Popularity (4%) +<br/>Quality (3%) + Recency (3%)<br/><br/>+ Intent modifiers:<br/>mustHave +0.3 / avoid -0.25 /<br/>emphasize +0.15 / niceToHave +0.1"]
+        SCORE["Genre (26%) + FreeText (22%) +<br/>Type (10%) + Players (8%) +<br/>Mood (8%) + Time (7%) +<br/>Complexity (7%) + Popularity (6%) +<br/>Quality (3%) + Recency (3%)<br/><br/>+ Intent modifiers:<br/>mustHave +0.3 / avoid -0.25 /<br/>emphasize +0.15 / niceToHave +0.1"]
     end
 
     subgraph S8["Stage 8: Multi-Signal Re-Ranking"]
@@ -289,14 +289,14 @@ flowchart LR
 
 ```mermaid
 pie title Default Scoring Weights (10 dimensions, sum = 100%)
-    "Genre Match (28%)" : 28
+    "Genre Match (26%)" : 26
     "Free Text Match (22%)" : 22
     "Type Match (10%)" : 10
     "Player Count Fit (8%)" : 8
     "Mood Alignment (8%)" : 8
     "Time Fit (7%)" : 7
     "Complexity Fit (7%)" : 7
-    "Popularity (4%)" : 4
+    "Popularity (6%)" : 6
     "Quality (3%)" : 3
     "Recency (3%)" : 3
 ```
@@ -314,7 +314,7 @@ pie title Default Scoring Weights (10 dimensions, sum = 100%)
 
 Each of the 10 scoring dimensions produces a 0.0 to 1.0 score for each candidate game. Here's how each works:
 
-### Genre Match (28% default weight)
+### Genre Match (26% default weight)
 - Compares user's selected genres against game's categories, mechanics, and themes
 - Uses a 70-entry genre expansion map (e.g., "Strategy" also matches "Economic", "Civilization", "Area Control")
 - Substring matching with alias awareness
@@ -351,7 +351,7 @@ Each of the 10 scoring dimensions produces a 0.0 to 1.0 score for each candidate
 - BGG weight rating (1-5 scale) compared to user preference
 - Buffer of +/- 0.5 before penalty starts
 
-### Popularity (4%)
+### Popularity (6%)
 - Based on BGG/IGDB rating count
 - Uses Bayesian adjustment (minimum 1000 votes for confidence)
 - Intentionally low weight to prevent popularity bias dominating
@@ -608,14 +608,14 @@ The system design was informed by academic literature. Here's what we read, what
 | Source | Key Takeaway | How We Applied It |
 |--------|-------------|-------------------|
 | Raza et al. 2024 (287 papers surveyed) | Hybrid systems beat any single technique | We use 6 parallel candidate sources + multi-stage scoring |
-| Koch/Critio (6 years practitioner) | Popularity bias is the #1 failure mode; CF should dominate as data grows | Reduced popularity weight from 20% to 4%; CF infrastructure built but data-starved |
+| Koch/Critio (6 years practitioner) | Popularity bias is the #1 failure mode; CF should dominate as data grows | Popularity at 6% with 6x broad-query tiebreaker + canonical game injection; CF infrastructure built but data-starved |
 | Forrester 2023 | Production systems combine CF + content + deep learning + community | Matches our architecture |
 | BGG Study (Grannan) | CF and content-based produce non-overlapping recommendations | Validates our hybrid approach |
 | Cold-Start Game Study | "Tags x Questions" hybrid beats pure CF for cold start | Directly validates our questionnaire-first design |
 | Steam Study (Germain) | ALS with implicit feedback outperforms content-based | BPR implementation ready, waiting for user data |
 | LLM+RecSys Papers 2024-2025 | LLMs should enhance, not replace, traditional signals | Our LLM usage: parsing + reranking + enrichment (not core scoring) |
 | Netflix Tech Blog | Interleaving is 100x more sample-efficient than A/B testing | A/B framework designed but not deployed |
-| Spotify Research | Diversity reduces churn 10-20 percentage points | MMR diversity enforcement with lambda=0.2 |
+| Spotify Research | Diversity reduces churn 10-20 percentage points | MMR diversity enforcement with lambda=0.12 |
 | YouTube Evolution | CTR optimization leads to clickbait; satisfaction surveys better | We use thumbs up/down (satisfaction), not clicks |
 | MovieLens Study (445 users) | Accuracy + novelty is what users want; transparency builds trust | We provide per-recommendation explanations |
 | LLM-as-Judge Survey 2024 | 85% human agreement; pairwise > pointwise | Using pointwise 0-10 (should upgrade to pairwise) |
@@ -667,7 +667,7 @@ r_hat(u,i) = alpha * f_CB(u,i) + beta * f_CF(u,i)
 
 Our implementation:
 ```
-final_score = 0.55 * rule_based_score + 0.45 * cosine_similarity
+final_score = 0.65 * rule_based_score + 0.35 * cosine_similarity
               + 0.15 * CF_boost (when available)
               - rejection_penalty (from "Not This" history)
 ```
@@ -681,7 +681,7 @@ final_score = 0.55 * rule_based_score + 0.45 * cosine_similarity
 1. **Hybrid multi-layer architecture** -- Validated by all sources as the correct pattern
 2. **Questionnaire-first for cold start** -- Game-specific research explicitly validates this
 3. **LLM for parsing, not for ranking** -- Matches 2024-2025 industry consensus
-4. **Diversity enforcement via MMR** -- Standard technique, conservative lambda=0.2
+4. **Diversity enforcement via MMR** -- Standard technique, conservative lambda=0.12
 5. **Progressive fallback chain** -- Guarantees non-empty results
 6. **Rejection learning from "Not This"** -- Novel, addresses a real user pain point
 7. **Multiple candidate sources in parallel** -- Maximizes recall
@@ -826,13 +826,13 @@ npx tsx evals/runner.ts --tag=regression
 
 1. **Scoring architecture:** Is 10 dimensions with hand-tuned weights the right approach, or should I collapse to fewer dimensions and let a meta-learner optimize? At what user data volume does this become worth it?
 
-2. **Candidate generation:** With 6 parallel sources and 500-1000 candidates, am I over-fetching or under-fetching? The 0.5% catalog coverage suggests the problem is in which 500 I'm fetching, not how many.
+2. **Candidate generation:** With 7 parallel sources (vector, tag, text, mechanic, designer, LLM expansion, canonical games) and 500-1000 candidates, am I over-fetching or under-fetching? The 0.5% catalog coverage suggests the problem is in which 500 I'm fetching, not how many.
 
 3. **Evaluation blind spots:** The eval suite tests "did the right games appear?" but not "did the user feel satisfied?" -- is there a practical way to bridge this offline?
 
 4. **LLM integration points:** I use LLMs in 4 places (parsing, query expansion, reranking, metadata enrichment). Are any of these misplaced? Should the LLM be doing more or less?
 
-5. **Diversity vs. accuracy tradeoff:** MMR with lambda=0.2 (80% relevance, 20% novelty). Is this the right balance for a game recommendation domain?
+5. **Diversity vs. accuracy tradeoff:** MMR with lambda=0.12 (88% relevance, 12% novelty). Is this the right balance for a game recommendation domain?
 
 6. **Cold start strategy:** The questionnaire collects rich preferences, but are there better signals to collect? Should I be asking different questions?
 

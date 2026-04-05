@@ -51,10 +51,12 @@ const DEFAULT_RESULT_LIMIT = 100;
 const MAX_RESULT_LIMIT = 200;
 const SIMILARITY_CANDIDATES = 100;
 
-// Semantic embeddings weight: when populated, embeddings understand meaning
-// (e.g., "anime" → Japanese-themed games) far better than tag matching.
-const RULE_WEIGHT = 0.55;
-const SIMILARITY_WEIGHT = 0.45;
+// Rule vs. similarity blend. Shifted toward rules (was 55/45) because the
+// cosine similarity rewards tag-matching obscure games equally with famous
+// ones. The rule-based scoring includes popularity tiebreakers and adaptive
+// weights that better surface canonical games for broad queries.
+const RULE_WEIGHT = 0.65;
+const SIMILARITY_WEIGHT = 0.35;
 
 type PopularityMode = 'popular' | 'any' | 'hidden-gems';
 // UI now only shows 'any' (default) and 'hidden-gems'.
@@ -282,8 +284,13 @@ export async function POST(request: NextRequest) {
       ? withTimeout(fetchDesignerCandidates(supabase, designerNames), 5000, [])
       : Promise.resolve([]);
 
+    // Canonical game injection: fetch universally-expected games for the query's
+    // mechanics/genres (e.g., Dominion for "deck building"). Ensures famous games
+    // enter the candidate pool even if vector/tag/text search misses them.
+    const canonicalSearchPromise = withTimeout(fetchCanonicalGames(supabase, body), 3000, []);
+
     // Relevance-first: NO unconditional rating pool. All sources are preference-aware.
-    const [vectorCandidates, textCandidates, tagCandidates, mechanicCandidates, designerCandidates] = await Promise.all([
+    const [vectorCandidates, textCandidates, tagCandidates, mechanicCandidates, designerCandidates, canonicalCandidates] = await Promise.all([
       withTimeout(fetchVectorCandidates(body, { limit: VECTOR_POOL_SIZE, columns: GAME_COLUMNS, supabaseClient: supabase }), 8000, []),
       body.freeText && body.freeText.trim().length >= 3
         ? withTimeout(fetchTextSearchCandidates(supabase, body.freeText), 5000, [])
@@ -293,13 +300,14 @@ export async function POST(request: NextRequest) {
         : Promise.resolve([]),
       mechanicSearchPromise,
       designerSearchPromise,
+      canonicalSearchPromise,
     ]);
 
-    // Deduplicate: relevance sources first (designer > mechanic > vector > tag > text)
+    // Deduplicate: canonical > designer > mechanic > vector > tag > text
     const seen = new Set<string>();
     let candidates: ReturnType<typeof rowToGame>[] = [];
 
-    for (const source of [designerCandidates, mechanicCandidates, vectorCandidates, tagCandidates, textCandidates]) {
+    for (const source of [canonicalCandidates, designerCandidates, mechanicCandidates, vectorCandidates, tagCandidates, textCandidates]) {
       for (const g of source) {
         if (!seen.has(g.id)) { candidates.push(g); seen.add(g.id); }
       }
@@ -345,7 +353,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log(`[Recommend] Relevance-first pool: ${designerCandidates.length} designer + ${mechanicCandidates.length} mechanic + ${vectorCandidates.length} vector + ${tagCandidates.length} tag + ${textCandidates.length} text + ${expandedCount} expanded + ${popularityFallbackCount} popularity-fallback = ${candidates.length} unique`);
+    console.log(`[Recommend] Relevance-first pool: ${canonicalCandidates.length} canonical + ${designerCandidates.length} designer + ${mechanicCandidates.length} mechanic + ${vectorCandidates.length} vector + ${tagCandidates.length} tag + ${textCandidates.length} text + ${expandedCount} expanded + ${popularityFallbackCount} popularity-fallback = ${candidates.length} unique`);
 
     // Progressive fallbacks (only if hybrid produced nothing)
     if (candidates.length === 0) {
@@ -947,23 +955,47 @@ async function fetchDesignerCandidates(
 ): Promise<ReturnType<typeof rowToGame>[]> {
   if (designers.length === 0) return [];
 
-  // Single query using overlaps() instead of N separate contains() queries.
-  // overlaps() on text[] matches games whose designers array shares any element.
+  // Case-insensitive designer matching: overlaps() is case-sensitive and fails
+  // when LLM extracts "Stefan Feld" but DB stores "Stefan H. Feld".
+  // Use parallel ilike queries on the text-cast designers array for each name.
   const designerNames = designers.slice(0, 5);
-  const { data, error } = await supabase
-    .from('games')
-    .select(GAME_COLUMNS)
-    .eq('is_expansion', false)
-    .overlaps('designers', designerNames)
-    .order('rating_count', { ascending: false })
-    .limit(100);
+  const seen = new Set<string>();
+  const results: GameRow[] = [];
 
-  if (error) {
-    console.error('[Recommend] Designer search error:', error);
-    return [];
+  // Run searches in parallel for each designer name
+  const searches = designerNames.map(async (name) => {
+    // Use RPC-based text search on the designers column cast to text
+    // This catches "Stefan Feld" matching "Stefan H. Feld" via substring
+    const { data, error } = await supabase
+      .from('games')
+      .select(GAME_COLUMNS)
+      .eq('is_expansion', false)
+      .filter('designers::text', 'ilike', `%${name}%`)
+      .order('rating_count', { ascending: false })
+      .limit(50);
+
+    if (error) {
+      // Fallback to exact match if text cast doesn't work
+      const fallback = await supabase
+        .from('games')
+        .select(GAME_COLUMNS)
+        .eq('is_expansion', false)
+        .overlaps('designers', [name])
+        .order('rating_count', { ascending: false })
+        .limit(50);
+      return (fallback.data ?? []) as GameRow[];
+    }
+    return (data ?? []) as GameRow[];
+  });
+
+  const allResults = await Promise.all(searches);
+  for (const rows of allResults) {
+    for (const row of rows) {
+      if (!seen.has(row.id)) { results.push(row); seen.add(row.id); }
+    }
   }
 
-  const merged = ((data ?? []) as GameRow[]).map(rowToGame);
+  const merged = results.map(rowToGame);
   console.log(`[Recommend] Designer search: ${merged.length} games for [${designers.join(', ')}]`);
   return merged;
 }
@@ -1025,6 +1057,95 @@ function expandTagsWithAliases(tags: string[]): string[] {
     }
   }
   return [...expanded];
+}
+
+// ─── Canonical Games ────────────────────────────────────────
+// Editorial overrides: universally-expected games for common queries.
+// Netflix/Spotify pattern -- when users ask for a category, they expect
+// the defining examples. The scoring + LLM reranker decide final order;
+// this just ensures the canonical games enter the candidate pool.
+const CANONICAL_GAMES: Record<string, string[]> = {
+  'deck building': ['Dominion', 'Star Realms', 'Clank!'],
+  'deck builder': ['Dominion', 'Star Realms', 'Clank!'],
+  'worker placement': ['Agricola', 'Caverna', 'Lords of Waterdeep'],
+  'area control': ['Root', 'Blood Rage', 'Inis'],
+  'area majority': ['Root', 'Blood Rage', 'El Grande'],
+  'cooperative': ['Pandemic', 'Spirit Island', 'Forbidden Island'],
+  'co-op': ['Pandemic', 'Spirit Island', 'Forbidden Island'],
+  'engine building': ['Terraforming Mars', 'Wingspan', 'Gizmos'],
+  'social deduction': ['Codenames', 'Secret Hitler', 'The Resistance: Avalon'],
+  'tile placement': ['Azul', 'Carcassonne', 'Sagrada'],
+  'party': ['Codenames', 'Telestrations', 'Dixit', 'Wavelength'],
+  'party game': ['Codenames', 'Telestrations', 'Dixit', 'Wavelength'],
+  'trick taking': ['The Crew', 'Fox in the Forest', 'Skull King'],
+  'route building': ['Ticket to Ride', 'Brass: Birmingham'],
+  'roll and write': ['Yahtzee', 'Welcome To...', "That's Pretty Clever"],
+  'push your luck': ['Quacks of Quedlinburg', 'King of Tokyo', 'Incan Gold'],
+  'drafting': ['7 Wonders', 'Sushi Go!', 'Blood Rage'],
+  'card drafting': ['7 Wonders', 'Sushi Go!', 'Blood Rage'],
+  'set collection': ['Ticket to Ride', 'Jaipur', 'Splendor'],
+  'deduction': ['Clue', 'Mysterium', 'Cryptid'],
+  'bluffing': ["Coup", "Sheriff of Nottingham", "Cockroach Poker"],
+  'legacy': ['Pandemic Legacy: Season 1', 'Gloomhaven', 'Charterstone'],
+  'campaign': ['Gloomhaven', 'Pandemic Legacy: Season 1', 'Sleeping Gods'],
+  'dungeon crawler': ['Gloomhaven', 'Descent', 'Mage Knight'],
+  'dungeon crawl': ['Gloomhaven', 'Descent', 'Mage Knight'],
+  'negotiation': ['Cosmic Encounter', 'Chinatown', 'Catan'],
+  'auction': ['Ra', 'Power Grid', 'Modern Art'],
+  'pattern building': ['Azul', 'Sagrada', 'Calico'],
+  'abstract': ['Azul', 'Hive', 'Patchwork'],
+  'abstract strategy': ['Azul', 'Hive', 'Patchwork'],
+  'solo': ['Spirit Island', 'Mage Knight', 'Arkham Horror: The Card Game'],
+  'two player': ['Patchwork', '7 Wonders Duel', 'Jaipur'],
+  '2 player': ['Patchwork', '7 Wonders Duel', 'Jaipur'],
+};
+
+/**
+ * Fetch canonical games by name for mechanics/genres/moods/keywords that
+ * match the CANONICAL_GAMES map. Returns up to 3 games per matched key.
+ */
+async function fetchCanonicalGames(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+  prefs: QuestionnaireState,
+): Promise<ReturnType<typeof rowToGame>[]> {
+  const names = new Set<string>();
+
+  // Collect canonical game names from all matching keys
+  const searchTerms = [
+    ...(prefs.llmParsed?.mechanics ?? []),
+    ...(prefs.llmParsed?.genres ?? []),
+    ...(prefs.llmParsed?.keywords ?? []),
+    ...prefs.genres,
+    ...prefs.moods,
+  ];
+
+  for (const term of searchTerms) {
+    const canonical = CANONICAL_GAMES[term.toLowerCase()];
+    if (canonical) {
+      for (const name of canonical.slice(0, 3)) names.add(name);
+    }
+  }
+
+  if (names.size === 0) return [];
+
+  // Fetch by exact name match (case-insensitive)
+  const nameList = [...names];
+  const { data, error } = await supabase
+    .from('games')
+    .select(GAME_COLUMNS)
+    .in('name', nameList)
+    .eq('is_expansion', false)
+    .limit(nameList.length);
+
+  if (error) {
+    console.error('[Recommend] Canonical game fetch error:', error);
+    return [];
+  }
+
+  const results = ((data ?? []) as GameRow[]).map(rowToGame);
+  console.log(`[Recommend] Canonical games: ${results.length}/${nameList.length} found for [${nameList.slice(0, 5).join(', ')}${nameList.length > 5 ? '...' : ''}]`);
+  return results;
 }
 
 function collectSearchTags(prefs: QuestionnaireState): string[] {

@@ -23,7 +23,7 @@ graph TB
 
     subgraph AI["AI Services (OpenAI)"]
         LLM_PARSE["GPT-4o-mini Parser<br/>Free text -> structured prefs<br/>+ intentModifiers + comparisonBase"]
-        LLM_RERANK["GPT-4o-mini Reranker<br/>Top 60 in, top 25 out"]
+        LLM_RERANK["GPT-4o Reranker<br/>Top 80 in, top 25 out"]
         LLM_EXPAND["GPT-4o-mini Expander<br/>Creative search terms"]
         EMBED["text-embedding-3-small<br/>1536-dim vectors<br/>100% catalog coverage"]
         LLM_ENRICH["GPT-4o-mini Enrichment<br/>Batch: moods, vibes, audiences"]
@@ -116,14 +116,14 @@ flowchart TD
     end
 
     subgraph S7["Stage 7: Scoring (10 dimensions)"]
-        S_ALL["Genre (28%) + FreeText (22%) +<br/>Type (10%) + Players (8%) +<br/>Mood (8%) + Time (7%) +<br/>Complexity (7%) + Pop (4%) +<br/>Quality (3%) + Recency (3%)<br/>+ Intent modifiers:<br/>mustHave +0.3 / avoid -0.25"]
+        S_ALL["Genre (26%) + FreeText (22%) +<br/>Type (10%) + Players (8%) +<br/>Mood (8%) + Time (7%) +<br/>Complexity (7%) + Pop (6%) +<br/>Quality (3%) + Recency (3%)<br/>+ Intent modifiers:<br/>mustHave +0.3 / avoid -0.25"]
     end
 
     subgraph S8["Stage 8: Multi-Signal Re-Ranking"]
-        SIM["Similarity Re-rank (55% rule + 45% cosine)"]
+        SIM["Similarity Re-rank (65% rule + 35% cosine)"]
         CF["Collaborative Filtering (+15% boost)"]
         REJ["Rejection Penalties"]
-        RERANK["LLM Re-Rank (60 in, 25 out)"]
+        RERANK["LLM Re-Rank (80 in, 25 out)"]
     end
 
     subgraph S9["Stage 9: Diversity Enforcement"]

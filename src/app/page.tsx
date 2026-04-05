@@ -214,7 +214,7 @@ const FEATURES: { Icon: LucideIcon; title: string; description: string; href: st
     Icon: Brain,
     title: "Smart Engine",
     description:
-      "Learns your taste across every dimension. The more you use it, the better it gets.",
+      "7 search strategies, 10 scoring dimensions, AI re-ranking, and learning from your feedback. It gets smarter every time you use it.",
     href: "/find-a-game",
     stat: "6 layers",
     statLabel: "of recommendation AI",
@@ -227,19 +227,19 @@ const STEPS = [
     number: "01",
     title: "Tell Us What You Want",
     description:
-      "Answer a few quick questions about players, mood, time, and genre.",
+      "Answer a few quick questions or just describe what you're looking for in plain English. Our AI understands natural language, not just checkboxes.",
   },
   {
     number: "02",
-    title: "We Find the Matches",
+    title: "We Search Everything",
     description:
-      "Our engine scores thousands of games to find your best fit.",
+      "7 search strategies run in parallel across 80,000+ games. Then 10 scoring dimensions, AI re-ranking, and diversity balancing find the best matches.",
   },
   {
     number: "03",
     title: "Play Something Great",
     description:
-      "Pick a game, save your favorites, and fine-tune future recommendations.",
+      "Every result comes with reasons why it was picked. Save favorites, give feedback, and the engine learns your taste over time.",
   },
 ];
 

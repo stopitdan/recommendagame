@@ -1,8 +1,9 @@
 # Evaluation System
 
 Comprehensive evaluation framework for the boredgame.lol recommendation engine.
-307+ test cases across 16 categories with LLM-as-judge scoring, parallel execution,
-persistent logging, regression tracking, and failure analysis.
+3,028 test cases across 16 categories with LLM-as-judge scoring, parallel execution,
+persistent logging, regression tracking, and failure analysis. The first 307 cases
+are hand-curated for baseline comparison; the rest are LLM-generated systematic variations.
 
 ---
 
@@ -64,7 +65,7 @@ evals/
 ### 2. Runner (`runner.ts`)
 
 Executes all cases against the live API with:
-- **Parallel execution**: Configurable concurrency (default 8)
+- **Parallel execution**: Configurable concurrency (default 8). Uses 2.5s delay between requests to respect the API rate limit (30 req/60s). Rate-limited responses (429) trigger automatic retry after backoff.
 - **LLM-as-judge**: GPT-4o-mini rates overall result quality 0-10
 - **Constraint checking**: Detects player count, time, complexity violations
 - **Persistent logging**: Every run saved as JSON + human-readable log

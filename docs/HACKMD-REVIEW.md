@@ -4,11 +4,22 @@
 **How to give feedback:** Click any line and use the comment icon to leave inline comments. I'll reply to everything. Ask me to show code if you want to see the actual implementation of anything described here.
 :::
 
-**What this is:** [boredgame.lol](https://boredgame.lol) is a game recommendation engine. You type "a chill 2-player game for date night" and get ranked, explained recommendations from 81,000 board + video games.
+## What is boredgame.lol?
 
-**How it was built:** One person + Claude (AI pair programmer). Entirely vibe-coded. I read a bunch of academic papers and implemented what made sense, but I'm not an ML engineer.
+[boredgame.lol](https://boredgame.lol) is a smart game recommendation engine. You describe what you're looking for in plain English -- "a chill 2-player game for date night," "deck building game under 30 minutes," "something like Catan but less random" -- and it searches 81,000+ board games and video games to find ranked, explained recommendations.
 
-**What I want from you:**
+The engine doesn't just match keywords. It understands what you mean. "Chill" becomes a complex mood signal (low complexity + short playtime + intimate player count). "Like Catan" fetches Catan's actual mechanics and finds games that play similarly. "Under 30 minutes" applies hard time constraints with appropriate grace periods.
+
+Every result comes with human-readable reasons explaining why it was recommended, and you can train the engine on your preferences by giving thumbs up/down feedback.
+
+## How it was built
+
+One person + Claude (AI pair programmer). Entirely vibe-coded over ~4 weeks. The recommendation architecture is informed by academic research (Raza et al. 2024, 287-paper survey; Koch/Criteo, 6 years practitioner; Rendle et al., BPR) but implemented pragmatically in TypeScript rather than Python ML pipelines.
+
+The engine has been iterated through a 3,028-case evaluation suite that tests 16 categories of queries with automated LLM-as-judge scoring and information retrieval metrics.
+
+## What I want feedback on
+
 1. Is the recommendation architecture sound, or are there fundamental design flaws?
 2. Is the evaluation methodology measuring the right things? Blind spots?
 3. Are the scoring weights and pipeline stages ordered correctly?
@@ -62,7 +73,7 @@ graph TB
     subgraph LLM["OpenAI Services"]
         PARSE["GPT-4o-mini<br/>Preference Parser<br/>Free text -> structured prefs"]
         EXPAND["GPT-4o-mini<br/>Query Expander<br/>Creative search terms"]
-        RERANK["GPT-4o-mini<br/>Re-Ranker<br/>Semantic re-ordering"]
+        RERANK["GPT-4o<br/>Re-Ranker<br/>Semantic re-ordering"]
         ENRICH["GPT-4o-mini (batch)<br/>Metadata Enrichment<br/>Mood/vibe/audience tags"]
     end
 
@@ -119,7 +130,7 @@ sequenceDiagram
     participant U as User
     participant C as Cache
     participant L as LLM Parser
-    participant S as Search (6 parallel)
+    participant S as Search (7 parallel)
     participant F as Hard Filters
     participant SC as Scoring Engine
     participant R as LLM Re-Ranker
@@ -153,7 +164,7 @@ sequenceDiagram
 
     C->>SC: Similarity re-rank (50ms)
     C->>SC: CF boost + rejection penalties (20ms)
-    C->>R: LLM re-rank top 60 (2-4s)
+    C->>R: LLM re-rank top 80 (4-8s)
     R-->>C: Top 25
     C->>D: Diversity MMR (10ms)
     D-->>C: Final results
@@ -196,6 +207,10 @@ flowchart LR
 
 # Part 2: Recommendation Pipeline (Deep Dive)
 
+:::info
+**Why this matters:** The pipeline is the heart of the system. Each stage exists because of a specific quality problem we observed. For example, Stage 4 uses 7 parallel search strategies because no single method finds all the right games -- vector search finds semantically similar games, mechanic search catches exact matches, and canonical game injection guarantees the obvious famous answers enter the pool.
+:::
+
 Every recommendation request flows through **9 stages**. This is the core of the system.
 
 ## Stage-by-Stage Pipeline
@@ -228,6 +243,7 @@ flowchart TD
         MECH["Mechanic Search<br/>100 candidates"]
         DES["Designer Search<br/>100 candidates"]
         EXP["LLM Query Expand<br/>50 candidates"]
+        CAN["Canonical Game Injection<br/>30+ mechanic/category maps"]
         POP["Popularity Fallback<br/>(only if < 30 total)"]
     end
 
@@ -236,22 +252,22 @@ flowchart TD
     end
 
     subgraph S6["Stage 6: Adaptive Weight Computation"]
-        AW["Tight player count -> 2x boost<br/>Hard time constraint -> 2.5x boost<br/>Narrow complexity -> 2x boost<br/>Multiple moods -> 1.5x boost<br/>Few constraints -> 4x quality/pop<br/>Then renormalize to sum = 1.0"]
+        AW["Tight player count -> 2x boost<br/>Hard time constraint -> 2.5x boost<br/>Narrow complexity -> 2x boost<br/>Multiple moods -> 1.5x boost<br/>Few constraints -> 6x quality/pop<br/>Then renormalize to sum = 1.0"]
     end
 
     subgraph S7["Stage 7: Rule-Based Scoring (10 dimensions)"]
-        SCORE["Genre (28%) + FreeText (22%) +<br/>Type (10%) + Players (8%) +<br/>Mood (8%) + Time (7%) +<br/>Complexity (7%) + Popularity (4%) +<br/>Quality (3%) + Recency (3%)<br/><br/>+ Intent modifiers:<br/>mustHave +0.3 / avoid -0.25 /<br/>emphasize +0.15 / niceToHave +0.1"]
+        SCORE["Genre (26%) + FreeText (22%) +<br/>Type (10%) + Players (8%) +<br/>Mood (8%) + Time (7%) +<br/>Complexity (7%) + Popularity (6%) +<br/>Quality (3%) + Recency (3%)<br/><br/>+ Intent modifiers:<br/>mustHave +0.3 / avoid -0.25 /<br/>emphasize +0.15 / niceToHave +0.1"]
     end
 
     subgraph S8["Stage 8: Multi-Signal Re-Ranking"]
-        SIM["Similarity Re-Rank<br/>55% rule + 45% cosine similarity"]
+        SIM["Similarity Re-Rank<br/>65% rule + 35% cosine similarity"]
         CF["Collaborative Filtering<br/>+15% boost for CF signals"]
         REJ["Rejection Learning<br/>Penalty from 'Not This' history"]
-        LLM_RR["LLM Re-Rank<br/>GPT-4o-mini: 60 in, 25 out"]
+        LLM_RR["LLM Re-Rank<br/>GPT-4o: 80 in, 25 out"]
     end
 
     subgraph S9["Stage 9: Diversity Enforcement"]
-        DIV["Maximal Marginal Relevance<br/>80% relevance + 20% novelty<br/>Applied to top 30"]
+        DIV["Maximal Marginal Relevance<br/>88% relevance + 12% novelty<br/>Applied to top 30"]
     end
 
     OUTPUT["Final Output<br/>Up to 100 games with<br/>scores, reasons, breakdowns"]
@@ -264,17 +280,22 @@ flowchart TD
 
 ## Candidate Generation Detail
 
-The system fetches candidates from 6 parallel sources, then deduplicates. This is the "recall" stage.
+:::info
+**Why 7 sources?** Each source catches games the others miss. Vector search finds semantically similar games but doesn't guarantee famous ones. Text search finds games with matching names but misses games where the mechanic isn't in the name. Canonical game injection (new) guarantees that when someone asks for "deck building," Dominion enters the candidate pool even if the other 6 sources didn't find it. This is the "editorial override" pattern used by Netflix and Spotify.
+:::
+
+The system fetches candidates from 7 parallel sources, then deduplicates. This is the "recall" stage.
 
 ```mermaid
 flowchart LR
-    subgraph Sources["6 Parallel Sources"]
+    subgraph Sources["7 Parallel Sources"]
         V["pgvector Semantic Search<br/>HNSW index, 1536-dim<br/>cosine similarity<br/>250 results"]
         T["Tag Search (GIN index)<br/>categories, mechanics, themes<br/>150 results"]
         X["Full-Text Search<br/>tsvector on name + description<br/>50 results"]
         M["Mechanic Search<br/>LLM-parsed mechanics<br/>+ BGG alias expansion<br/>100 results"]
         D["Designer Search<br/>LLM-parsed designer names<br/>100 results"]
         E["LLM Query Expansion<br/>GPT-4o-mini generates<br/>5-10 creative search terms<br/>50 results"]
+        CAN["Canonical Game Injection<br/>30+ mechanic/category maps<br/>Editorial overrides"]
     end
 
     DEDUP["Deduplicate<br/>~500-1000 unique"]
@@ -282,7 +303,7 @@ flowchart LR
     FALLBACK{"< 30<br/>candidates?"}
     POP["Popularity Fallback<br/>38 pre-cached lists<br/>by genre/mechanic/theme<br/>1,390 games total"]
 
-    V & T & X & M & D & E --> DEDUP
+    V & T & X & M & D & E & CAN --> DEDUP
     DEDUP --> FALLBACK
     FALLBACK -->|Yes| POP
     FALLBACK -->|No| NEXT["Continue to filtering"]
@@ -291,16 +312,20 @@ flowchart LR
 
 ## Scoring Weights
 
+:::info
+**Why these weights?** Genre and free text match dominate (48% combined) because relevance is king. Popularity is intentionally low (6%) because at higher values, Catan and Ticket to Ride dominated every result regardless of query. The 6% is enough to break ties among equally-relevant games -- if "deck building game" returns 10 deck builders, the famous ones (Dominion, Star Realms) should rank higher than obscure ones. Adaptive weights amplify specific dimensions when the user emphasizes them.
+:::
+
 ```mermaid
 pie title Default Scoring Weights (10 dimensions, sum = 100%)
-    "Genre Match (28%)" : 28
+    "Genre Match (26%)" : 26
     "Free Text Match (22%)" : 22
     "Type Match (10%)" : 10
     "Player Count Fit (8%)" : 8
     "Mood Alignment (8%)" : 8
     "Time Fit (7%)" : 7
     "Complexity Fit (7%)" : 7
-    "Popularity (4%)" : 4
+    "Popularity (6%)" : 6
     "Quality (3%)" : 3
     "Recency (3%)" : 3
 ```
@@ -308,14 +333,14 @@ pie title Default Scoring Weights (10 dimensions, sum = 100%)
 **Adaptive weights** modify this distribution based on query specificity:
 - If user specifies exact player count (e.g., "exactly 2"): player count weight gets 2x, then all renormalize
 - If user specifies hard time limit: time weight gets 2.5x
-- If query has few constraints (broad search like "deck building game"): quality and popularity each get 4x as a tiebreaker
+- If query has few constraints (broad search like "deck building game"): quality and popularity each get 6x as a tiebreaker
 - Multiple moods: mood weight gets 1.5x
 
 **Hidden Gems mode** uses a different base profile: popularity drops to 0%, quality rises to 15%.
 
 ## How Each Scoring Dimension Works
 
-### Genre Match (28% default)
+### Genre Match (26% default)
 - Compares user's genres against game categories, mechanics, themes
 - 70-entry genre expansion map (e.g., "Strategy" also matches "Economic", "Civilization", "Area Control")
 - **Known issue:** The 70 static expansions create false positives. "Strategy" matches too broadly.
@@ -344,8 +369,8 @@ pie title Default Scoring Weights (10 dimensions, sum = 100%)
 ### Complexity Fit (7%)
 - BGG weight rating (1-5) vs. user preference. Buffer of +/- 0.5.
 
-### Popularity (4%)
-- Rating count, Bayesian adjusted (min 1000 votes). **Intentionally low** to prevent popularity bias.
+### Popularity (6%)
+- Rating count, Bayesian adjusted (min 1000 votes). **Intentionally low** to prevent popularity bias. Broad queries get 6x tiebreaker + canonical game injection to ensure famous games surface.
 
 ### Quality (3%)
 - Average user rating, Bayesian adjusted.
@@ -363,7 +388,7 @@ Every game has a 1536-dimensional semantic vector (text-embedding-3-small). 100%
 
 After rule scoring, the blend is:
 ```
-final_score = 0.55 * rule_score + 0.45 * cosine_similarity
+final_score = 0.65 * rule_score + 0.35 * cosine_similarity
 ```
 
 ### Layer 3: Collaborative Filtering (INFRASTRUCTURE READY, DATA-STARVED)
@@ -372,7 +397,7 @@ Two implementations:
 - **BPR (ready, not active):** Full TypeScript implementation of Bayesian Personalized Ranking (Rendle et al., UAI 2009). 64-dim latent factors. Needs user data to train.
 
 ### Layer 4: Hybrid + LLM Enhancement (ACTIVE)
-Combines all signals, then GPT-4o-mini reranks top 60 -> 25 with semantic understanding. Finally, MMR diversity (80% relevance + 20% novelty) prevents homogeneous results.
+Combines all signals, then GPT-4o reranks top 80 -> 25 with semantic understanding. Finally, MMR diversity (88% relevance + 12% novelty) prevents homogeneous results.
 
 ## The Feedback Loop
 
@@ -424,6 +449,10 @@ flowchart TD
 ---
 
 # Part 3: Evaluation System
+
+:::info
+**Why we built this:** The recommendation engine was vibe-coded. Without rigorous evaluation, every change was "does this feel better?" We needed objective claims like "this change improved mechanic-focused queries by 9% while introducing 2 regressions." The eval suite is how we know the engine is actually getting better.
+:::
 
 ## Why We Built This
 
@@ -560,7 +589,7 @@ flowchart LR
         F3["Designer Match<br/>+2.0 / -0.8"]
         F4["LLM Constraint<br/>Merge into Body"]
         F5["Similar-To<br/>Self-Penalty -0.5"]
-        F6["Broad Query<br/>Quality Tiebreaker 4x"]
+        F6["Broad Query<br/>Quality Tiebreaker 6x"]
     end
 
     subgraph Impact["Measured Results"]
@@ -601,20 +630,24 @@ flowchart LR
 
 # Part 4: Research Foundation
 
+:::info
+**Why research matters here:** Recommendation systems are a well-studied field with clear best practices. The academic literature told us: hybrid systems beat single-algorithm approaches, LLMs should enhance (not replace) traditional signals, questionnaires are validated for cold-start, and diversity reduces churn. Our architecture follows these patterns. The research also identified our gaps: we should learn blending weights instead of hand-tuning, and we need A/B testing for live validation.
+:::
+
 The system design was informed by academic literature. Here's what I read, what I took, and how well I implemented it.
 
 ## Papers & Sources
 
 | Source | Key Takeaway | How We Applied It |
 |--------|-------------|-------------------|
-| **Raza et al. 2024** (287 papers surveyed) | Hybrid systems beat any single technique | 6 parallel candidate sources + multi-stage scoring |
-| **Koch/Criteo** (6 years practitioner) | Popularity bias is #1 failure; CF should dominate as data grows | Reduced popularity from 20% to 4%; CF built but data-starved |
+| **Raza et al. 2024** (287 papers surveyed) | Hybrid systems beat any single technique | 7 parallel candidate sources + multi-stage scoring |
+| **Koch/Criteo** (6 years practitioner) | Popularity bias is #1 failure; CF should dominate as data grows | Popularity at 6% with 6x broad-query tiebreaker + canonical game injection; CF built but data-starved |
 | **BGG Study (Grannan)** | CF and content-based produce non-overlapping recs | Validates hybrid approach |
 | **Cold-Start Game Study** | "Tags x Questions" hybrid beats pure CF for cold start | Directly validates questionnaire-first design |
 | **Steam Study (Germain)** | ALS with implicit feedback outperforms content-based | BPR implementation ready, waiting for user data |
 | **LLM+RecSys 2024-2025** | LLMs should enhance, not replace traditional signals | LLM usage: parsing + reranking + enrichment (not core scoring) |
 | **Netflix Tech Blog** | Interleaving is 100x more efficient than A/B | A/B framework designed but not deployed |
-| **Spotify Research** | Diversity reduces churn 10-20pp | MMR diversity with lambda=0.2 |
+| **Spotify Research** | Diversity reduces churn 10-20pp | MMR diversity with lambda=0.12 |
 | **YouTube Evolution** | CTR optimization leads to clickbait | We use thumbs up/down (satisfaction), not clicks |
 | **MovieLens Study** (445 users) | Users want accuracy + novelty; transparency builds trust | Per-recommendation explanations |
 | **LLM-as-Judge Survey 2024** | 85% human agreement; pairwise > pointwise | Using pointwise 0-10 (should upgrade) |
@@ -628,7 +661,7 @@ The standard recommendation pipeline from academic surveys (Raza et al.):
 |-------|------------------|-------------------|--------|
 | 1. Data Acquisition | Multi-source ingestion | 4 game API adapters + Supabase + LLM enrichment | Implemented |
 | 2. Feature Engineering | Embeddings + feature extraction | 1536d semantic vectors + tag expansion + mechanic aliases | Implemented |
-| 3. Candidate Generation | Multiple retrieval paths | 6 parallel sources + hard filtering | Implemented |
+| 3. Candidate Generation | Multiple retrieval paths | 7 parallel sources + hard filtering | Implemented |
 | 4. Ranking | Multi-signal scoring | 10-dim scoring + LLM rerank + MMR diversity | Implemented |
 | 5. Evaluation | Offline + online metrics | 3,028-case eval suite + IR metrics + LLM judge | Implemented (offline only) |
 | 6. Feedback Loop | User signals -> model updates | Thumbs up/down -> CF + rejection learning + preference vectors | Implemented |
@@ -642,7 +675,7 @@ r_hat(u,i) = alpha * f_CB(u,i) + beta * f_CF(u,i)
 
 Our implementation:
 ```
-final_score = 0.55 * rule_based_score + 0.45 * cosine_similarity
+final_score = 0.65 * rule_based_score + 0.35 * cosine_similarity
               + 0.15 * CF_boost (when available)
               - rejection_penalty (from "Not This" history)
 ```
@@ -654,7 +687,7 @@ final_score = 0.55 * rule_based_score + 0.45 * cosine_similarity
 | # | Failure Mode | Impact | Root Cause |
 |---|-------------|--------|------------|
 | 1 | Free text -> structured prefs is lossy | HIGH | Intensity modifiers, comparison structure partially lost during LLM extraction |
-| 2 | Popularity bias drowns niche relevance | HIGH | Even at 4% weight, popular games can outscore perfect-match niche games |
+| 2 | Popularity bias drowns niche relevance | HIGH | Even at 6% weight, popular games can outscore perfect-match niche games |
 | 3 | Genre/tag matching too fuzzy | MED-HIGH | 70 static expansion aliases create false positives |
 | 4 | Semantic embedding coverage gap | MED-HIGH | **Fixed:** now 100% coverage (was 23%) |
 | 5 | "Similar To" doesn't leverage game attributes | MEDIUM | **Partially fixed:** now bootstraps complexity/players/time from reference game |
@@ -678,12 +711,16 @@ Key findings that shaped our eval approach:
 
 # Part 5: Honest Self-Assessment
 
+:::info
+**Being honest about where we are:** This section exists because I'd rather you know what's broken before you find it. The system works well for many queries but has real gaps, especially around catalog coverage and collaborative filtering.
+:::
+
 ## What I Think I'm Doing Right
 
 1. **Hybrid multi-layer architecture** -- Validated by all academic sources
 2. **Questionnaire-first for cold start** -- Game-specific research explicitly validates this
 3. **LLM for parsing, not for ranking** -- Matches 2024-2025 industry consensus
-4. **Diversity enforcement via MMR** -- Standard technique, conservative lambda=0.2
+4. **Diversity enforcement via MMR** -- Standard technique, lambda=0.12 (88% relevance, 12% novelty)
 5. **Progressive fallback chain** -- Guarantees non-empty results
 6. **Rejection learning from "Not This"** -- Novel, addresses real user pain
 7. **Multiple candidate sources in parallel** -- Maximizes recall
@@ -747,16 +784,73 @@ Adaptive amplification helps (2x for tight player count, etc.) but base weights 
 | Vector pool size | 250 | Candidates from pgvector |
 | Tag/text pool | 150 + 50 | From GIN + full-text search |
 | Min candidates | 30 | Below this, popularity fallback |
-| Rule/similarity blend | 55% / 45% | Hand-tuned |
+| Rule/similarity blend | 65% / 35% | Hand-tuned |
 | CF boost | +15% | When data exists |
 | Rejection cap | 50% | Max penalty from "Not This" |
-| LLM rerank in/out | 60 / 25 | Candidates to/from GPT-4o-mini |
-| Diversity lambda | 0.2 | MMR: 80% relevance, 20% novelty |
+| LLM rerank in/out | 80 / 25 | Candidates to/from GPT-4o |
+| Diversity lambda | 0.12 | MMR: 88% relevance, 12% novelty |
 | Cache TTL | 120s | Both Redis and in-memory |
 | LLM parse timeout | 8s | Preference extraction |
-| LLM rerank timeout | 6s | Semantic reranking |
+| LLM rerank timeout | 12s | Semantic reranking |
 | Mechanic aliases | 67 | BGG naming gap bridge |
 | Popularity fallback lists | 38 | By genre/mechanic/theme |
+
+---
+
+# Part 8: Recent Engine Changes (April 2026)
+
+:::info
+These changes were made after running 3,028 eval cases and analyzing all failure patterns. The dominant issue (92% of failures) was **missing famous/canonical games** -- the engine returned obscure-but-topically-relevant games while users expected the defining examples.
+:::
+
+## Root Cause: Anti-Popularity Bias
+
+The engine had over-corrected against popularity bias. With popularity at only 4% weight and 45% cosine similarity rewarding tag-matching niche games, a game called "Legendary: A Marvel Deck Building Game" with "Deck Building" in its name outscored Dominion (96k ratings) because `freeTextMatch` (22%) rewarded name-level matches over mechanic-metadata matches.
+
+## Changes Made (with evidence)
+
+### 1. Canonical Games Injection (Highest Impact)
+**Problem:** 89 of 97 eval failures were `missing-ideal-game`. Codenames missing in 9 cases, Ticket to Ride in 8.
+**Fix:** Added a lookup mapping 30+ mechanics/categories to their universally-expected games. Netflix/Spotify "editorial override" pattern.
+**Result:** Dominion now #1 for "deck building game." Codenames now #1 for "party game."
+
+### 2. Popularity Weight Rebalance
+**Problem:** "deck building game" returned Summer Camp (200 ratings) above Dominion (96k ratings).
+**Fix:** Bumped from 4% to 6%. Broad queries get 6x tiebreaker (was 4x). Multi-constraint queries get 5% floor.
+
+### 3. Rule/Similarity Blend Shift (65/35, was 55/45)
+**Fix:** Cosine similarity rewarded niche games regardless of popularity. Rules include the tiebreaker. More weight on rules = tiebreaker matters more.
+
+### 4. LLM Reranker Window Expanded (80, was 60)
+**Fix:** If Dominion ranked 65th, the LLM couldn't promote it. Now it sees 80 candidates plus notable game hints.
+
+### 5. Chill Mood Expanded
+**Fix:** Patchwork and Jaipur scored poorly because they lack "family" BGG tags. Added: 2-player + low complexity, abstract/set-collection tags, short playtime.
+
+### 6. Designer Search Fixed
+**Fix:** "Stefan Feld" returned 0 Feld games because case-sensitive match missed "Stefan H. Feld". Now uses substring matching.
+
+### 7. Single-Mechanic Scoring Boosted (1.5x, was 1.2x)
+**Fix:** For "deck building game", the mechanic IS the query. Stronger multiplier differentiates primary mechanics from side features.
+
+### 8. Diversity Lambda Reduced (0.12, was 0.2)
+**Fix:** At 0.2, selecting Dominion penalized Star Realms for sharing tags. Users asking for deck builders want multiple deck builders.
+
+## Spot Check Results
+
+| Query | Before | After |
+|-------|--------|-------|
+| "deck building game" | Summer Camp, Flip City | **Dominion #1** |
+| "Stefan Feld" | 1/10 Feld games | **8/8 Feld games** |
+| "party game for 6+" | Taboo, Big Idea | **Codenames #1** |
+| "tile placement" | Random tiles | **Carcassonne #1** |
+
+## Key Learnings
+
+1. **Anti-popularity bias is as bad as popularity bias.** The fix was surgical: boost popularity ONLY as a tiebreaker among equally-relevant games.
+2. **Editorial overrides are underrated.** Small canonical games map (30+ keys) addresses 92% of failures.
+3. **The LLM reranker is powerful but blind.** It can only promote games it sees.
+4. **Mood heuristics need domain knowledge.** BGG tags don't map to user moods. "Chill" means more than "family game."
 
 ---
 
@@ -768,13 +862,13 @@ These are the specific things I'd love your opinion on. Feel free to comment inl
 
 1. **Scoring architecture:** Is 10 dimensions with hand-tuned weights the right approach, or should I collapse to fewer and let a meta-learner optimize? At what data volume?
 
-2. **Candidate generation:** With 6 parallel sources and 500-1000 candidates, am I over- or under-fetching? The 0.5% catalog coverage suggests the problem is WHICH 500, not how many.
+2. **Candidate generation:** With 7 parallel sources and 500-1000 candidates, am I over- or under-fetching? The 0.5% catalog coverage suggests the problem is WHICH 500, not how many.
 
 3. **Evaluation blind spots:** The eval tests "did the right games appear?" but not "did the user feel satisfied?" Is there a practical way to bridge this offline?
 
 4. **LLM integration points:** I use LLMs in 4 places (parsing, query expansion, reranking, metadata enrichment). Are any misplaced? Should the LLM be doing more or less?
 
-5. **Diversity vs. accuracy:** MMR with lambda=0.2 (80% relevance, 20% novelty). Right balance for game recommendations?
+5. **Diversity vs. accuracy:** MMR with lambda=0.12 (88% relevance, 12% novelty). Right balance for game recommendations?
 
 6. **Cold start strategy:** The questionnaire collects rich preferences. Are there better signals to collect?
 

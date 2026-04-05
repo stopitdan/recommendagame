@@ -48,9 +48,9 @@ export async function llmRerank(
 
   // Build compact game summaries for the LLM
   // For small candidate pools (e.g., user's collection), evaluate all of them.
-  // For large pools, evaluate top 50 so the LLM sees well-known games that
-  // rule-based scoring may have ranked at position 30-50.
-  const maxCandidates = candidates.length <= 80 ? candidates.length : 60;
+  // For large pools, evaluate top 80 so the LLM sees well-known games that
+  // rule-based scoring may have ranked at position 60-80.
+  const maxCandidates = candidates.length <= 100 ? candidates.length : 80;
   const gameSummaries = candidates.slice(0, maxCandidates).map((c, i) => {
     const g = c.game;
     const parts = [`${i + 1}. "${g.name}" [ID:${g.id}]`];
@@ -63,10 +63,20 @@ export async function llmRerank(
     return parts.join(' | ');
   }).join('\n');
 
+  // Highlight notable well-known games in the full candidate pool that the LLM
+  // might want to promote, even if they ranked below the visible window
+  const notableGames = candidates
+    .filter((c) => (c.game.ratingCount ?? 0) >= 20000)
+    .map((c) => `"${c.game.name}" (${Math.round((c.game.ratingCount ?? 0) / 1000)}k votes)`)
+    .slice(0, 10);
+  const notableSection = notableGames.length > 0
+    ? `\nNotable well-known games in the candidate pool: ${notableGames.join(', ')}\n`
+    : '';
+
   const prompt = `You are a board game recommendation expert. A user is looking for a game with these preferences:
 
 ${wantsSummary.join('\n')}
-
+${notableSection}
 Here are ${Math.min(candidates.length, maxCandidates)} candidate games from our database:
 
 ${gameSummaries}

@@ -68,11 +68,11 @@ export const DEFAULT_WEIGHTS: ScoringWeights = {
   playerCountFit: 0.08,  // Hard-filtered already, this scores fit quality
   timeFit: 0.07,         // Hard-filtered already, this scores fit quality
   complexityFit: 0.07,   // Hard-filtered already, this scores fit quality
-  genreMatch: 0.28,      // PRIMARY relevance signal — user taste (was 0.24, +0.04)
+  genreMatch: 0.26,      // PRIMARY relevance signal — user taste (was 0.28, -0.02 to fund popularity)
   moodAlignment: 0.08,   // Soft signal — vibes
-  freeTextMatch: 0.22,   // User's exact words are high-intent (was 0.18, +0.04)
+  freeTextMatch: 0.22,   // User's exact words are high-intent
   qualitySignal: 0.03,   // Minor tiebreaker — rating score matters very little
-  popularitySignal: 0.04, // Tiebreaker only, not a ranking signal (was 0.12)
+  popularitySignal: 0.06, // Canonical game tiebreaker — ensures Dominion beats Colony (was 0.04, +0.02)
   recencyBoost: 0.03,    // Mild freshness boost
 };
 
@@ -156,11 +156,16 @@ function computeAdaptiveWeights(
   ].filter(Boolean).length;
 
   if (constraintCount <= 1) {
-    w.qualitySignal *= 4.0;
-    w.popularitySignal *= 4.0;
+    // Very broad query ("deck building game") — canonical games must surface
+    w.qualitySignal *= 6.0;
+    w.popularitySignal *= 6.0;
   } else if (constraintCount === 2) {
-    w.qualitySignal *= 2.0;
-    w.popularitySignal *= 2.0;
+    w.qualitySignal *= 3.0;
+    w.popularitySignal *= 3.0;
+  } else if (constraintCount >= 3) {
+    // Multi-constraint queries: hard filters already prune irrelevant games,
+    // so popularity should still serve as a tiebreaker among survivors
+    w.popularitySignal = Math.max(w.popularitySignal, 0.05);
   }
 
   // Renormalize to sum to 1.0
@@ -693,12 +698,27 @@ function scoreMoodAlignment(game: Game, moods: string[]): number {
         }
         break;
 
-      case 'chill':
+      case 'chill': {
+        // Low complexity is the strongest chill signal
         if (game.complexity != null && game.complexity <= 2.5) score += 0.5;
+        // Classic chill tags
         if (gameTags.some((t) => t.includes('family') || t.includes('party') || t.includes('casual'))) {
-          score += 0.5;
+          score += 0.3;
+        }
+        // Intimate 2-player + low complexity = quintessentially chill (Patchwork, Jaipur)
+        if (game.playerCount && game.playerCount.max <= 2 && game.complexity != null && game.complexity < 2.5) {
+          score += 0.3;
+        }
+        // Abstract/set-collection/pattern games feel chill even without "family" tag
+        if (gameTags.some((t) => t.includes('abstract') || t.includes('set collection') || t.includes('pattern') || t.includes('card game'))) {
+          score += 0.2;
+        }
+        // Short games feel chill
+        if (game.playTime?.average && game.playTime.average < 45) {
+          score += 0.1;
         }
         break;
+      }
 
       case 'brain-teaser':
         if (game.complexity != null && game.complexity >= 3.0) score += 0.5;
@@ -818,7 +838,13 @@ function scoreFreeTextLLM(game: Game, parsed: ParsedPreferences): number {
       }
     }
     const mechanicRatio = mechanicHits / parsed.mechanics.length;
-    totalScore += mechanicRatio * 1.2;
+    // Single-mechanic queries ("deck building game") = the mechanic IS the query,
+    // so use a stronger multiplier to differentiate true deck builders from games
+    // that merely mention deck building somewhere in metadata
+    const mechanicMultiplier = parsed.mechanics.length === 1 ? 1.5 : 1.2;
+    totalScore += mechanicRatio * mechanicMultiplier;
+    // Bonus for full mechanic match on single-mechanic queries
+    if (mechanicRatio === 1.0 && parsed.mechanics.length === 1) totalScore += 0.3;
     if (mechanicRatio === 0) totalScore -= 0.3; // Penalty for zero match
     totalChecks++;
   }

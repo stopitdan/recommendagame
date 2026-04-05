@@ -458,18 +458,16 @@ describe('weight configurations', () => {
     const hiddenGemsWeights = scoreGames([popular, niche], prefs, HIDDEN_GEMS_WEIGHTS);
 
     // Hidden gems has 0% popularity weight and 15% quality weight.
-    // Default has 4% popularity and 3% quality. These different profiles
+    // Default has 6% popularity and 3% quality. These different profiles
     // should produce different score breakdowns.
     const defaultPopBreakdown = defaultWeights.find((r) => r.game.id === 'popular')!.breakdown;
     const gemsPopBreakdown = hiddenGemsWeights.find((r) => r.game.id === 'popular')!.breakdown;
-    // The popularity dimension should contribute differently (0% vs 4% weight)
-    // We check the breakdown directly since overall scores are close after normalization
+    // The popularity dimension raw values should be identical (same game, same dimension scorer)
     expect(defaultPopBreakdown.popularitySignal).toBe(gemsPopBreakdown.popularitySignal);
-    // But the niche game should benefit more from quality under hidden gems
-    const defaultNicheScore = defaultWeights.find((r) => r.game.id === 'niche')!.score;
-    const gemsNicheScore = hiddenGemsWeights.find((r) => r.game.id === 'niche')!.score;
-    // Under hidden gems, the high-quality niche game benefits from 15% quality weight (vs 3% default)
-    expect(gemsNicheScore).toBeGreaterThan(defaultNicheScore);
+    // The popular game should rank lower under hidden gems (which zeroes out popularity)
+    const defaultPopularScore = defaultWeights.find((r) => r.game.id === 'popular')!.score;
+    const gemsPopularScore = hiddenGemsWeights.find((r) => r.game.id === 'popular')!.score;
+    expect(defaultPopularScore).toBeGreaterThan(gemsPopularScore);
   });
 });
 

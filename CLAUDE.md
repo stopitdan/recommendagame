@@ -32,7 +32,7 @@ The core system lives in `src/lib/recommendation/`:
 5. **AI Re-Ranking** — LLM judge reviews top candidates and re-orders using common sense
 6. **Learning From You** (`collaborative.ts`, `feedback-loop.ts`) — Collaborative filtering + user feedback sharpens preference profiles
 
-`POST /api/recommend` orchestrates all layers: fetches 500 candidates (250 by similarity + 250 by rating), scores them rule-based, re-ranks by hybrid score (60% rule + 40% similarity), applies diversity penalties, returns top results.
+`POST /api/recommend` orchestrates all layers: fetches 500+ candidates from 7 parallel sources (canonical games, designer, mechanic, vector, tag, text, LLM expansion), scores them rule-based, re-ranks by hybrid score (65% rule + 35% similarity), applies diversity penalties (MMR lambda=0.12), returns top results.
 
 ### Adapter Pattern
 
