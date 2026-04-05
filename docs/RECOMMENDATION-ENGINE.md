@@ -1,132 +1,181 @@
-# Recommendation Engine — Design & Roadmap
+# Recommendation Engine -- Current State & Design
 
-How boredgame.lol evolves from basic filtering to a true ML-powered recommendation engine.
+How boredgame.lol recommends games. This document describes the system as it exists today, including what's implemented, what's working, and what's not.
 
----
-
-## The Four Layers (in order of implementation)
-
-### Layer 1: Weighted Scoring (Phase 3 — NOW)
-**What it is:** User answers questionnaire → structured preferences → query DB with weighted scoring.
-
-Not just `WHERE min_players >= 3`. Each game gets a **match score** across all preference dimensions (type, player count, time, complexity, genres, mood). Games are ranked by total score.
-
-**Example:** User wants 4 players, medium complexity, strategy genre.
-- Catan: 4-player ✓ (+3), complexity 2.3 (close to medium) (+2), Strategy ✓ (+3) = **score 8**
-- Wordle: 1-player ✗ (+0), complexity 1.5 (too simple) (+1), Puzzle (not Strategy) (+0) = **score 1**
-
-**Smarter than filtering because:** A game that matches 4/5 criteria still surfaces. Pure filtering would exclude it for missing one criterion.
-
-**Infrastructure needed:** Already built — questionnaire (collecting), Supabase queries (scoring).
+For the research that informed these decisions, see [RECOMMENDATION-ENGINE-RESEARCH.md](RECOMMENDATION-ENGINE-RESEARCH.md).
+For the comprehensive review packet, see [TECHNICAL-REVIEW-PACKET.md](TECHNICAL-REVIEW-PACKET.md).
 
 ---
 
-### Layer 2: Content-Based Filtering via pgvector (Phase 4a)
-**What it is:** Each game's attributes are encoded as a **768-dimensional vector**. User preferences become a vector in the same space. Recommendations = **cosine similarity** (nearest neighbor search).
+## The Four Layers
 
-**How it works:**
-1. Build a feature vector for each game from its metadata:
-   - Categories → one-hot encoded dimensions
-   - Mechanics → one-hot encoded dimensions
-   - Complexity → normalized value
-   - Player count range → encoded
-   - Play time → encoded
-   - Rating → encoded
-2. Store in `game_embeddings` table (already exists)
-3. Convert user preferences into a vector in the same space
-4. Call `match_games()` RPC (already exists) — pgvector finds nearest neighbors via HNSW index
+The recommendation engine evolved through four layers. All four are implemented; Layer 3 (Collaborative Filtering) is infrastructure-complete but data-starved.
 
-**Why this is real ML:** This is the same approach used by Spotify (for songs), Netflix (for shows), and Amazon (for products). Cosine similarity in a shared embedding space is the foundation of modern recommendation systems.
+### Layer 1: Weighted Rule-Based Scoring (ACTIVE)
 
-**Infrastructure needed:** Already built — `game_embeddings` table, `match_games()` RPC, HNSW index. Need to build: the embedding generation pipeline (game attributes → vector).
+User answers questionnaire or types free text. Preferences are extracted and matched against game metadata across 10 weighted dimensions:
 
----
+| Dimension | Weight | What It Scores |
+|-----------|--------|---------------|
+| Genre match | 28% | User genres vs. game categories/mechanics/themes (70-entry expansion map) |
+| Free text match | 22% | LLM-parsed keywords, mechanics, designers matched against game metadata |
+| Type match | 10% | Board game vs. video game |
+| Player count fit | 8% | Does the game support the requested player count? |
+| Mood alignment | 8% | Mood tags (chill, competitive, etc.) vs. enriched metadata + heuristics |
+| Time fit | 7% | Game play time vs. user time preference |
+| Complexity fit | 7% | BGG weight rating vs. user complexity preference |
+| Popularity | 4% | Rating count (Bayesian adjusted) |
+| Quality | 3% | Average user rating (Bayesian adjusted) |
+| Recency | 3% | Publication year boost |
 
-### Layer 3: Collaborative Filtering (Phase 4c)
-**What it is:** "Users who liked X also liked Y." Learns from **collective user behavior**, not just game metadata.
+**Adaptive weights:** The base weights are amplified based on query specificity. A user who says "exactly 2 players" gets a 2x boost on player count; "under 90 minutes" gets 2.5x on time. Broad queries with few constraints get 4x on quality/popularity as a tiebreaker. All weights renormalize to 100% after amplification.
 
-**How it works:**
-1. Build a user-game interaction matrix from `user_game_feedback` (thumbs up/down)
-2. Find users with similar feedback patterns
-3. Recommend games that similar users liked but the current user hasn't seen
+**Intent modifiers:** The LLM parser extracts intent levels from free text:
+- "must have" -> +0.3 bonus when matched, -0.2 penalty when missing
+- "avoid" / "not too" -> -0.25 penalty when matched
+- "really" / "very" -> +0.15 bonus
+- "ideally" / "bonus if" -> +0.1 bonus (no penalty for missing)
 
-**Two approaches:**
-- **User-based:** Find similar users, recommend what they liked
-- **Item-based:** Find games similar to ones the user liked (based on who else liked them)
-
-**Why this matters:** Discovers non-obvious connections. A user who likes both Catan and Wordle might get recommended Codenames — a connection that content-based filtering wouldn't make, but collaborative filtering learns from user behavior.
-
-**Infrastructure needed:** Already built — `user_game_feedback` table. Need to build: matrix factorization or a lightweight collaborative filtering algorithm. Needs a **minimum user base** (~50-100 users with feedback) before it produces useful signals.
+**File:** `src/lib/recommendation/scoring.ts` (1,230 lines)
 
 ---
 
-### Layer 4: Hybrid + LLM Enhancement (Phase 4d-e)
-**What it is:** Combine all three layers with learned weights, plus natural language understanding.
+### Layer 2: Content-Based Filtering via pgvector (ACTIVE)
 
-**Hybrid scoring:**
+Each game has two vector representations stored in `game_embeddings`:
+- **Hash-based (768-dim):** One-hot encoded categories, mechanics, themes, normalized complexity/players/time. Used as fallback.
+- **Semantic (1536-dim):** OpenAI text-embedding-3-small embeddings of game name + description + metadata. **100% coverage (81,039 games).**
+
+User preferences become a vector in the same space. The pgvector HNSW index finds the 250 nearest neighbors by cosine similarity in sub-100ms.
+
+After rule-based scoring, the top 100 candidates are re-ranked with a blended score:
 ```
-final_score = w1 * rule_score + w2 * content_similarity + w3 * collaborative_score
+final_score = 0.55 * rule_score + 0.45 * cosine_similarity
 ```
-Weights adjust based on data availability:
-- New user, no feedback → heavy on rule_score and content_similarity
-- Established user with feedback → collaborative_score gets more weight
-- Cold start (new game, no ratings) → content-based only
 
-**LLM enhancement:**
-- Parse free-text input: "something like Catan but faster and for 2 players" → structured preferences + boost for Catan-similar games
-- Generate "why we picked this" explanations: "Because you like strategy games with moderate complexity, and 80% of users who liked Catan also loved this one"
-- Eventually: conversational recommendations ("What about something cooperative instead?")
-
-**Infrastructure needed:** LLM API integration (Claude), prompt engineering, hybrid scoring function.
+**Files:** `src/lib/recommendation/similarity.ts`, `src/lib/recommendation/embeddings.ts`
 
 ---
 
-## The Feedback Loop (what makes it LEARN)
+### Layer 3: Collaborative Filtering (INFRASTRUCTURE READY, DATA-STARVED)
 
-This is what ties everything together:
+Two implementations exist:
+
+**Frequency-based CF (active):** Finds users with similar feedback patterns, boosts games they liked. Minimum 3 reviews per user to activate. Gives +15% score boost. Simple but effective for small data.
+
+**BPR -- Bayesian Personalized Ranking (ready, not active):** Full TypeScript implementation of Rendle et al. (UAI 2009). Learns 64-dimensional latent factor vectors for users and games via SGD on (user, liked_game, disliked_game) triples. Needs sufficient user feedback data to train. This is THE algorithm recommended by academic literature for implicit feedback (thumbs up/down).
+
+**Why CF matters:** Content-based filtering says "you like strategy games, here's another strategy game." Collaborative filtering says "users with your taste pattern also loved this game you've never heard of." They produce non-overlapping recommendations (validated by BGG academic study).
+
+**Files:** `src/lib/recommendation/collaborative.ts`, `src/lib/recommendation/bpr.ts`
+
+---
+
+### Layer 4: Hybrid + LLM Enhancement (ACTIVE)
+
+The final ranking combines all signals:
+
+```
+base_score = 0.55 * rule_score + 0.45 * similarity_score
+boosted_score = base_score * (1 + CF_boost)  // +15% when CF data exists
+penalized_score = boosted_score * (1 - rejection_penalty)  // from "Not This" history
+```
+
+Then the LLM reranker (GPT-4o-mini) takes the top 60 candidates, considers the user's original query semantically, and outputs the top 25 in its preferred order.
+
+Finally, MMR diversity enforcement (80% relevance + 20% novelty) prevents the top 30 from being too homogeneous.
+
+**LLM enhancement points:**
+1. **Parsing:** Free text -> structured preferences with intent modifiers
+2. **Query expansion:** Generates 5-10 creative search terms for broader candidate retrieval
+3. **Re-ranking:** Semantic understanding catches what rule-based scoring misses
+4. **Metadata enrichment (batch):** GPT-4o-mini generates mood/vibe/audience tags for all 81k games
+
+This aligns with the 2024-2025 industry consensus: LLMs should enhance traditional rec systems, not replace them.
+
+---
+
+## The Feedback Loop
+
+Every interaction makes the system better:
 
 ```
 User answers questionnaire
-        ↓
-Gets recommendations (Layer 1 + 2)
-        ↓
-Thumbs up / thumbs down
-        ↓
-Feedback stored in user_game_feedback
-        ↓
-User's preference_vector updated (gets closer to liked games, farther from disliked)
-        ↓
-Next recommendation is better
-        ↓
-Meanwhile, collaborative filtering sees patterns across ALL users
-        ↓
-System gets smarter globally, not just per-user
+        |
+Gets recommendations (Layers 1-4)
+        |
+Thumbs up / "Not This"
+        |
+user_game_feedback table updated
+        |
+    +---+---+
+    |       |
+Preference vector    Rejection learning
+updated (closer to   builds tag profile
+liked games)         from dismissed games
+    |                (activates after 2+
+Next recommendation  rejections of same tag,
+is better            max 50% penalty)
+    |
+Meanwhile: CF sees patterns across ALL users
+    |
+System gets smarter globally
 ```
 
-Every interaction makes the system better for that user AND for all users.
+**Files:** `src/lib/recommendation/feedback-loop.ts`, `src/lib/recommendation/rejection.ts`
 
 ---
 
-## What's Already Built (infrastructure)
+## Evaluation
 
-| Component | Status | Where |
-|-----------|--------|-------|
-| `game_embeddings` table (768-dim vectors) | Schema ready | `001_initial_schema.sql` |
-| `match_games()` RPC (cosine similarity) | Schema ready | `001_initial_schema.sql` |
-| HNSW index for fast vector search | Schema ready | `001_initial_schema.sql` |
-| `user_preferences.preference_vector` | Schema ready | `001_initial_schema.sql` |
-| `user_game_feedback` table (thumbs up/down) | Schema ready | `001_initial_schema.sql` |
-| Questionnaire UI (data collection) | Building now | Phase 3 |
-| Embedding generation pipeline | Not started | Phase 4a |
-| Collaborative filtering algorithm | Not started | Phase 4c |
-| Hybrid scoring + LLM | Not started | Phase 4d-e |
+The engine is measured by a 3,028-case eval suite across 16 categories. See [evals/EVAL-OVERVIEW.md](../evals/EVAL-OVERVIEW.md) for full details.
+
+**Current baseline (307-case subset):**
+- 68.4% pass rate
+- 7.14/10 LLM judge score
+- 0.9855 NDCG@10
+- 1.0% constraint violations
+- Best categories: Edge Cases (100%), Video Games (100%), Theme (86%)
+- Worst categories: Mood/Vibe (29%), Mechanic-Focused (32%), Designer (42%)
+
+**Known issues:**
+1. **0.5% catalog coverage** -- only ~400 of 81k games ever get recommended
+2. **Missing famous games** -- Dominion, Codenames, Azul rank below obscure alternatives
+3. **Genre matching too fuzzy** -- 70 static expansions create false positives
+4. **Static weights** -- should be learned, not hand-tuned (Koch/Criteo recommendation)
 
 ---
 
-## Key Decisions
+## Key Constants
 
-- **768 dimensions** for embeddings — good balance of quality and performance
-- **Cosine similarity** (not Euclidean) — better for sparse, high-dimensional data
-- **HNSW index** — approximate nearest neighbor, sub-100ms at 100k+ games
-- **Supabase/pgvector** — keeps everything in one DB, no separate vector service
-- **Progressive complexity** — each layer adds on top of the previous, nothing wasted
+| Parameter | Value | Notes |
+|-----------|-------|-------|
+| Vector pool size | 250 | Candidates from pgvector search |
+| Relevance pool size | 150 | Candidates from tag/text search |
+| Min candidates | 30 | Below this, popularity fallback kicks in |
+| Rule/similarity blend | 55/45 | Hand-tuned, should be learned |
+| CF boost | +15% | When collaborative filtering data exists |
+| Rejection cap | 50% | Maximum penalty from rejection learning |
+| LLM rerank input | 60 | Candidates sent to LLM reranker |
+| LLM rerank output | 25 | Candidates returned by LLM reranker |
+| Diversity lambda | 0.2 | MMR: 80% relevance, 20% novelty |
+| Cache TTL | 120s | Both Redis and in-memory |
+| LLM parse timeout | 8s | GPT-4o-mini preference extraction |
+| LLM rerank timeout | 6s | GPT-4o-mini semantic reranking |
+
+---
+
+## Architecture vs. Literature
+
+See [RECOMMENDATION-ENGINE-RESEARCH.md](RECOMMENDATION-ENGINE-RESEARCH.md) for the full analysis. Key alignment points:
+
+| Best Practice | Our Implementation | Gap |
+|---------------|-------------------|-----|
+| Hybrid CF + content (Raza et al.) | 6 parallel candidate sources + multi-stage scoring | CF is data-starved |
+| LLMs enhance, don't replace (2024-2025 consensus) | LLM for parsing + reranking + enrichment | Aligned |
+| Questionnaire for cold start (game-specific research) | Questionnaire-first architecture | Aligned |
+| Diversity reduces churn (Spotify) | MMR with lambda=0.2 | Aligned |
+| Popularity bias is #1 failure (Koch/Criteo) | Popularity at 4% weight | Mostly addressed |
+| Learned blending weights (Koch) | Static hand-tuned weights | Gap: need meta-learner |
+| A/B testing (Netflix, Koch) | Offline eval only | Gap: no live experiments |
+| BPR for implicit feedback (Rendle et al.) | Implemented, not active | Gap: needs user data |

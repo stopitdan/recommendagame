@@ -71,11 +71,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={roboto.variable}>
+    <html lang="en" className={roboto.variable} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var m=localStorage.getItem('rag_color_mode');if(!m){m=window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'}document.documentElement.setAttribute('data-theme',m);var p=localStorage.getItem('rag_color_preset');if(p)document.documentElement.setAttribute('data-preset',p)}catch(e){}})()`,
+            __html: `(function(){try{var d=document.documentElement;var m=localStorage.getItem('rag_color_mode');if(!m){m=window.matchMedia('(prefers-color-scheme:light)').matches?'light':'dark'}d.setAttribute('data-theme',m);d.style.colorScheme=m;var p=localStorage.getItem('rag_color_preset');if(p)d.setAttribute('data-preset',p)}catch(e){}})()`,
           }}
         />
         <meta name="google-adsense-account" content="ca-pub-5790683982576164" />
@@ -86,7 +86,7 @@ export default function RootLayout({
         ></script>
       </head>
       <GoogleAnalytics />
-      <body className={roboto.className}>
+      <body className={roboto.className} suppressHydrationWarning>
         <AppRouterCacheProvider>
           <ThemeRegistry>
             <SmoothScroll>

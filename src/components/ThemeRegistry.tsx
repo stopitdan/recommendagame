@@ -15,7 +15,7 @@ interface ColorModeContextType {
 }
 
 const ColorModeContext = createContext<ColorModeContextType>({
-  mode: "light",
+  mode: "dark",
   toggleMode: () => {},
   colorPreset: 'game-night-glow',
   setColorPreset: () => {},
@@ -38,10 +38,10 @@ function getStoredMode(): PaletteMode | null {
 }
 
 function getSystemMode(): PaletteMode {
-  if (typeof window === "undefined") return "light";
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
+  if (typeof window === "undefined") return "dark";
+  return window.matchMedia("(prefers-color-scheme: light)").matches
+    ? "light"
+    : "dark";
 }
 
 // ─── Provider ────────────────────────────────────────────────
@@ -51,36 +51,54 @@ export default function ThemeRegistry({
 }: {
   children: React.ReactNode;
 }) {
-  const [mode, setMode] = useState<PaletteMode>(() => {
-    if (typeof document !== "undefined") {
-      const attr = document.documentElement.getAttribute("data-theme");
-      if (attr === "light" || attr === "dark") return attr;
+  // Always start with "dark" on server to match default + avoid flash.
+  // The inline script in <head> sets the correct data-theme before paint.
+  // We sync React state to the real value in useEffect.
+  const [mode, setMode] = useState<PaletteMode>("dark");
+  const [colorPreset, setColorPresetState] = useState("game-night-glow");
+  const [mounted, setMounted] = useState(false);
+
+  // After mount, sync React state to the values the inline script set
+  useEffect(() => {
+    const attr = document.documentElement.getAttribute("data-theme");
+    if (attr === "light" || attr === "dark") {
+      setMode(attr);
+    } else {
+      // No inline script ran (shouldn't happen), fall back to stored/system
+      const stored = getStoredMode();
+      const resolved = stored || getSystemMode();
+      setMode(resolved);
+      document.documentElement.setAttribute("data-theme", resolved);
     }
-    return "light";
-  });
-  const [colorPreset, setColorPresetState] = useState(() => {
-    if (typeof document !== "undefined") {
-      return document.documentElement.getAttribute("data-preset") || "game-night-glow";
-    }
-    return "game-night-glow";
-  });
+
+    const preset = document.documentElement.getAttribute("data-preset") || localStorage.getItem(PRESET_STORAGE_KEY) || "game-night-glow";
+    setColorPresetState(preset);
+
+    setMounted(true);
+  }, []);
 
   // Listen for system theme changes (only if no stored preference)
   useEffect(() => {
+    if (!mounted) return;
     if (!getStoredMode()) {
       const mq = window.matchMedia("(prefers-color-scheme: dark)");
       const handler = (e: MediaQueryListEvent) => {
-        if (!getStoredMode()) setMode(e.matches ? "dark" : "light");
+        if (!getStoredMode()) {
+          const next = e.matches ? "dark" : "light";
+          setMode(next);
+          document.documentElement.setAttribute("data-theme", next);
+        }
       };
       mq.addEventListener("change", handler);
       return () => mq.removeEventListener("change", handler);
     }
-  }, []);
+  }, [mounted]);
 
   const toggleMode = useCallback(() => {
     setMode((prev) => {
       const next = prev === "light" ? "dark" : "light";
       localStorage.setItem(STORAGE_KEY, next);
+      document.documentElement.setAttribute("data-theme", next);
       return next;
     });
   }, []);
@@ -88,6 +106,7 @@ export default function ThemeRegistry({
   const setColorPreset = useCallback((id: string) => {
     setColorPresetState(id);
     localStorage.setItem(PRESET_STORAGE_KEY, id);
+    document.documentElement.setAttribute("data-preset", id);
   }, []);
 
   const theme = useMemo(() => createAppTheme(mode, colorPreset), [mode, colorPreset]);
