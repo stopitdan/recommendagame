@@ -1,0 +1,118 @@
+
+========================================================================
+  BOREDGAME.LOL EVALUATION REPORT
+  Run ID: 2026-04-05T09-28-59
+  2026-04-05T09:28:59.012Z -> 2026-04-05T09:59:38.279Z
+  Duration: 1839.3s | Cases: 307 | Concurrency: 2
+========================================================================
+
+  OVERALL RESULTS
+------------------------------------------------------------------------
+  Pass Rate:       236/307 (76.9%)
+  Avg NDCG@10:     0.9734
+  Avg Precision@10: 0.9990
+  Avg MRR:         0.9984
+  Avg Hit Rate@5:  1.0000
+  Constraint Viol: 1.1%
+  LLM Judge Score: 7.27/10
+  Latency p50/p95: 6908ms / 8884ms
+  Catalog Coverage: 3.0% (2441 unique games)
+  Trust Busters:   2 (obviously wrong results)
+  Violations by type: time=34
+
+  REGRESSION vs 2026-04-05T09-13-18
+------------------------------------------------------------------------
+  Pass Rate Delta: +0.3687
+  NDCG Delta:      +0.0708
+  MRR Delta:       -0.0016
+
+  PER-CATEGORY BREAKDOWN
+------------------------------------------------------------------------
+  mood-vibe                2/7 (29%)  NDCG=0.888  MRR=1.000  Violations=0%
+  multi-constraint         4/11 (36%)  NDCG=0.973  MRR=1.000  Violations=8%
+  complexity               4/9 (44%)  NDCG=0.986  MRR=1.000  Violations=0%
+  time-constraint          8/14 (57%)  NDCG=0.978  MRR=1.000  Violations=12%
+  designer-search          7/12 (58%)  NDCG=0.910  MRR=1.000  Violations=0%
+  mechanic-focused         27/45 (60%)  NDCG=0.956  MRR=1.000  Violations=0%
+  player-count             13/20 (65%)  NDCG=0.980  MRR=1.000  Violations=0%
+  party-game               3/4 (75%)  NDCG=1.000  MRR=1.000  Violations=0%
+  negative-preference      12/15 (80%)  NDCG=0.989  MRR=1.000  Violations=0%
+  similar-to               19/23 (83%)  NDCG=0.970  MRR=0.978  Violations=0%
+  free-text-intent         22/26 (85%)  NDCG=0.984  MRR=1.000  Violations=3%
+  theme-focused            51/57 (89%)  NDCG=0.971  MRR=1.000  Violations=0%
+  edge-case                33/33 (100%)  NDCG=0.992  MRR=1.000  Violations=0%
+  real-user-feedback       3/3 (100%)  NDCG=0.986  MRR=1.000  Violations=0%
+  video-game               19/19 (100%)  NDCG=1.000  MRR=1.000  Violations=0%
+  regression               9/9 (100%)  NDCG=1.000  MRR=1.000  Violations=0%
+
+  FAILURE TYPES
+------------------------------------------------------------------------
+  missing-ideal-game           65 cases
+  llm-judge-low-score          20 cases
+  constraint-violation         10 cases
+  anti-game-present            2 cases
+
+  WORST 20 CASES
+------------------------------------------------------------------------
+  [negative-preference-079] "strategy game but no war or fighting themes" Judge=4/10 missing=[Terraforming Mars, Wingspan]
+    Top 5: Le Havre | Outpost | Poker | Attila | Way Out West
+    Judge: The results include several strategy games, but many of them have themes that could be interpreted as involving conflict
+  [free-text-intent-124] "my wife hates board games, what would she act" Judge=4/10 missing=[Azul]
+    Top 5: The Mind | Legendary: A Marvel Deck Building Game | Through the Desert | Codenames: Duet | Flash Point: Fire Rescue
+    Judge: The recommendations are all board games, which is a constraint violation since the user specified that their wife hates 
+  [time-constraint-206] "5 minute game" Judge=4/10 [8 violations]
+    Top 5: 5 Minuten Puzzle | 5 Minute Chase | Bitten: A Game of Survival | Nine-minute Kingdom | Dao
+    Judge: The results include some games that meet the 5-minute requirement, but there are several games that exceed this time lim
+  [theme-focused-026] "medieval castle building game" Judge=5/10 missing=[Carcassonne, The Castles of Burgundy]
+    Top 5: Ora et Labora | Agricola | Le Havre | Suburbia | Viticulture
+    Judge: The results include some games that are related to city building and economic themes, but they do not specifically match
+  [time-constraint-047] "quick filler game under 15 minutes" Judge=6/10 [4 violations] missing=[Love Letter, Coup]
+    Top 5: Codenames | That's It! | 5 Minute Chase | Continuo | SCOUT
+    Judge: The recommendations include several games that fit the user's request for quick filler games under 15 minutes, but there
+  [free-text-intent-117] "something I can teach anyone in 2 minutes and" Judge=6/10 [4 violations] missing=[Love Letter, Coup]
+    Top 5: Codenames | Exploding Kittens | Sushi Go Party! | No Thanks! | Bananagrams
+    Judge: Several games are good matches for the user's request, but there are notable issues with some results exceeding the time
+  [mechanic-focused-004] "medium weight worker placement game" Judge=6/10 missing=[Viticulture]
+    Top 5: Dune: Imperium | Caverna: Cave vs Cave | Keyflower | Everdell | Marco Polo II: In the Service of the Khan
+    Judge: The recommendations include several worker placement games, which is relevant to the user's query. However, the weight o
+  [mechanic-focused-020] "set collection card game" Judge=6/10 missing=[Ticket to Ride]
+    Top 5: SET | Harmonies | Bärenpark | Meadow | Faraway
+    Judge: Several games in the results are relevant to the user's query for a set collection card game, particularly 'SET' and 'Vi
+  [player-count-040] "thematic solo games" Judge=6/10 missing=[Arkham Horror: The Card Game]
+    Top 5: Mage Knight Board Game | Old Town: Solo | Spirit Island | Gamma Guild | For Northwood! A Solo Trick-Taking Game
+    Judge: The recommendations include several thematic solo games, but there are notable issues. Results #1 (Mage Knight Board Gam
+  [player-count-045] "game for 8 or more people" Judge=6/10 missing=[Codenames]
+    Top 5: The Resistance | Bad People | 25 Words or Less: People, Places and Things Edition | Green Box of Games | Task Team
+    Judge: Several games in the results can accommodate 8 or more players, but there are also a few that fall below the requested p
+  [time-constraint-051] "about an hour long strategy game" Judge=6/10 missing=[Wingspan]
+    Top 5: Architects of the West Kingdom | Raiders of the North Sea | The White Castle | Chesscalation | Antagonism
+    Judge: While there are a couple of games that fit the user's request for a strategy game around an hour long, the majority of t
+  [complexity-054] "heavy complex strategy game for experienced p" Judge=6/10 missing=[Brass: Birmingham, Gaia Project]
+    Top 5: Le Havre | Outpost | Serenissima | Roads & Boats | Too Many Bones: Undertow
+    Judge: The recommendations include several games that are complex and strategic, with weights that fall within the specified ra
+  [complexity-057] "medium weight euro game" Judge=6/10 missing=[Viticulture, Concordia]
+    Top 5: Architects of the West Kingdom | Outpost | Attila | Poker | Way Out West
+    Judge: The recommendations include several games that fit within the specified weight range of 2.5 to 3.5, and they are primari
+  [designer-search-070] "Vlaada Chvatil board games" Judge=6/10 missing=[Codenames]
+    Top 5: Through the Ages: A Story of Civilization | Prophecy | Graenaland | Tash-Kalar: Arena of Legends | Arena: Morituri te salutant
+    Judge: The results include several games designed by Vlaada Chvátil, such as 'Through the Ages' and 'Tash-Kalar', which are rel
+  [similar-to-071] "something like Catan but better" Judge=6/10 missing=[Concordia]
+    Top 5: Catan | Pandemic | Castles of Mad King Ludwig | Tapestry | Viticulture
+    Judge: The recommendations include a mix of games that are somewhat related to Catan, particularly in terms of economic and neg
+  [negative-preference-080] "strategy game with no dice rolling" Judge=6/10 missing=[Concordia]
+    Top 5: Paladins of the West Kingdom | Attila | Serenissima | Way Out West | Nyet!
+    Judge: The recommendations include several strategy games that do not involve dice rolling, which aligns with the user's reques
+  [party-game-111] "game for Thanksgiving with non-gamers" Judge=6/10 missing=[Ticket to Ride]
+    Top 5: Codenames | Dixit | Magic Maze | Party Panda Pirates | BANG! The Dice Game
+    Judge: The recommendations include several suitable games for non-gamers, with a focus on party and card games, which are gener
+  [free-text-intent-120] "something quick to decompress during a work f" Judge=6/10 [3 violations]
+    Top 5: Codenames | The Crew: The Quest for Planet Nine | Carcassonne | The Mind | Wingspan
+    Judge: The recommendations include several games that fit the user's request for something quick to decompress, with many games
+  [mechanic-focused-131] "i wanna build a deck" Judge=6/10 missing=[Dominion]
+    Top 5: Terraforming Mars | Ark Nova | Underwater Cities | Gaia Project | Through the Ages: A New Story of Civilization
+    Judge: The recommendations include several relevant games that involve deck-building mechanics or card play, which aligns with 
+  [mechanic-focused-138] "game where you build combos that get better e" Judge=6/10 missing=[Wingspan]
+    Top 5: Terraforming Mars | Ark Nova | Through the Ages: A New Story of Civilization | Underwater Cities | Terra Mystica
+    Judge: The recommendations include several games that involve building combos and have mechanisms that can improve over time, w
+
+========================================================================
