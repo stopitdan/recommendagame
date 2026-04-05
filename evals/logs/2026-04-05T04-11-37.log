@@ -1,0 +1,37 @@
+
+========================================================================
+  BOREDGAME.LOL EVALUATION REPORT
+  Run ID: 2026-04-05T04-11-37
+  2026-04-05T04:11:37.977Z -> 2026-04-05T04:11:50.790Z
+  Duration: 12.8s | Cases: 3 | Concurrency: 8
+========================================================================
+
+  OVERALL RESULTS
+------------------------------------------------------------------------
+  Pass Rate:       0/3 (0.0%)
+  Avg NDCG@10:     0.9829
+  Avg Precision@10: 1.0000
+  Avg MRR:         1.0000
+  Avg Hit Rate@5:  1.0000
+  Constraint Viol: 13.3%
+  Latency p50/p95: 12216ms / 12798ms
+
+  PER-CATEGORY BREAKDOWN
+------------------------------------------------------------------------
+  mechanic-focused         0/3 (0%)  NDCG=0.983  MRR=1.000  Violations=13%
+
+  FAILURE TYPES
+------------------------------------------------------------------------
+  missing-ideal-game           2 cases
+  constraint-violation         1 cases
+
+  WORST 20 CASES
+------------------------------------------------------------------------
+  [mechanic-focused-001] "deck building game" missing=[Dominion, Star Realms]
+    Top 5: Legendary: A Marvel Deck Building Game | Legendary Encounters: A Predator Deck Building Game | Summer Camp | Flip City | The Lord of the Rings: The Fellowship of the Ring Deck-Building Game
+  [mechanic-focused-002] "fast deck builder under 30 minutes" [4 violations]
+    Top 5: Dominion | Star Realms | POWER | Palaces | Deck of Spies
+  [mechanic-focused-003] "worker placement for beginners" missing=[Lords of Waterdeep, Stone Age]
+    Top 5: Little Town | Way Out West | Keytown | Silverton | Renaissance of Alchemy
+
+========================================================================

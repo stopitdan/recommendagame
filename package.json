@@ -8,7 +8,13 @@
     "start": "next start -p 1337",
     "lint": "eslint",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "eval": "npx tsx evals/runner.ts",
+    "eval:quick": "npx tsx evals/runner.ts --quick --no-judge",
+    "eval:full": "npx tsx evals/runner.ts --concurrency=8",
+    "eval:generate": "npx tsx evals/generate-cases.ts",
+    "eval:compare": "npx tsx evals/compare-runs.ts",
+    "eval:summary": "npx tsx evals/summary.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

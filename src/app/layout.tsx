@@ -83,7 +83,7 @@ export default function RootLayout({
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5790683982576164"
           crossOrigin="anonymous"
-        />
+        ></script>
       </head>
       <GoogleAnalytics />
       <body className={roboto.className}>

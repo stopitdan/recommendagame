@@ -1,0 +1,6182 @@
+{
+  "runId": "2026-04-05T04-11-37",
+  "startedAt": "2026-04-05T04:11:37.977Z",
+  "finishedAt": "2026-04-05T04:11:50.790Z",
+  "durationSeconds": 12.813,
+  "totalCases": 3,
+  "passedCases": 0,
+  "failedCases": 3,
+  "passRate": 0,
+  "aggregateMetrics": {
+    "avgNdcg10": 0.982852658369891,
+    "avgPrecision10": 1,
+    "avgMrr": 1,
+    "avgHitRate5": 1,
+    "avgConstraintViolationRate": 0.13333333333333333,
+    "avgLatencyMs": 12007.666666666666,
+    "p50LatencyMs": 12216,
+    "p95LatencyMs": 12798
+  },
+  "categoryBreakdown": {
+    "mechanic-focused": {
+      "totalCases": 3,
+      "passedCases": 0,
+      "passRate": 0,
+      "avgNdcg10": 0.982852658369891,
+      "avgMrr": 1,
+      "avgConstraintViolationRate": 0.13333333333333333
+    }
+  },
+  "failureDistribution": {
+    "missing-ideal-game": 2,
+    "constraint-violation": 1
+  },
+  "worstCases": [
+    {
+      "caseId": "mechanic-focused-001",
+      "category": "mechanic-focused",
+      "query": "deck building game",
+      "passed": false,
+      "results": [
+        {
+          "id": "bgg-129437",
+          "name": "Legendary: A Marvel Deck Building Game",
+          "categories": [
+            "Card Game",
+            "Comic Book / Strip"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Events",
+            "Open Drafting",
+            "Semi-Cooperative Game",
+            "Solo / Solitaire Game",
+            "Variable Set-up"
+          ],
+          "themes": [
+            "Comic Books: Marvel Universe",
+            "Game: Legendary (Upper Deck Entertainment)",
+            "Mechanism: Pure Deckbuilding",
+            "Misc: Watch It Played How To Videos",
+            "Players: Games with Solitaire Rules",
+            "Theme: Superheroes"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 5,
+          "avgPlayTime": 60,
+          "complexity": 2.4362,
+          "rating": 7.51887,
+          "ratingCount": 23325,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Devin Low"
+          ],
+          "_score": 0.514,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.722574,
+            "popularitySignal": 0.7915693179377871,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-174570",
+          "name": "Legendary Encounters: A Predator Deck Building Game",
+          "categories": [
+            "Card Game",
+            "Movies / TV / Radio theme",
+            "Science Fiction"
+          ],
+          "mechanics": [
+            "Cooperative Game",
+            "Deck, Bag, and Pool Building",
+            "Open Drafting",
+            "Player Elimination"
+          ],
+          "themes": [
+            "Creatures: Aliens / Extraterrestrials",
+            "Game: Legendary (Upper Deck Entertainment)",
+            "Mechanism: Pure Deckbuilding",
+            "Movies: Predator",
+            "Players: Games with Solitaire Rules"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 5,
+          "avgPlayTime": 45,
+          "complexity": 2.6905,
+          "rating": 7.41818,
+          "ratingCount": 2873,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Ben Cichoski",
+            "Daniel Mandel"
+          ],
+          "_score": 0.512,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.6518889999999999,
+            "popularitySignal": 0.665097674493134,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-337787",
+          "name": "Summer Camp",
+          "categories": [
+            "Card Game"
+          ],
+          "mechanics": [
+            "Deck Construction",
+            "Deck, Bag, and Pool Building",
+            "Open Drafting",
+            "Race",
+            "Track Movement",
+            "Variable Set-up"
+          ],
+          "themes": [
+            "Theme: Camping",
+            "Theme: Hiking",
+            "Theme: Nature",
+            "Theme: Scouting / Guiding"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 4,
+          "avgPlayTime": 45,
+          "complexity": 1.7971,
+          "rating": 7.09943,
+          "ratingCount": 2534,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Phil Walker-Harding"
+          ],
+          "_score": 0.516,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.630916,
+            "popularitySignal": 0.6534831878117742,
+            "recencyBoost": 0.7
+          }
+        },
+        {
+          "id": "bgg-168679",
+          "name": "Flip City",
+          "categories": [
+            "Card Game",
+            "City Building"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Push Your Luck",
+            "Sudden Death Ending"
+          ],
+          "themes": [
+            "Game: Flip City",
+            "Players: Games with Solitaire Rules",
+            "Series: Madison Game Design Cabal",
+            "Theme: City"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 4,
+          "avgPlayTime": 50,
+          "complexity": 1.7411,
+          "rating": 6.28527,
+          "ratingCount": 4156,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Chih-Fan Chen"
+          ],
+          "_score": 0.519,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.598634,
+            "popularitySignal": 0.6521692168162474,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-127127",
+          "name": "The Lord of the Rings: The Fellowship of the Ring Deck-Building Game",
+          "categories": [
+            "Card Game",
+            "Fantasy",
+            "Movies / TV / Radio theme",
+            "Novel-based"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building"
+          ],
+          "themes": [
+            "Authors: J.R.R. Tolkien",
+            "Game: Cerberus Engine – Middle Earth",
+            "Mechanism: Pure Deckbuilding",
+            "Theme: Wizards"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 5,
+          "avgPlayTime": 30,
+          "complexity": 2.1467,
+          "rating": 6.84228,
+          "ratingCount": 1621,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Ben Stoll",
+            "Patrick Sullivan (II)"
+          ],
+          "_score": 0.522,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.600519,
+            "popularitySignal": 0.6132059613220822,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-156689",
+          "name": "Legendary: A Marvel Deck Building Game – Villains",
+          "categories": [
+            "Card Game",
+            "Comic Book / Strip"
+          ],
+          "mechanics": [
+            "Cooperative Game",
+            "Deck, Bag, and Pool Building",
+            "Semi-Cooperative Game"
+          ],
+          "themes": [
+            "Admin: Better Description Needed!",
+            "Comic Books: Marvel Universe",
+            "Game: Legendary (Upper Deck Entertainment)",
+            "Players: Games with Solitaire Rules",
+            "Theme: Superheroes",
+            "Theme: Villainy"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 5,
+          "avgPlayTime": 45,
+          "complexity": 2.7073,
+          "rating": 7.52587,
+          "ratingCount": 2797,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Devin Low"
+          ],
+          "_score": 0.518,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.654695,
+            "popularitySignal": 0.6665926645638992,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-194230",
+          "name": "Attack on Titan: Deck-Building Game",
+          "categories": [
+            "Card Game",
+            "Fantasy",
+            "Movies / TV / Radio theme"
+          ],
+          "mechanics": [
+            "Cooperative Game",
+            "Deck, Bag, and Pool Building",
+            "Open Drafting",
+            "Variable Player Powers"
+          ],
+          "themes": [
+            "Comic Books: Attack on Titan",
+            "Game: Cerberus Engine – Heroes",
+            "Theme: Anime / Manga"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 5,
+          "avgPlayTime": 90,
+          "complexity": 2.4231,
+          "rating": 6.94557,
+          "ratingCount": 903,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Matt Hyra"
+          ],
+          "_score": 0.521,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 1 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.5855509999999999,
+            "popularitySignal": 0.5823997672442172,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-125678",
+          "name": "DC Deck-Building Game",
+          "categories": [
+            "Card Game",
+            "Comic Book / Strip"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Open Drafting"
+          ],
+          "themes": [
+            "Comic Books: DC Universe",
+            "Comic Books: Superman",
+            "Game: Cerberus Engine – Heroes",
+            "Mechanism: Pure Deckbuilding",
+            "Players: Games with expansions that add solo play",
+            "Theme: Superheroes"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 5,
+          "avgPlayTime": 45,
+          "complexity": 1.9967,
+          "rating": 7.05048,
+          "ratingCount": 7939,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Matt Hyra",
+            "Ben Stoll"
+          ],
+          "_score": 0.521,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.659768,
+            "popularitySignal": 0.7088959344448211,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-256874",
+          "name": "Legendary Encounters: The X-Files Deck Building Game",
+          "categories": [
+            "Card Game",
+            "Movies / TV / Radio theme",
+            "Science Fiction"
+          ],
+          "mechanics": [
+            "Cooperative Game",
+            "Deck, Bag, and Pool Building",
+            "Open Drafting",
+            "Solo / Solitaire Game"
+          ],
+          "themes": [
+            "Game: Legendary (Upper Deck Entertainment)",
+            "Mechanism: Pure Deckbuilding",
+            "Players: Games with Solitaire Rules",
+            "TV Shows: The X-Files"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 5,
+          "avgPlayTime": 60,
+          "complexity": 2.7647,
+          "rating": 7.68033,
+          "ratingCount": 920,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Ben Cichoski",
+            "Daniel Mandel"
+          ],
+          "_score": 0.519,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.608614,
+            "popularitySignal": 0.5979238930379824,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-285157",
+          "name": "Legendary: A James Bond Deck Building Game",
+          "categories": [
+            "Card Game",
+            "Movies / TV / Radio theme",
+            "Spies / Secret Agents"
+          ],
+          "mechanics": [
+            "Cooperative Game",
+            "Deck, Bag, and Pool Building",
+            "Solo / Solitaire Game"
+          ],
+          "themes": [
+            "Books: James Bond",
+            "Game: Legendary (Upper Deck Entertainment)",
+            "Mechanism: Pure Deckbuilding",
+            "Players: Games with Solitaire Rules"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 5,
+          "avgPlayTime": 45,
+          "complexity": 2.4643,
+          "rating": 7.79349,
+          "ratingCount": 783,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Ben Cichoski",
+            "Devin Low",
+            "Daniel Mandel"
+          ],
+          "_score": 0.522,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 1 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.605102,
+            "popularitySignal": 0.5900274753844333,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-97803",
+          "name": "Penny Arcade: The Game – Gamers vs. Evil",
+          "categories": [
+            "Card Game",
+            "Comic Book / Strip",
+            "Video Game Theme"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Hand Management",
+            "Open Drafting",
+            "Variable Player Powers"
+          ],
+          "themes": [
+            "Mechanism: Pure Deckbuilding",
+            "Webcomics: Penny Arcade"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 4,
+          "avgPlayTime": 45,
+          "complexity": 2.2414,
+          "rating": 6.45227,
+          "ratingCount": 926,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Ben Cichoski",
+            "Mike Donais",
+            "Paul Sottosanti"
+          ],
+          "_score": 0.526,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 4 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.574028,
+            "popularitySignal": 0.5737038607052821,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-195571",
+          "name": "Legendary Encounters: A Firefly Deck Building Game",
+          "categories": [
+            "Card Game",
+            "Movies / TV / Radio theme",
+            "Science Fiction"
+          ],
+          "mechanics": [
+            "Cooperative Game",
+            "Deck, Bag, and Pool Building",
+            "Solo / Solitaire Game"
+          ],
+          "themes": [
+            "Game: Legendary (Upper Deck Entertainment)",
+            "Mechanism: Pure Deckbuilding",
+            "Players: Games with Solitaire Rules",
+            "TV Shows: Firefly"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 5,
+          "avgPlayTime": 90,
+          "complexity": 2.5526,
+          "rating": 7.07265,
+          "ratingCount": 2048,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Ben Cichoski",
+            "Daniel Mandel"
+          ],
+          "_score": 0.525,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.6210600000000001,
+            "popularitySignal": 0.6378280126407916,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-152510",
+          "name": "The Lord of the Rings: The Return of the King Deck-Building Game",
+          "categories": [
+            "Card Game",
+            "Fantasy",
+            "Movies / TV / Radio theme",
+            "Novel-based"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building"
+          ],
+          "themes": [
+            "Authors: J.R.R. Tolkien",
+            "Game: Cerberus Engine – Middle Earth",
+            "Theme: Wizards"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 5,
+          "avgPlayTime": 45,
+          "complexity": 2.1176,
+          "rating": 7.02489,
+          "ratingCount": 523,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Matt Hyra"
+          ],
+          "_score": 0.528,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.575434,
+            "popularitySignal": 0.5567823516936522,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-138233",
+          "name": "Ascension: Rise of Vigil",
+          "categories": [
+            "Card Game",
+            "Fantasy"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Hand Management",
+            "Open Drafting"
+          ],
+          "themes": [
+            "Game: Ascension Deck Building",
+            "Players: Games with expansions that add solo play",
+            "Players: Games with expansions that change player count"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 4,
+          "avgPlayTime": 30,
+          "complexity": 2.2676,
+          "rating": 7.16782,
+          "ratingCount": 1825,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Justin Gary"
+          ],
+          "_score": 0.531,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.619977,
+            "popularitySignal": 0.6285915901713548,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-142555",
+          "name": "The Lord of the Rings: The Two Towers Deck-Building Game",
+          "categories": [
+            "Card Game",
+            "Fantasy",
+            "Movies / TV / Radio theme",
+            "Novel-based"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building"
+          ],
+          "themes": [
+            "Authors: J.R.R. Tolkien",
+            "Game: Cerberus Engine – Middle Earth",
+            "Theme: Wizards"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 5,
+          "avgPlayTime": 45,
+          "complexity": 2.1786,
+          "rating": 6.88365,
+          "ratingCount": 689,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Matt Hyra"
+          ],
+          "_score": 0.528,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 4 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.579271,
+            "popularitySignal": 0.5690115121570464,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-304531",
+          "name": "Ascension Tactics: Miniatures Deckbuilding Game",
+          "categories": [
+            "Fantasy",
+            "Miniatures"
+          ],
+          "mechanics": [
+            "Cooperative Game",
+            "Deck, Bag, and Pool Building",
+            "Scenario / Mission / Campaign Game",
+            "Solo / Solitaire Game"
+          ],
+          "themes": [
+            "Category: MOBA",
+            "Crowdfunding: Kickstarter",
+            "Game: Ascension Deck Building"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 4,
+          "avgPlayTime": 90,
+          "complexity": 2.5862,
+          "rating": 7.83073,
+          "ratingCount": 1179,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Justin Gary",
+            "Ryan Sutherland"
+          ],
+          "_score": 0.535,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.623447,
+            "popularitySignal": 0.6135774901640639,
+            "recencyBoost": 0.7
+          }
+        },
+        {
+          "id": "bgg-257733",
+          "name": "Fine Sand",
+          "categories": [
+            "Card Game"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Hand Management"
+          ],
+          "themes": [
+            "Components: Multi-Use Cards",
+            "Players: Games with Solitaire Rules",
+            "Series: Fable Game system",
+            "Theme: Beaches"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 4,
+          "avgPlayTime": 30,
+          "complexity": 2,
+          "rating": 6.63316,
+          "ratingCount": 856,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Friedemann Friese"
+          ],
+          "_score": 0.536,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 1 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.579694,
+            "popularitySignal": 0.5746186821288669,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-322124",
+          "name": "Power Rangers: Deck-Building Game",
+          "categories": [
+            "Card Game",
+            "Fighting",
+            "Movies / TV / Radio theme",
+            "Science Fiction"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Team-Based Game"
+          ],
+          "themes": [
+            "Mechanism: Pure Deckbuilding",
+            "Players: Games with expansions that add solo play"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 4,
+          "avgPlayTime": 70,
+          "complexity": 2.9,
+          "rating": 7.15359,
+          "ratingCount": 298,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Dan Blanchett",
+            "Matt Hyra"
+          ],
+          "_score": 0.537,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.564861,
+            "popularitySignal": 0.5268572159645293,
+            "recencyBoost": 0.7
+          }
+        },
+        {
+          "id": "bgg-157026",
+          "name": "Ascension: Realms Unraveled",
+          "categories": [
+            "Card Game",
+            "Fantasy"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Hand Management",
+            "Open Drafting"
+          ],
+          "themes": [
+            "Game: Ascension Deck Building",
+            "Players: Games with Solitaire Rules"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 4,
+          "avgPlayTime": 30,
+          "complexity": 2.1613,
+          "rating": 7.51022,
+          "ratingCount": 1207,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Justin Gary"
+          ],
+          "_score": 0.539,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.614622,
+            "popularitySignal": 0.6078348741751419,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-343526",
+          "name": "G.I. JOE Deck-Building Game",
+          "categories": [
+            "Card Game",
+            "Movies / TV / Radio theme"
+          ],
+          "mechanics": [
+            "Cooperative Game",
+            "Deck, Bag, and Pool Building"
+          ],
+          "themes": [
+            "Game: G.I. JOE Deck-Building Game",
+            "Mechanism: Pure Deckbuilding",
+            "Organizations: Game Designers of North Carolina",
+            "Toys: G.I. Joe"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 4,
+          "avgPlayTime": 70,
+          "complexity": 2.9167,
+          "rating": 7.66383,
+          "ratingCount": 1465,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "T. C. Petty III"
+          ],
+          "_score": 0.545,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.626938,
+            "popularitySignal": 0.6272148202437375,
+            "recencyBoost": 0.7
+          }
+        }
+      ],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Dominion",
+        "Star Realms"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "missing-ideal-game"
+      ],
+      "latencyMs": 11009,
+      "metrics": {
+        "ndcg10": 1,
+        "precision10": 1,
+        "mrr": 1,
+        "hitRate5": 1,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-002",
+      "category": "mechanic-focused",
+      "query": "fast deck builder under 30 minutes",
+      "passed": false,
+      "results": [
+        {
+          "id": "bgg-36218",
+          "name": "Dominion",
+          "categories": [
+            "Card Game",
+            "Medieval"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Delayed Purchase",
+            "Hand Management",
+            "Open Drafting",
+            "Take That",
+            "Variable Set-up"
+          ],
+          "themes": [
+            "Crowdfunding: Wspieram",
+            "Digital Implementations: Apple App Store",
+            "Digital Implementations: Google Play",
+            "Digital Implementations: Steam",
+            "Digital Implementations: VASSAL",
+            "Game: Dominion",
+            "Misc: BGG Hall of Fame",
+            "Misc: Dice Tower Hall of Fame",
+            "Misc: Mensa Select"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 4,
+          "avgPlayTime": 30,
+          "complexity": 2.3444,
+          "rating": 7.5976,
+          "ratingCount": 96316,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Donald X. Vaccarino"
+          ],
+          "_score": 0.532,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 1,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.747463,
+            "popularitySignal": 0.8639364061435613,
+            "recencyBoost": 0.2
+          }
+        },
+        {
+          "id": "bgg-147020",
+          "name": "Star Realms",
+          "categories": [
+            "Card Game",
+            "Fighting",
+            "Science Fiction"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Delayed Purchase",
+            "Hand Management",
+            "Income",
+            "Multi-Use Cards",
+            "Open Drafting",
+            "Player Elimination",
+            "Set Collection",
+            "Tags",
+            "Take That",
+            "Variable Set-up"
+          ],
+          "themes": [
+            "Category: Two-Player Fighting Games",
+            "Crowdfunding: Kickstarter",
+            "Digital Implementations: Apple App Store",
+            "Digital Implementations: Google Play",
+            "Digital Implementations: Steam",
+            "Game: Star Realms",
+            "Mechanism: Pure Deckbuilding",
+            "Misc: LongPack Games",
+            "Players: Games with expansions that add solo play",
+            "Players: Two-Player Only Games"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 2,
+          "avgPlayTime": 20,
+          "complexity": 1.9151,
+          "rating": 7.55235,
+          "ratingCount": 47814,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Robert Dougherty",
+            "Darwin Kastle"
+          ],
+          "_score": 0.51,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 0.97,
+            "timeFit": 1,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.740093,
+            "popularitySignal": 0.8348118059035089,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-113456",
+          "name": "POWER",
+          "categories": [
+            "Aviation / Flight",
+            "Card Game",
+            "Modern Warfare",
+            "Wargame"
+          ],
+          "mechanics": [
+            "Area Majority / Influence",
+            "Deck, Bag, and Pool Building",
+            "Open Drafting",
+            "Push Your Luck",
+            "Rock-Paper-Scissors"
+          ],
+          "themes": [
+            "Players: Wargames with Rules Supporting Only Two Players",
+            "Theme: Helicopters"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 4,
+          "avgPlayTime": 36,
+          "complexity": 2.0909,
+          "rating": 6.25128,
+          "ratingCount": 39,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "PK Torretto"
+          ],
+          "_score": 0.517,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.84,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.5510550000000001,
+            "popularitySignal": 0.40067208057121356,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-166183",
+          "name": "Palaces",
+          "categories": [
+            "Renaissance"
+          ],
+          "mechanics": [
+            "Auction / Bidding",
+            "Deck, Bag, and Pool Building",
+            "Hand Management",
+            "Highest-Lowest Scoring",
+            "Open Drafting"
+          ],
+          "themes": [
+            "Components: Multi-Use Cards",
+            "Crowdfunding: Kickstarter"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 4,
+          "avgPlayTime": 45,
+          "complexity": 1.3333,
+          "rating": 5.98284,
+          "ratingCount": 67,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Jeff Siadek"
+          ],
+          "_score": 0.515,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 4 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.6,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.551215,
+            "popularitySignal": 0.43225271945496047,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-393412",
+          "name": "Deck of Spies",
+          "categories": [
+            "Abstract Strategy",
+            "Card Game",
+            "Spies / Secret Agents"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Hand Management",
+            "Solo / Solitaire Game",
+            "Variable Set-up"
+          ],
+          "themes": [
+            "Components: Traditional Playing Cards",
+            "Players: Games with Solitaire Rules",
+            "Players: Solitaire Only Card Games",
+            "Players: Solitaire Only Games"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 1,
+          "avgPlayTime": 15,
+          "complexity": 1.3333,
+          "rating": 7.165,
+          "ratingCount": 20,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "James Newman (I)"
+          ],
+          "_score": 0.523,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 1 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 0.97,
+            "timeFit": 1,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.6513039215686275,
+            "popularitySignal": 0.18175870697272714,
+            "recencyBoost": 0.7
+          }
+        },
+        {
+          "id": "bgg-340193",
+          "name": "Turf War",
+          "categories": [
+            "Card Game",
+            "City Building"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Delayed Purchase",
+            "Hand Management",
+            "Open Drafting",
+            "Pieces as Map",
+            "Race",
+            "Square Grid",
+            "Tile Placement",
+            "Variable Set-up"
+          ],
+          "themes": [
+            "Crowdfunding: Kickstarter",
+            "Digital Implementations: Tabletopia",
+            "Players: Two-Player Only Games",
+            "Theme: Gardening"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 4,
+          "avgPlayTime": 30,
+          "complexity": 2.3333,
+          "rating": 7.03806,
+          "ratingCount": 67,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Dan Nichols"
+          ],
+          "_score": 0.524,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 1,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.553196,
+            "popularitySignal": 0.4394100247646748,
+            "recencyBoost": 0.7
+          }
+        },
+        {
+          "id": "bgg-306300",
+          "name": "Little Factory",
+          "categories": [
+            "Card Game",
+            "Industry / Manufacturing"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Hand Management",
+            "Multi-Use Cards",
+            "Race",
+            "Tech Trees / Tech Tracks"
+          ],
+          "themes": [
+            "Digital Implementations: Board Game Arena",
+            "Players: Games with expansions that add solo play"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 4,
+          "avgPlayTime": 40,
+          "complexity": 1.8276,
+          "rating": 6.44523,
+          "ratingCount": 1132,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Shun Taguchi",
+            "Aya Taguchi"
+          ],
+          "_score": 0.531,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.7333333333333334,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.57826,
+            "popularitySignal": 0.58351513089854,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-274167",
+          "name": "Fight Your Friends",
+          "categories": [
+            "Bluffing",
+            "Card Game",
+            "Collectible Components",
+            "Educational",
+            "Fantasy",
+            "Fighting",
+            "Math",
+            "Number",
+            "Party Game"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Hand Management",
+            "Open Drafting",
+            "Push Your Luck",
+            "Rock-Paper-Scissors"
+          ],
+          "themes": [
+            "Crowdfunding: Kickstarter",
+            "Players: Two-Player Only Games"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 2,
+          "avgPlayTime": 15,
+          "complexity": 1.6667,
+          "rating": 7.12941,
+          "ratingCount": 17,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Ash Maczko"
+          ],
+          "_score": 0.536,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 0.97,
+            "timeFit": 1,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3,
+            "qualitySignal": 0.6510521111111112,
+            "popularitySignal": 0.18508609196438663,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-264566",
+          "name": "Card Capture",
+          "categories": [
+            "Card Game",
+            "Print & Play",
+            "Puzzle"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Memory",
+            "Solo / Solitaire Game"
+          ],
+          "themes": [
+            "Components: Traditional Playing Cards",
+            "Contests: Solitaire Print & Play",
+            "Players: Games with Solitaire Rules",
+            "Players: Solitaire Only Games"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 1,
+          "avgPlayTime": 30,
+          "complexity": 1.4444,
+          "rating": 7.37193,
+          "ratingCount": 176,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Lucas Gentry"
+          ],
+          "_score": 0.537,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 1 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 0.97,
+            "timeFit": 1,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.560623,
+            "popularitySignal": 0.48226890997066063,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-171775",
+          "name": "Dexikon",
+          "categories": [
+            "Card Game",
+            "Word Game"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Spelling"
+          ],
+          "themes": [
+            "Crowdfunding: Kickstarter",
+            "Series: The E•G•G"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 5,
+          "avgPlayTime": 45,
+          "complexity": 2,
+          "rating": 6.3003,
+          "ratingCount": 168,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Andrew Rowse"
+          ],
+          "_score": 0.54,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.6,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.55524,
+            "popularitySignal": 0.48303071562395383,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-249233",
+          "name": "Filler",
+          "categories": [
+            "Card Game"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Hand Management",
+            "Multi-Use Cards",
+            "Selection Order Bid",
+            "Set Collection",
+            "Simultaneous Action Selection"
+          ],
+          "themes": [
+            "Crowdfunding: Kickstarter",
+            "Food & Drink: Cakes / Pies",
+            "Misc: Self-Referential Games",
+            "Players: Games with Solitaire Rules"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 6,
+          "avgPlayTime": 30,
+          "complexity": 1.7778,
+          "rating": 6.64314,
+          "ratingCount": 283,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Jonathan Chaffer"
+          ],
+          "_score": 0.54,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 1,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.561305,
+            "popularitySignal": 0.5130721047825274,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-342530",
+          "name": "Mini Containers",
+          "categories": [
+            "Card Game"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Push Your Luck",
+            "Solo / Solitaire Game"
+          ],
+          "themes": [
+            "Admin: Upcoming Releases",
+            "Card Games: Shedding / Stops",
+            "Crowdfunding: Kickstarter",
+            "Players: Games with Solitaire Rules"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 6,
+          "avgPlayTime": 20,
+          "complexity": null,
+          "rating": 7.65,
+          "ratingCount": 10,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Raoul Struijk"
+          ],
+          "_score": 0.54,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Supports 1–6 players",
+            "Matches your taste for Deck, Bag, and Pool Building"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 0.9199999999999999,
+            "timeFit": 1,
+            "complexityFit": 0.5,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.6511386138613862,
+            "popularitySignal": 0.15000000000000002,
+            "recencyBoost": 0.7
+          }
+        },
+        {
+          "id": "bgg-190022",
+          "name": "100 Swords: The Magic Computer's Dungeon Builder Set",
+          "categories": [
+            "Card Game",
+            "Expansion for Base-game",
+            "Fantasy"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Hand Management"
+          ],
+          "themes": [
+            "Crowdfunding: Kickstarter",
+            "Game: 100 Swords"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 2,
+          "avgPlayTime": 35,
+          "complexity": 2,
+          "rating": 7.38115,
+          "ratingCount": 61,
+          "types": [
+            "board",
+            "expansion"
+          ],
+          "designers": [
+            "Clayton Grey",
+            "Samuel Strick"
+          ],
+          "_score": 0.542,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Supports 1–2 players",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 0.84,
+            "timeFit": 0.8666666666666667,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.5542320000000001,
+            "popularitySignal": 0.2566053251197335,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-434906",
+          "name": "Tag Team",
+          "categories": [
+            "Card Game",
+            "Fantasy",
+            "Fighting"
+          ],
+          "mechanics": [
+            "Action Queue",
+            "Card Play Conflict Resolution",
+            "Deck, Bag, and Pool Building",
+            "Programmed Movement",
+            "Simultaneous Action Selection",
+            "Variable Player Powers"
+          ],
+          "themes": [
+            "Category: Two-Player Fighting Games",
+            "Digital Implementations: Board Game Arena",
+            "Players: Two-Player Only Games",
+            "Series: Two-player games (Kosmos)"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 2,
+          "avgPlayTime": 15,
+          "complexity": 2.0476,
+          "rating": 7.66941,
+          "ratingCount": 3231,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Gricha German",
+            "Corentin Lebrat"
+          ],
+          "_score": 0.543,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 0.97,
+            "timeFit": 1,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.671135,
+            "popularitySignal": 0.680006736467998,
+            "recencyBoost": 1
+          }
+        },
+        {
+          "id": "bgg-226169",
+          "name": "Forged Realms",
+          "categories": [
+            "Card Game",
+            "Fantasy"
+          ],
+          "mechanics": [
+            "Campaign / Battle Card Driven",
+            "Deck, Bag, and Pool Building",
+            "Open Drafting",
+            "Simultaneous Action Selection"
+          ],
+          "themes": [
+            "Card Games: Draw and Discard",
+            "Card Games: Outplay",
+            "Crowdfunding: Kickstarter",
+            "Players: Two-Player Only Games",
+            "Traditional Card Games: War"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 2,
+          "avgPlayTime": 15,
+          "complexity": null,
+          "rating": 6.775,
+          "ratingCount": 12,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Calvin Nelson"
+          ],
+          "_score": 0.545,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Matches your taste for Deck, Bag, and Pool Building"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 0.97,
+            "timeFit": 1,
+            "complexityFit": 0.5,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3,
+            "qualitySignal": 0.6503260869565217,
+            "popularitySignal": 0.19087447424253523,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-125609",
+          "name": "Pixel Lincoln: The Deckbuilding Game",
+          "categories": [
+            "Fantasy",
+            "Science Fiction",
+            "Video Game Theme"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building"
+          ],
+          "themes": [
+            "Crowdfunding: Kickstarter"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 4,
+          "avgPlayTime": 45,
+          "complexity": 1.7857,
+          "rating": 5.69069,
+          "ratingCount": 288,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Jason Tagmire"
+          ],
+          "_score": 0.548,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.6,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.551196,
+            "popularitySignal": 0.4877611816017346,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-175846",
+          "name": "Deck Building: The Deck Building Game",
+          "categories": [
+            "Card Game"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building"
+          ],
+          "themes": [
+            "Admin: Better Description Needed!",
+            "Crowdfunding: Kickstarter",
+            "Misc: Self-Referential Games",
+            "Players: Two-Player Only Games",
+            "Series: Rabbit Line (Dice Hate Me Games)"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 2,
+          "avgPlayTime": 20,
+          "complexity": 1.3333,
+          "rating": 5.38634,
+          "ratingCount": 476,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Christopher Badell"
+          ],
+          "_score": 0.551,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 0.97,
+            "timeFit": 1,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.547898,
+            "popularitySignal": 0.5065627765274365,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-253747",
+          "name": "Evil Overlord",
+          "categories": [
+            "Card Game",
+            "Horror",
+            "Science Fiction"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Hand Management",
+            "Trading"
+          ],
+          "themes": [],
+          "minPlayers": 3,
+          "maxPlayers": 10,
+          "avgPlayTime": 15,
+          "complexity": 1,
+          "rating": 5.05769,
+          "ratingCount": 26,
+          "types": [
+            "board"
+          ],
+          "designers": [],
+          "_score": 0.56,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Supports 3–10 players",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 0.96,
+            "timeFit": 1,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.6463450233918129,
+            "popularitySignal": 0.20687202285639233,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-168054",
+          "name": "Grifters",
+          "categories": [
+            "Card Game",
+            "Mafia"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Hand Management",
+            "Set Collection",
+            "Take That"
+          ],
+          "themes": [
+            "Crowdfunding: Kickstarter",
+            "Setting: Dystopian Universe (Indie Boards & Cards)"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 4,
+          "avgPlayTime": 30,
+          "complexity": 1.7949,
+          "rating": 6.68229,
+          "ratingCount": 1622,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Dave Fulton",
+            "Jacob Tlapek"
+          ],
+          "_score": 0.561,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 4 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 1,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.596786,
+            "popularitySignal": 0.6140110536217989,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-178153",
+          "name": "100 Swords: The Red Dragon's Dungeon",
+          "categories": [
+            "Card Game",
+            "Fantasy"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Hand Management"
+          ],
+          "themes": [
+            "Crowdfunding: Kickstarter",
+            "Game: 100 Swords",
+            "Mechanism: Pure Deckbuilding"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 2,
+          "avgPlayTime": 25,
+          "complexity": 1.375,
+          "rating": 6.64341,
+          "ratingCount": 253,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Clayton Grey",
+            "Samuel Strick"
+          ],
+          "_score": 0.559,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 0.99,
+            "timeFit": 1,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.560193,
+            "popularitySignal": 0.5106566011044557,
+            "recencyBoost": 0.5
+          }
+        }
+      ],
+      "idealGamesFound": [
+        "Star Realms",
+        "Dominion"
+      ],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [
+        {
+          "gameId": "bgg-113456",
+          "gameName": "POWER",
+          "rank": 3,
+          "type": "time",
+          "detail": "Takes 36min, limit is 30min (hard)"
+        },
+        {
+          "gameId": "bgg-166183",
+          "gameName": "Palaces",
+          "rank": 4,
+          "type": "time",
+          "detail": "Takes 45min, limit is 30min (hard)"
+        },
+        {
+          "gameId": "bgg-306300",
+          "gameName": "Little Factory",
+          "rank": 7,
+          "type": "time",
+          "detail": "Takes 40min, limit is 30min (hard)"
+        },
+        {
+          "gameId": "bgg-171775",
+          "gameName": "Dexikon",
+          "rank": 10,
+          "type": "time",
+          "detail": "Takes 45min, limit is 30min (hard)"
+        }
+      ],
+      "failureTypes": [
+        "constraint-violation"
+      ],
+      "latencyMs": 12798,
+      "metrics": {
+        "ndcg10": 0.948557975109673,
+        "precision10": 1,
+        "mrr": 1,
+        "hitRate5": 1,
+        "constraintViolationRate": 0.4
+      }
+    },
+    {
+      "caseId": "mechanic-focused-003",
+      "category": "mechanic-focused",
+      "query": "worker placement for beginners",
+      "passed": false,
+      "results": [
+        {
+          "id": "bgg-241266",
+          "name": "Little Town",
+          "categories": [
+            "City Building",
+            "Medieval"
+          ],
+          "mechanics": [
+            "Contracts",
+            "Tile Placement",
+            "Worker Placement"
+          ],
+          "themes": [
+            "Theme: City"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 4,
+          "avgPlayTime": 60,
+          "complexity": 1.951,
+          "rating": 7.14228,
+          "ratingCount": 4743,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Shun Taguchi",
+            "Aya Taguchi"
+          ],
+          "_score": 0.577,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3333333333333333,
+            "qualitySignal": 0.656245,
+            "popularitySignal": 0.6859244761519104,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-884",
+          "name": "Way Out West",
+          "categories": [
+            "Strategy"
+          ],
+          "mechanics": [
+            "Tile Placement",
+            "Worker Placement"
+          ],
+          "themes": [
+            "American West"
+          ],
+          "minPlayers": 3,
+          "maxPlayers": 5,
+          "avgPlayTime": 120,
+          "complexity": 2.6203,
+          "rating": 6.14302,
+          "ratingCount": 685,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Martin Wallace"
+          ],
+          "_score": 0.687,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Supports 3–5 players",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 0.86,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.6333333333333333,
+            "qualitySignal": 0.568991,
+            "popularitySignal": 0.5599651526034155,
+            "recencyBoost": 0.1
+          }
+        },
+        {
+          "id": "bgg-768",
+          "name": "Keytown",
+          "categories": [],
+          "mechanics": [
+            "Worker Placement"
+          ],
+          "themes": [
+            "Medieval"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 5,
+          "avgPlayTime": 60,
+          "complexity": 2.8,
+          "rating": 6.53952,
+          "ratingCount": 105,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Richard Breese"
+          ],
+          "_score": 0.619,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Supports 2–5 players",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 0.88,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3333333333333333,
+            "qualitySignal": 0.5560579999999999,
+            "popularitySignal": 0.4688482048354551,
+            "recencyBoost": 0.1
+          }
+        },
+        {
+          "id": "bgg-511",
+          "name": "Silverton",
+          "categories": [
+            "Strategy"
+          ],
+          "mechanics": [
+            "Dice Rolling",
+            "Network and Route Building",
+            "Commodity Speculation",
+            "Pick-up and Deliver",
+            "Worker Placement"
+          ],
+          "themes": [
+            "Economic",
+            "Transportation",
+            "American West",
+            "Trains",
+            "Theme_Mining"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 6,
+          "avgPlayTime": 180,
+          "complexity": 3.25,
+          "rating": 7.10227,
+          "ratingCount": 1033,
+          "types": [
+            "board"
+          ],
+          "designers": [],
+          "_score": 0.614,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 4 players — right in your sweet spot",
+            "Meaty and strategic — lots to think about"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 0.875,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.6333333333333333,
+            "qualitySignal": 0.610506,
+            "popularitySignal": 0.603428471079982,
+            "recencyBoost": 0.1
+          }
+        },
+        {
+          "id": "bgg-283754",
+          "name": "Renaissance of Alchemy",
+          "categories": [
+            "Fantasy"
+          ],
+          "mechanics": [
+            "Worker Placement"
+          ],
+          "themes": [
+            "Theme: Alchemy"
+          ],
+          "minPlayers": 3,
+          "maxPlayers": 5,
+          "avgPlayTime": 150,
+          "complexity": 2.5,
+          "rating": 6.70923,
+          "ratingCount": 13,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Kuro"
+          ],
+          "_score": 0.601,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3333333333333333,
+            "qualitySignal": 0.6502685083909181,
+            "popularitySignal": 0.169725372927767,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-277131",
+          "name": "Age of Dirt: A Game of Uncivilization",
+          "categories": [
+            "Prehistoric"
+          ],
+          "mechanics": [
+            "Cube Tower",
+            "Worker Placement"
+          ],
+          "themes": [
+            "Components: Drop Tower"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 5,
+          "avgPlayTime": 45,
+          "complexity": 1.875,
+          "rating": 6.92966,
+          "ratingCount": 336,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Johannes Krenner"
+          ],
+          "_score": 0.593,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3333333333333333,
+            "qualitySignal": 0.567065,
+            "popularitySignal": 0.5240949114234781,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-122701",
+          "name": "Monolith: The Strategy Game",
+          "categories": [
+            "Abstract Strategy",
+            "Dice"
+          ],
+          "mechanics": [
+            "Dice Rolling",
+            "Modular Board",
+            "Worker Placement"
+          ],
+          "themes": [
+            "Components: Gems/Crystals",
+            "Crowdfunding: Kickstarter"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 4,
+          "avgPlayTime": 30,
+          "complexity": 2.2778,
+          "rating": 6.16005,
+          "ratingCount": 194,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Matthew Papa"
+          ],
+          "_score": 0.585,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 4 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.6333333333333333,
+            "qualitySignal": 0.554168,
+            "popularitySignal": 0.48253361110545906,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-236275",
+          "name": "Boys, Be Ambitious",
+          "categories": [],
+          "mechanics": [
+            "Open Drafting",
+            "Set Collection",
+            "Variable Player Powers",
+            "Worker Placement"
+          ],
+          "themes": [],
+          "minPlayers": 3,
+          "maxPlayers": 4,
+          "avgPlayTime": 120,
+          "complexity": 3,
+          "rating": 6.23438,
+          "ratingCount": 16,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Kuro"
+          ],
+          "_score": 0.581,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 0.99,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3333333333333333,
+            "qualitySignal": 0.6495817007874016,
+            "popularitySignal": 0.178164799306237,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-290618",
+          "name": "Wishland",
+          "categories": [
+            "Abstract Strategy"
+          ],
+          "mechanics": [
+            "End Game Bonuses",
+            "Income",
+            "Set Collection",
+            "Solo / Solitaire Game",
+            "Variable Set-up",
+            "Worker Placement"
+          ],
+          "themes": [
+            "Crowdfunding: Kickstarter",
+            "Digital Implementations: TableTop Simulator Mod (TTS)",
+            "Theme: Amusement Parks / Theme Parks"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 4,
+          "avgPlayTime": 75,
+          "complexity": 2.4783,
+          "rating": 7.15081,
+          "ratingCount": 549,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Carlos Michán Amado"
+          ],
+          "_score": 0.581,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.6333333333333333,
+            "qualitySignal": 0.57905,
+            "popularitySignal": 0.5596212789439383,
+            "recencyBoost": 0.7
+          }
+        },
+        {
+          "id": "bgg-343542",
+          "name": "Imigrantes",
+          "categories": [
+            "Collectible Components",
+            "Economic"
+          ],
+          "mechanics": [
+            "Set Collection",
+            "Worker Placement"
+          ],
+          "themes": [
+            "Country: Brazil"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 4,
+          "avgPlayTime": 120,
+          "complexity": 3,
+          "rating": 7.59514,
+          "ratingCount": 37,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Led Bacciotti"
+          ],
+          "_score": 0.581,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3333333333333333,
+            "qualitySignal": 0.552083,
+            "popularitySignal": 0.40447074773778796,
+            "recencyBoost": 0.7
+          }
+        },
+        {
+          "id": "bgg-211175",
+          "name": "Undermine",
+          "categories": [
+            "Card Game"
+          ],
+          "mechanics": [
+            "Hand Management",
+            "Worker Placement"
+          ],
+          "themes": [
+            "Crowdfunding: Kickstarter",
+            "Theme: Mining"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 8,
+          "avgPlayTime": 45,
+          "complexity": 1.8,
+          "rating": 5.57308,
+          "ratingCount": 123,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Alican Yenidogan"
+          ],
+          "_score": 0.575,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3333333333333333,
+            "qualitySignal": 0.5499780000000001,
+            "popularitySignal": 0.4519723208902043,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-148099",
+          "name": "Worker Placement",
+          "categories": [
+            "Abstract Strategy",
+            "Economic"
+          ],
+          "mechanics": [
+            "Auction / Bidding",
+            "Hand Management",
+            "Open Drafting",
+            "Set Collection",
+            "Worker Placement"
+          ],
+          "themes": [
+            "Crowdfunding: Kickstarter",
+            "Misc: Self-Referential Games"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 5,
+          "avgPlayTime": 45,
+          "complexity": 2.1,
+          "rating": 5.39747,
+          "ratingCount": 81,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Mark C. MacKinnon"
+          ],
+          "_score": 0.568,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 5 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.6333333333333333,
+            "qualitySignal": 0.549641,
+            "popularitySignal": 0.42896817720945657,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-219122",
+          "name": "National Economy",
+          "categories": [
+            "Card Game",
+            "City Building",
+            "Economic"
+          ],
+          "mechanics": [
+            "Hand Management",
+            "Open Drafting",
+            "Worker Placement"
+          ],
+          "themes": [],
+          "minPlayers": 1,
+          "maxPlayers": 4,
+          "avgPlayTime": 45,
+          "complexity": 2.3333,
+          "rating": 6.80204,
+          "ratingCount": 214,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "西村裕 (Hiroshi Nishimura)"
+          ],
+          "_score": 0.563,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3333333333333333,
+            "qualitySignal": 0.5602280000000001,
+            "popularitySignal": 0.4925431319767254,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-220877",
+          "name": "Rajas of the Ganges",
+          "categories": [
+            "Dice",
+            "Economic",
+            "Renaissance",
+            "Territory Building"
+          ],
+          "mechanics": [
+            "Connections",
+            "Dice Rolling",
+            "Race",
+            "Tile Placement",
+            "Track Movement",
+            "Worker Placement",
+            "Worker Placement with Dice Workers"
+          ],
+          "themes": [
+            "Admin: Better Description Needed!",
+            "Components: Coloured Dice",
+            "Country: India",
+            "Digital Implementations: Tabletopia",
+            "Digital Implementations: Yucata",
+            "Game: Rajas of the Ganges",
+            "Mechanism: Dice Drafting",
+            "Religious: Hinduism"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 4,
+          "avgPlayTime": 75,
+          "complexity": 2.906,
+          "rating": 7.72195,
+          "ratingCount": 15959,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Inka Brand",
+            "Markus Brand"
+          ],
+          "_score": 0.542,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 4 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3333333333333333,
+            "qualitySignal": 0.741506,
+            "popularitySignal": 0.786693392514286,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-396716",
+          "name": "Effortless: Prepping for Adventure",
+          "categories": [
+            "Fantasy"
+          ],
+          "mechanics": [
+            "Area Majority / Influence",
+            "Set Collection",
+            "Take That",
+            "Variable Set-up",
+            "Worker Placement"
+          ],
+          "themes": [
+            "Admin: Upcoming Releases",
+            "Crowdfunding: Kickstarter"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 5,
+          "avgPlayTime": 40,
+          "complexity": 2,
+          "rating": 6.00588,
+          "ratingCount": 17,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Isaac Meyer"
+          ],
+          "_score": 0.538,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Supports 1–5 players",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 0.8999999999999999,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3333333333333333,
+            "qualitySignal": 0.6491740373647984,
+            "popularitySignal": 0.16382693528269643,
+            "recencyBoost": 0.85
+          }
+        },
+        {
+          "id": "bgg-203427",
+          "name": "Fabled Fruit",
+          "categories": [
+            "Animals",
+            "Card Game"
+          ],
+          "mechanics": [
+            "Multi-Use Cards",
+            "Set Collection",
+            "Worker Placement"
+          ],
+          "themes": [
+            "Food & Drink: Fruit",
+            "Series: Fable Game system"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 5,
+          "avgPlayTime": 30,
+          "complexity": 1.6056,
+          "rating": 6.98111,
+          "ratingCount": 6425,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Friedemann Friese"
+          ],
+          "_score": 0.536,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 4 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 0.8,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3333333333333333,
+            "qualitySignal": 0.657571,
+            "popularitySignal": 0.6967571656184254,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-405719",
+          "name": "Tabletop Inc.",
+          "categories": [
+            "Comic Book / Strip",
+            "Humor",
+            "Industry / Manufacturing"
+          ],
+          "mechanics": [
+            "Solo / Solitaire Game",
+            "Worker Placement",
+            "Worker Placement, Different Worker Types"
+          ],
+          "themes": [
+            "Components:  Meeples",
+            "Crowdfunding: Gamefound",
+            "Players: Games with Solitaire Rules",
+            "Theme: Boardgaming",
+            "Theme: Shelving"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 6,
+          "avgPlayTime": 120,
+          "complexity": 3.2,
+          "rating": 7.19172,
+          "ratingCount": 215,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Joseph N Adams",
+            "Madeleine Adams"
+          ],
+          "_score": 0.535,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Meaty and strategic — lots to think about"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 0.8999999999999999,
+            "genreMatch": 0.8,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3333333333333333,
+            "qualitySignal": 0.562683,
+            "popularitySignal": 0.5090248435157182,
+            "recencyBoost": 1
+          }
+        },
+        {
+          "id": "bgg-358620",
+          "name": "Forge",
+          "categories": [
+            "Industry / Manufacturing",
+            "Medieval"
+          ],
+          "mechanics": [
+            "Contracts",
+            "Set Collection",
+            "Worker Placement"
+          ],
+          "themes": [
+            "Crowdfunding: Kickstarter",
+            "Theme: Metal Smithing"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 4,
+          "avgPlayTime": 120,
+          "complexity": 2.2857,
+          "rating": 7.59839,
+          "ratingCount": 62,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Wesley Woodbury"
+          ],
+          "_score": 0.534,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 0.8,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3333333333333333,
+            "qualitySignal": 0.554579,
+            "popularitySignal": 0.43453425624864744,
+            "recencyBoost": 0.85
+          }
+        },
+        {
+          "id": "bgg-365647",
+          "name": "Mech A Dream",
+          "categories": [
+            "Industry / Manufacturing"
+          ],
+          "mechanics": [
+            "End Game Bonuses",
+            "Worker Placement"
+          ],
+          "themes": [
+            "Admin: Better Description Needed!",
+            "Digital Implementations: Board Game Arena",
+            "Theme: Dreams / Nightmares",
+            "Theme: Robots"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 4,
+          "avgPlayTime": 45,
+          "complexity": 2,
+          "rating": 6.57934,
+          "ratingCount": 273,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Thomas Dupont",
+            "Antoni Guillen"
+          ],
+          "_score": 0.532,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 0.8,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3333333333333333,
+            "qualitySignal": 0.561259,
+            "popularitySignal": 0.49980035781832866,
+            "recencyBoost": 0.85
+          }
+        },
+        {
+          "id": "bgg-128621",
+          "name": "Viticulture",
+          "categories": [
+            "Economic",
+            "Farming"
+          ],
+          "mechanics": [
+            "Contracts",
+            "Hand Management",
+            "Income",
+            "Race",
+            "Turn Order: Progressive",
+            "Worker Placement"
+          ],
+          "themes": [
+            "Country: Italy",
+            "Crowdfunding: Kickstarter",
+            "Digital Implementations: Google Play",
+            "Digital Implementations: TableTop Simulator Mod (TTS)",
+            "Food & Drink: Wine",
+            "Game: Viticulture"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 6,
+          "avgPlayTime": 90,
+          "complexity": 2.9527,
+          "rating": 7.47352,
+          "ratingCount": 15454,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Jamey Stegmaier",
+            "Alan Stone"
+          ],
+          "_score": 0.531,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 4 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 0.8,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3333333333333333,
+            "qualitySignal": 0.718148,
+            "popularitySignal": 0.7597117972420866,
+            "recencyBoost": 0.3
+          }
+        }
+      ],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Lords of Waterdeep",
+        "Stone Age"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "missing-ideal-game"
+      ],
+      "latencyMs": 12216,
+      "metrics": {
+        "ndcg10": 1,
+        "precision10": 1,
+        "mrr": 1,
+        "hitRate5": 1,
+        "constraintViolationRate": 0
+      }
+    }
+  ],
+  "cases": [
+    {
+      "caseId": "mechanic-focused-001",
+      "category": "mechanic-focused",
+      "query": "deck building game",
+      "passed": false,
+      "results": [
+        {
+          "id": "bgg-129437",
+          "name": "Legendary: A Marvel Deck Building Game",
+          "categories": [
+            "Card Game",
+            "Comic Book / Strip"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Events",
+            "Open Drafting",
+            "Semi-Cooperative Game",
+            "Solo / Solitaire Game",
+            "Variable Set-up"
+          ],
+          "themes": [
+            "Comic Books: Marvel Universe",
+            "Game: Legendary (Upper Deck Entertainment)",
+            "Mechanism: Pure Deckbuilding",
+            "Misc: Watch It Played How To Videos",
+            "Players: Games with Solitaire Rules",
+            "Theme: Superheroes"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 5,
+          "avgPlayTime": 60,
+          "complexity": 2.4362,
+          "rating": 7.51887,
+          "ratingCount": 23325,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Devin Low"
+          ],
+          "_score": 0.514,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.722574,
+            "popularitySignal": 0.7915693179377871,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-174570",
+          "name": "Legendary Encounters: A Predator Deck Building Game",
+          "categories": [
+            "Card Game",
+            "Movies / TV / Radio theme",
+            "Science Fiction"
+          ],
+          "mechanics": [
+            "Cooperative Game",
+            "Deck, Bag, and Pool Building",
+            "Open Drafting",
+            "Player Elimination"
+          ],
+          "themes": [
+            "Creatures: Aliens / Extraterrestrials",
+            "Game: Legendary (Upper Deck Entertainment)",
+            "Mechanism: Pure Deckbuilding",
+            "Movies: Predator",
+            "Players: Games with Solitaire Rules"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 5,
+          "avgPlayTime": 45,
+          "complexity": 2.6905,
+          "rating": 7.41818,
+          "ratingCount": 2873,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Ben Cichoski",
+            "Daniel Mandel"
+          ],
+          "_score": 0.512,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.6518889999999999,
+            "popularitySignal": 0.665097674493134,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-337787",
+          "name": "Summer Camp",
+          "categories": [
+            "Card Game"
+          ],
+          "mechanics": [
+            "Deck Construction",
+            "Deck, Bag, and Pool Building",
+            "Open Drafting",
+            "Race",
+            "Track Movement",
+            "Variable Set-up"
+          ],
+          "themes": [
+            "Theme: Camping",
+            "Theme: Hiking",
+            "Theme: Nature",
+            "Theme: Scouting / Guiding"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 4,
+          "avgPlayTime": 45,
+          "complexity": 1.7971,
+          "rating": 7.09943,
+          "ratingCount": 2534,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Phil Walker-Harding"
+          ],
+          "_score": 0.516,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.630916,
+            "popularitySignal": 0.6534831878117742,
+            "recencyBoost": 0.7
+          }
+        },
+        {
+          "id": "bgg-168679",
+          "name": "Flip City",
+          "categories": [
+            "Card Game",
+            "City Building"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Push Your Luck",
+            "Sudden Death Ending"
+          ],
+          "themes": [
+            "Game: Flip City",
+            "Players: Games with Solitaire Rules",
+            "Series: Madison Game Design Cabal",
+            "Theme: City"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 4,
+          "avgPlayTime": 50,
+          "complexity": 1.7411,
+          "rating": 6.28527,
+          "ratingCount": 4156,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Chih-Fan Chen"
+          ],
+          "_score": 0.519,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.598634,
+            "popularitySignal": 0.6521692168162474,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-127127",
+          "name": "The Lord of the Rings: The Fellowship of the Ring Deck-Building Game",
+          "categories": [
+            "Card Game",
+            "Fantasy",
+            "Movies / TV / Radio theme",
+            "Novel-based"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building"
+          ],
+          "themes": [
+            "Authors: J.R.R. Tolkien",
+            "Game: Cerberus Engine – Middle Earth",
+            "Mechanism: Pure Deckbuilding",
+            "Theme: Wizards"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 5,
+          "avgPlayTime": 30,
+          "complexity": 2.1467,
+          "rating": 6.84228,
+          "ratingCount": 1621,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Ben Stoll",
+            "Patrick Sullivan (II)"
+          ],
+          "_score": 0.522,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.600519,
+            "popularitySignal": 0.6132059613220822,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-156689",
+          "name": "Legendary: A Marvel Deck Building Game – Villains",
+          "categories": [
+            "Card Game",
+            "Comic Book / Strip"
+          ],
+          "mechanics": [
+            "Cooperative Game",
+            "Deck, Bag, and Pool Building",
+            "Semi-Cooperative Game"
+          ],
+          "themes": [
+            "Admin: Better Description Needed!",
+            "Comic Books: Marvel Universe",
+            "Game: Legendary (Upper Deck Entertainment)",
+            "Players: Games with Solitaire Rules",
+            "Theme: Superheroes",
+            "Theme: Villainy"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 5,
+          "avgPlayTime": 45,
+          "complexity": 2.7073,
+          "rating": 7.52587,
+          "ratingCount": 2797,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Devin Low"
+          ],
+          "_score": 0.518,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.654695,
+            "popularitySignal": 0.6665926645638992,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-194230",
+          "name": "Attack on Titan: Deck-Building Game",
+          "categories": [
+            "Card Game",
+            "Fantasy",
+            "Movies / TV / Radio theme"
+          ],
+          "mechanics": [
+            "Cooperative Game",
+            "Deck, Bag, and Pool Building",
+            "Open Drafting",
+            "Variable Player Powers"
+          ],
+          "themes": [
+            "Comic Books: Attack on Titan",
+            "Game: Cerberus Engine – Heroes",
+            "Theme: Anime / Manga"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 5,
+          "avgPlayTime": 90,
+          "complexity": 2.4231,
+          "rating": 6.94557,
+          "ratingCount": 903,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Matt Hyra"
+          ],
+          "_score": 0.521,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 1 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.5855509999999999,
+            "popularitySignal": 0.5823997672442172,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-125678",
+          "name": "DC Deck-Building Game",
+          "categories": [
+            "Card Game",
+            "Comic Book / Strip"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Open Drafting"
+          ],
+          "themes": [
+            "Comic Books: DC Universe",
+            "Comic Books: Superman",
+            "Game: Cerberus Engine – Heroes",
+            "Mechanism: Pure Deckbuilding",
+            "Players: Games with expansions that add solo play",
+            "Theme: Superheroes"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 5,
+          "avgPlayTime": 45,
+          "complexity": 1.9967,
+          "rating": 7.05048,
+          "ratingCount": 7939,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Matt Hyra",
+            "Ben Stoll"
+          ],
+          "_score": 0.521,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.659768,
+            "popularitySignal": 0.7088959344448211,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-256874",
+          "name": "Legendary Encounters: The X-Files Deck Building Game",
+          "categories": [
+            "Card Game",
+            "Movies / TV / Radio theme",
+            "Science Fiction"
+          ],
+          "mechanics": [
+            "Cooperative Game",
+            "Deck, Bag, and Pool Building",
+            "Open Drafting",
+            "Solo / Solitaire Game"
+          ],
+          "themes": [
+            "Game: Legendary (Upper Deck Entertainment)",
+            "Mechanism: Pure Deckbuilding",
+            "Players: Games with Solitaire Rules",
+            "TV Shows: The X-Files"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 5,
+          "avgPlayTime": 60,
+          "complexity": 2.7647,
+          "rating": 7.68033,
+          "ratingCount": 920,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Ben Cichoski",
+            "Daniel Mandel"
+          ],
+          "_score": 0.519,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.608614,
+            "popularitySignal": 0.5979238930379824,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-285157",
+          "name": "Legendary: A James Bond Deck Building Game",
+          "categories": [
+            "Card Game",
+            "Movies / TV / Radio theme",
+            "Spies / Secret Agents"
+          ],
+          "mechanics": [
+            "Cooperative Game",
+            "Deck, Bag, and Pool Building",
+            "Solo / Solitaire Game"
+          ],
+          "themes": [
+            "Books: James Bond",
+            "Game: Legendary (Upper Deck Entertainment)",
+            "Mechanism: Pure Deckbuilding",
+            "Players: Games with Solitaire Rules"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 5,
+          "avgPlayTime": 45,
+          "complexity": 2.4643,
+          "rating": 7.79349,
+          "ratingCount": 783,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Ben Cichoski",
+            "Devin Low",
+            "Daniel Mandel"
+          ],
+          "_score": 0.522,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 1 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.605102,
+            "popularitySignal": 0.5900274753844333,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-97803",
+          "name": "Penny Arcade: The Game – Gamers vs. Evil",
+          "categories": [
+            "Card Game",
+            "Comic Book / Strip",
+            "Video Game Theme"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Hand Management",
+            "Open Drafting",
+            "Variable Player Powers"
+          ],
+          "themes": [
+            "Mechanism: Pure Deckbuilding",
+            "Webcomics: Penny Arcade"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 4,
+          "avgPlayTime": 45,
+          "complexity": 2.2414,
+          "rating": 6.45227,
+          "ratingCount": 926,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Ben Cichoski",
+            "Mike Donais",
+            "Paul Sottosanti"
+          ],
+          "_score": 0.526,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 4 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.574028,
+            "popularitySignal": 0.5737038607052821,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-195571",
+          "name": "Legendary Encounters: A Firefly Deck Building Game",
+          "categories": [
+            "Card Game",
+            "Movies / TV / Radio theme",
+            "Science Fiction"
+          ],
+          "mechanics": [
+            "Cooperative Game",
+            "Deck, Bag, and Pool Building",
+            "Solo / Solitaire Game"
+          ],
+          "themes": [
+            "Game: Legendary (Upper Deck Entertainment)",
+            "Mechanism: Pure Deckbuilding",
+            "Players: Games with Solitaire Rules",
+            "TV Shows: Firefly"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 5,
+          "avgPlayTime": 90,
+          "complexity": 2.5526,
+          "rating": 7.07265,
+          "ratingCount": 2048,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Ben Cichoski",
+            "Daniel Mandel"
+          ],
+          "_score": 0.525,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.6210600000000001,
+            "popularitySignal": 0.6378280126407916,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-152510",
+          "name": "The Lord of the Rings: The Return of the King Deck-Building Game",
+          "categories": [
+            "Card Game",
+            "Fantasy",
+            "Movies / TV / Radio theme",
+            "Novel-based"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building"
+          ],
+          "themes": [
+            "Authors: J.R.R. Tolkien",
+            "Game: Cerberus Engine – Middle Earth",
+            "Theme: Wizards"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 5,
+          "avgPlayTime": 45,
+          "complexity": 2.1176,
+          "rating": 7.02489,
+          "ratingCount": 523,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Matt Hyra"
+          ],
+          "_score": 0.528,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.575434,
+            "popularitySignal": 0.5567823516936522,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-138233",
+          "name": "Ascension: Rise of Vigil",
+          "categories": [
+            "Card Game",
+            "Fantasy"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Hand Management",
+            "Open Drafting"
+          ],
+          "themes": [
+            "Game: Ascension Deck Building",
+            "Players: Games with expansions that add solo play",
+            "Players: Games with expansions that change player count"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 4,
+          "avgPlayTime": 30,
+          "complexity": 2.2676,
+          "rating": 7.16782,
+          "ratingCount": 1825,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Justin Gary"
+          ],
+          "_score": 0.531,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.619977,
+            "popularitySignal": 0.6285915901713548,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-142555",
+          "name": "The Lord of the Rings: The Two Towers Deck-Building Game",
+          "categories": [
+            "Card Game",
+            "Fantasy",
+            "Movies / TV / Radio theme",
+            "Novel-based"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building"
+          ],
+          "themes": [
+            "Authors: J.R.R. Tolkien",
+            "Game: Cerberus Engine – Middle Earth",
+            "Theme: Wizards"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 5,
+          "avgPlayTime": 45,
+          "complexity": 2.1786,
+          "rating": 6.88365,
+          "ratingCount": 689,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Matt Hyra"
+          ],
+          "_score": 0.528,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 4 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.579271,
+            "popularitySignal": 0.5690115121570464,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-304531",
+          "name": "Ascension Tactics: Miniatures Deckbuilding Game",
+          "categories": [
+            "Fantasy",
+            "Miniatures"
+          ],
+          "mechanics": [
+            "Cooperative Game",
+            "Deck, Bag, and Pool Building",
+            "Scenario / Mission / Campaign Game",
+            "Solo / Solitaire Game"
+          ],
+          "themes": [
+            "Category: MOBA",
+            "Crowdfunding: Kickstarter",
+            "Game: Ascension Deck Building"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 4,
+          "avgPlayTime": 90,
+          "complexity": 2.5862,
+          "rating": 7.83073,
+          "ratingCount": 1179,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Justin Gary",
+            "Ryan Sutherland"
+          ],
+          "_score": 0.535,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.623447,
+            "popularitySignal": 0.6135774901640639,
+            "recencyBoost": 0.7
+          }
+        },
+        {
+          "id": "bgg-257733",
+          "name": "Fine Sand",
+          "categories": [
+            "Card Game"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Hand Management"
+          ],
+          "themes": [
+            "Components: Multi-Use Cards",
+            "Players: Games with Solitaire Rules",
+            "Series: Fable Game system",
+            "Theme: Beaches"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 4,
+          "avgPlayTime": 30,
+          "complexity": 2,
+          "rating": 6.63316,
+          "ratingCount": 856,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Friedemann Friese"
+          ],
+          "_score": 0.536,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 1 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.579694,
+            "popularitySignal": 0.5746186821288669,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-322124",
+          "name": "Power Rangers: Deck-Building Game",
+          "categories": [
+            "Card Game",
+            "Fighting",
+            "Movies / TV / Radio theme",
+            "Science Fiction"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Team-Based Game"
+          ],
+          "themes": [
+            "Mechanism: Pure Deckbuilding",
+            "Players: Games with expansions that add solo play"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 4,
+          "avgPlayTime": 70,
+          "complexity": 2.9,
+          "rating": 7.15359,
+          "ratingCount": 298,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Dan Blanchett",
+            "Matt Hyra"
+          ],
+          "_score": 0.537,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.564861,
+            "popularitySignal": 0.5268572159645293,
+            "recencyBoost": 0.7
+          }
+        },
+        {
+          "id": "bgg-157026",
+          "name": "Ascension: Realms Unraveled",
+          "categories": [
+            "Card Game",
+            "Fantasy"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Hand Management",
+            "Open Drafting"
+          ],
+          "themes": [
+            "Game: Ascension Deck Building",
+            "Players: Games with Solitaire Rules"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 4,
+          "avgPlayTime": 30,
+          "complexity": 2.1613,
+          "rating": 7.51022,
+          "ratingCount": 1207,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Justin Gary"
+          ],
+          "_score": 0.539,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.614622,
+            "popularitySignal": 0.6078348741751419,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-343526",
+          "name": "G.I. JOE Deck-Building Game",
+          "categories": [
+            "Card Game",
+            "Movies / TV / Radio theme"
+          ],
+          "mechanics": [
+            "Cooperative Game",
+            "Deck, Bag, and Pool Building"
+          ],
+          "themes": [
+            "Game: G.I. JOE Deck-Building Game",
+            "Mechanism: Pure Deckbuilding",
+            "Organizations: Game Designers of North Carolina",
+            "Toys: G.I. Joe"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 4,
+          "avgPlayTime": 70,
+          "complexity": 2.9167,
+          "rating": 7.66383,
+          "ratingCount": 1465,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "T. C. Petty III"
+          ],
+          "_score": 0.545,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.626938,
+            "popularitySignal": 0.6272148202437375,
+            "recencyBoost": 0.7
+          }
+        }
+      ],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Dominion",
+        "Star Realms"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "missing-ideal-game"
+      ],
+      "latencyMs": 11009,
+      "metrics": {
+        "ndcg10": 1,
+        "precision10": 1,
+        "mrr": 1,
+        "hitRate5": 1,
+        "constraintViolationRate": 0
+      }
+    },
+    {
+      "caseId": "mechanic-focused-002",
+      "category": "mechanic-focused",
+      "query": "fast deck builder under 30 minutes",
+      "passed": false,
+      "results": [
+        {
+          "id": "bgg-36218",
+          "name": "Dominion",
+          "categories": [
+            "Card Game",
+            "Medieval"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Delayed Purchase",
+            "Hand Management",
+            "Open Drafting",
+            "Take That",
+            "Variable Set-up"
+          ],
+          "themes": [
+            "Crowdfunding: Wspieram",
+            "Digital Implementations: Apple App Store",
+            "Digital Implementations: Google Play",
+            "Digital Implementations: Steam",
+            "Digital Implementations: VASSAL",
+            "Game: Dominion",
+            "Misc: BGG Hall of Fame",
+            "Misc: Dice Tower Hall of Fame",
+            "Misc: Mensa Select"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 4,
+          "avgPlayTime": 30,
+          "complexity": 2.3444,
+          "rating": 7.5976,
+          "ratingCount": 96316,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Donald X. Vaccarino"
+          ],
+          "_score": 0.532,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 1,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.747463,
+            "popularitySignal": 0.8639364061435613,
+            "recencyBoost": 0.2
+          }
+        },
+        {
+          "id": "bgg-147020",
+          "name": "Star Realms",
+          "categories": [
+            "Card Game",
+            "Fighting",
+            "Science Fiction"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Delayed Purchase",
+            "Hand Management",
+            "Income",
+            "Multi-Use Cards",
+            "Open Drafting",
+            "Player Elimination",
+            "Set Collection",
+            "Tags",
+            "Take That",
+            "Variable Set-up"
+          ],
+          "themes": [
+            "Category: Two-Player Fighting Games",
+            "Crowdfunding: Kickstarter",
+            "Digital Implementations: Apple App Store",
+            "Digital Implementations: Google Play",
+            "Digital Implementations: Steam",
+            "Game: Star Realms",
+            "Mechanism: Pure Deckbuilding",
+            "Misc: LongPack Games",
+            "Players: Games with expansions that add solo play",
+            "Players: Two-Player Only Games"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 2,
+          "avgPlayTime": 20,
+          "complexity": 1.9151,
+          "rating": 7.55235,
+          "ratingCount": 47814,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Robert Dougherty",
+            "Darwin Kastle"
+          ],
+          "_score": 0.51,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 0.97,
+            "timeFit": 1,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.740093,
+            "popularitySignal": 0.8348118059035089,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-113456",
+          "name": "POWER",
+          "categories": [
+            "Aviation / Flight",
+            "Card Game",
+            "Modern Warfare",
+            "Wargame"
+          ],
+          "mechanics": [
+            "Area Majority / Influence",
+            "Deck, Bag, and Pool Building",
+            "Open Drafting",
+            "Push Your Luck",
+            "Rock-Paper-Scissors"
+          ],
+          "themes": [
+            "Players: Wargames with Rules Supporting Only Two Players",
+            "Theme: Helicopters"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 4,
+          "avgPlayTime": 36,
+          "complexity": 2.0909,
+          "rating": 6.25128,
+          "ratingCount": 39,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "PK Torretto"
+          ],
+          "_score": 0.517,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.84,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.5510550000000001,
+            "popularitySignal": 0.40067208057121356,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-166183",
+          "name": "Palaces",
+          "categories": [
+            "Renaissance"
+          ],
+          "mechanics": [
+            "Auction / Bidding",
+            "Deck, Bag, and Pool Building",
+            "Hand Management",
+            "Highest-Lowest Scoring",
+            "Open Drafting"
+          ],
+          "themes": [
+            "Components: Multi-Use Cards",
+            "Crowdfunding: Kickstarter"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 4,
+          "avgPlayTime": 45,
+          "complexity": 1.3333,
+          "rating": 5.98284,
+          "ratingCount": 67,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Jeff Siadek"
+          ],
+          "_score": 0.515,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 4 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.6,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.551215,
+            "popularitySignal": 0.43225271945496047,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-393412",
+          "name": "Deck of Spies",
+          "categories": [
+            "Abstract Strategy",
+            "Card Game",
+            "Spies / Secret Agents"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Hand Management",
+            "Solo / Solitaire Game",
+            "Variable Set-up"
+          ],
+          "themes": [
+            "Components: Traditional Playing Cards",
+            "Players: Games with Solitaire Rules",
+            "Players: Solitaire Only Card Games",
+            "Players: Solitaire Only Games"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 1,
+          "avgPlayTime": 15,
+          "complexity": 1.3333,
+          "rating": 7.165,
+          "ratingCount": 20,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "James Newman (I)"
+          ],
+          "_score": 0.523,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 1 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 0.97,
+            "timeFit": 1,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.6513039215686275,
+            "popularitySignal": 0.18175870697272714,
+            "recencyBoost": 0.7
+          }
+        },
+        {
+          "id": "bgg-340193",
+          "name": "Turf War",
+          "categories": [
+            "Card Game",
+            "City Building"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Delayed Purchase",
+            "Hand Management",
+            "Open Drafting",
+            "Pieces as Map",
+            "Race",
+            "Square Grid",
+            "Tile Placement",
+            "Variable Set-up"
+          ],
+          "themes": [
+            "Crowdfunding: Kickstarter",
+            "Digital Implementations: Tabletopia",
+            "Players: Two-Player Only Games",
+            "Theme: Gardening"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 4,
+          "avgPlayTime": 30,
+          "complexity": 2.3333,
+          "rating": 7.03806,
+          "ratingCount": 67,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Dan Nichols"
+          ],
+          "_score": 0.524,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 1,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.553196,
+            "popularitySignal": 0.4394100247646748,
+            "recencyBoost": 0.7
+          }
+        },
+        {
+          "id": "bgg-306300",
+          "name": "Little Factory",
+          "categories": [
+            "Card Game",
+            "Industry / Manufacturing"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Hand Management",
+            "Multi-Use Cards",
+            "Race",
+            "Tech Trees / Tech Tracks"
+          ],
+          "themes": [
+            "Digital Implementations: Board Game Arena",
+            "Players: Games with expansions that add solo play"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 4,
+          "avgPlayTime": 40,
+          "complexity": 1.8276,
+          "rating": 6.44523,
+          "ratingCount": 1132,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Shun Taguchi",
+            "Aya Taguchi"
+          ],
+          "_score": 0.531,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.7333333333333334,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.57826,
+            "popularitySignal": 0.58351513089854,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-274167",
+          "name": "Fight Your Friends",
+          "categories": [
+            "Bluffing",
+            "Card Game",
+            "Collectible Components",
+            "Educational",
+            "Fantasy",
+            "Fighting",
+            "Math",
+            "Number",
+            "Party Game"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Hand Management",
+            "Open Drafting",
+            "Push Your Luck",
+            "Rock-Paper-Scissors"
+          ],
+          "themes": [
+            "Crowdfunding: Kickstarter",
+            "Players: Two-Player Only Games"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 2,
+          "avgPlayTime": 15,
+          "complexity": 1.6667,
+          "rating": 7.12941,
+          "ratingCount": 17,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Ash Maczko"
+          ],
+          "_score": 0.536,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 0.97,
+            "timeFit": 1,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3,
+            "qualitySignal": 0.6510521111111112,
+            "popularitySignal": 0.18508609196438663,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-264566",
+          "name": "Card Capture",
+          "categories": [
+            "Card Game",
+            "Print & Play",
+            "Puzzle"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Memory",
+            "Solo / Solitaire Game"
+          ],
+          "themes": [
+            "Components: Traditional Playing Cards",
+            "Contests: Solitaire Print & Play",
+            "Players: Games with Solitaire Rules",
+            "Players: Solitaire Only Games"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 1,
+          "avgPlayTime": 30,
+          "complexity": 1.4444,
+          "rating": 7.37193,
+          "ratingCount": 176,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Lucas Gentry"
+          ],
+          "_score": 0.537,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 1 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 0.97,
+            "timeFit": 1,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.560623,
+            "popularitySignal": 0.48226890997066063,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-171775",
+          "name": "Dexikon",
+          "categories": [
+            "Card Game",
+            "Word Game"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Spelling"
+          ],
+          "themes": [
+            "Crowdfunding: Kickstarter",
+            "Series: The E•G•G"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 5,
+          "avgPlayTime": 45,
+          "complexity": 2,
+          "rating": 6.3003,
+          "ratingCount": 168,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Andrew Rowse"
+          ],
+          "_score": 0.54,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.6,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.55524,
+            "popularitySignal": 0.48303071562395383,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-249233",
+          "name": "Filler",
+          "categories": [
+            "Card Game"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Hand Management",
+            "Multi-Use Cards",
+            "Selection Order Bid",
+            "Set Collection",
+            "Simultaneous Action Selection"
+          ],
+          "themes": [
+            "Crowdfunding: Kickstarter",
+            "Food & Drink: Cakes / Pies",
+            "Misc: Self-Referential Games",
+            "Players: Games with Solitaire Rules"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 6,
+          "avgPlayTime": 30,
+          "complexity": 1.7778,
+          "rating": 6.64314,
+          "ratingCount": 283,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Jonathan Chaffer"
+          ],
+          "_score": 0.54,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 1,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.561305,
+            "popularitySignal": 0.5130721047825274,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-342530",
+          "name": "Mini Containers",
+          "categories": [
+            "Card Game"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Push Your Luck",
+            "Solo / Solitaire Game"
+          ],
+          "themes": [
+            "Admin: Upcoming Releases",
+            "Card Games: Shedding / Stops",
+            "Crowdfunding: Kickstarter",
+            "Players: Games with Solitaire Rules"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 6,
+          "avgPlayTime": 20,
+          "complexity": null,
+          "rating": 7.65,
+          "ratingCount": 10,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Raoul Struijk"
+          ],
+          "_score": 0.54,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Supports 1–6 players",
+            "Matches your taste for Deck, Bag, and Pool Building"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 0.9199999999999999,
+            "timeFit": 1,
+            "complexityFit": 0.5,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.6511386138613862,
+            "popularitySignal": 0.15000000000000002,
+            "recencyBoost": 0.7
+          }
+        },
+        {
+          "id": "bgg-190022",
+          "name": "100 Swords: The Magic Computer's Dungeon Builder Set",
+          "categories": [
+            "Card Game",
+            "Expansion for Base-game",
+            "Fantasy"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Hand Management"
+          ],
+          "themes": [
+            "Crowdfunding: Kickstarter",
+            "Game: 100 Swords"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 2,
+          "avgPlayTime": 35,
+          "complexity": 2,
+          "rating": 7.38115,
+          "ratingCount": 61,
+          "types": [
+            "board",
+            "expansion"
+          ],
+          "designers": [
+            "Clayton Grey",
+            "Samuel Strick"
+          ],
+          "_score": 0.542,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Supports 1–2 players",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 0.84,
+            "timeFit": 0.8666666666666667,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.5542320000000001,
+            "popularitySignal": 0.2566053251197335,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-434906",
+          "name": "Tag Team",
+          "categories": [
+            "Card Game",
+            "Fantasy",
+            "Fighting"
+          ],
+          "mechanics": [
+            "Action Queue",
+            "Card Play Conflict Resolution",
+            "Deck, Bag, and Pool Building",
+            "Programmed Movement",
+            "Simultaneous Action Selection",
+            "Variable Player Powers"
+          ],
+          "themes": [
+            "Category: Two-Player Fighting Games",
+            "Digital Implementations: Board Game Arena",
+            "Players: Two-Player Only Games",
+            "Series: Two-player games (Kosmos)"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 2,
+          "avgPlayTime": 15,
+          "complexity": 2.0476,
+          "rating": 7.66941,
+          "ratingCount": 3231,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Gricha German",
+            "Corentin Lebrat"
+          ],
+          "_score": 0.543,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 0.97,
+            "timeFit": 1,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.671135,
+            "popularitySignal": 0.680006736467998,
+            "recencyBoost": 1
+          }
+        },
+        {
+          "id": "bgg-226169",
+          "name": "Forged Realms",
+          "categories": [
+            "Card Game",
+            "Fantasy"
+          ],
+          "mechanics": [
+            "Campaign / Battle Card Driven",
+            "Deck, Bag, and Pool Building",
+            "Open Drafting",
+            "Simultaneous Action Selection"
+          ],
+          "themes": [
+            "Card Games: Draw and Discard",
+            "Card Games: Outplay",
+            "Crowdfunding: Kickstarter",
+            "Players: Two-Player Only Games",
+            "Traditional Card Games: War"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 2,
+          "avgPlayTime": 15,
+          "complexity": null,
+          "rating": 6.775,
+          "ratingCount": 12,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Calvin Nelson"
+          ],
+          "_score": 0.545,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Matches your taste for Deck, Bag, and Pool Building"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 0.97,
+            "timeFit": 1,
+            "complexityFit": 0.5,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3,
+            "qualitySignal": 0.6503260869565217,
+            "popularitySignal": 0.19087447424253523,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-125609",
+          "name": "Pixel Lincoln: The Deckbuilding Game",
+          "categories": [
+            "Fantasy",
+            "Science Fiction",
+            "Video Game Theme"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building"
+          ],
+          "themes": [
+            "Crowdfunding: Kickstarter"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 4,
+          "avgPlayTime": 45,
+          "complexity": 1.7857,
+          "rating": 5.69069,
+          "ratingCount": 288,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Jason Tagmire"
+          ],
+          "_score": 0.548,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.6,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.551196,
+            "popularitySignal": 0.4877611816017346,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-175846",
+          "name": "Deck Building: The Deck Building Game",
+          "categories": [
+            "Card Game"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building"
+          ],
+          "themes": [
+            "Admin: Better Description Needed!",
+            "Crowdfunding: Kickstarter",
+            "Misc: Self-Referential Games",
+            "Players: Two-Player Only Games",
+            "Series: Rabbit Line (Dice Hate Me Games)"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 2,
+          "avgPlayTime": 20,
+          "complexity": 1.3333,
+          "rating": 5.38634,
+          "ratingCount": 476,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Christopher Badell"
+          ],
+          "_score": 0.551,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 0.97,
+            "timeFit": 1,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.547898,
+            "popularitySignal": 0.5065627765274365,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-253747",
+          "name": "Evil Overlord",
+          "categories": [
+            "Card Game",
+            "Horror",
+            "Science Fiction"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Hand Management",
+            "Trading"
+          ],
+          "themes": [],
+          "minPlayers": 3,
+          "maxPlayers": 10,
+          "avgPlayTime": 15,
+          "complexity": 1,
+          "rating": 5.05769,
+          "ratingCount": 26,
+          "types": [
+            "board"
+          ],
+          "designers": [],
+          "_score": 0.56,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Supports 3–10 players",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 0.96,
+            "timeFit": 1,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.6463450233918129,
+            "popularitySignal": 0.20687202285639233,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-168054",
+          "name": "Grifters",
+          "categories": [
+            "Card Game",
+            "Mafia"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Hand Management",
+            "Set Collection",
+            "Take That"
+          ],
+          "themes": [
+            "Crowdfunding: Kickstarter",
+            "Setting: Dystopian Universe (Indie Boards & Cards)"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 4,
+          "avgPlayTime": 30,
+          "complexity": 1.7949,
+          "rating": 6.68229,
+          "ratingCount": 1622,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Dave Fulton",
+            "Jacob Tlapek"
+          ],
+          "_score": 0.561,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 4 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 1,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.596786,
+            "popularitySignal": 0.6140110536217989,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-178153",
+          "name": "100 Swords: The Red Dragon's Dungeon",
+          "categories": [
+            "Card Game",
+            "Fantasy"
+          ],
+          "mechanics": [
+            "Deck, Bag, and Pool Building",
+            "Hand Management"
+          ],
+          "themes": [
+            "Crowdfunding: Kickstarter",
+            "Game: 100 Swords",
+            "Mechanism: Pure Deckbuilding"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 2,
+          "avgPlayTime": 25,
+          "complexity": 1.375,
+          "rating": 6.64341,
+          "ratingCount": 253,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Clayton Grey",
+            "Samuel Strick"
+          ],
+          "_score": 0.559,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 0.99,
+            "timeFit": 1,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0,
+            "qualitySignal": 0.560193,
+            "popularitySignal": 0.5106566011044557,
+            "recencyBoost": 0.5
+          }
+        }
+      ],
+      "idealGamesFound": [
+        "Star Realms",
+        "Dominion"
+      ],
+      "idealGamesMissing": [],
+      "antiGamesFound": [],
+      "constraintViolations": [
+        {
+          "gameId": "bgg-113456",
+          "gameName": "POWER",
+          "rank": 3,
+          "type": "time",
+          "detail": "Takes 36min, limit is 30min (hard)"
+        },
+        {
+          "gameId": "bgg-166183",
+          "gameName": "Palaces",
+          "rank": 4,
+          "type": "time",
+          "detail": "Takes 45min, limit is 30min (hard)"
+        },
+        {
+          "gameId": "bgg-306300",
+          "gameName": "Little Factory",
+          "rank": 7,
+          "type": "time",
+          "detail": "Takes 40min, limit is 30min (hard)"
+        },
+        {
+          "gameId": "bgg-171775",
+          "gameName": "Dexikon",
+          "rank": 10,
+          "type": "time",
+          "detail": "Takes 45min, limit is 30min (hard)"
+        }
+      ],
+      "failureTypes": [
+        "constraint-violation"
+      ],
+      "latencyMs": 12798,
+      "metrics": {
+        "ndcg10": 0.948557975109673,
+        "precision10": 1,
+        "mrr": 1,
+        "hitRate5": 1,
+        "constraintViolationRate": 0.4
+      }
+    },
+    {
+      "caseId": "mechanic-focused-003",
+      "category": "mechanic-focused",
+      "query": "worker placement for beginners",
+      "passed": false,
+      "results": [
+        {
+          "id": "bgg-241266",
+          "name": "Little Town",
+          "categories": [
+            "City Building",
+            "Medieval"
+          ],
+          "mechanics": [
+            "Contracts",
+            "Tile Placement",
+            "Worker Placement"
+          ],
+          "themes": [
+            "Theme: City"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 4,
+          "avgPlayTime": 60,
+          "complexity": 1.951,
+          "rating": 7.14228,
+          "ratingCount": 4743,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Shun Taguchi",
+            "Aya Taguchi"
+          ],
+          "_score": 0.577,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3333333333333333,
+            "qualitySignal": 0.656245,
+            "popularitySignal": 0.6859244761519104,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-884",
+          "name": "Way Out West",
+          "categories": [
+            "Strategy"
+          ],
+          "mechanics": [
+            "Tile Placement",
+            "Worker Placement"
+          ],
+          "themes": [
+            "American West"
+          ],
+          "minPlayers": 3,
+          "maxPlayers": 5,
+          "avgPlayTime": 120,
+          "complexity": 2.6203,
+          "rating": 6.14302,
+          "ratingCount": 685,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Martin Wallace"
+          ],
+          "_score": 0.687,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Supports 3–5 players",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 0.86,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.6333333333333333,
+            "qualitySignal": 0.568991,
+            "popularitySignal": 0.5599651526034155,
+            "recencyBoost": 0.1
+          }
+        },
+        {
+          "id": "bgg-768",
+          "name": "Keytown",
+          "categories": [],
+          "mechanics": [
+            "Worker Placement"
+          ],
+          "themes": [
+            "Medieval"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 5,
+          "avgPlayTime": 60,
+          "complexity": 2.8,
+          "rating": 6.53952,
+          "ratingCount": 105,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Richard Breese"
+          ],
+          "_score": 0.619,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Supports 2–5 players",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 0.88,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3333333333333333,
+            "qualitySignal": 0.5560579999999999,
+            "popularitySignal": 0.4688482048354551,
+            "recencyBoost": 0.1
+          }
+        },
+        {
+          "id": "bgg-511",
+          "name": "Silverton",
+          "categories": [
+            "Strategy"
+          ],
+          "mechanics": [
+            "Dice Rolling",
+            "Network and Route Building",
+            "Commodity Speculation",
+            "Pick-up and Deliver",
+            "Worker Placement"
+          ],
+          "themes": [
+            "Economic",
+            "Transportation",
+            "American West",
+            "Trains",
+            "Theme_Mining"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 6,
+          "avgPlayTime": 180,
+          "complexity": 3.25,
+          "rating": 7.10227,
+          "ratingCount": 1033,
+          "types": [
+            "board"
+          ],
+          "designers": [],
+          "_score": 0.614,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 4 players — right in your sweet spot",
+            "Meaty and strategic — lots to think about"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 0.875,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.6333333333333333,
+            "qualitySignal": 0.610506,
+            "popularitySignal": 0.603428471079982,
+            "recencyBoost": 0.1
+          }
+        },
+        {
+          "id": "bgg-283754",
+          "name": "Renaissance of Alchemy",
+          "categories": [
+            "Fantasy"
+          ],
+          "mechanics": [
+            "Worker Placement"
+          ],
+          "themes": [
+            "Theme: Alchemy"
+          ],
+          "minPlayers": 3,
+          "maxPlayers": 5,
+          "avgPlayTime": 150,
+          "complexity": 2.5,
+          "rating": 6.70923,
+          "ratingCount": 13,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Kuro"
+          ],
+          "_score": 0.601,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3333333333333333,
+            "qualitySignal": 0.6502685083909181,
+            "popularitySignal": 0.169725372927767,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-277131",
+          "name": "Age of Dirt: A Game of Uncivilization",
+          "categories": [
+            "Prehistoric"
+          ],
+          "mechanics": [
+            "Cube Tower",
+            "Worker Placement"
+          ],
+          "themes": [
+            "Components: Drop Tower"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 5,
+          "avgPlayTime": 45,
+          "complexity": 1.875,
+          "rating": 6.92966,
+          "ratingCount": 336,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Johannes Krenner"
+          ],
+          "_score": 0.593,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3333333333333333,
+            "qualitySignal": 0.567065,
+            "popularitySignal": 0.5240949114234781,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-122701",
+          "name": "Monolith: The Strategy Game",
+          "categories": [
+            "Abstract Strategy",
+            "Dice"
+          ],
+          "mechanics": [
+            "Dice Rolling",
+            "Modular Board",
+            "Worker Placement"
+          ],
+          "themes": [
+            "Components: Gems/Crystals",
+            "Crowdfunding: Kickstarter"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 4,
+          "avgPlayTime": 30,
+          "complexity": 2.2778,
+          "rating": 6.16005,
+          "ratingCount": 194,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Matthew Papa"
+          ],
+          "_score": 0.585,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 4 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.6333333333333333,
+            "qualitySignal": 0.554168,
+            "popularitySignal": 0.48253361110545906,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-236275",
+          "name": "Boys, Be Ambitious",
+          "categories": [],
+          "mechanics": [
+            "Open Drafting",
+            "Set Collection",
+            "Variable Player Powers",
+            "Worker Placement"
+          ],
+          "themes": [],
+          "minPlayers": 3,
+          "maxPlayers": 4,
+          "avgPlayTime": 120,
+          "complexity": 3,
+          "rating": 6.23438,
+          "ratingCount": 16,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Kuro"
+          ],
+          "_score": 0.581,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 0.99,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3333333333333333,
+            "qualitySignal": 0.6495817007874016,
+            "popularitySignal": 0.178164799306237,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-290618",
+          "name": "Wishland",
+          "categories": [
+            "Abstract Strategy"
+          ],
+          "mechanics": [
+            "End Game Bonuses",
+            "Income",
+            "Set Collection",
+            "Solo / Solitaire Game",
+            "Variable Set-up",
+            "Worker Placement"
+          ],
+          "themes": [
+            "Crowdfunding: Kickstarter",
+            "Digital Implementations: TableTop Simulator Mod (TTS)",
+            "Theme: Amusement Parks / Theme Parks"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 4,
+          "avgPlayTime": 75,
+          "complexity": 2.4783,
+          "rating": 7.15081,
+          "ratingCount": 549,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Carlos Michán Amado"
+          ],
+          "_score": 0.581,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.6333333333333333,
+            "qualitySignal": 0.57905,
+            "popularitySignal": 0.5596212789439383,
+            "recencyBoost": 0.7
+          }
+        },
+        {
+          "id": "bgg-343542",
+          "name": "Imigrantes",
+          "categories": [
+            "Collectible Components",
+            "Economic"
+          ],
+          "mechanics": [
+            "Set Collection",
+            "Worker Placement"
+          ],
+          "themes": [
+            "Country: Brazil"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 4,
+          "avgPlayTime": 120,
+          "complexity": 3,
+          "rating": 7.59514,
+          "ratingCount": 37,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Led Bacciotti"
+          ],
+          "_score": 0.581,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3333333333333333,
+            "qualitySignal": 0.552083,
+            "popularitySignal": 0.40447074773778796,
+            "recencyBoost": 0.7
+          }
+        },
+        {
+          "id": "bgg-211175",
+          "name": "Undermine",
+          "categories": [
+            "Card Game"
+          ],
+          "mechanics": [
+            "Hand Management",
+            "Worker Placement"
+          ],
+          "themes": [
+            "Crowdfunding: Kickstarter",
+            "Theme: Mining"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 8,
+          "avgPlayTime": 45,
+          "complexity": 1.8,
+          "rating": 5.57308,
+          "ratingCount": 123,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Alican Yenidogan"
+          ],
+          "_score": 0.575,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3333333333333333,
+            "qualitySignal": 0.5499780000000001,
+            "popularitySignal": 0.4519723208902043,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-148099",
+          "name": "Worker Placement",
+          "categories": [
+            "Abstract Strategy",
+            "Economic"
+          ],
+          "mechanics": [
+            "Auction / Bidding",
+            "Hand Management",
+            "Open Drafting",
+            "Set Collection",
+            "Worker Placement"
+          ],
+          "themes": [
+            "Crowdfunding: Kickstarter",
+            "Misc: Self-Referential Games"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 5,
+          "avgPlayTime": 45,
+          "complexity": 2.1,
+          "rating": 5.39747,
+          "ratingCount": 81,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Mark C. MacKinnon"
+          ],
+          "_score": 0.568,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 5 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.6333333333333333,
+            "qualitySignal": 0.549641,
+            "popularitySignal": 0.42896817720945657,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-219122",
+          "name": "National Economy",
+          "categories": [
+            "Card Game",
+            "City Building",
+            "Economic"
+          ],
+          "mechanics": [
+            "Hand Management",
+            "Open Drafting",
+            "Worker Placement"
+          ],
+          "themes": [],
+          "minPlayers": 1,
+          "maxPlayers": 4,
+          "avgPlayTime": 45,
+          "complexity": 2.3333,
+          "rating": 6.80204,
+          "ratingCount": 214,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "西村裕 (Hiroshi Nishimura)"
+          ],
+          "_score": 0.563,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 2 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3333333333333333,
+            "qualitySignal": 0.5602280000000001,
+            "popularitySignal": 0.4925431319767254,
+            "recencyBoost": 0.3
+          }
+        },
+        {
+          "id": "bgg-220877",
+          "name": "Rajas of the Ganges",
+          "categories": [
+            "Dice",
+            "Economic",
+            "Renaissance",
+            "Territory Building"
+          ],
+          "mechanics": [
+            "Connections",
+            "Dice Rolling",
+            "Race",
+            "Tile Placement",
+            "Track Movement",
+            "Worker Placement",
+            "Worker Placement with Dice Workers"
+          ],
+          "themes": [
+            "Admin: Better Description Needed!",
+            "Components: Coloured Dice",
+            "Country: India",
+            "Digital Implementations: Tabletopia",
+            "Digital Implementations: Yucata",
+            "Game: Rajas of the Ganges",
+            "Mechanism: Dice Drafting",
+            "Religious: Hinduism"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 4,
+          "avgPlayTime": 75,
+          "complexity": 2.906,
+          "rating": 7.72195,
+          "ratingCount": 15959,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Inka Brand",
+            "Markus Brand"
+          ],
+          "_score": 0.542,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 4 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3333333333333333,
+            "qualitySignal": 0.741506,
+            "popularitySignal": 0.786693392514286,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-396716",
+          "name": "Effortless: Prepping for Adventure",
+          "categories": [
+            "Fantasy"
+          ],
+          "mechanics": [
+            "Area Majority / Influence",
+            "Set Collection",
+            "Take That",
+            "Variable Set-up",
+            "Worker Placement"
+          ],
+          "themes": [
+            "Admin: Upcoming Releases",
+            "Crowdfunding: Kickstarter"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 5,
+          "avgPlayTime": 40,
+          "complexity": 2,
+          "rating": 6.00588,
+          "ratingCount": 17,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Isaac Meyer"
+          ],
+          "_score": 0.538,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Supports 1–5 players",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 0.8999999999999999,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 1,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3333333333333333,
+            "qualitySignal": 0.6491740373647984,
+            "popularitySignal": 0.16382693528269643,
+            "recencyBoost": 0.85
+          }
+        },
+        {
+          "id": "bgg-203427",
+          "name": "Fabled Fruit",
+          "categories": [
+            "Animals",
+            "Card Game"
+          ],
+          "mechanics": [
+            "Multi-Use Cards",
+            "Set Collection",
+            "Worker Placement"
+          ],
+          "themes": [
+            "Food & Drink: Fruit",
+            "Series: Fable Game system"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 5,
+          "avgPlayTime": 30,
+          "complexity": 1.6056,
+          "rating": 6.98111,
+          "ratingCount": 6425,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Friedemann Friese"
+          ],
+          "_score": 0.536,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 4 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 0.8,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3333333333333333,
+            "qualitySignal": 0.657571,
+            "popularitySignal": 0.6967571656184254,
+            "recencyBoost": 0.5
+          }
+        },
+        {
+          "id": "bgg-405719",
+          "name": "Tabletop Inc.",
+          "categories": [
+            "Comic Book / Strip",
+            "Humor",
+            "Industry / Manufacturing"
+          ],
+          "mechanics": [
+            "Solo / Solitaire Game",
+            "Worker Placement",
+            "Worker Placement, Different Worker Types"
+          ],
+          "themes": [
+            "Components:  Meeples",
+            "Crowdfunding: Gamefound",
+            "Players: Games with Solitaire Rules",
+            "Theme: Boardgaming",
+            "Theme: Shelving"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 6,
+          "avgPlayTime": 120,
+          "complexity": 3.2,
+          "rating": 7.19172,
+          "ratingCount": 215,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Joseph N Adams",
+            "Madeleine Adams"
+          ],
+          "_score": 0.535,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Meaty and strategic — lots to think about"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 0.8999999999999999,
+            "genreMatch": 0.8,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3333333333333333,
+            "qualitySignal": 0.562683,
+            "popularitySignal": 0.5090248435157182,
+            "recencyBoost": 1
+          }
+        },
+        {
+          "id": "bgg-358620",
+          "name": "Forge",
+          "categories": [
+            "Industry / Manufacturing",
+            "Medieval"
+          ],
+          "mechanics": [
+            "Contracts",
+            "Set Collection",
+            "Worker Placement"
+          ],
+          "themes": [
+            "Crowdfunding: Kickstarter",
+            "Theme: Metal Smithing"
+          ],
+          "minPlayers": 1,
+          "maxPlayers": 4,
+          "avgPlayTime": 120,
+          "complexity": 2.2857,
+          "rating": 7.59839,
+          "ratingCount": 62,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Wesley Woodbury"
+          ],
+          "_score": 0.534,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 0.8,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3333333333333333,
+            "qualitySignal": 0.554579,
+            "popularitySignal": 0.43453425624864744,
+            "recencyBoost": 0.85
+          }
+        },
+        {
+          "id": "bgg-365647",
+          "name": "Mech A Dream",
+          "categories": [
+            "Industry / Manufacturing"
+          ],
+          "mechanics": [
+            "End Game Bonuses",
+            "Worker Placement"
+          ],
+          "themes": [
+            "Admin: Better Description Needed!",
+            "Digital Implementations: Board Game Arena",
+            "Theme: Dreams / Nightmares",
+            "Theme: Robots"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 4,
+          "avgPlayTime": 45,
+          "complexity": 2,
+          "rating": 6.57934,
+          "ratingCount": 273,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Thomas Dupont",
+            "Antoni Guillen"
+          ],
+          "_score": 0.532,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 3 players — right in your sweet spot",
+            "Easy to learn and jump into"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 0.8,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3333333333333333,
+            "qualitySignal": 0.561259,
+            "popularitySignal": 0.49980035781832866,
+            "recencyBoost": 0.85
+          }
+        },
+        {
+          "id": "bgg-128621",
+          "name": "Viticulture",
+          "categories": [
+            "Economic",
+            "Farming"
+          ],
+          "mechanics": [
+            "Contracts",
+            "Hand Management",
+            "Income",
+            "Race",
+            "Turn Order: Progressive",
+            "Worker Placement"
+          ],
+          "themes": [
+            "Country: Italy",
+            "Crowdfunding: Kickstarter",
+            "Digital Implementations: Google Play",
+            "Digital Implementations: TableTop Simulator Mod (TTS)",
+            "Food & Drink: Wine",
+            "Game: Viticulture"
+          ],
+          "minPlayers": 2,
+          "maxPlayers": 6,
+          "avgPlayTime": 90,
+          "complexity": 2.9527,
+          "rating": 7.47352,
+          "ratingCount": 15454,
+          "types": [
+            "board"
+          ],
+          "designers": [
+            "Jamey Stegmaier",
+            "Alan Stone"
+          ],
+          "_score": 0.531,
+          "_reasons": [
+            "It's a board game, just what you asked for",
+            "Best at 4 players — right in your sweet spot",
+            "Nice balance of depth and accessibility"
+          ],
+          "_breakdown": {
+            "typeMatch": 1,
+            "playerCountFit": 1,
+            "timeFit": 0.5,
+            "complexityFit": 1,
+            "genreMatch": 0.8,
+            "moodAlignment": 0.5,
+            "freeTextMatch": 0.3333333333333333,
+            "qualitySignal": 0.718148,
+            "popularitySignal": 0.7597117972420866,
+            "recencyBoost": 0.3
+          }
+        }
+      ],
+      "idealGamesFound": [],
+      "idealGamesMissing": [
+        "Lords of Waterdeep",
+        "Stone Age"
+      ],
+      "antiGamesFound": [],
+      "constraintViolations": [],
+      "failureTypes": [
+        "missing-ideal-game"
+      ],
+      "latencyMs": 12216,
+      "metrics": {
+        "ndcg10": 1,
+        "precision10": 1,
+        "mrr": 1,
+        "hitRate5": 1,
+        "constraintViolationRate": 0
+      }
+    }
+  ],
+  "config": {
+    "apiUrl": "http://localhost:1337",
+    "concurrency": 8,
+    "useLlmJudge": false,
+    "limit": 3
+  }
+}
