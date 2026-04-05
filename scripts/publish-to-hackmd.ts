@@ -2,13 +2,15 @@
  * Publishes the technical review packet to HackMD as a publicly viewable,
  * commentable note. Run with: npx tsx scripts/publish-to-hackmd.ts
  */
+import 'dotenv/config'
 import HackMDAPI from '@hackmd/api'
-
-// The enums may not be re-exported at top level, use string literals
-const API = HackMDAPI
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
 
+// The enums may not be re-exported at top level, use string literals
+const API = HackMDAPI
+
+// dotenv/config loads .env (symlinked to .env.local) automatically
 const HACKMD_TOKEN = process.env.HACKMD_API_KEY?.replace(/"/g, '') || ''
 
 if (!HACKMD_TOKEN) {
