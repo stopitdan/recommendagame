@@ -271,6 +271,18 @@ export default function ProfileHub() {
       {/* My Collection tab */}
       {tab === 0 && (
         <Stack spacing={2}>
+          {/* Link to dedicated collection management page */}
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => router.push('/collection')}
+              sx={{ textTransform: 'none', fontWeight: 600 }}
+            >
+              Manage Full Collection
+            </Button>
+          </Box>
+
           {/* BGG sync — always shown on Collection tab */}
           <Card variant="outlined" sx={{ borderColor: 'divider' }}>
             <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>

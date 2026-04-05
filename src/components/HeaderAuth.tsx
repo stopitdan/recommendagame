@@ -107,7 +107,7 @@ export default function HeaderAuth({ isLoggedIn, email, displayName }: HeaderAut
             <ListItemText>My Profile</ListItemText>
           </MenuItem>
 
-          <MenuItem onClick={() => router.push('/profile?tab=collection')}>
+          <MenuItem onClick={() => router.push('/collection')}>
             <ListItemIcon sx={{ minWidth: 32 }}><Package size={18} /></ListItemIcon>
             <ListItemText>My Collection</ListItemText>
           </MenuItem>

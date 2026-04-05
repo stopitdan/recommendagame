@@ -37,7 +37,7 @@ const NAV_ITEMS: { label: string; href: string; icon: ReactNode }[] = [
 
 const USER_ITEMS: { label: string; href: string; icon: ReactNode }[] = [
   { label: 'My Profile', href: '/profile', icon: <User size={18} /> },
-  { label: 'My Collection', href: '/profile?tab=collection', icon: <Package size={18} /> },
+  { label: 'My Collection', href: '/collection', icon: <Package size={18} /> },
   { label: 'Favorites', href: '/favorites', icon: <Heart size={18} /> },
   { label: 'Saved Presets', href: '/presets', icon: <ClipboardList size={18} /> },
   { label: 'Settings', href: '/settings', icon: <Settings size={18} /> },
