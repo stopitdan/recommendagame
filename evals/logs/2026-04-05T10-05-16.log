@@ -1,0 +1,127 @@
+
+========================================================================
+  BOREDGAME.LOL EVALUATION REPORT
+  Run ID: 2026-04-05T10-05-16
+  2026-04-05T10:05:16.850Z -> 2026-04-05T15:38:09.700Z
+  Duration: 19972.8s | Cases: 3028 | Concurrency: 2
+========================================================================
+
+  OVERALL RESULTS
+------------------------------------------------------------------------
+  Pass Rate:       1182/3028 (39.0%)
+  Avg NDCG@10:     0.9469
+  Avg Precision@10: 0.9946
+  Avg MRR:         0.9905
+  Avg Hit Rate@5:  1.0000
+  Constraint Viol: 2.0%
+  LLM Judge Score: 7.36/10
+  Latency p50/p95: 7656ms / 10063ms
+  Catalog Coverage: 10.5% (8507 unique games)
+  Trust Busters:   130 (obviously wrong results)
+  Violations by type: time=552, game-type=49, complexity=14
+
+  REGRESSION vs 2026-04-05T09-28-59
+------------------------------------------------------------------------
+  Pass Rate Delta: -0.3784
+  NDCG Delta:      -0.0265
+  MRR Delta:       -0.0078
+  Fixed (4):
+    + mechanic-focused-007: "social deduction game for a big group" -- was failing, now passing
+    + player-count-039: "best solo board game" -- was failing, now passing
+    + similar-to-073: "something like Stardew Valley but a board game" -- was failing, now passing
+    + similar-to-078: "board game like Among Us" -- was failing, now passing
+  New Failures (3):
+    - mechanic-focused-011: "card drafting game" -- was passing, now failing
+    - time-constraint-052: "game I can play on a lunch break" -- was passing, now failing
+    - mechanic-focused-152: "storytelling game where you make up stories" -- was passing, now failing
+
+  PER-CATEGORY BREAKDOWN
+------------------------------------------------------------------------
+  complexity               11/112 (10%)  NDCG=0.984  MRR=1.000  Violations=4%
+  similar-to               33/212 (16%)  NDCG=0.899  MRR=0.881  Violations=2%
+  multi-constraint         67/384 (17%)  NDCG=0.955  MRR=0.993  Violations=6%
+  mood-vibe                37/189 (20%)  NDCG=0.958  MRR=1.000  Violations=0%
+  player-count             36/177 (20%)  NDCG=0.939  MRR=0.997  Violations=3%
+  free-text-intent         42/159 (26%)  NDCG=0.964  MRR=1.000  Violations=0%
+  time-constraint          52/164 (32%)  NDCG=0.946  MRR=0.997  Violations=11%
+  real-user-feedback       27/78 (35%)  NDCG=0.945  MRR=1.000  Violations=1%
+  video-game               94/262 (36%)  NDCG=0.928  MRR=1.000  Violations=1%
+  negative-preference      59/123 (48%)  NDCG=0.980  MRR=1.000  Violations=2%
+  theme-focused            176/356 (49%)  NDCG=0.930  MRR=1.000  Violations=0%
+  mechanic-focused         303/530 (57%)  NDCG=0.948  MRR=1.000  Violations=0%
+  designer-search          80/116 (69%)  NDCG=0.928  MRR=1.000  Violations=0%
+  party-game               3/4 (75%)  NDCG=0.969  MRR=1.000  Violations=0%
+  edge-case                153/153 (100%)  NDCG=0.998  MRR=1.000  Violations=0%
+  regression               9/9 (100%)  NDCG=1.000  MRR=1.000  Violations=0%
+
+  FAILURE TYPES
+------------------------------------------------------------------------
+  missing-ideal-game           1764 cases
+  constraint-violation         201 cases
+  llm-judge-low-score          192 cases
+  anti-game-present            128 cases
+
+  WORST 20 CASES
+------------------------------------------------------------------------
+  [mechanic-focused-00392] "What worker placement games should I avoid?" Judge=0/10 BAD=[Monopoly]
+    Top 5: Carcassonne | Pente | M | Twixt | Tantrix
+    Judge: None of the results are worker placement games, which is the specific type the user asked to avoid. Instead, the results
+  [time-constraint-01377] "for our epic gaming day, we need games that l" Judge=2/10 [4 violations] missing=[Arkham Horror]
+    Top 5: Eldritch Horror | Le Havre | Pandemic Legacy: Season 1 | Dune: Imperium | Spirit Island
+    Judge: The results include several games that do not meet the user's requirement for a playtime of 2+ hours. Specifically, game
+  [complexity-01428] "What are some really heavy games for hard-cor" Judge=2/10 [1 violations] missing=[1862: Railway Mania in the Eastern Counties]
+    Top 5: Borderhaime: Chronicles | Word Quest | Monster Hunter World: The Board Game – Nergigante | Words Are Hard | Game to Pick a Game: The Gateway Edition
+    Judge: The results do not match the user's request for heavy games suitable for hardcore gamers. Most of the games listed are e
+  [complexity-01520] "I want a complicated game for me and my hardc" Judge=2/10 [4 violations] missing=[Food Chain Magnate]
+    Top 5: Mage Knight Board Game | Machina Arcana: Geometry of the Void | Machina Arcana: Recurrence | Pericle: Gathering Darkness | Beyond Humanity: Colonies
+    Judge: The recommendations do not meet the user's requirements. All games listed are for 1-4 players, while the user specified 
+  [similar-to-01722] "Is there a game similar to Gloomhaven but way" Judge=2/10 missing=[Mice and Mystics] BAD=[Gloomhaven]
+    Top 5: Gloomhaven: Jaws of the Lion | Founders of Gloomhaven | Spirit Island | Frosthaven | Ark Nova
+    Judge: The results are heavily skewed towards games that are either Gloomhaven-related or have similar long playtimes, which co
+  [mechanic-focused-00565] "Any quick engine building games you can recom" Judge=2/10 [10 violations]
+    Top 5: Terraforming Mars | Ark Nova | Through the Ages: A New Story of Civilization | Underwater Cities | Terra Mystica
+    Judge: The recommendations provided do not match the user's request for quick engine building games. All results exceed the 60-
+  [mechanic-focused-00575] "Looking for a cool board game with engine bui" Judge=2/10 missing=[Terraforming Mars]
+    Top 5: A game about selecting seven cards, speedily searching for synergies.
+    Judge: The result does not match the user's request for a board game with engine building mechanics. Instead, it describes a ca
+  [theme-focused-00921] "Any cyberpunk board games I should check out?" Judge=2/10 missing=[Android: Netrunner]
+    Top 5: Deckers | Through the Ages: A New Story of Civilization | Eldritch Horror | Ark Nova | Caylus
+    Judge: The results do not match the user's request for cyberpunk board games. None of the games listed are categorized as cyber
+  [theme-focused-01060] "I want to find a game that has both superhero" Judge=2/10 missing=[Super Cat Bros]
+    Top 5: Exploding Kittens | Jungle Rumble | Cat in the Box: Deluxe Edition | Root | Kitty Paw
+    Judge: The results primarily feature games that include cats but do not incorporate superheroes, which is a critical aspect of 
+  [complexity-01445] "I want a really complex game that will take a" Judge=2/10 missing=[Through the Ages: A New Story of Civilization]
+    Top 5: Borderhaime: Chronicles | Intriguing Castles | OK Play Duel | Myriorama: La Biblioteca Infinita | Hexix
+    Judge: The recommendations include several games that do not meet the user's request for complexity and playtime. Most results 
+  [complexity-01511] "Any recommendations for a 4-hour+ brain melte" Judge=2/10 missing=[18XX]
+    Top 5: On Mars | The Brainiac Game | Mind Map | Top Secret Files: the game | Brain Strain
+    Judge: The results do not meet the user's request for a complex board game that lasts over 4 hours. The only game that comes cl
+  [complexity-01517] "What’s a good lengthy game that lasts over 4 " Judge=2/10 missing=[Sid Meier's Civilization: A New Dawn]
+    Top 5: Myriorama: La Biblioteca Infinita | Four Word Thinking | Intriguing Castles | Baffled | Au
+    Judge: The results do not meet the user's request for a lengthy game lasting over 4 hours. All games listed are significantly s
+  [designer-search-01547] "I'm looking for some worker placement games b" Judge=2/10 missing=[Tigris & Euphrates]
+    Top 5: Viticulture Essential Edition | Way Out West | Silverton | Paladins of the West Kingdom | Obsession
+    Judge: None of the results are worker placement games designed by Reiner Knizia. The majority of the games listed do not match 
+  [designer-search-01562] "What worker placement games are designed by F" Judge=2/10 missing=[Power Grid]
+    Top 5: Fabled Fruit | Copycat | Feierabend | Paladins of the West Kingdom | Viticulture Essential Edition
+    Judge: None of the recommended games are designed by Friedemann Friese, which is a critical constraint violation. Additionally,
+  [designer-search-01606] "Are there any worker placement games by Reine" Judge=2/10 missing=[Modern Art]
+    Top 5: Tzolk'in: The Mayan Calendar | Village | Viticulture Essential Edition | Paladins of the West Kingdom | Kanban EV
+    Judge: None of the results are worker placement games, which is a critical requirement of the user's query. All games listed ar
+  [multi-constraint-01873] "I need a challenging game for just 2 players." Judge=2/10 missing=[Twilight Struggle, Lost Cities]
+    Top 5: Diablo
+    Judge: The recommendation is completely unrelated to the user's request for a challenging game for 2 players. Diablo is an acti
+  [multi-constraint-01896] "What game is complex but good for 3 people?" Judge=2/10 missing=[Scythe]
+    Top 5: Tri-Chess
+    Judge: The only result provided is Tri-Chess, which does meet the player count requirement of 3 players. However, there is no i
+  [multi-constraint-02037] "What’s a romantic game for 2 that lasts about" Judge=2/10 [1 violations]
+    Top 5: Fog of Love | Sky Team | The Crew: Mission Deep Sea | Décorum | The Mind
+    Judge: The recommendations do not match the user's request for a romantic game for 2 players that lasts about an hour. The only
+  [multi-constraint-02070] "Help, I need a challenging card game for 5 pl" Judge=2/10 missing=[Cosmic Encounter]
+    Top 5: 5.15: A Rock Climbing Card Game | Suited | Insert Card Here | Block 5: The Card Game | Pict it
+    Judge: The results do not meet the user's request for a challenging card game for 5 players. Most games listed are either too s
+  [negative-preference-02225] "Anything but Catan, I’m tired of it." Judge=2/10 BAD=[Catan]
+    Top 5: Carcassonne | The Starfarers of Catan | Struggle for Catan | The Settlers of the Stone Age | Catan Junior
+    Judge: The results include multiple games that are variations of Catan, which directly contradicts the user's request to avoid 
+
+========================================================================
