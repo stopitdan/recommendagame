@@ -78,6 +78,7 @@ export default function RootLayout({
             __html: `(function(){try{var m=localStorage.getItem('rag_color_mode');if(!m){m=window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'}document.documentElement.setAttribute('data-theme',m);var p=localStorage.getItem('rag_color_preset');if(p)document.documentElement.setAttribute('data-preset',p)}catch(e){}})()`,
           }}
         />
+        <meta name="google-adsense-account" content="ca-pub-5790683982576164" />
         <script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5790683982576164"

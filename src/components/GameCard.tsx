@@ -17,6 +17,7 @@ import BuyOptions from './BuyOptions';
 import Tooltip from '@mui/material/Tooltip';
 import AnimatedRating from './AnimatedRating';
 import FavoriteButton from './FavoriteButton';
+import OwnedButton from './OwnedButton';
 import GameCardActions from './GameCardActions';
 
 export interface GameCardProps {
@@ -173,6 +174,7 @@ export default function GameCard({ game, showFavorite = true, isFavorited = fals
                   onToggle={(fav) => onFavoriteToggle?.(game.id, fav)}
                 />
               )}
+              <OwnedButton gameId={game.id} />
             </Box>
           </Box>
 
