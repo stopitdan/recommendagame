@@ -216,61 +216,55 @@ Every recommendation request flows through **9 stages**. This is the core of the
 ## Stage-by-Stage Pipeline
 
 ```mermaid
-flowchart TD
-    INPUT["User Input<br/>'a fun anime board game for 4 players'"]
+graph TD
+    INPUT["User Input"]
 
     subgraph S1["Stage 1: LLM Preference Parsing"]
-        direction LR
-        PARSE["GPT-4o-mini extracts:"]
-        OUT["Structured output: genres, mechanics,<br/>moods, complexity, playerCount,<br/>designers, similarTo, intentModifiers"]
+        PARSE["GPT-4o-mini extracts structured prefs"]
     end
 
     subgraph S2["Stage 2: Similar-To Bootstrapping"]
-        direction LR
-        FETCH["Fetch referenced game's full profile"]
-        INHERIT["Inherit complexity, player count,<br/>time range, boost core mechanics 1.5x"]
+        FETCH["Inherit attributes from referenced game"]
     end
 
     subgraph S3["Stage 3: Cache Check"]
-        KEY["Cache key = hash of<br/>freeText + parsed genres + all prefs"]
         HIT{Hit?}
     end
 
-    subgraph S4["Stage 4: Candidate Generation (parallel)"]
-        VEC["pgvector Semantic<br/>250 candidates"]
-        TAG["GIN Index Tags<br/>150 candidates"]
-        TXT["Full-Text Search<br/>50 candidates"]
-        MECH["Mechanic Search<br/>100 candidates"]
-        DES["Designer Search<br/>100 candidates"]
-        EXP["LLM Query Expand<br/>50 candidates"]
-        CAN["Canonical Game Injection<br/>30+ mechanic/category maps"]
-        POP["Popularity Fallback<br/>(only if < 30 total)"]
+    subgraph S4["Stage 4: Candidate Generation"]
+        VEC["pgvector: 250"]
+        TAG["Tags: 150"]
+        TXT["Text: 50"]
+        MECH["Mechanic: 100"]
+        DES["Designer: 100"]
+        EXP["LLM Expand: 50"]
+        CAN["Canonical: 10"]
     end
 
-    subgraph S5["Stage 5: Hard Constraint Filtering"]
-        FILT["Filter by: player count, time,<br/>complexity, game type,<br/>expansion removal"]
+    subgraph S5["Stage 5: Hard Filters"]
+        FILT["Player count, time, complexity, type"]
     end
 
-    subgraph S6["Stage 6: Adaptive Weight Computation"]
-        AW["Amplify weights by query specificity<br/>e.g. tight player count 2x,<br/>hard time 2.5x, broad query 6x pop<br/>Then renormalize to 100%"]
+    subgraph S6["Stage 6: Adaptive Weights"]
+        AW["Amplify by query specificity"]
     end
 
-    subgraph S7["Stage 7: Rule-Based Scoring (10 dimensions)"]
-        SCORE["10 weighted dimensions<br/>Genre 26%, FreeText 22%, Type 10%<br/>Players 8%, Mood 8%, Time 7%<br/>Complexity 7%, Pop 6%, Quality 3%<br/>Recency 3% + intent modifiers"]
+    subgraph S7["Stage 7: 10-Dimension Scoring"]
+        SCORE["Genre 26%, FreeText 22%, Type 10%, Players 8%, Mood 8%, Time 7%, Complexity 7%, Pop 6%, Quality 3%, Recency 3%"]
     end
 
-    subgraph S8["Stage 8: Multi-Signal Re-Ranking"]
-        SIM["Similarity Re-Rank<br/>65% rule + 35% cosine similarity"]
-        CF["Collaborative Filtering<br/>+15% boost for CF signals"]
-        REJ["Rejection Learning<br/>Penalty from 'Not This' history"]
-        LLM_RR["LLM Re-Rank<br/>GPT-4o: 80 in, 25 out"]
+    subgraph S8["Stage 8: Re-Ranking"]
+        SIM["65% rule + 35% similarity"]
+        CF["CF boost +15%"]
+        REJ["Rejection penalty"]
+        LLM_RR["GPT-4o rerank: 80 in, 25 out"]
     end
 
-    subgraph S9["Stage 9: Diversity Enforcement"]
-        DIV["Maximal Marginal Relevance<br/>88% relevance + 12% novelty<br/>Applied to top 30"]
+    subgraph S9["Stage 9: Diversity"]
+        DIV["MMR: 88% relevance + 12% novelty"]
     end
 
-    OUTPUT["Final Output<br/>Up to 100 games with<br/>scores, reasons, breakdowns"]
+    OUTPUT["Final Results"]
 
     INPUT --> S1 --> S2 --> S3
     S3 -->|Miss| S4
@@ -473,11 +467,11 @@ graph TB
     end
 
     subgraph Pipeline["Eval Pipeline"]
-        LOAD["1. Load & filter cases"]
-        EXEC["2. Execute in parallel (concurrency 5-8)<br/>POST /api/recommend per case<br/>_nocache: true"]
-        CHECK["3. Check: ideal games found,<br/>anti-games absent, constraints met,<br/>LLM judge score 0-10"]
-        IR["4. Compute IR metrics:<br/>NDCG@10, MRR, Precision@10,<br/>Hit Rate@5, Recall@10"]
-        AGG["5. Aggregate: per-category breakdown,<br/>worst cases, regression tracking"]
+        LOAD["Load and filter cases"]
+        EXEC["Execute in parallel<br/>POST /api/recommend per case"]
+        CHECK["Check ideal games found,<br/>anti-games absent, constraints met"]
+        IR["Compute IR metrics:<br/>NDCG, MRR, Precision, Hit Rate"]
+        AGG["Aggregate per-category,<br/>worst cases, regressions"]
     end
 
     subgraph Output["Persistent Output"]
@@ -613,10 +607,10 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    CHANGE["1. Make engine change"]
-    RUN["2. Run evals"]
-    COMPARE["3. Compare runs"]
-    ANALYZE["4. Analyze failures"]
+    CHANGE["Make engine change"]
+    RUN["Run evals"]
+    COMPARE["Compare runs"]
+    ANALYZE["Analyze failures"]
     DECIDE{"Better?"}
     KEEP["Keep + commit"]
     REVERT["Revert"]

@@ -195,13 +195,13 @@ flowchart TD
     INPUT["User Input<br/>'a fun anime board game for 4 players'"]
 
     subgraph S1["Stage 1: LLM Preference Parsing"]
-        direction LR
+        
         PARSE["GPT-4o-mini extracts:"]
         OUT["Structured output: genres, mechanics,<br/>moods, complexity, playerCount,<br/>designers, similarTo, intentModifiers"]
     end
 
     subgraph S2["Stage 2: Similar-To Bootstrapping"]
-        direction LR
+        
         FETCH["Fetch referenced game's full profile"]
         INHERIT["Inherit complexity, player count,<br/>time range, boost core mechanics 1.5x"]
     end
@@ -440,11 +440,11 @@ graph TB
     end
 
     subgraph Pipeline["Eval Pipeline"]
-        LOAD["1. Load & filter cases"]
-        EXEC["2. Execute in parallel (concurrency=5-8)<br/>POST /api/recommend per case<br/>_nocache: true"]
-        CHECK["3. Check: ideal games found,<br/>anti-games absent, constraints met,<br/>LLM judge score 0-10"]
-        IR["4. Compute IR metrics:<br/>NDCG@10, MRR, Precision@10,<br/>Hit Rate@5, Recall@10"]
-        AGG["5. Aggregate: per-category breakdown,<br/>worst cases, regression tracking"]
+        LOAD["Load and filter cases"]
+        EXEC["Execute in parallel<br/>POST /api/recommend per case"]
+        CHECK["Check ideal games found,<br/>anti-games absent, constraints met"]
+        IR["Compute IR metrics:<br/>NDCG, MRR, Precision, Hit Rate"]
+        AGG["Aggregate per-category,<br/>worst cases, regressions"]
     end
 
     subgraph Output["Persistent Output"]
@@ -508,10 +508,10 @@ pie title 3,028 Eval Cases by Category
 
 ```mermaid
 flowchart LR
-    CHANGE["1. Make engine change"]
-    RUN["2. Run evals<br/>npm run eval"]
-    COMPARE["3. Compare runs<br/>npm run eval:compare"]
-    ANALYZE["4. Analyze failures<br/>npm run eval:analyze"]
+    CHANGE["Make engine change"]
+    RUN["Run evals"]
+    COMPARE["Compare runs"]
+    ANALYZE["Analyze failures"]
     DECIDE{"Better?"}
     KEEP["Keep + commit<br/>with eval results"]
     REVERT["Revert"]
@@ -626,12 +626,12 @@ The system design was informed by academic literature. Here's what we read, what
 ```mermaid
 flowchart TD
     subgraph Standard["Industry Standard Pipeline<br/>(from Raza et al.)"]
-        S1["1. Data Acquisition"]
-        S2["2. Feature Engineering"]
-        S3["3. Candidate Generation"]
-        S4["4. Ranking"]
-        S5["5. Evaluation"]
-        S6["6. Feedback Loop"]
+        S1["Data Acquisition"]
+        S2["Feature Engineering"]
+        S3["Candidate Generation"]
+        S4["Ranking"]
+        S5["Evaluation"]
+        S6["Feedback Loop"]
     end
 
     subgraph Ours["Our Pipeline"]
