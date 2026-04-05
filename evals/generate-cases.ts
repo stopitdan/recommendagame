@@ -1419,6 +1419,7 @@ for (const [cat, count] of [...categoryCount.entries()].sort((a, b) => b[1] - a[
 }
 
 // Write
-const outFile = path.join(EVALS_DIR, 'cases.json');
+const outDir = path.join(process.cwd(), 'evals');
+const outFile = path.join(outDir, 'cases.json');
 fs.writeFileSync(outFile, JSON.stringify(cases, null, 2));
 console.log(`\nWritten to ${outFile}`);

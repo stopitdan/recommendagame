@@ -1,0 +1,3088 @@
+[
+  {
+    "id": "mechanic-focused-001",
+    "name": "Deck builder basic",
+    "category": "mechanic-focused",
+    "query": "deck building game",
+    "idealGames": [
+      {
+        "name": "Dominion",
+        "relevance": 3,
+        "reason": "THE deck builder"
+      },
+      {
+        "name": "Star Realms",
+        "relevance": 3,
+        "reason": "Classic deck builder"
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Card game but not deck building"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-002",
+    "name": "Deck builder fast",
+    "category": "mechanic-focused",
+    "query": "fast deck builder under 30 minutes",
+    "idealGames": [
+      {
+        "name": "Star Realms",
+        "relevance": 3
+      },
+      {
+        "name": "Dominion",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Gloomhaven",
+        "reason": "Way too long"
+      },
+      {
+        "name": "UNO",
+        "reason": "Not a deck builder"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "maxMinutes": 30,
+      "timeStrictness": "hard"
+    }
+  },
+  {
+    "id": "mechanic-focused-003",
+    "name": "Worker placement beginner",
+    "category": "mechanic-focused",
+    "query": "worker placement for beginners",
+    "idealGames": [
+      {
+        "name": "Lords of Waterdeep",
+        "relevance": 3,
+        "reason": "Best intro worker placement"
+      },
+      {
+        "name": "Stone Age",
+        "relevance": 3,
+        "reason": "Classic beginner WP"
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Agricola",
+        "reason": "Too heavy for beginners"
+      },
+      {
+        "name": "UNO",
+        "reason": "Not worker placement"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "complexity": {
+        "min": 1,
+        "max": 3
+      }
+    }
+  },
+  {
+    "id": "mechanic-focused-004",
+    "name": "Worker placement medium",
+    "category": "mechanic-focused",
+    "query": "medium weight worker placement game",
+    "idealGames": [
+      {
+        "name": "Viticulture",
+        "relevance": 3
+      },
+      {
+        "name": "Agricola",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not worker placement"
+      },
+      {
+        "name": "Codenames",
+        "reason": "Party game"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-005",
+    "name": "Area control competitive",
+    "category": "mechanic-focused",
+    "query": "competitive area control game for 4 players",
+    "idealGames": [
+      {
+        "name": "Root",
+        "relevance": 3
+      },
+      {
+        "name": "Blood Rage",
+        "relevance": 3
+      },
+      {
+        "name": "Kemet",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Pandemic",
+        "reason": "Cooperative, not competitive"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 4,
+      "max": 4
+    }
+  },
+  {
+    "id": "mechanic-focused-006",
+    "name": "Engine building",
+    "category": "mechanic-focused",
+    "query": "engine building board game",
+    "idealGames": [
+      {
+        "name": "Terraforming Mars",
+        "relevance": 3
+      },
+      {
+        "name": "Wingspan",
+        "relevance": 3
+      },
+      {
+        "name": "Gizmos",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Chess",
+        "reason": "Not engine building"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-007",
+    "name": "Social deduction",
+    "category": "mechanic-focused",
+    "query": "social deduction game for a big group",
+    "idealGames": [
+      {
+        "name": "Secret Hitler",
+        "relevance": 3
+      },
+      {
+        "name": "The Resistance",
+        "relevance": 3
+      },
+      {
+        "name": "Werewolf",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Patchwork",
+        "reason": "2-player only"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 5,
+      "max": 10
+    }
+  },
+  {
+    "id": "mechanic-focused-008",
+    "name": "Tile placement",
+    "category": "mechanic-focused",
+    "query": "tile placement game",
+    "idealGames": [
+      {
+        "name": "Azul",
+        "relevance": 3
+      },
+      {
+        "name": "Carcassonne",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-009",
+    "name": "Roll and write",
+    "category": "mechanic-focused",
+    "query": "roll and write game",
+    "idealGames": [
+      {
+        "name": "Yahtzee",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Chess",
+        "reason": "No dice"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-010",
+    "name": "Push your luck",
+    "category": "mechanic-focused",
+    "query": "push your luck game",
+    "idealGames": [
+      {
+        "name": "Quacks of Quedlinburg",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-011",
+    "name": "Drafting game",
+    "category": "mechanic-focused",
+    "query": "card drafting game",
+    "idealGames": [
+      {
+        "name": "7 Wonders",
+        "relevance": 3
+      },
+      {
+        "name": "Sushi Go",
+        "relevance": 3,
+        "reason": "Classic drafting game"
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-012",
+    "name": "Route building",
+    "category": "mechanic-focused",
+    "query": "route building train game",
+    "idealGames": [
+      {
+        "name": "Ticket to Ride",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "No route building"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-013",
+    "name": "Auction bidding",
+    "category": "mechanic-focused",
+    "query": "auction and bidding game",
+    "idealGames": [
+      {
+        "name": "Ra",
+        "relevance": 3,
+        "reason": "Classic auction game"
+      },
+      {
+        "name": "Power Grid",
+        "relevance": 2,
+        "reason": "Has auction mechanic"
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-014",
+    "name": "Legacy campaign",
+    "category": "mechanic-focused",
+    "query": "legacy campaign game",
+    "idealGames": [
+      {
+        "name": "Gloomhaven",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "No campaign"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-015",
+    "name": "Bag building",
+    "category": "mechanic-focused",
+    "query": "bag building board game",
+    "idealGames": [
+      {
+        "name": "Quacks of Quedlinburg",
+        "relevance": 3
+      },
+      {
+        "name": "Orleans",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-016",
+    "name": "Trick taking",
+    "category": "mechanic-focused",
+    "query": "trick taking card game",
+    "idealGames": [
+      {
+        "name": "The Crew",
+        "relevance": 3
+      },
+      {
+        "name": "Fox in the Forest",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-017",
+    "name": "Asymmetric powers",
+    "category": "mechanic-focused",
+    "query": "asymmetric game where everyone has different powers",
+    "idealGames": [
+      {
+        "name": "Root",
+        "relevance": 3
+      },
+      {
+        "name": "Vast",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Chess",
+        "reason": "Symmetric"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-018",
+    "name": "Negotiation trading",
+    "category": "mechanic-focused",
+    "query": "negotiation and trading game",
+    "idealGames": [
+      {
+        "name": "Catan",
+        "relevance": 3
+      },
+      {
+        "name": "Chinatown",
+        "relevance": 3,
+        "reason": "Pure negotiation game"
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-019",
+    "name": "Pattern building",
+    "category": "mechanic-focused",
+    "query": "pattern building puzzle game",
+    "idealGames": [
+      {
+        "name": "Azul",
+        "relevance": 3
+      },
+      {
+        "name": "Sagrada",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mechanic-focused-020",
+    "name": "Set collection",
+    "category": "mechanic-focused",
+    "query": "set collection card game",
+    "idealGames": [
+      {
+        "name": "Ticket to Ride",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-021",
+    "name": "Anime board game",
+    "category": "theme-focused",
+    "query": "anime themed board game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not anime themed"
+      },
+      {
+        "name": "Catan",
+        "reason": "Not anime themed"
+      },
+      {
+        "name": "Chess",
+        "reason": "Not anime themed"
+      },
+      {
+        "name": "Poker",
+        "reason": "Not anime themed"
+      },
+      {
+        "name": "Monopoly",
+        "reason": "Not anime themed"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "tags": [
+      "regression"
+    ]
+  },
+  {
+    "id": "theme-focused-022",
+    "name": "Space exploration",
+    "category": "theme-focused",
+    "query": "space exploration game",
+    "idealGames": [
+      {
+        "name": "Terraforming Mars",
+        "relevance": 3
+      },
+      {
+        "name": "Eclipse",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not space themed"
+      },
+      {
+        "name": "Carcassonne",
+        "reason": "Medieval, not space"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-023",
+    "name": "Zombie survival",
+    "category": "theme-focused",
+    "query": "zombie survival board game",
+    "idealGames": [
+      {
+        "name": "Zombicide",
+        "relevance": 3
+      },
+      {
+        "name": "Dead of Winter",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Chess",
+        "reason": "No zombies"
+      },
+      {
+        "name": "Azul",
+        "reason": "No zombies"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-024",
+    "name": "Fantasy adventure",
+    "category": "theme-focused",
+    "query": "fantasy adventure game with quests",
+    "idealGames": [
+      {
+        "name": "Gloomhaven",
+        "relevance": 3
+      },
+      {
+        "name": "Descent",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Poker",
+        "reason": "No fantasy"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-025",
+    "name": "Pirate themed",
+    "category": "theme-focused",
+    "query": "pirate themed board game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "No pirates"
+      },
+      {
+        "name": "Chess",
+        "reason": "No pirates"
+      },
+      {
+        "name": "Agricola",
+        "reason": "Farming, not pirates"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-026",
+    "name": "Medieval",
+    "category": "theme-focused",
+    "query": "medieval castle building game",
+    "idealGames": [
+      {
+        "name": "Carcassonne",
+        "relevance": 3
+      },
+      {
+        "name": "The Castles of Burgundy",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-027",
+    "name": "Horror mystery",
+    "category": "theme-focused",
+    "query": "horror mystery investigation game",
+    "idealGames": [
+      {
+        "name": "Arkham Horror",
+        "relevance": 3
+      },
+      {
+        "name": "Betrayal at House on the Hill",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Ticket to Ride",
+        "reason": "Not horror"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-028",
+    "name": "Nature animals",
+    "category": "theme-focused",
+    "query": "nature themed game about animals",
+    "idealGames": [
+      {
+        "name": "Wingspan",
+        "relevance": 3,
+        "reason": "THE nature/animal game"
+      },
+      {
+        "name": "Everdell",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-029",
+    "name": "Cyberpunk",
+    "category": "theme-focused",
+    "query": "cyberpunk sci-fi game",
+    "idealGames": [
+      {
+        "name": "Android: Netrunner",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Agricola",
+        "reason": "Farming, not cyberpunk"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-030",
+    "name": "Ancient Egypt",
+    "category": "theme-focused",
+    "query": "ancient egypt themed game",
+    "idealGames": [
+      {
+        "name": "Ra",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Wingspan",
+        "reason": "Birds, not Egypt"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-031",
+    "name": "Vikings",
+    "category": "theme-focused",
+    "query": "viking themed game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not viking themed"
+      },
+      {
+        "name": "Azul",
+        "reason": "Portuguese tiles, not vikings"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-032",
+    "name": "Western cowboys",
+    "category": "theme-focused",
+    "query": "western cowboy themed game",
+    "idealGames": [
+      {
+        "name": "Great Western Trail",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-033",
+    "name": "Lovecraft Cthulhu",
+    "category": "theme-focused",
+    "query": "Lovecraftian Cthulhu horror game",
+    "idealGames": [
+      {
+        "name": "Arkham Horror",
+        "relevance": 3
+      },
+      {
+        "name": "Eldritch Horror",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-034",
+    "name": "Trains",
+    "category": "theme-focused",
+    "query": "train game",
+    "idealGames": [
+      {
+        "name": "Ticket to Ride",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-035",
+    "name": "Detective crime",
+    "category": "theme-focused",
+    "query": "detective crime solving game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not detective/crime"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-036",
+    "name": "Dinosaurs",
+    "category": "theme-focused",
+    "query": "dinosaur themed board game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "No dinosaurs"
+      },
+      {
+        "name": "Chess",
+        "reason": "No dinosaurs"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-037",
+    "name": "Farming",
+    "category": "theme-focused",
+    "query": "farming themed game",
+    "idealGames": [
+      {
+        "name": "Agricola",
+        "relevance": 3
+      },
+      {
+        "name": "Viticulture",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "theme-focused-038",
+    "name": "War military",
+    "category": "theme-focused",
+    "query": "military war strategy game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Azul",
+        "reason": "Not a war game"
+      },
+      {
+        "name": "Wingspan",
+        "reason": "Not a war game"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "player-count-039",
+    "name": "Solo board game",
+    "category": "player-count",
+    "query": "best solo board game",
+    "idealGames": [
+      {
+        "name": "Mage Knight",
+        "relevance": 3
+      },
+      {
+        "name": "Spirit Island",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Codenames",
+        "reason": "Needs 4+ players"
+      },
+      {
+        "name": "Secret Hitler",
+        "reason": "Needs 5+ players"
+      },
+      {
+        "name": "The Crew",
+        "reason": "Needs 2+ players"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 1,
+      "max": 1
+    }
+  },
+  {
+    "id": "player-count-040",
+    "name": "Thematic solo",
+    "category": "player-count",
+    "query": "thematic solo games",
+    "idealGames": [
+      {
+        "name": "Mage Knight",
+        "relevance": 3
+      },
+      {
+        "name": "Spirit Island",
+        "relevance": 3
+      },
+      {
+        "name": "Arkham Horror: The Card Game",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "The Crew",
+        "reason": "Min 2 players VIOLATES CONSTRAINT"
+      },
+      {
+        "name": "Codenames",
+        "reason": "Party game, min 4 players"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 1,
+      "max": 1
+    },
+    "tags": [
+      "regression",
+      "real-user"
+    ]
+  },
+  {
+    "id": "player-count-041",
+    "name": "2 player strategy",
+    "category": "player-count",
+    "query": "2 player strategy game under an hour",
+    "idealGames": [
+      {
+        "name": "7 Wonders Duel",
+        "relevance": 3
+      },
+      {
+        "name": "Patchwork",
+        "relevance": 3
+      },
+      {
+        "name": "Jaipur",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Twilight Imperium",
+        "reason": "Way too long, too many players"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 2,
+      "max": 2
+    },
+    "constraints": {
+      "maxMinutes": 60,
+      "timeStrictness": "soft"
+    }
+  },
+  {
+    "id": "player-count-042",
+    "name": "Date night 2p",
+    "category": "player-count",
+    "query": "date night game for 2",
+    "idealGames": [
+      {
+        "name": "Patchwork",
+        "relevance": 3
+      },
+      {
+        "name": "Jaipur",
+        "relevance": 2
+      },
+      {
+        "name": "7 Wonders Duel",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Secret Hitler",
+        "reason": "Needs 5+ players"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 2,
+      "max": 2
+    }
+  },
+  {
+    "id": "player-count-043",
+    "name": "Party game 6+",
+    "category": "player-count",
+    "query": "party game for 6 or more people",
+    "idealGames": [
+      {
+        "name": "Codenames",
+        "relevance": 3
+      },
+      {
+        "name": "Telestrations",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Patchwork",
+        "reason": "2-player only"
+      },
+      {
+        "name": "7 Wonders Duel",
+        "reason": "2-player only"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 6,
+      "max": 10
+    }
+  },
+  {
+    "id": "player-count-044",
+    "name": "Exactly 3 players",
+    "category": "player-count",
+    "query": "best games for exactly 3 players",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Patchwork",
+        "reason": "2-player only"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 3,
+      "max": 3
+    }
+  },
+  {
+    "id": "player-count-045",
+    "name": "Large group 8+",
+    "category": "player-count",
+    "query": "game for 8 or more people",
+    "idealGames": [
+      {
+        "name": "Codenames",
+        "relevance": 2
+      },
+      {
+        "name": "Werewolf",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Patchwork",
+        "reason": "2-player only"
+      },
+      {
+        "name": "Gloomhaven",
+        "reason": "Max 4 players"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 8,
+      "max": 12
+    }
+  },
+  {
+    "id": "player-count-046",
+    "name": "Solo or 2",
+    "category": "player-count",
+    "query": "game I can play solo or with a friend",
+    "idealGames": [
+      {
+        "name": "Spirit Island",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Codenames",
+        "reason": "Needs 4+"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 1,
+      "max": 2
+    }
+  },
+  {
+    "id": "time-constraint-047",
+    "name": "Quick filler 15min",
+    "category": "time-constraint",
+    "query": "quick filler game under 15 minutes",
+    "idealGames": [
+      {
+        "name": "Love Letter",
+        "relevance": 3
+      },
+      {
+        "name": "Coup",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Gloomhaven",
+        "reason": "Way too long"
+      },
+      {
+        "name": "Twilight Imperium",
+        "reason": "Way too long"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "maxMinutes": 15,
+      "timeStrictness": "hard"
+    }
+  },
+  {
+    "id": "time-constraint-048",
+    "name": "Under 30 min",
+    "category": "time-constraint",
+    "query": "game under 30 minutes",
+    "idealGames": [
+      {
+        "name": "Azul",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Twilight Imperium",
+        "reason": "Way too long"
+      },
+      {
+        "name": "Brass: Birmingham",
+        "reason": "Way too long"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "maxMinutes": 30,
+      "timeStrictness": "hard"
+    }
+  },
+  {
+    "id": "time-constraint-049",
+    "name": "90 min convention",
+    "category": "time-constraint",
+    "query": "at a convention, want to play something new, 90 minutes, 4 players",
+    "idealGames": [
+      {
+        "name": "Azul",
+        "relevance": 3
+      },
+      {
+        "name": "Wingspan",
+        "relevance": 3
+      },
+      {
+        "name": "Quacks of Quedlinburg",
+        "relevance": 3
+      },
+      {
+        "name": "Ticket to Ride",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Brass: Birmingham",
+        "reason": "Way over 90 min"
+      },
+      {
+        "name": "Through the Ages",
+        "reason": "Way over 90 min"
+      },
+      {
+        "name": "Twilight Imperium",
+        "reason": "6+ hours"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 4,
+      "max": 4
+    },
+    "constraints": {
+      "maxMinutes": 90,
+      "timeStrictness": "hard"
+    },
+    "tags": [
+      "regression",
+      "real-user"
+    ]
+  },
+  {
+    "id": "time-constraint-050",
+    "name": "Epic all-day",
+    "category": "time-constraint",
+    "query": "epic all-day game for a gaming marathon",
+    "idealGames": [
+      {
+        "name": "Twilight Imperium",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Love Letter",
+        "reason": "Too short for all-day"
+      },
+      {
+        "name": "Coup",
+        "reason": "Too short"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "timePresets": [
+      "epic"
+    ]
+  },
+  {
+    "id": "time-constraint-051",
+    "name": "About an hour",
+    "category": "time-constraint",
+    "query": "about an hour long strategy game",
+    "idealGames": [
+      {
+        "name": "Wingspan",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Twilight Imperium",
+        "reason": "Way over an hour"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "maxMinutes": 60,
+      "timeStrictness": "soft"
+    }
+  },
+  {
+    "id": "time-constraint-052",
+    "name": "Lunch break",
+    "category": "time-constraint",
+    "query": "game I can play on a lunch break",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Gloomhaven",
+        "reason": "Way too long for lunch"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "maxMinutes": 30,
+      "timeStrictness": "hard"
+    }
+  },
+  {
+    "id": "complexity-053",
+    "name": "Light family anyone",
+    "category": "complexity",
+    "query": "light family game anyone can play",
+    "idealGames": [
+      {
+        "name": "Ticket to Ride",
+        "relevance": 3
+      },
+      {
+        "name": "Azul",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Twilight Imperium",
+        "reason": "Way too complex"
+      },
+      {
+        "name": "Brass: Birmingham",
+        "reason": "Too complex for family"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "complexity": {
+        "min": 1,
+        "max": 2
+      }
+    }
+  },
+  {
+    "id": "complexity-054",
+    "name": "Heavy strategy experienced",
+    "category": "complexity",
+    "query": "heavy complex strategy game for experienced players",
+    "idealGames": [
+      {
+        "name": "Brass: Birmingham",
+        "relevance": 3
+      },
+      {
+        "name": "Gaia Project",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Way too simple"
+      },
+      {
+        "name": "Exploding Kittens",
+        "reason": "Way too simple"
+      },
+      {
+        "name": "Love Letter",
+        "reason": "Way too simple"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "complexity": {
+        "min": 3.5,
+        "max": 5
+      }
+    }
+  },
+  {
+    "id": "complexity-055",
+    "name": "Gateway game",
+    "category": "complexity",
+    "query": "gateway game to get new players into the hobby",
+    "idealGames": [
+      {
+        "name": "Catan",
+        "relevance": 3
+      },
+      {
+        "name": "Ticket to Ride",
+        "relevance": 3
+      },
+      {
+        "name": "Azul",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Twilight Imperium",
+        "reason": "Not a gateway"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "complexity": {
+        "min": 1,
+        "max": 2.5
+      }
+    }
+  },
+  {
+    "id": "complexity-056",
+    "name": "Kids game",
+    "category": "complexity",
+    "query": "game for kids under 10",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Gloomhaven",
+        "reason": "Way too complex for kids"
+      },
+      {
+        "name": "Brass: Birmingham",
+        "reason": "Way too complex for kids"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "complexity": {
+        "min": 1,
+        "max": 1.5
+      }
+    }
+  },
+  {
+    "id": "complexity-057",
+    "name": "Medium weight euro",
+    "category": "complexity",
+    "query": "medium weight euro game",
+    "idealGames": [
+      {
+        "name": "Viticulture",
+        "relevance": 2
+      },
+      {
+        "name": "Concordia",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "complexity": {
+        "min": 2.5,
+        "max": 3.5
+      }
+    }
+  },
+  {
+    "id": "complexity-058",
+    "name": "Heavy euro",
+    "category": "complexity",
+    "query": "a heavy strategic euro game with interesting decisions",
+    "idealGames": [
+      {
+        "name": "Brass: Birmingham",
+        "relevance": 3
+      },
+      {
+        "name": "Terraforming Mars",
+        "relevance": 3
+      },
+      {
+        "name": "Gaia Project",
+        "relevance": 3
+      },
+      {
+        "name": "Great Western Trail",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "tags": [
+      "regression",
+      "real-user"
+    ]
+  },
+  {
+    "id": "mood-vibe-059",
+    "name": "Chill relaxing 2p",
+    "category": "mood-vibe",
+    "query": "chill relaxing game for 2",
+    "idealGames": [
+      {
+        "name": "Patchwork",
+        "relevance": 3
+      },
+      {
+        "name": "Jaipur",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Secret Hitler",
+        "reason": "Not chill"
+      },
+      {
+        "name": "Blood Rage",
+        "reason": "Not chill or relaxing"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 2,
+      "max": 2
+    }
+  },
+  {
+    "id": "mood-vibe-060",
+    "name": "Competitive cutthroat",
+    "category": "mood-vibe",
+    "query": "cutthroat competitive game where you can screw people over",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Pandemic",
+        "reason": "Cooperative game"
+      },
+      {
+        "name": "Forbidden Island",
+        "reason": "Cooperative game"
+      },
+      {
+        "name": "Hanabi",
+        "reason": "Cooperative game"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mood-vibe-061",
+    "name": "Cooperative for family",
+    "category": "mood-vibe",
+    "query": "cooperative game the whole family can play together",
+    "idealGames": [
+      {
+        "name": "Pandemic",
+        "relevance": 3
+      },
+      {
+        "name": "Forbidden Island",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mood-vibe-062",
+    "name": "Brain teaser puzzle",
+    "category": "mood-vibe",
+    "query": "brain teaser puzzle game that makes you think",
+    "idealGames": [
+      {
+        "name": "Azul",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Exploding Kittens",
+        "reason": "More luck than thinking"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mood-vibe-063",
+    "name": "Social laughing",
+    "category": "mood-vibe",
+    "query": "social game with lots of laughing",
+    "idealGames": [
+      {
+        "name": "Codenames",
+        "relevance": 2
+      },
+      {
+        "name": "Telestrations",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Chess",
+        "reason": "Not social/laughing"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mood-vibe-064",
+    "name": "Story driven immersive",
+    "category": "mood-vibe",
+    "query": "story-driven immersive experience",
+    "idealGames": [
+      {
+        "name": "Gloomhaven",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "No story"
+      },
+      {
+        "name": "Chess",
+        "reason": "No story"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "mood-vibe-065",
+    "name": "Thematic pub game",
+    "category": "mood-vibe",
+    "query": "A very thematic euro-style game that takes about an hour, is quick to learn, and you could take to the pub",
+    "idealGames": [
+      {
+        "name": "Azul",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Poker",
+        "reason": "NOT a thematic euro -- this was a known regression"
+      },
+      {
+        "name": "Chess",
+        "reason": "Not thematic"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "maxMinutes": 60,
+      "timeStrictness": "soft",
+      "complexity": {
+        "min": 1,
+        "max": 3
+      }
+    },
+    "tags": [
+      "regression"
+    ]
+  },
+  {
+    "id": "designer-search-066",
+    "name": "Stefan Feld games",
+    "category": "designer-search",
+    "query": "A game designed by Stefan Feld",
+    "idealGames": [
+      {
+        "name": "The Castles of Burgundy",
+        "relevance": 3
+      },
+      {
+        "name": "Trajan",
+        "relevance": 3
+      },
+      {
+        "name": "Bora Bora",
+        "relevance": 3
+      },
+      {
+        "name": "Bruges",
+        "relevance": 2
+      },
+      {
+        "name": "Notre Dame",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "designer": "Stefan Feld"
+    },
+    "tags": [
+      "regression",
+      "real-user"
+    ]
+  },
+  {
+    "id": "designer-search-067",
+    "name": "Uwe Rosenberg cave farmers",
+    "category": "designer-search",
+    "query": "A worker placement game designed by Uwe Rosenberg where you play as cave dwelling farmers",
+    "idealGames": [
+      {
+        "name": "Caverna",
+        "relevance": 3,
+        "reason": "This is EXACTLY the game described"
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "designer": "Uwe Rosenberg"
+    },
+    "tags": [
+      "regression",
+      "real-user"
+    ]
+  },
+  {
+    "id": "designer-search-068",
+    "name": "Uwe Rosenberg general",
+    "category": "designer-search",
+    "query": "Uwe Rosenberg games",
+    "idealGames": [
+      {
+        "name": "Agricola",
+        "relevance": 3
+      },
+      {
+        "name": "Caverna",
+        "relevance": 3
+      },
+      {
+        "name": "Patchwork",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "designer": "Uwe Rosenberg"
+    }
+  },
+  {
+    "id": "designer-search-069",
+    "name": "Reiner Knizia",
+    "category": "designer-search",
+    "query": "games by Reiner Knizia",
+    "idealGames": [
+      {
+        "name": "Ra",
+        "relevance": 3
+      },
+      {
+        "name": "Tigris & Euphrates",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "designer": "Reiner Knizia"
+    }
+  },
+  {
+    "id": "designer-search-070",
+    "name": "Vlaada Chvatil",
+    "category": "designer-search",
+    "query": "Vlaada Chvatil board games",
+    "idealGames": [
+      {
+        "name": "Codenames",
+        "relevance": 3
+      },
+      {
+        "name": "Mage Knight",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "designer": "Vlaada Chvátil"
+    }
+  },
+  {
+    "id": "similar-to-071",
+    "name": "Like Catan but better",
+    "category": "similar-to",
+    "query": "something like Catan but better",
+    "idealGames": [
+      {
+        "name": "Concordia",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Nothing like Catan"
+      },
+      {
+        "name": "Chess",
+        "reason": "Nothing like Catan"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "similar-to-072",
+    "name": "Like Catan less random",
+    "category": "similar-to",
+    "query": "like Catan but less random",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Nothing like Catan"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "similar-to-073",
+    "name": "Stardew Valley board game",
+    "category": "similar-to",
+    "query": "something like Stardew Valley but a board game",
+    "idealGames": [
+      {
+        "name": "Agricola",
+        "relevance": 2
+      },
+      {
+        "name": "Viticulture",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "similar-to-074",
+    "name": "Like Gloomhaven shorter",
+    "category": "similar-to",
+    "query": "something like Gloomhaven but shorter sessions",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Nothing like Gloomhaven"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "similar-to-075",
+    "name": "Dark Souls board game",
+    "category": "similar-to",
+    "query": "board game like Dark Souls",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not like Dark Souls"
+      },
+      {
+        "name": "Ticket to Ride",
+        "reason": "Not like Dark Souls"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "similar-to-076",
+    "name": "Slay the Spire board game",
+    "category": "similar-to",
+    "query": "Slay the Spire as a board game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Chess",
+        "reason": "Not like Slay the Spire"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "similar-to-077",
+    "name": "Like Minecraft",
+    "category": "similar-to",
+    "query": "something like Minecraft",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Poker",
+        "reason": "Not like Minecraft"
+      }
+    ]
+  },
+  {
+    "id": "similar-to-078",
+    "name": "Among Us board game",
+    "category": "similar-to",
+    "query": "board game like Among Us",
+    "idealGames": [
+      {
+        "name": "Secret Hitler",
+        "relevance": 2,
+        "reason": "Social deduction like Among Us"
+      },
+      {
+        "name": "The Resistance",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "negative-preference-079",
+    "name": "Strategy no war",
+    "category": "negative-preference",
+    "query": "strategy game but no war or fighting themes",
+    "idealGames": [
+      {
+        "name": "Terraforming Mars",
+        "relevance": 2
+      },
+      {
+        "name": "Wingspan",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Risk",
+        "reason": "War game"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "negative-preference-080",
+    "name": "No dice",
+    "category": "negative-preference",
+    "query": "strategy game with no dice rolling",
+    "idealGames": [
+      {
+        "name": "Concordia",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "negative-preference-081",
+    "name": "No player elimination",
+    "category": "negative-preference",
+    "query": "party game without player elimination",
+    "idealGames": [
+      {
+        "name": "Codenames",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "negative-preference-082",
+    "name": "Not too random",
+    "category": "negative-preference",
+    "query": "game thats not too random or luck based",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Very luck-based"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "negative-preference-083",
+    "name": "No hidden traitor",
+    "category": "negative-preference",
+    "query": "cooperative game with no hidden traitor",
+    "idealGames": [
+      {
+        "name": "Pandemic",
+        "relevance": 3
+      },
+      {
+        "name": "Spirit Island",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Battlestar Galactica",
+        "reason": "Has hidden traitor"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "multi-constraint-084",
+    "name": "2p competitive 30min medium",
+    "category": "multi-constraint",
+    "query": "competitive game for 2 players, about 30 minutes, medium weight",
+    "idealGames": [
+      {
+        "name": "7 Wonders Duel",
+        "relevance": 3
+      },
+      {
+        "name": "Jaipur",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Twilight Imperium",
+        "reason": "All constraints violated"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 2,
+      "max": 2
+    },
+    "constraints": {
+      "maxMinutes": 30,
+      "timeStrictness": "soft",
+      "complexity": {
+        "min": 2,
+        "max": 3.5
+      }
+    }
+  },
+  {
+    "id": "multi-constraint-085",
+    "name": "Family 4p coop 60min",
+    "category": "multi-constraint",
+    "query": "cooperative family game for 4 players, about an hour",
+    "idealGames": [
+      {
+        "name": "Pandemic",
+        "relevance": 3
+      },
+      {
+        "name": "Forbidden Island",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 4,
+      "max": 4
+    },
+    "constraints": {
+      "maxMinutes": 60,
+      "timeStrictness": "soft",
+      "complexity": {
+        "min": 1,
+        "max": 2.5
+      }
+    }
+  },
+  {
+    "id": "multi-constraint-086",
+    "name": "Solo heavy 2hr",
+    "category": "multi-constraint",
+    "query": "heavy solo game I can sink 2 hours into",
+    "idealGames": [
+      {
+        "name": "Mage Knight",
+        "relevance": 3
+      },
+      {
+        "name": "Spirit Island",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Codenames",
+        "reason": "Not solo"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 1,
+      "max": 1
+    }
+  },
+  {
+    "id": "multi-constraint-087",
+    "name": "Party 6p quick social",
+    "category": "multi-constraint",
+    "query": "quick social party game for 6 people",
+    "idealGames": [
+      {
+        "name": "Codenames",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Gloomhaven",
+        "reason": "Not a party game, max 4p"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 6,
+      "max": 6
+    },
+    "constraints": {
+      "maxMinutes": 30,
+      "timeStrictness": "soft"
+    }
+  },
+  {
+    "id": "multi-constraint-088",
+    "name": "Deck builder 2p cooperative",
+    "category": "multi-constraint",
+    "query": "cooperative deck building game for 2",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not deck building or cooperative"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 2,
+      "max": 2
+    }
+  },
+  {
+    "id": "multi-constraint-089",
+    "name": "Space 4x heavy",
+    "category": "multi-constraint",
+    "query": "heavy 4X space game for 3-4 players",
+    "idealGames": [
+      {
+        "name": "Eclipse",
+        "relevance": 3
+      },
+      {
+        "name": "Twilight Imperium",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 3,
+      "max": 4
+    }
+  },
+  {
+    "id": "edge-case-090",
+    "name": "Vague bored",
+    "category": "edge-case",
+    "query": "I'm bored what should I play",
+    "idealGames": [],
+    "antiGames": [],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "edge-case-091",
+    "name": "Single word fun",
+    "category": "edge-case",
+    "query": "fun",
+    "idealGames": [],
+    "antiGames": [],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "edge-case-092",
+    "name": "Single word strategy",
+    "category": "edge-case",
+    "query": "strategy",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not typically considered strategy"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "edge-case-093",
+    "name": "Emoji only",
+    "category": "edge-case",
+    "query": "🎲🗡️🧙‍♂️",
+    "idealGames": [],
+    "antiGames": [],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "edge-case-094",
+    "name": "Sarcastic",
+    "category": "edge-case",
+    "query": "board games are boring convince me otherwise",
+    "idealGames": [],
+    "antiGames": [],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "edge-case-095",
+    "name": "Impossible request",
+    "category": "edge-case",
+    "query": "game for 100 players that takes 5 minutes and is extremely complex",
+    "idealGames": [],
+    "antiGames": [],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "edge-case-096",
+    "name": "Non-game query",
+    "category": "edge-case",
+    "query": "best pizza in NYC",
+    "idealGames": [],
+    "antiGames": [],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "edge-case-097",
+    "name": "Typo filled",
+    "category": "edge-case",
+    "query": "dekc bilder with workar playsment",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Not deck building or worker placement"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "edge-case-098",
+    "name": "ESL query",
+    "category": "edge-case",
+    "query": "juego de estrategia para 4 jugadores",
+    "idealGames": [],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "edge-case-099",
+    "name": "Very specific",
+    "category": "edge-case",
+    "query": "cave farming worker placement by Rosenberg",
+    "idealGames": [
+      {
+        "name": "Caverna",
+        "relevance": 3,
+        "reason": "Exactly this"
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "edge-case-100",
+    "name": "Contradictory",
+    "category": "edge-case",
+    "query": "quick game that takes all day, simple but extremely complex",
+    "idealGames": [],
+    "antiGames": [],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "edge-case-101",
+    "name": "Just a game name",
+    "category": "edge-case",
+    "query": "Catan",
+    "idealGames": [
+      {
+        "name": "Catan",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "edge-case-102",
+    "name": "Empty-ish query",
+    "category": "edge-case",
+    "query": "...",
+    "idealGames": [],
+    "antiGames": [],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "edge-case-103",
+    "name": "Text speak",
+    "category": "edge-case",
+    "query": "lol i jst wnt 2 play smth fun w friends",
+    "idealGames": [],
+    "antiGames": [],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "real-user-feedback-104",
+    "name": "Hidden gems obscure",
+    "category": "real-user-feedback",
+    "query": "hidden gems, obscure games nobody knows about",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Catan",
+        "reason": "Everyone knows Catan"
+      },
+      {
+        "name": "Ticket to Ride",
+        "reason": "Too well known"
+      },
+      {
+        "name": "Wingspan",
+        "reason": "Too well known"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "tags": [
+      "regression",
+      "real-user"
+    ]
+  },
+  {
+    "id": "real-user-feedback-105",
+    "name": "Free text ignored",
+    "category": "real-user-feedback",
+    "query": "I want a game about exploring dungeons with friends, fighting monsters, and leveling up characters",
+    "idealGames": [
+      {
+        "name": "Gloomhaven",
+        "relevance": 3
+      },
+      {
+        "name": "Descent",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Completely irrelevant"
+      },
+      {
+        "name": "Poker",
+        "reason": "Completely irrelevant"
+      },
+      {
+        "name": "Chess",
+        "reason": "No dungeons or leveling"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "tags": [
+      "regression",
+      "real-user"
+    ]
+  },
+  {
+    "id": "real-user-feedback-106",
+    "name": "Description of exact game",
+    "category": "real-user-feedback",
+    "query": "a cooperative game where players are diseases trying to wipe out humanity",
+    "idealGames": [
+      {
+        "name": "Pandemic",
+        "relevance": 2,
+        "reason": "Close but reversed -- players fight disease"
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "tags": [
+      "real-user"
+    ]
+  },
+  {
+    "id": "video-game-107",
+    "name": "Roguelike video game",
+    "category": "video-game",
+    "query": "roguelike video game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Catan",
+        "reason": "Board game, not video game"
+      },
+      {
+        "name": "Ticket to Ride",
+        "reason": "Board game"
+      }
+    ],
+    "gameTypes": [
+      "video"
+    ]
+  },
+  {
+    "id": "video-game-108",
+    "name": "Cozy farming",
+    "category": "video-game",
+    "query": "cozy farming game like Stardew Valley",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Agricola",
+        "reason": "Board game"
+      }
+    ],
+    "gameTypes": [
+      "video"
+    ]
+  },
+  {
+    "id": "video-game-109",
+    "name": "Metroidvania",
+    "category": "video-game",
+    "query": "metroidvania with great art",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Catan",
+        "reason": "Board game"
+      }
+    ],
+    "gameTypes": [
+      "video"
+    ]
+  },
+  {
+    "id": "video-game-110",
+    "name": "Open world RPG",
+    "category": "video-game",
+    "query": "open world RPG with character creation",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Catan",
+        "reason": "Board game"
+      }
+    ],
+    "gameTypes": [
+      "video"
+    ]
+  },
+  {
+    "id": "party-game-111",
+    "name": "Thanksgiving family",
+    "category": "party-game",
+    "query": "game for Thanksgiving with non-gamers",
+    "idealGames": [
+      {
+        "name": "Codenames",
+        "relevance": 2
+      },
+      {
+        "name": "Ticket to Ride",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Twilight Imperium",
+        "reason": "Not for non-gamers"
+      },
+      {
+        "name": "Gloomhaven",
+        "reason": "Not for non-gamers"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "complexity": {
+        "min": 1,
+        "max": 2
+      }
+    }
+  },
+  {
+    "id": "party-game-112",
+    "name": "Ice breaker",
+    "category": "party-game",
+    "query": "ice breaker game for a work event",
+    "idealGames": [
+      {
+        "name": "Codenames",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Twilight Imperium",
+        "reason": "Not an ice breaker"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 4,
+      "max": 10
+    }
+  },
+  {
+    "id": "party-game-113",
+    "name": "Drinking game night",
+    "category": "party-game",
+    "query": "game for a drinking game night with friends",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Chess",
+        "reason": "Not a drinking game"
+      },
+      {
+        "name": "Gloomhaven",
+        "reason": "Too complex for drinking"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 4,
+      "max": 8
+    }
+  },
+  {
+    "id": "party-game-114",
+    "name": "Kids birthday party",
+    "category": "party-game",
+    "query": "game for a kids birthday party",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Gloomhaven",
+        "reason": "Not for kids party"
+      },
+      {
+        "name": "Secret Hitler",
+        "reason": "Not for kids"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 4,
+      "max": 10
+    },
+    "constraints": {
+      "complexity": {
+        "min": 1,
+        "max": 1.5
+      }
+    }
+  },
+  {
+    "id": "free-text-intent-115",
+    "name": "Build stuff creative",
+    "category": "free-text-intent",
+    "query": "I just want to build stuff and be creative",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "No building/creativity"
+      },
+      {
+        "name": "Poker",
+        "reason": "No building/creativity"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "free-text-intent-116",
+    "name": "Argue betray",
+    "category": "free-text-intent",
+    "query": "we want to argue and betray each other",
+    "idealGames": [
+      {
+        "name": "Secret Hitler",
+        "relevance": 2
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Pandemic",
+        "reason": "Cooperative, no betrayal"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "free-text-intent-117",
+    "name": "Quick teach anyone",
+    "category": "free-text-intent",
+    "query": "something I can teach anyone in 2 minutes and play in 15",
+    "idealGames": [
+      {
+        "name": "Love Letter",
+        "relevance": 3
+      },
+      {
+        "name": "Coup",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Gloomhaven",
+        "reason": "Cant teach in 2 min"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "maxMinutes": 15,
+      "timeStrictness": "hard",
+      "complexity": {
+        "min": 1,
+        "max": 1.5
+      }
+    }
+  },
+  {
+    "id": "free-text-intent-118",
+    "name": "Surprise me",
+    "category": "free-text-intent",
+    "query": "surprise me with something good",
+    "idealGames": [],
+    "antiGames": [],
+    "tags": [
+      "edge-case"
+    ]
+  },
+  {
+    "id": "free-text-intent-119",
+    "name": "Couples not competitive",
+    "category": "free-text-intent",
+    "query": "game for me and my partner, nothing too competitive",
+    "idealGames": [
+      {
+        "name": "Patchwork",
+        "relevance": 3
+      }
+    ],
+    "antiGames": [],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 2,
+      "max": 2
+    }
+  },
+  {
+    "id": "free-text-intent-120",
+    "name": "WFH break",
+    "category": "free-text-intent",
+    "query": "something quick to decompress during a work from home break",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Twilight Imperium",
+        "reason": "Not a quick break game"
+      }
+    ],
+    "constraints": {
+      "maxMinutes": 20,
+      "timeStrictness": "soft"
+    }
+  },
+  {
+    "id": "free-text-intent-121",
+    "name": "Camping no table",
+    "category": "free-text-intent",
+    "query": "game I can play while camping, no table needed",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Gloomhaven",
+        "reason": "Needs table and space"
+      },
+      {
+        "name": "Twilight Imperium",
+        "reason": "Needs massive table"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "free-text-intent-122",
+    "name": "Road trip car",
+    "category": "free-text-intent",
+    "query": "game for a road trip in the car",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Catan",
+        "reason": "Cant play in a car"
+      },
+      {
+        "name": "Gloomhaven",
+        "reason": "Cant play in a car"
+      }
+    ]
+  },
+  {
+    "id": "free-text-intent-123",
+    "name": "Like Game of Thrones",
+    "category": "free-text-intent",
+    "query": "game that feels like Game of Thrones",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "Nothing like GoT"
+      },
+      {
+        "name": "Ticket to Ride",
+        "reason": "Not GoT vibes"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ]
+  },
+  {
+    "id": "free-text-intent-124",
+    "name": "Wife hates games",
+    "category": "free-text-intent",
+    "query": "my wife hates board games, what would she actually enjoy",
+    "idealGames": [
+      {
+        "name": "Azul",
+        "relevance": 2,
+        "reason": "Beautiful, simple, appeals to non-gamers"
+      },
+      {
+        "name": "Codenames",
+        "relevance": 2,
+        "reason": "Social, simple"
+      }
+    ],
+    "antiGames": [
+      {
+        "name": "Twilight Imperium",
+        "reason": "Would make her hate games more"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "complexity": {
+        "min": 1,
+        "max": 2
+      }
+    }
+  },
+  {
+    "id": "free-text-intent-125",
+    "name": "Airplane game",
+    "category": "free-text-intent",
+    "query": "game I can play on an airplane",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Catan",
+        "reason": "Too many pieces for airplane"
+      },
+      {
+        "name": "Gloomhaven",
+        "reason": "Way too big"
+      }
+    ],
+    "constraints": {
+      "maxMinutes": 30,
+      "timeStrictness": "soft"
+    }
+  },
+  {
+    "id": "regression-126",
+    "name": "Uno in anime results",
+    "category": "regression",
+    "query": "anime themed board game fun for groups",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "UNO",
+        "reason": "REGRESSION: UNO showed up for anime query"
+      },
+      {
+        "name": "Poker",
+        "reason": "Not anime"
+      },
+      {
+        "name": "Chess",
+        "reason": "Not anime"
+      },
+      {
+        "name": "Monopoly",
+        "reason": "Not anime"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "tags": [
+      "regression",
+      "critical"
+    ]
+  },
+  {
+    "id": "regression-127",
+    "name": "Poker in euro results",
+    "category": "regression",
+    "query": "thematic euro game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Poker",
+        "reason": "REGRESSION: Poker appeared for euro game query"
+      },
+      {
+        "name": "UNO",
+        "reason": "Not a euro game"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "tags": [
+      "regression",
+      "critical"
+    ]
+  },
+  {
+    "id": "regression-128",
+    "name": "Solo returns multiplayer only",
+    "category": "regression",
+    "query": "solo strategy game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "The Crew",
+        "reason": "REGRESSION: Min 2 players for solo query"
+      },
+      {
+        "name": "Codenames",
+        "reason": "Min 4 players for solo query"
+      },
+      {
+        "name": "Secret Hitler",
+        "reason": "Min 5 players for solo query"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "playerCount": {
+      "min": 1,
+      "max": 1
+    },
+    "tags": [
+      "regression",
+      "critical"
+    ]
+  },
+  {
+    "id": "regression-129",
+    "name": "Time violation 90min",
+    "category": "regression",
+    "query": "90 minute game",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Twilight Imperium",
+        "reason": "REGRESSION: 6+ hours for 90min query"
+      },
+      {
+        "name": "Through the Ages",
+        "reason": "REGRESSION: Way over 90min"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "constraints": {
+      "maxMinutes": 90,
+      "timeStrictness": "hard"
+    },
+    "tags": [
+      "regression",
+      "critical"
+    ]
+  },
+  {
+    "id": "regression-130",
+    "name": "Popular games for hidden gems",
+    "category": "regression",
+    "query": "hidden gem board games nobody talks about",
+    "idealGames": [],
+    "antiGames": [
+      {
+        "name": "Catan",
+        "reason": "REGRESSION: One of the most popular games ever"
+      },
+      {
+        "name": "Ticket to Ride",
+        "reason": "REGRESSION: Extremely popular"
+      },
+      {
+        "name": "Codenames",
+        "reason": "REGRESSION: Very well known"
+      }
+    ],
+    "gameTypes": [
+      "board"
+    ],
+    "tags": [
+      "regression"
+    ]
+  }
+]
