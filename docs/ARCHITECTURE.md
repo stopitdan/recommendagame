@@ -108,15 +108,15 @@ flowchart TD
     end
 
     subgraph S5["Stage 5: Hard Constraint Filtering"]
-        FILT["Player count (mandatory overlap)<br/>Time (15min hard + 50% soft)<br/>Complexity (+/- 0.5 buffer)<br/>Game type, excluded genres<br/>Expansion/variant removal"]
+        FILT["Filter by: player count, time,<br/>complexity, game type,<br/>expansion removal"]
     end
 
     subgraph S6["Stage 6: Adaptive Weight Computation"]
-        AW["Amplify weights based on query:<br/>Tight player -> 2x, Hard time -> 2.5x<br/>Few constraints -> 4x quality/pop<br/>Renormalize to sum = 1.0"]
+        AW["Amplify weights by query specificity<br/>then renormalize to 100%"]
     end
 
     subgraph S7["Stage 7: Scoring (10 dimensions)"]
-        S_ALL["Genre (26%) + FreeText (22%) +<br/>Type (10%) + Players (8%) +<br/>Mood (8%) + Time (7%) +<br/>Complexity (7%) + Pop (6%) +<br/>Quality (3%) + Recency (3%)<br/>+ Intent modifiers:<br/>mustHave +0.3 / avoid -0.25"]
+        S_ALL["10 weighted dimensions<br/>Genre 26%, FreeText 22%, Type 10%<br/>Players 8%, Mood 8%, Time 7%<br/>Complexity 7%, Pop 6%, Quality 3%<br/>Recency 3% + intent modifiers"]
     end
 
     subgraph S8["Stage 8: Multi-Signal Re-Ranking"]
@@ -157,9 +157,9 @@ flowchart LR
     end
 
     subgraph Storage["Supabase PostgreSQL"]
-        GAMES_T["games (81k rows)<br/>id, name, description,<br/>playerCount, playTime,<br/>complexity, categories,<br/>mechanics, themes, rating"]
+        GAMES_T["games: 81k rows<br/>Full metadata per game"]
         EMBED_T["game_embeddings<br/>pgvector HNSW index<br/>768-dim + 1536-dim vectors"]
-        META["enriched_metadata (JSONB)<br/>LLM-generated moods,<br/>vibe keywords, audiences,<br/>similar games"]
+        META["enriched_metadata (JSONB)<br/>LLM-generated moods and vibes"]
     end
 
     Sources --> Adapters --> GAMES_T
@@ -179,7 +179,7 @@ flowchart TD
     MERGE_G["Merge genres/mechanics<br/>into body"]
 
     subgraph Key["Cache Key = JSON of:"]
-        K["freeText + gameTypes +<br/>playerCount + timePresets +<br/>complexity + genres +<br/>moods + popularity"]
+        K["Hash of all user preferences<br/>freeText, genres, moods, etc."]
     end
 
     L1["In-Memory Cache<br/>TTL: 120s, max 50 entries<br/>Cleared on server restart"]
@@ -218,8 +218,8 @@ flowchart TD
     end
 
     subgraph Effects["Impact on Recommendations"]
-        CF["Collaborative Filtering<br/>Finds users with similar likes<br/>Boosts games they also liked<br/>(+15% score)"]
-        REJ["Rejection Learning<br/>Builds tag profile from dismissed games<br/>Only activates after 2+ rejections<br/>of same tag (max 50% penalty)"]
+        CF["Collaborative Filtering<br/>Similar users boost, +15% score"]
+        REJ["Rejection Learning<br/>Tag penalty from dismissed games"]
     end
 
     UP --> FB --> CF

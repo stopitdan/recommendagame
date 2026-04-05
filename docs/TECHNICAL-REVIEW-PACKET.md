@@ -197,7 +197,7 @@ flowchart TD
     subgraph S1["Stage 1: LLM Preference Parsing"]
         direction LR
         PARSE["GPT-4o-mini extracts:"]
-        OUT["genres, mechanics, moods,<br/>complexity, playerCount,<br/>timePresets, similarTo,<br/>designers, excludedGenres,<br/>intentModifiers, comparisonBase"]
+        OUT["Structured output: genres, mechanics,<br/>moods, complexity, playerCount,<br/>designers, similarTo, intentModifiers"]
     end
 
     subgraph S2["Stage 2: Similar-To Bootstrapping"]
@@ -222,15 +222,15 @@ flowchart TD
     end
 
     subgraph S5["Stage 5: Hard Constraint Filtering"]
-        FILT["Player count (mandatory overlap)<br/>Time (15min hard + 50% soft grace)<br/>Complexity (+/- 0.5 buffer)<br/>Game type (soft, falls back)<br/>Expansion/variant removal<br/>Single-mechanic hardness"]
+        FILT["Filter by: player count, time,<br/>complexity, game type,<br/>expansion removal"]
     end
 
     subgraph S6["Stage 6: Adaptive Weight Computation"]
-        AW["Tight player count -> 2x boost<br/>Hard time constraint -> 2.5x boost<br/>Narrow complexity -> 2x boost<br/>Multiple moods -> 1.5x boost<br/>Few constraints -> 4x quality/pop<br/>Then renormalize to sum = 1.0"]
+        AW["Amplify weights by query specificity<br/>then renormalize to 100%"]
     end
 
     subgraph S7["Stage 7: Rule-Based Scoring (10 dimensions)"]
-        SCORE["Genre (26%) + FreeText (22%) +<br/>Type (10%) + Players (8%) +<br/>Mood (8%) + Time (7%) +<br/>Complexity (7%) + Popularity (6%) +<br/>Quality (3%) + Recency (3%)<br/><br/>+ Intent modifiers:<br/>mustHave +0.3 / avoid -0.25 /<br/>emphasize +0.15 / niceToHave +0.1"]
+        SCORE["10 weighted dimensions<br/>Genre 26%, FreeText 22%, Type 10%<br/>Players 8%, Mood 8%, Time 7%<br/>Complexity 7%, Pop 6%, Quality 3%<br/>Recency 3% + intent modifiers"]
     end
 
     subgraph S8["Stage 8: Multi-Signal Re-Ranking"]
@@ -265,18 +265,18 @@ The system fetches candidates from 6 parallel sources, then deduplicates. This i
 ```mermaid
 flowchart LR
     subgraph Sources["6 Parallel Sources"]
-        V["pgvector Semantic Search<br/>HNSW index, 1536-dim<br/>cosine similarity<br/>250 results"]
+        V["pgvector Semantic Search<br/>1536-dim HNSW, 250 results"]
         T["Tag Search (GIN index)<br/>categories, mechanics, themes<br/>150 results"]
         X["Full-Text Search<br/>tsvector on name + description<br/>50 results"]
-        M["Mechanic Search<br/>LLM-parsed mechanics<br/>+ BGG alias expansion<br/>100 results"]
+        M["Mechanic Search<br/>BGG alias expansion, 100 results"]
         D["Designer Search<br/>LLM-parsed designer names<br/>100 results"]
-        E["LLM Query Expansion<br/>GPT-4o-mini generates<br/>5-10 creative search terms<br/>50 results"]
+        E["LLM Query Expansion<br/>GPT-4o-mini creative terms, 50 results"]
     end
 
     DEDUP["Deduplicate<br/>~500-1000 unique"]
 
     FALLBACK{"< 30<br/>candidates?"}
-    POP["Popularity Fallback<br/>38 pre-cached lists<br/>by genre/mechanic/theme<br/>1,390 games total"]
+    POP["Popularity Fallback<br/>38 pre-cached lists, 1390 games"]
 
     V & T & X & M & D & E --> DEDUP
     DEDUP --> FALLBACK
@@ -389,7 +389,7 @@ flowchart LR
     end
 
     subgraph Unified["Unified Game Type"]
-        GAME["id, name, description,<br/>minPlayers, maxPlayers,<br/>playTime, complexity,<br/>categories, mechanics,<br/>themes, rating, ratingCount,<br/>imageUrl, yearPublished,<br/>gameType, sourceAdapter"]
+        GAME["Game: id, name, description,<br/>players, time, complexity,<br/>categories, mechanics, themes,<br/>rating, ratingCount, type"]
     end
 
     subgraph Storage["Supabase PostgreSQL"]
@@ -436,15 +436,15 @@ graph TB
     end
 
     subgraph Cases["3,028 Total Eval Cases"]
-        STRUCT["Each case has:<br/>- query (user's natural language)<br/>- idealGames (with relevance grades 0-3)<br/>- antiGames (must NOT appear)<br/>- constraints (player/time/complexity)<br/>- tags (regression, critical, edge-case)"]
+        STRUCT["Each case: query, idealGames,<br/>antiGames, constraints, tags"]
     end
 
     subgraph Pipeline["Eval Pipeline"]
         LOAD["1. Load & filter cases"]
         EXEC["2. Execute in parallel (concurrency=5-8)<br/>POST /api/recommend per case<br/>_nocache: true"]
-        CHECK["3. Per-case checks:<br/>- Ideal games found/missing?<br/>- Anti-games present?<br/>- Constraint violations?<br/>- LLM judge score 0-10"]
+        CHECK["3. Check: ideal games found,<br/>anti-games absent, constraints met,<br/>LLM judge score 0-10"]
         IR["4. Compute IR metrics:<br/>NDCG@10, MRR, Precision@10,<br/>Hit Rate@5, Recall@10"]
-        AGG["5. Aggregate:<br/>- Per-category breakdown<br/>- Worst 20 cases<br/>- Regression vs previous run"]
+        AGG["5. Aggregate: per-category breakdown,<br/>worst cases, regression tracking"]
     end
 
     subgraph Output["Persistent Output"]
