@@ -86,6 +86,7 @@ export default function BrowseView() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [hasLoaded, setHasLoaded] = useState(false); // True after first successful fetch
+  const [fuzzyHint, setFuzzyHint] = useState<string | null>(null);
   const [offset, setOffset] = useState(0);
   const [totalBrowsed, setTotalBrowsed] = useState(0);
   const { unlock } = useAchievements();
@@ -160,6 +161,7 @@ export default function BrowseView() {
       const newGames = data.games ?? [];
       setGames(newGames);
       setTotal(data.total ?? 0);
+      setFuzzyHint(data.fuzzyMatch ? data.correctedQuery : null);
       setOffset(newOffset);
       setHasLoaded(true);
       setTotalBrowsed((prev) => {
@@ -587,6 +589,12 @@ export default function BrowseView() {
 
         {/* Results */}
         {loading && <GameLoader variant="cards" message="Loading games..." />}
+
+        {!loading && fuzzyHint && games.length > 0 && (
+          <Typography variant="body2" color="text.secondary">
+            Showing results for <strong>{fuzzyHint}</strong>
+          </Typography>
+        )}
 
         {!loading && hasLoaded && games.length === 0 && (
           <Box sx={{ textAlign: 'center', py: 8 }}>

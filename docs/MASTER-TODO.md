@@ -135,6 +135,7 @@ Last updated: 2026-03-27
 - ✅ Kill all ILIKE queries (replaced with GIN-indexed tsvector RPCs)
 - ✅ Partial indexes for browse patterns (7 indexes)
 - ✅ Stored tsvector columns (name_tsv, description_tsv)
+- ✅ Fuzzy search with pg_trgm (typo-tolerant fallback when tsvector returns 0 results)
 - ✅ Shared GAME_SELECT_COLUMNS (23 cols vs 40+ from SELECT *)
 - ✅ Timeout guards on parallel queries (8s per source)
 - ✅ Pre-computed popularity cache in Redis (38 lists, 1390 games)

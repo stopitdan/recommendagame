@@ -41,6 +41,7 @@ export default function CollectionView() {
   const [searchResults, setSearchResults] = useState<Game[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [fuzzyHint, setFuzzyHint] = useState<string | null>(null);
   const [addingIds, setAddingIds] = useState<Set<string>>(new Set());
   const [removingIds, setRemovingIds] = useState<Set<string>>(new Set());
   const [filterText, setFilterText] = useState('');
@@ -79,11 +80,15 @@ export default function CollectionView() {
     if (!q) return;
     setSearchLoading(true);
     setHasSearched(true);
+    setFuzzyHint(null);
     try {
       const res = await fetch(`/api/games/search?q=${encodeURIComponent(q)}&limit=20`);
       if (res.ok) {
         const data = await res.json();
         setSearchResults(data.results ?? []);
+        if (data.fuzzyMatch && data.correctedQuery) {
+          setFuzzyHint(data.correctedQuery);
+        }
       }
     } finally {
       setSearchLoading(false);
@@ -421,6 +426,11 @@ export default function CollectionView() {
 
             {!searchLoading && searchResults.length > 0 && (
               <>
+                {fuzzyHint && (
+                  <Typography variant="body2" color="text.secondary">
+                    Showing results for <strong>{fuzzyHint}</strong>
+                  </Typography>
+                )}
                 <Typography variant="body2" color="text.secondary">
                   {searchResults.length} results found
                 </Typography>

@@ -2,6 +2,8 @@
 
 If browse/search performance degrades (target: <500ms), add Meilisearch as a dedicated search layer. This supplements Supabase — it doesn't replace it.
 
+> **Note:** As of migration 028, pg_trgm provides typo-tolerant fuzzy search as a fallback when tsvector exact matching returns no results. This covers the "Bertrayal" → "Betrayal" use case without additional infrastructure. Meilisearch would still be an upgrade for sub-50ms latency, faceted filtering, and more advanced typo tolerance at scale.
+
 ## What Meilisearch Does
 - Handles all browse page queries (text search + faceted filtering)
 - Sub-50ms search latency on 1M+ documents

@@ -46,6 +46,7 @@ The engine has been iterated through a 3,028-case evaluation suite that tests 16
 | Auth | Supabase Auth | Email/password + Google OAuth |
 | Database | Supabase PostgreSQL | 81k games, user profiles, feedback |
 | Vector Search | pgvector (HNSW) | 768-dim hash + 1536-dim semantic embeddings |
+| Fuzzy Search | pg_trgm (trigram) | Typo-tolerant name search with GIN index fallback |
 | AI | OpenAI GPT-4o / GPT-4o-mini | Parsing, reranking, query expansion, metadata enrichment |
 | Embeddings | text-embedding-3-small | 1536-dim semantic vectors, 100% catalog coverage |
 | Cache | Upstash Redis + in-memory LRU | 2 min TTL, 50-entry in-memory |
@@ -285,7 +286,7 @@ flowchart LR
     subgraph Sources["7 Parallel Sources"]
         V["pgvector Semantic Search<br/>1536-dim HNSW, 250 results"]
         T["Tag Search (GIN index)<br/>categories, mechanics, themes<br/>150 results"]
-        X["Full-Text Search<br/>tsvector on name + description<br/>50 results"]
+        X["Full-Text Search<br/>tsvector + pg_trgm fuzzy fallback<br/>50 results"]
         M["Mechanic Search<br/>BGG alias expansion, 100 results"]
         D["Designer Search<br/>LLM-parsed designer names<br/>100 results"]
         E["LLM Query Expansion<br/>GPT-4o-mini creative terms, 50 results"]

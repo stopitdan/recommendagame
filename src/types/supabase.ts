@@ -82,6 +82,14 @@ export interface Database {
         };
         Returns: GameRow[];
       };
+      fuzzy_search_games_by_name: {
+        Args: {
+          search_query: string;
+          result_limit?: number;
+          similarity_floor?: number;
+        };
+        Returns: (GameRow & { similarity_score: number })[];
+      };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;

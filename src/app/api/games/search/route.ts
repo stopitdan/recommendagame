@@ -110,7 +110,8 @@ export async function GET(request: NextRequest) {
 
   try {
     // Step 1: Search local DB first (fast, no rate limits)
-    let results = await searchLocalDb(query, limit * 3); // Fetch extra for post-filtering
+    const localResult = await searchLocalDb(query, limit * 3); // Fetch extra for post-filtering
+    let results = localResult.games;
 
     // Step 2: If local DB has few results, fan out to external adapters
     if (results.length < limit) {
@@ -153,6 +154,11 @@ export async function GET(request: NextRequest) {
       count: results.length,
       popularity,
       results,
+      // When fuzzy search kicked in, tell the client what we actually matched
+      ...(localResult.fuzzy && localResult.correctedQuery && {
+        fuzzyMatch: true,
+        correctedQuery: localResult.correctedQuery,
+      }),
     };
 
     // Cache for 5 minutes
@@ -172,11 +178,19 @@ export async function GET(request: NextRequest) {
 // Local DB Search
 // ---------------------------------------------------------------------------
 
-async function searchLocalDb(query: string, limit: number): Promise<Game[]> {
-  const supabase = createSearchClient();
-  if (!supabase) return [];
+interface LocalDbResult {
+  games: Game[];
+  /** True when results came from fuzzy/trigram search instead of exact tsvector match */
+  fuzzy: boolean;
+  /** The best-matching game name when fuzzy search kicked in (for "showing results for" hint) */
+  correctedQuery?: string;
+}
 
-  // Try full-text search RPC first
+async function searchLocalDb(query: string, limit: number): Promise<LocalDbResult> {
+  const supabase = createSearchClient();
+  if (!supabase) return { games: [], fuzzy: false };
+
+  // Try full-text search RPC first (exact lexeme matching)
   const { data: rpcResults } = await supabase
     .rpc('search_games_by_name', {
       search_query: query,
@@ -184,12 +198,26 @@ async function searchLocalDb(query: string, limit: number): Promise<Game[]> {
     });
 
   if (rpcResults && rpcResults.length > 0) {
-    return (rpcResults as GameRow[]).map(rowToGame);
+    return { games: (rpcResults as GameRow[]).map(rowToGame), fuzzy: false };
   }
 
-  // Full-text search covers partial matches — no ILIKE fallback needed.
-  // (ILIKE '%query%' causes full table scans on 178k rows = 60+ seconds)
-  return [];
+  // Fuzzy fallback: trigram similarity catches typos like "Bertrayal" → "Betrayal"
+  const { data: fuzzyResults } = await supabase
+    .rpc('fuzzy_search_games_by_name', {
+      search_query: query,
+      result_limit: limit,
+    });
+
+  if (fuzzyResults && fuzzyResults.length > 0) {
+    const topMatch = fuzzyResults[0] as GameRow & { similarity_score: number };
+    return {
+      games: (fuzzyResults as GameRow[]).map(rowToGame),
+      fuzzy: true,
+      correctedQuery: topMatch.name,
+    };
+  }
+
+  return { games: [], fuzzy: false };
 }
 
 // ---------------------------------------------------------------------------

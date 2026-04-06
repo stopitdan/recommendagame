@@ -23,10 +23,12 @@ interface SearchAutocompleteProps {
   onSubmit: () => void;
   /** Called when a suggestion is selected. If not provided, navigates to the game detail page. */
   onSelect?: (gameId: string, gameName: string) => void;
+  /** Called when the API returns a fuzzy match hint (e.g. "Bertrayal" matched "Betrayal") */
+  onFuzzyHint?: (correctedQuery: string | null) => void;
   placeholder?: string;
 }
 
-export default function SearchAutocomplete({ value, onChange, onSubmit, onSelect, placeholder = 'Search games...' }: SearchAutocompleteProps) {
+export default function SearchAutocomplete({ value, onChange, onSubmit, onSelect, onFuzzyHint, placeholder = 'Search games...' }: SearchAutocompleteProps) {
   const router = useRouter();
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [loading, setLoading] = useState(false);
@@ -55,6 +57,7 @@ export default function SearchAutocomplete({ value, onChange, onSubmit, onSelect
               thumbnailUrl: g.thumbnailUrl ?? null,
             }))
           );
+          onFuzzyHint?.(data.fuzzyMatch ? data.correctedQuery : null);
         }
       } catch {
         // Silently fail

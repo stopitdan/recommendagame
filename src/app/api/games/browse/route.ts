@@ -112,12 +112,26 @@ export async function GET(request: NextRequest) {
   // Text search — two-step approach: get matching IDs via GIN-indexed RPC first,
   // then filter by ID. This prevents Postgres from combining GIN text search
   // with GIN array containment + ORDER BY in one poorly-optimized plan.
+  let fuzzyMatch = false;
+  let correctedQuery: string | undefined;
   if (textQuery) {
+    const trimmed = textQuery.trim();
     const { data: nameMatches } = await supabase
-      .rpc('search_games_by_name', { search_query: textQuery.trim(), result_limit: 200 });
-    const matchedIds = (nameMatches ?? []).map((g: { id: string }) => g.id);
+      .rpc('search_games_by_name', { search_query: trimmed, result_limit: 200 });
+    let matchedIds = (nameMatches ?? []).map((g: { id: string }) => g.id);
+
+    // Fuzzy fallback: if exact tsvector found nothing, try trigram similarity
     if (matchedIds.length === 0) {
-      // No text matches — return empty immediately
+      const { data: fuzzyMatches } = await supabase
+        .rpc('fuzzy_search_games_by_name', { search_query: trimmed, result_limit: 200 });
+      matchedIds = (fuzzyMatches ?? []).map((g: { id: string }) => g.id);
+      if (matchedIds.length > 0) {
+        fuzzyMatch = true;
+        correctedQuery = (fuzzyMatches![0] as { name: string }).name;
+      }
+    }
+
+    if (matchedIds.length === 0) {
       const emptyResponse = { games: [], total: 0, limit, offset, filters: { category, mechanic, theme, platform, type, q: textQuery, popularity, sort } };
       redisCache.set(browseKey, emptyResponse, 900);
       return NextResponse.json(emptyResponse);
@@ -164,6 +178,7 @@ export async function GET(request: NextRequest) {
     limit,
     offset,
     filters: { category, mechanic, theme, platform, type, q: textQuery, popularity, sort },
+    ...(fuzzyMatch && correctedQuery && { fuzzyMatch: true, correctedQuery }),
   };
 
   // Cache for 5 minutes (browse data changes slowly)
