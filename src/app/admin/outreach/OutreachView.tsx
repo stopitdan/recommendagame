@@ -43,6 +43,15 @@ interface OutreachTask {
   posted_url: string | null;
   created_at: string;
   updated_at: string;
+  // Metadata
+  cost_type: string;
+  cost_amount: string | null;
+  can_post_immediately: string;
+  maintenance_level: string;
+  link_type: string;
+  approval_process: string;
+  estimated_reach: string;
+  time_to_live: string;
 }
 
 type Status = OutreachTask['status'];
@@ -69,6 +78,97 @@ const CATEGORY_LABELS: Record<string, string> = {
   'other': 'Lower Priority',
 };
 
+// ─── Filter Dimensions ───────────────────────────────────────────────
+
+const FILTER_DIMENSIONS: Record<string, { label: string; options: Record<string, { label: string; color: string }> }> = {
+  cost_type: {
+    label: 'Cost',
+    options: {
+      free: { label: 'Free', color: '#10b981' },
+      freemium: { label: 'Freemium', color: '#f59e0b' },
+      paid: { label: 'Paid', color: '#ef4444' },
+    },
+  },
+  maintenance_level: {
+    label: 'Maintenance',
+    options: {
+      one_and_done: { label: 'One & Done', color: '#10b981' },
+      low: { label: 'Low', color: '#6ee7b7' },
+      moderate: { label: 'Moderate', color: '#f59e0b' },
+      high: { label: 'High', color: '#ef4444' },
+    },
+  },
+  can_post_immediately: {
+    label: 'Can Post Now',
+    options: {
+      yes: { label: 'Yes', color: '#10b981' },
+      needs_karma: { label: 'Needs Karma', color: '#f59e0b' },
+      needs_approval: { label: 'Needs Approval', color: '#f59e0b' },
+      no: { label: 'No', color: '#ef4444' },
+    },
+  },
+  estimated_reach: {
+    label: 'Reach',
+    options: {
+      very_high: { label: 'Very High', color: '#8b5cf6' },
+      high: { label: 'High', color: '#6366f1' },
+      medium: { label: 'Medium', color: '#6b7280' },
+      low: { label: 'Low', color: '#9ca3af' },
+    },
+  },
+  link_type: {
+    label: 'Link Type',
+    options: {
+      do_follow: { label: 'Do-Follow', color: '#10b981' },
+      no_follow: { label: 'No-Follow', color: '#6b7280' },
+    },
+  },
+  time_to_live: {
+    label: 'Time to Live',
+    options: {
+      immediate: { label: 'Immediate', color: '#10b981' },
+      hours: { label: 'Hours', color: '#6ee7b7' },
+      days: { label: 'Days', color: '#f59e0b' },
+      weeks: { label: 'Weeks', color: '#ef4444' },
+    },
+  },
+};
+
+/** Metadata badge config for inline display on task cards */
+const META_BADGE_CONFIG: Record<string, Record<string, { label: string; color: string }>> = {
+  cost_type: { free: { label: 'Free', color: '#10b981' }, freemium: { label: 'Freemium', color: '#f59e0b' }, paid: { label: 'Paid', color: '#ef4444' } },
+  maintenance_level: { one_and_done: { label: '1x', color: '#10b981' }, low: { label: 'Low Maint.', color: '#6ee7b7' }, moderate: { label: 'Med Maint.', color: '#f59e0b' }, high: { label: 'High Maint.', color: '#ef4444' } },
+  estimated_reach: { very_high: { label: 'Huge Reach', color: '#8b5cf6' }, high: { label: 'High Reach', color: '#6366f1' }, medium: { label: 'Med Reach', color: '#6b7280' }, low: { label: 'Low Reach', color: '#9ca3af' } },
+  link_type: { do_follow: { label: 'Do-Follow', color: '#10b981' } },
+};
+
+// ─── Preset Filters ──────────────────────────────────────────────────
+
+type MetadataFilters = Partial<Record<string, Set<string>>>;
+
+const FILTER_PRESETS: { label: string; filters: MetadataFilters }[] = [
+  {
+    label: 'Quick Wins',
+    filters: {
+      cost_type: new Set(['free']),
+      maintenance_level: new Set(['one_and_done', 'low']),
+      can_post_immediately: new Set(['yes']),
+      time_to_live: new Set(['immediate']),
+    },
+  },
+  {
+    label: 'Do-Follow Links',
+    filters: { link_type: new Set(['do_follow']) },
+  },
+  {
+    label: 'High Impact Free',
+    filters: {
+      cost_type: new Set(['free']),
+      estimated_reach: new Set(['high', 'very_high']),
+    },
+  },
+];
+
 // ─── Component ───────────────────────────────────────────────────────
 
 export default function OutreachView() {
@@ -81,6 +181,8 @@ export default function OutreachView() {
   const [statusFilter, setStatusFilter] = useState<Status | 'all'>('all');
   const [editingNotes, setEditingNotes] = useState<{ id: number; value: string } | null>(null);
   const [editingPostedUrl, setEditingPostedUrl] = useState<{ id: number; value: string } | null>(null);
+  const [metadataFilters, setMetadataFilters] = useState<MetadataFilters>({});
+  const [showFilters, setShowFilters] = useState(false);
 
   // Auth check
   useEffect(() => {
@@ -112,6 +214,23 @@ export default function OutreachView() {
     setSeeding(true);
     try {
       const res = await fetch('/api/admin/outreach/seed', { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error);
+        return;
+      }
+      await fetchTasks();
+    } finally {
+      setSeeding(false);
+    }
+  }
+
+  // Re-seed: wipe and re-insert all tasks with latest data
+  async function handleReseed() {
+    if (!confirm('This will delete ALL existing tasks (including any status/notes changes) and re-seed with fresh data. Continue?')) return;
+    setSeeding(true);
+    try {
+      const res = await fetch('/api/admin/outreach/seed', { method: 'DELETE' });
       const data = await res.json();
       if (!res.ok) {
         setError(data.error);
@@ -170,6 +289,26 @@ export default function OutreachView() {
     navigator.clipboard.writeText(text);
   }
 
+  // Metadata filter toggle
+  function toggleMetaFilter(dimension: string, value: string) {
+    setMetadataFilters((prev) => {
+      const next = { ...prev };
+      const current = new Set(prev[dimension] ?? []);
+      if (current.has(value)) current.delete(value);
+      else current.add(value);
+      if (current.size === 0) delete next[dimension];
+      else next[dimension] = current;
+      return next;
+    });
+  }
+
+  function applyPreset(filters: MetadataFilters) {
+    setMetadataFilters(filters);
+    setShowFilters(true);
+  }
+
+  const activeFilterCount = Object.values(metadataFilters).reduce((sum, s) => sum + (s?.size ?? 0), 0);
+
   // ─── Auth Gate ─────────────────────────────────────────────────────
 
   if (authed === null) {
@@ -190,9 +329,15 @@ export default function OutreachView() {
 
   // ─── Filter & Group ────────────────────────────────────────────────
 
-  const filtered = statusFilter === 'all'
-    ? tasks
-    : tasks.filter((t) => t.status === statusFilter);
+  const filtered = tasks.filter((t) => {
+    if (statusFilter !== 'all' && t.status !== statusFilter) return false;
+    for (const [dim, values] of Object.entries(metadataFilters)) {
+      if (!values || values.size === 0) continue;
+      const taskValue = t[dim as keyof OutreachTask] as string;
+      if (!values.has(taskValue)) return false;
+    }
+    return true;
+  });
 
   const grouped = filtered.reduce<Record<string, OutreachTask[]>>((acc, task) => {
     const cat = task.category;
@@ -229,9 +374,16 @@ export default function OutreachView() {
               Outreach Tracker
             </Typography>
           </Box>
-          <Typography variant="body2" color="text.secondary">
-            SEO backlink campaign. Click a task to expand, change status, and copy post content.
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ flex: 1 }}>
+              SEO backlink campaign. Click a task to expand, change status, and copy post content.
+            </Typography>
+            {tasks.length > 0 && (
+              <Button size="small" variant="outlined" color="error" onClick={handleReseed} disabled={seeding} sx={{ fontSize: '0.7rem', whiteSpace: 'nowrap' }}>
+                {seeding ? 'Re-seeding...' : 'Re-seed All'}
+              </Button>
+            )}
+          </Box>
         </Box>
 
         {/* Stats bar */}
@@ -273,6 +425,67 @@ export default function OutreachView() {
               }}
             />
           ))}
+        </Box>
+
+        {/* Metadata filters */}
+        <Box>
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 1 }}>
+            <Button
+              size="small"
+              variant="outlined"
+              onClick={() => setShowFilters((p) => !p)}
+              startIcon={<Filter size={14} />}
+            >
+              Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
+            </Button>
+            {FILTER_PRESETS.map((preset) => (
+              <Button
+                key={preset.label}
+                size="small"
+                variant="text"
+                onClick={() => applyPreset(preset.filters)}
+                sx={{ fontSize: '0.75rem', textTransform: 'none' }}
+              >
+                {preset.label}
+              </Button>
+            ))}
+            {activeFilterCount > 0 && (
+              <Button size="small" variant="text" color="error" onClick={() => setMetadataFilters({})} sx={{ fontSize: '0.75rem' }}>
+                Clear All
+              </Button>
+            )}
+          </Box>
+          <Collapse in={showFilters}>
+            <Stack spacing={1} sx={{ pl: 1, py: 1, borderLeft: '2px solid', borderColor: 'divider' }}>
+              {Object.entries(FILTER_DIMENSIONS).map(([dim, config]) => (
+                <Box key={dim} sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                  <Typography variant="caption" sx={{ minWidth: 90, fontWeight: 600, color: 'text.secondary' }}>
+                    {config.label}
+                  </Typography>
+                  {Object.entries(config.options).map(([value, opt]) => {
+                    const active = metadataFilters[dim]?.has(value) ?? false;
+                    return (
+                      <Chip
+                        key={value}
+                        label={`${opt.label} (${tasks.filter((t) => (t as unknown as Record<string, unknown>)[dim] === value).length})`}
+                        size="small"
+                        onClick={() => toggleMetaFilter(dim, value)}
+                        variant={active ? 'filled' : 'outlined'}
+                        sx={{
+                          fontSize: '0.7rem',
+                          fontWeight: active ? 700 : 400,
+                          borderColor: opt.color,
+                          color: active ? '#fff' : opt.color,
+                          bgcolor: active ? opt.color : 'transparent',
+                          '&:hover': { bgcolor: active ? opt.color : `${opt.color}20` },
+                        }}
+                      />
+                    );
+                  })}
+                </Box>
+              ))}
+            </Stack>
+          </Collapse>
         </Box>
 
         {/* Error */}
@@ -451,6 +664,27 @@ function TaskCard({
           {task.platform}
         </Typography>
 
+        {/* Metadata badges */}
+        <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }} onClick={(e) => e.stopPropagation()}>
+          {Object.entries(META_BADGE_CONFIG).map(([dim, opts]) => {
+            const val = (task as unknown as Record<string, unknown>)[dim] as string;
+            const cfg2 = opts[val];
+            if (!cfg2) return null;
+            return (
+              <Box
+                key={dim}
+                sx={{
+                  px: 0.8, py: 0.2, borderRadius: 1, fontSize: '0.6rem', fontWeight: 700,
+                  bgcolor: `${cfg2.color}20`, color: cfg2.color, border: `1px solid ${cfg2.color}40`,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {cfg2.label}{dim === 'cost_type' && task.cost_amount ? ` ${task.cost_amount}` : ''}
+              </Box>
+            );
+          })}
+        </Box>
+
         {/* Day target */}
         {task.day_target && (
           <Chip label={task.day_target} size="small" variant="outlined" sx={{ fontSize: '0.7rem' }} />
@@ -487,6 +721,29 @@ function TaskCard({
       <Collapse in={expanded}>
         <Box sx={{ px: 2, pb: 2, pt: 0.5 }}>
           <Stack spacing={2}>
+            {/* Platform details grid */}
+            <Box>
+              <Typography variant="caption" color="text.secondary" fontWeight={600}>PLATFORM DETAILS</Typography>
+              <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 1, mt: 0.5 }}>
+                {([
+                  ['Cost', task.cost_type === 'unknown' ? null : `${task.cost_type === 'free' ? 'Free' : task.cost_type === 'freemium' ? 'Freemium' : 'Paid'}${task.cost_amount ? ` (${task.cost_amount})` : ''}`, task.cost_type === 'free' ? '#10b981' : task.cost_type === 'freemium' ? '#f59e0b' : '#ef4444'],
+                  ['Can Post Now', FILTER_DIMENSIONS.can_post_immediately?.options?.[task.can_post_immediately]?.label, FILTER_DIMENSIONS.can_post_immediately?.options?.[task.can_post_immediately]?.color],
+                  ['Maintenance', FILTER_DIMENSIONS.maintenance_level?.options?.[task.maintenance_level]?.label, FILTER_DIMENSIONS.maintenance_level?.options?.[task.maintenance_level]?.color],
+                  ['Link Type', FILTER_DIMENSIONS.link_type?.options?.[task.link_type]?.label, FILTER_DIMENSIONS.link_type?.options?.[task.link_type]?.color],
+                  ['Approval', task.approval_process === 'auto_published' ? 'Auto-Published' : task.approval_process === 'manual_review' ? 'Manual Review' : task.approval_process === 'community_moderated' ? 'Community' : null, '#6b7280'],
+                  ['Reach', FILTER_DIMENSIONS.estimated_reach?.options?.[task.estimated_reach]?.label, FILTER_DIMENSIONS.estimated_reach?.options?.[task.estimated_reach]?.color],
+                  ['Time to Live', FILTER_DIMENSIONS.time_to_live?.options?.[task.time_to_live]?.label, FILTER_DIMENSIONS.time_to_live?.options?.[task.time_to_live]?.color],
+                ] as [string, string | undefined | null, string | undefined][]).filter(([, v]) => v).map(([label, value, color]) => (
+                  <Box key={label} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Typography variant="caption" color="text.secondary" sx={{ minWidth: 70 }}>{label}:</Typography>
+                    <Box sx={{ px: 0.8, py: 0.2, borderRadius: 1, fontSize: '0.7rem', fontWeight: 600, bgcolor: `${color}20`, color }}>
+                      {value}
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+
             {/* Notes / tips */}
             {task.notes && (
               <Box>

@@ -35,7 +35,12 @@ export async function PATCH(request: NextRequest, { params }: Params) {
   const body = await request.json();
 
   // Only allow updating specific fields
-  const allowed = ['status', 'result_notes', 'posted_url', 'post_title', 'post_body', 'notes', 'priority', 'day_target', 'category', 'platform', 'url'];
+  const allowed = [
+    'status', 'result_notes', 'posted_url', 'post_title', 'post_body', 'notes',
+    'priority', 'day_target', 'category', 'platform', 'url',
+    'cost_type', 'cost_amount', 'can_post_immediately', 'maintenance_level',
+    'link_type', 'approval_process', 'estimated_reach', 'time_to_live',
+  ];
   const updates: Record<string, unknown> = {};
   for (const key of allowed) {
     if (key in body) updates[key] = body[key];

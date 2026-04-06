@@ -44,7 +44,11 @@ export async function POST(request: NextRequest) {
   if (!supabase) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const body = await request.json();
-  const { category, platform, url, post_title, post_body, notes, priority, day_target } = body;
+  const {
+    category, platform, url, post_title, post_body, notes, priority, day_target,
+    cost_type, cost_amount, can_post_immediately, maintenance_level,
+    link_type, approval_process, estimated_reach, time_to_live,
+  } = body;
 
   if (!category || !platform || !url) {
     return NextResponse.json({ error: 'category, platform, and url are required' }, { status: 400 });
@@ -61,6 +65,14 @@ export async function POST(request: NextRequest) {
       notes: notes ?? null,
       priority: priority ?? 50,
       day_target: day_target ?? null,
+      cost_type: cost_type ?? 'unknown',
+      cost_amount: cost_amount ?? null,
+      can_post_immediately: can_post_immediately ?? 'unknown',
+      maintenance_level: maintenance_level ?? 'unknown',
+      link_type: link_type ?? 'unknown',
+      approval_process: approval_process ?? 'unknown',
+      estimated_reach: estimated_reach ?? 'unknown',
+      time_to_live: time_to_live ?? 'unknown',
     })
     .select()
     .single();
