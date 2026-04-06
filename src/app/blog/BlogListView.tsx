@@ -11,6 +11,7 @@ import Container from '@mui/material/Container';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { BookOpen } from 'lucide-react';
+import JsonLd from '@/components/JsonLd';
 
 interface BlogPost {
   id: string;
@@ -35,6 +36,14 @@ export default function BlogListView() {
 
   return (
     <Container maxWidth="md" sx={{ py: 6 }}>
+      <JsonLd data={{
+        '@context': 'https://schema.org',
+        '@type': 'Blog',
+        name: 'boredgame.lol Blog',
+        description: 'Game guides, recommendations, and tips to help you find something great to play.',
+        url: 'https://boredgame.lol/blog',
+        publisher: { '@type': 'Organization', name: 'boredgame.lol', url: 'https://boredgame.lol' },
+      }} />
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
         <BookOpen size={28} />
         <Typography variant="h3" fontWeight={800}>

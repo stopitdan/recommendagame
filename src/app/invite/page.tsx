@@ -5,6 +5,7 @@ import InviteView from './InviteView';
 
 export const metadata: Metadata = {
   title: 'Game Night Invite',
+  description: 'You\'ve been invited to game night! See what game is on the table and join the fun.',
 };
 
 export default function InvitePage() {

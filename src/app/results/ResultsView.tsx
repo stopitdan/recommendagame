@@ -30,8 +30,9 @@ import { useAchievements } from '@/components/AchievementToast';
 import { CATEGORY_OPTIONS, MECHANIC_OPTIONS, THEME_OPTIONS, PLATFORM_OPTIONS } from '@/lib/filter-options';
 import { getGameTypeConfig } from '@/lib/game-type-config';
 import { createClient } from '@/lib/supabase/client';
-import { Save, Dice5, Puzzle, Gamepad2, Type, PartyPopper, Library } from 'lucide-react';
+import { Save, Dice5, Puzzle, Gamepad2, Type, PartyPopper, Library, Image as ImageIcon } from 'lucide-react';
 import ShareResultsButton from '@/components/ShareResultsButton';
+import ShareCardDialog from '@/components/ShareCardDialog';
 import FeedbackButton from '@/components/FeedbackButton';
 import FloatingFeedbackButton from '@/components/FloatingFeedbackButton';
 import ResultsFeedbackPrompt from '@/components/ResultsFeedbackPrompt';
@@ -69,6 +70,7 @@ export default function ResultsView() {
   const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
   const [userId, setUserId] = useState<string | null>(null);
   const [userLoaded, setUserLoaded] = useState(false);
+  const [shareCardOpen, setShareCardOpen] = useState(false);
 
   // Get logged-in user ID for rejection learning + collection filtering
   useEffect(() => {
@@ -400,6 +402,16 @@ export default function ResultsView() {
               <Save size={14} /> Save Preset
             </Button>
             <ShareResultsButton gameNames={games.map((g) => g.name)} />
+            {games.length > 0 && (
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => setShareCardOpen(true)}
+                startIcon={<ImageIcon size={14} />}
+              >
+                Create Card
+              </Button>
+            )}
             <Button variant="outlined" size="small" onClick={() => router.push('/find-a-game')}>
               Start Over
             </Button>
@@ -754,6 +766,39 @@ export default function ResultsView() {
         ))}
       </Stack>
 
+      {/* Share CTA at end of results */}
+      {!loading && hasLoaded && games.length > 0 && (
+        <Box
+          sx={{
+            mt: 4,
+            p: 3,
+            borderRadius: 3,
+            background: 'linear-gradient(135deg, rgba(91,79,219,0.08) 0%, rgba(14,198,198,0.08) 100%)',
+            border: '1px solid',
+            borderColor: 'divider',
+            textAlign: 'center',
+          }}
+        >
+          <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+            Like what you see?
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Share your recommendations with friends or create a shareable image card.
+          </Typography>
+          <Stack direction="row" spacing={1.5} justifyContent="center" flexWrap="wrap">
+            <ShareResultsButton gameNames={games.map((g) => g.name)} />
+            <Button
+              variant="contained"
+              size="small"
+              onClick={() => setShareCardOpen(true)}
+              startIcon={<ImageIcon size={14} />}
+            >
+              Create Share Card
+            </Button>
+          </Stack>
+        </Box>
+      )}
+
       {/* Save as Preset Dialog */}
       <Dialog open={saveDialogOpen} onClose={() => setSaveDialogOpen(false)} maxWidth="xs" fullWidth>
         <DialogTitle sx={{ fontWeight: 700 }}>Save as Preset</DialogTitle>
@@ -799,6 +844,18 @@ export default function ResultsView() {
 
       {/* Floating feedback FAB */}
       <FloatingFeedbackButton searchContext={freeText} />
+
+      {/* Share card image generator */}
+      <ShareCardDialog
+        open={shareCardOpen}
+        onClose={() => setShareCardOpen(false)}
+        games={games}
+        defaultTitle={
+          freeText
+            ? `My ${freeText.length > 40 ? freeText.slice(0, 38) + '...' : freeText} Picks`
+            : 'My Top Games'
+        }
+      />
     </Container>
   );
 }

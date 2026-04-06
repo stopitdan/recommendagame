@@ -13,6 +13,7 @@ import Typography from '@mui/material/Typography';
 import AnimatedRating from '@/components/AnimatedRating';
 import FavoriteButton from '@/components/FavoriteButton';
 import ShareInviteButton from '@/components/ShareInviteButton';
+import ShareGameButton from '@/components/ShareGameButton';
 import OwnedButton from '@/components/OwnedButton';
 import ReviewForm from '@/components/ReviewForm';
 import ReviewList from '@/components/ReviewList';
@@ -202,6 +203,7 @@ export default function GameDetailView() {
               )}
               <FavoriteButton gameId={game.id} />
               <OwnedButton gameId={game.id} />
+              <ShareGameButton gameId={game.id} gameName={game.name} />
               <ShareInviteButton gameId={game.id} gameName={game.name} />
               <ReportIssueButton game={game} />
             </Box>

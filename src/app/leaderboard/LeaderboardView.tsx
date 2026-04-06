@@ -12,6 +12,7 @@ import type { GameRow } from '@/types/supabase';
 import { rowToGame } from '@/lib/supabase/games';
 import type { Game } from '@/types/game';
 import GameCard from '@/components/GameCard';
+import JsonLd from '@/components/JsonLd';
 
 type TypeFilter = 'all' | 'board' | 'video' | 'word';
 
@@ -44,6 +45,15 @@ export default function LeaderboardView() {
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
+      <JsonLd data={{
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        name: 'Top Rated Games Leaderboard',
+        description: 'The highest-rated board games, video games, and word games ranked by community ratings.',
+        url: 'https://boredgame.lol/leaderboard',
+        numberOfItems: 25,
+        itemListOrder: 'https://schema.org/ItemListOrderDescending',
+      }} />
       <Stack spacing={3}>
         <Typography variant="h4" fontWeight={700}>
           Leaderboard

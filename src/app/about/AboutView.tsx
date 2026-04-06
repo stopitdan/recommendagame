@@ -18,6 +18,7 @@ import {
   Zap, Atom, FileCode, Palette, Database, Search, Sparkles, TestTube,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
+import JsonLd from '@/components/JsonLd';
 
 function Section({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef(null);
@@ -114,6 +115,22 @@ const TECH_STACK: { name: string; role: string; icon: ReactNode }[] = [
 export default function AboutView() {
   return (
     <Container maxWidth="md" sx={{ py: 6 }}>
+      <JsonLd data={{
+        '@context': 'https://schema.org',
+        '@type': 'AboutPage',
+        name: 'About boredgame.lol',
+        description: 'Learn how boredgame.lol uses a 6-layer AI recommendation engine to match you with games from 80,000+ board games, video games, word games, and party games.',
+        url: 'https://boredgame.lol/about',
+        mainEntity: {
+          '@type': 'WebApplication',
+          name: 'boredgame.lol',
+          url: 'https://boredgame.lol',
+          applicationCategory: 'Entertainment',
+          operatingSystem: 'Web',
+          description: 'Smart game recommendation engine powered by a 6-layer AI system. Searches 80,000+ board games, video games, word games, and party games.',
+          offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+        },
+      }} />
       {/* Hero */}
       <Section>
         <Box sx={{ textAlign: 'center', mb: 6 }}>

@@ -14,6 +14,7 @@ import { Plus, X, Users, Clock, Brain, Star, Calendar, ShoppingCart } from 'luci
 import type { Game } from '@/types/game';
 import { formatGameType } from '@/lib/utils/format';
 import SearchAutocomplete from '@/components/SearchAutocomplete';
+import JsonLd from '@/components/JsonLd';
 
 const MAX_GAMES = 4;
 
@@ -136,6 +137,16 @@ export default function CompareView() {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
+      <JsonLd data={{
+        '@context': 'https://schema.org',
+        '@type': 'WebApplication',
+        name: 'Game Comparison Tool',
+        url: 'https://boredgame.lol/compare',
+        applicationCategory: 'Entertainment',
+        operatingSystem: 'Web',
+        description: 'Compare board games and video games side by side. See ratings, player counts, play time, complexity, and more at a glance.',
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+      }} />
       <Typography variant="h3" fontWeight={800} sx={{ mb: 1 }}>
         Compare Games
       </Typography>

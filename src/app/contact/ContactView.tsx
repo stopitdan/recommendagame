@@ -7,12 +7,26 @@ import Stack from '@mui/material/Stack';
 import Divider from '@mui/material/Divider';
 import Paper from '@mui/material/Paper';
 import Link from 'next/link';
+import JsonLd from '@/components/JsonLd';
 
 const CONTACT_EMAIL = 'contact@boredgame.lol';
 
 export default function ContactView() {
   return (
     <Container maxWidth="md" sx={{ py: 8 }}>
+      <JsonLd data={{
+        '@context': 'https://schema.org',
+        '@type': 'ContactPage',
+        name: 'Contact boredgame.lol',
+        description: 'Get in touch with the boredgame.lol team. Report bugs, request features, or just say hi.',
+        url: 'https://boredgame.lol/contact',
+        mainEntity: {
+          '@type': 'Organization',
+          name: 'boredgame.lol',
+          url: 'https://boredgame.lol',
+          email: 'contact@boredgame.lol',
+        },
+      }} />
       <Typography variant="h3" fontWeight={800} sx={{ mb: 1 }}>
         Contact Us
       </Typography>

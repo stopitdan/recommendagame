@@ -30,6 +30,7 @@ import { getFilteredMoods, getFilteredGenres, getMoodDescription } from '@/lib/q
 import { useAchievements } from '@/components/AchievementToast';
 import { motion, AnimatePresence } from 'motion/react';
 import OnboardingDialog from '@/components/OnboardingDialog';
+import JsonLd from '@/components/JsonLd';
 
 // Free text is now FIRST — LLM parses it to pre-fill subsequent steps
 const STEPS = [
@@ -363,6 +364,17 @@ export default function QuestionnaireFlow() {
 
   return (
     <Box sx={{ minHeight: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column' }}>
+      <JsonLd data={{
+        '@context': 'https://schema.org',
+        '@type': 'WebApplication',
+        name: 'Game Recommendation Finder',
+        url: 'https://boredgame.lol/find-a-game',
+        applicationCategory: 'Entertainment',
+        operatingSystem: 'Web',
+        description: 'Tell us what you\'re in the mood for and our AI recommendation engine will find your next favorite game from 80,000+ board games, video games, word games, and party games.',
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+        creator: { '@type': 'Organization', name: 'boredgame.lol', url: 'https://boredgame.lol' },
+      }} />
       <OnboardingDialog />
       <Container maxWidth="sm" sx={{ flex: 1, display: 'flex', flexDirection: 'column', pt: { xs: 3, md: 8, lg: 10 }, pb: 12 }}>
         {/* Progress — hidden on free text step, shows steps 1-6 for the filter steps */}

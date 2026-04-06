@@ -18,6 +18,7 @@ import Typography from '@mui/material/Typography';
 import { motion, AnimatePresence } from 'motion/react';
 import type { CustomDiceSkinSummary } from '@/types/custom-dice';
 import { generateSwatchBg } from '@/lib/custom-dice-utils';
+import JsonLd from '@/components/JsonLd';
 
 const PAGE_SIZE = 20;
 
@@ -71,6 +72,14 @@ export default function DiceGalleryView() {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
+      <JsonLd data={{
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        name: 'Dice Gallery',
+        description: 'Browse community-created custom d20 dice skins. Cosmic themes, metallic finishes, and creative designs.',
+        url: 'https://boredgame.lol/dice-gallery',
+        isPartOf: { '@type': 'WebSite', name: 'boredgame.lol', url: 'https://boredgame.lol' },
+      }} />
       <Stack spacing={3}>
         <Box>
           <Typography variant="h4" fontWeight={800} sx={{ mb: 1 }}>

@@ -42,6 +42,14 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      { protocol: 'https', hostname: 'cf.geekdo-images.com' },
+      { protocol: 'https', hostname: 'images.igdb.com' },
+      { protocol: 'https', hostname: 'media.rawg.io' },
+    ],
+    formats: ['image/avif', 'image/webp'],
+  },
   headers: async () => [
     {
       // Apply security headers to all routes

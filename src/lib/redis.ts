@@ -19,11 +19,18 @@
 
 import { Redis } from '@upstash/redis';
 
+// ─── Kill Switch ─────────────────────────────────────────────
+// Set to true to disable all Redis caching. Every consumer already
+// handles null gracefully, so this is safe. Flip back to false when
+// the site has enough traffic to justify caching.
+const REDIS_DISABLED = true;
+
 // ─── Singleton Client ────────────────────────────────────────
 
 let redis: Redis | null = null;
 
 function getRedis(): Redis | null {
+  if (REDIS_DISABLED) return null;
   if (redis) return redis;
 
   const url = process.env.UPSTASH_REDIS_REST_URL;

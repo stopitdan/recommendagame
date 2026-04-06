@@ -22,9 +22,24 @@ interface BlogPost {
   published_at: string;
 }
 
-/** Simple markdown-to-HTML for blog content (handles headers, links, bold, lists) */
+/** Simple markdown-to-HTML for blog content (handles headers, links, bold, lists, images, tables) */
 function renderMarkdown(md: string): string {
-  return md
+  // Process tables before paragraph splitting
+  let processed = md.replace(
+    /(?:^|\n)(\|.+\|)\n(\|[\s:|-]+\|)\n((?:\|.+\|\n?)+)/g,
+    (_match, headerRow: string, _separator: string, bodyRows: string) => {
+      const headers = headerRow.split('|').filter((c: string) => c.trim()).map((c: string) => `<th>${c.trim()}</th>`).join('');
+      const rows = bodyRows.trim().split('\n').map((row: string) => {
+        const cells = row.split('|').filter((c: string) => c.trim()).map((c: string) => `<td>${c.trim()}</td>`).join('');
+        return `<tr>${cells}</tr>`;
+      }).join('');
+      return `\n<table><thead><tr>${headers}</tr></thead><tbody>${rows}</tbody></table>\n`;
+    },
+  );
+
+  return processed
+    // Images (must be before links to avoid conflict)
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" loading="lazy" />')
     // Headers
     .replace(/^### (.+)$/gm, '<h3>$1</h3>')
     .replace(/^## (.+)$/gm, '<h2>$1</h2>')
@@ -47,7 +62,9 @@ function renderMarkdown(md: string): string {
     .replace(/<p>(<h[1-3]>)/g, '$1')
     .replace(/(<\/h[1-3]>)<\/p>/g, '$1')
     .replace(/<p>(<ul>)/g, '$1')
-    .replace(/(<\/ul>)<\/p>/g, '$1');
+    .replace(/(<\/ul>)<\/p>/g, '$1')
+    .replace(/<p>(<table>)/g, '$1')
+    .replace(/(<\/table>)<\/p>/g, '$1');
 }
 
 export default function BlogPostView() {
@@ -139,6 +156,10 @@ export default function BlogPostView() {
           '& ul': { pl: 3, mb: 2 },
           '& li': { lineHeight: 1.8, color: 'text.secondary', mb: 0.5 },
           '& strong': { color: 'text.primary' },
+          '& img': { maxWidth: 260, height: 'auto', borderRadius: 2, my: 2, display: 'block', boxShadow: '0 2px 8px rgba(0,0,0,0.12)' },
+          '& table': { width: '100%', borderCollapse: 'collapse', mb: 3, mt: 2 },
+          '& th': { textAlign: 'left', borderBottom: '2px solid', borderColor: 'divider', py: 1, px: 1.5, fontWeight: 700, color: 'text.primary' },
+          '& td': { borderBottom: '1px solid', borderColor: 'divider', py: 1, px: 1.5, color: 'text.secondary' },
         }}
         dangerouslySetInnerHTML={{ __html: renderMarkdown(post.content) }}
       />

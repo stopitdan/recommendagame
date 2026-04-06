@@ -27,6 +27,7 @@ import { SHADER_KEYS, SHADER_DEFAULTS } from '@/lib/dice-shaders';
 import { DICE_SKINS, type DiceSkin } from '@/lib/dice-skins';
 import { resolveCustomSkin, validateSkinConfig } from '@/lib/custom-dice-utils';
 import { createClient } from '@/lib/supabase/client';
+import JsonLd from '@/components/JsonLd';
 
 const PhysicsDice = dynamic(() => import('@/components/PhysicsDice'), {
   ssr: false,
@@ -362,6 +363,16 @@ export default function DiceCreatorView() {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
+      <JsonLd data={{
+        '@context': 'https://schema.org',
+        '@type': 'WebApplication',
+        name: 'Custom Dice Creator',
+        url: 'https://boredgame.lol/dice-creator',
+        applicationCategory: 'Entertainment',
+        operatingSystem: 'Web',
+        description: 'Design your own custom d20 dice with colors, shaders, images, and 3D physics preview. Share your creations with the community.',
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+      }} />
       <Typography variant="h4" fontWeight={800} sx={{ mb: 1 }}>
         Dice Creator
       </Typography>

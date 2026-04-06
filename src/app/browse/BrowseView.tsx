@@ -28,6 +28,7 @@ import type { Game, GameType } from '@/types/game';
 import { getGameTypeConfig } from '@/lib/game-type-config';
 import { CATEGORY_OPTIONS, MECHANIC_OPTIONS, THEME_OPTIONS, PLATFORM_OPTIONS } from '@/lib/filter-options';
 import { useAchievements } from '@/components/AchievementToast';
+import JsonLd from '@/components/JsonLd';
 
 const PAGE_SIZE = 20;
 
@@ -215,6 +216,14 @@ export default function BrowseView() {
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
+      <JsonLd data={{
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        name: 'Browse Games',
+        description: 'Browse and filter 80,000+ board games, video games, word games, and party games. Filter by category, mechanic, player count, complexity, and more.',
+        url: 'https://boredgame.lol/browse',
+        isPartOf: { '@type': 'WebSite', name: 'boredgame.lol', url: 'https://boredgame.lol' },
+      }} />
       <Stack spacing={3}>
         {/* Header */}
         <Box>

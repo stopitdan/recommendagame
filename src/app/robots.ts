@@ -8,6 +8,7 @@ export default function robots(): MetadataRoute.Robots {
         allow: '/',
         disallow: [
           '/api/',
+          '/admin/',
           '/auth/',
           '/settings',
           '/profile',
@@ -18,6 +19,11 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: 'https://boredgame.lol/sitemap.xml',
+    // Game sitemaps are paginated at 50k URLs each — update count if games exceed 100k
+    sitemap: [
+      'https://boredgame.lol/sitemap.xml',
+      'https://boredgame.lol/games/sitemap/0.xml',
+      'https://boredgame.lol/games/sitemap/1.xml',
+    ],
   };
 }

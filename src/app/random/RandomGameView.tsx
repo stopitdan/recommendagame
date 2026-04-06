@@ -18,6 +18,7 @@ import type { Game } from '@/types/game';
 import AnimatedRating from '@/components/AnimatedRating';
 import { useAchievements } from '@/components/AchievementToast';
 import DiceCustomizer from '@/components/DiceCustomizer';
+import JsonLd from '@/components/JsonLd';
 import { getSkin, DEFAULT_SKIN_ID, type DiceSkin } from '@/lib/dice-skins';
 import { resolveCustomSkin } from '@/lib/custom-dice-utils';
 import { createClient } from '@/lib/supabase/client';
@@ -333,6 +334,16 @@ export default function RandomGameView() {
         },
       } : {}),
     }}>
+      <JsonLd data={{
+        '@context': 'https://schema.org',
+        '@type': 'WebApplication',
+        name: 'Random Game Picker',
+        url: 'https://boredgame.lol/random',
+        applicationCategory: 'Entertainment',
+        operatingSystem: 'Web',
+        description: 'Roll the dice and discover a random board game, video game, or word game. Filter by type and let fate decide your next game night.',
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+      }} />
       <Stack spacing={3} alignItems="center">
         <Box>
           <Typography variant="h3" fontWeight={800} sx={{ mb: 1 }}>

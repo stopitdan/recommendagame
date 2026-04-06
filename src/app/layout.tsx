@@ -57,7 +57,7 @@ export const metadata: Metadata = {
   },
   manifest: '/manifest.json',
   alternates: {
-    canonical: './',
+    canonical: 'https://boredgame.lol/',
   },
   robots: {
     index: true,
@@ -73,6 +73,12 @@ export default function RootLayout({
   return (
     <html lang="en" className={roboto.variable} suppressHydrationWarning>
       <head>
+        {/* Preconnect to external resources for faster loading */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://cf.geekdo-images.com" />
+        <link rel="preconnect" href="https://images.igdb.com" />
+        <link rel="preconnect" href="https://media.rawg.io" />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var d=document.documentElement;var m=localStorage.getItem('rag_color_mode');if(!m){m=window.matchMedia('(prefers-color-scheme:light)').matches?'light':'dark'}d.setAttribute('data-theme',m);d.style.colorScheme=m;var p=localStorage.getItem('rag_color_preset');if(p)d.setAttribute('data-preset',p)}catch(e){}})()`,

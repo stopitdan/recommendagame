@@ -3,9 +3,8 @@ import type { MetadataRoute } from 'next';
 /**
  * Static sitemap for core pages.
  *
- * Dynamic game pages (/games/[id]) are excluded for now — with 178k+ games,
- * generating them on each request would be too expensive. When needed, add a
- * separate sitemap index with paginated game sitemaps generated via a cron job.
+ * Dynamic game pages are handled by /games/sitemap.ts using generateSitemaps()
+ * which creates paginated sitemaps (50k URLs each) for all indexed games.
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = 'https://boredgame.lol';
@@ -24,6 +23,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: '/signup', changeFrequency: 'yearly' as const, priority: 0.2 },
     { url: '/blog', changeFrequency: 'daily' as const, priority: 0.8 },
     { url: '/compare', changeFrequency: 'monthly' as const, priority: 0.5 },
+    { url: '/chat', changeFrequency: 'monthly' as const, priority: 0.5 },
+    { url: '/map', changeFrequency: 'monthly' as const, priority: 0.5 },
     { url: '/faq', changeFrequency: 'monthly' as const, priority: 0.4 },
     { url: '/contact', changeFrequency: 'yearly' as const, priority: 0.3 },
     { url: '/privacy', changeFrequency: 'yearly' as const, priority: 0.1 },

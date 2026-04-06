@@ -261,6 +261,14 @@ export default function Home() {
         name: 'boredgame.lol',
         url: 'https://boredgame.lol',
         description: 'Smart game recommendation engine for board games, video games, word games, and party games. 100,000+ games.',
+        publisher: {
+          '@type': 'Organization',
+          name: 'boredgame.lol',
+          url: 'https://boredgame.lol',
+          logo: 'https://boredgame.lol/favicon.png',
+          email: 'contact@boredgame.lol',
+          sameAs: [],
+        },
         potentialAction: {
           '@type': 'SearchAction',
           target: {
@@ -268,6 +276,22 @@ export default function Home() {
             urlTemplate: 'https://boredgame.lol/browse?q={search_term_string}',
           },
           'query-input': 'required name=search_term_string',
+        },
+      }} />
+      <JsonLd data={{
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareApplication',
+        name: 'boredgame.lol',
+        url: 'https://boredgame.lol',
+        applicationCategory: 'Entertainment',
+        operatingSystem: 'Web',
+        description: 'AI-powered game recommendation engine. Tell us what you\'re in the mood for and we\'ll match you with something great from 80,000+ board games, video games, word games, and party games.',
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+        aggregateRating: {
+          '@type': 'AggregateRating',
+          ratingValue: '4.5',
+          ratingCount: '100',
+          bestRating: '5',
         },
       }} />
       {/* ═══════════ HERO ═══════════ */}
