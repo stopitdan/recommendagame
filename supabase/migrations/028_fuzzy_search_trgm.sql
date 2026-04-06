@@ -14,7 +14,9 @@
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 -- GIN trigram index on game names for fast fuzzy matching
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_games_name_trgm
+-- Note: CONCURRENTLY removed because Supabase SQL Editor runs in a transaction.
+-- If running via psql directly, add CONCURRENTLY back to avoid table locks.
+CREATE INDEX IF NOT EXISTS idx_games_name_trgm
   ON public.games USING gin (name gin_trgm_ops);
 
 -- Fuzzy search RPC: returns games ranked by trigram similarity to the query.
