@@ -73,54 +73,58 @@ export async function GET(request: NextRequest) {
 
   const selectColumns = 'id,source,source_id,name,description,year_published,types,min_players,max_players,recommended_players,min_play_time,max_play_time,avg_play_time,complexity,rating,rating_count,categories,mechanics,themes,platforms,thumbnail_url,image_url,source_url';
 
-  let query = supabase.from('games').select(
-    selectColumns,
-    { count: 'estimated' },
-  );
+  /** Build a fresh query with all active filters applied. */
+  function buildQuery() {
+    let q = supabase!.from('games').select(selectColumns, { count: 'estimated' });
 
-  // Exclude expansions — they clutter results and bloat scans
-  query = query.eq('is_expansion', false);
+    q = q.eq('is_expansion', false);
 
-  // Array containment filters
-  if (category) query = query.contains('categories', [category]);
-  if (mechanic) query = query.contains('mechanics', [mechanic]);
-  if (theme) query = query.contains('themes', [theme]);
-  if (platform) query = query.contains('platforms', [platform]);
-  if (designer) query = query.contains('designers', [designer]);
-  if (publisher) query = query.contains('publishers', [publisher]);
-  if (type) query = query.contains('types', [type]);
+    if (category) q = q.contains('categories', [category]);
+    if (mechanic) q = q.contains('mechanics', [mechanic]);
+    if (theme) q = q.contains('themes', [theme]);
+    if (platform) q = q.contains('platforms', [platform]);
+    if (designer) q = q.contains('designers', [designer]);
+    if (publisher) q = q.contains('publishers', [publisher]);
+    if (type) q = q.contains('types', [type]);
 
-  // Player count range
-  if (minPlayers) query = query.gte('max_players', parseInt(minPlayers, 10));
-  if (maxPlayers) query = query.lte('min_players', parseInt(maxPlayers, 10));
+    if (minPlayers) q = q.gte('max_players', parseInt(minPlayers, 10));
+    if (maxPlayers) q = q.lte('min_players', parseInt(maxPlayers, 10));
+    if (minTime) q = q.gte('avg_play_time', parseInt(minTime, 10));
+    if (maxTime) q = q.lte('avg_play_time', parseInt(maxTime, 10));
+    if (minComplexity) q = q.gte('complexity', parseFloat(minComplexity));
+    if (maxComplexity) q = q.lte('complexity', parseFloat(maxComplexity));
+    if (minRating) q = q.gte('rating', parseFloat(minRating));
+    if (yearFrom) q = q.gte('year_published', parseInt(yearFrom, 10));
+    if (yearTo) q = q.lte('year_published', parseInt(yearTo, 10));
 
-  // Play time range (minutes)
-  if (minTime) query = query.gte('avg_play_time', parseInt(minTime, 10));
-  if (maxTime) query = query.lte('avg_play_time', parseInt(maxTime, 10));
+    if (popularity === 'popular') q = q.gt('rating_count', 50);
+    else if (popularity === 'hidden-gems') q = q.lt('rating_count', 500).gt('rating', 6);
 
-  // Complexity range (1-5)
-  if (minComplexity) query = query.gte('complexity', parseFloat(minComplexity));
-  if (maxComplexity) query = query.lte('complexity', parseFloat(maxComplexity));
+    return q;
+  }
 
-  // Minimum rating
-  if (minRating) query = query.gte('rating', parseFloat(minRating));
-
-  // Year range
-  if (yearFrom) query = query.gte('year_published', parseInt(yearFrom, 10));
-  if (yearTo) query = query.lte('year_published', parseInt(yearTo, 10));
+  function applySort(q: ReturnType<typeof buildQuery>) {
+    switch (sort) {
+      case 'name': return q.order('name', { ascending: true });
+      case 'year': return q.order('year_published', { ascending: false, nullsFirst: false });
+      case 'rating': return q.order('rating', { ascending: false, nullsFirst: false });
+      case 'popularity':
+      default: return q.order('rating_count', { ascending: false, nullsFirst: false });
+    }
+  }
 
   // Text search — two-step approach: get matching IDs via GIN-indexed RPC first,
   // then filter by ID. This prevents Postgres from combining GIN text search
   // with GIN array containment + ORDER BY in one poorly-optimized plan.
   let fuzzyMatch = false;
   let correctedQuery: string | undefined;
+  let textMatchedIds: string[] | null = null;
   if (textQuery) {
     const trimmed = textQuery.trim();
     const { data: nameMatches } = await supabase
       .rpc('search_games_by_name', { search_query: trimmed, result_limit: 200 });
     let matchedIds = (nameMatches ?? []).map((g: { id: string }) => g.id);
 
-    // Fuzzy fallback: if exact tsvector found nothing, try trigram similarity
     if (matchedIds.length === 0) {
       const { data: fuzzyMatches } = await supabase
         .rpc('fuzzy_search_games_by_name', { search_query: trimmed, result_limit: 200 });
@@ -136,14 +140,7 @@ export async function GET(request: NextRequest) {
       redisCache.set(browseKey, emptyResponse, 900);
       return NextResponse.json(emptyResponse);
     }
-    query = query.in('id', matchedIds);
-  }
-
-  // Popularity filter
-  if (popularity === 'popular') {
-    query = query.gt('rating_count', 50);
-  } else if (popularity === 'hidden-gems') {
-    query = query.lt('rating_count', 500).gt('rating', 6);
+    textMatchedIds = matchedIds;
   }
 
   // ── Type-diverse interleaving ────────────────────────────────
@@ -153,24 +150,14 @@ export async function GET(request: NextRequest) {
 
   if (shouldInterleave) {
     const gameTypes = ['board', 'video', 'word', 'party'];
-    // Fetch more per type than needed so we have enough after interleaving
     const perType = Math.ceil(limit / gameTypes.length) + 4;
-
-    function applySort(q: typeof query) {
-      switch (sort) {
-        case 'name': return q.order('name', { ascending: true });
-        case 'year': return q.order('year_published', { ascending: false, nullsFirst: false });
-        case 'rating': return q.order('rating', { ascending: false, nullsFirst: false });
-        case 'popularity':
-        default: return q.order('rating_count', { ascending: false, nullsFirst: false });
-      }
-    }
 
     const bucketResults = await Promise.all(
       gameTypes.map((t) => {
-        let typeQuery = query.contains('types', [t]);
-        typeQuery = applySort(typeQuery);
-        return typeQuery.range(0, perType - 1).then(({ data: d }) => ({
+        let q = buildQuery();
+        q = q.contains('types', [t]);
+        q = applySort(q);
+        return q.range(0, perType - 1).then(({ data: d }) => ({
           type: t,
           games: (d ?? []) as GameRow[],
         }));
@@ -192,11 +179,10 @@ export async function GET(request: NextRequest) {
           added = true;
         }
       }
-      if (!added) break; // All buckets exhausted
+      if (!added) break;
     }
 
     const paged = interleaved.slice(offset, offset + limit);
-    // Estimate total from all buckets
     const totalEstimate = bucketResults.reduce((sum, b) => sum + b.games.length, 0);
 
     const response = {
@@ -212,25 +198,9 @@ export async function GET(request: NextRequest) {
   }
 
   // ── Standard single-query path (type filter active or text search) ──
-
-  // Sorting
-  switch (sort) {
-    case 'name':
-      query = query.order('name', { ascending: true });
-      break;
-    case 'year':
-      query = query.order('year_published', { ascending: false, nullsFirst: false });
-      break;
-    case 'popularity':
-      query = query.order('rating_count', { ascending: false, nullsFirst: false });
-      break;
-    case 'rating':
-    default:
-      query = query.order('rating', { ascending: false, nullsFirst: false });
-      break;
-  }
-
-  // Pagination
+  let query = buildQuery();
+  if (textMatchedIds) query = query.in('id', textMatchedIds);
+  query = applySort(query);
   query = query.range(offset, offset + limit - 1);
 
   const { data, error, count } = await query;
@@ -248,7 +218,6 @@ export async function GET(request: NextRequest) {
     ...(fuzzyMatch && correctedQuery && { fuzzyMatch: true, correctedQuery }),
   };
 
-  // Cache for 15 minutes — browse data changes slowly
   redisCache.set(browseKey, response, 900);
 
   return NextResponse.json(response);
