@@ -360,7 +360,7 @@ export default function Home() {
 
         <Container maxWidth="md" sx={{ position: "relative", zIndex: 1, pointerEvents: "none" }}>
           <motion.div style={{ y: smoothY, opacity: smoothOpacity }}>
-            <Stack spacing={3} alignItems="center" textAlign="center">
+            <Stack gap={{xs: 3, md: 5, lg: 6}} alignItems="center" textAlign="center">
               {/* Animated headline (word-by-word spring) */}
               <AnimatedHeadline />
 
