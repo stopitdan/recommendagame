@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import { UserPlus } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
+import { getCachedUser } from '@/lib/supabase/client';
 import { getRecommendCount } from '@/lib/guest';
 
 /**
@@ -18,8 +18,7 @@ export default function LoginPromptBanner() {
 
   useEffect(() => {
     async function check() {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
+      const user = await getCachedUser();
       if (user) return; // Already logged in
 
       const count = getRecommendCount();

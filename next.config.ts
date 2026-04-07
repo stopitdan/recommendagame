@@ -12,7 +12,7 @@ const securityHeaders = [
   // Restrict browser features the site can use
   {
     key: 'Permissions-Policy',
-    value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
+    value: 'camera=(), microphone=(self), geolocation=(), interest-cohort=()',
   },
   // Content Security Policy — permissive enough for MUI, Google Analytics/Ads, and Supabase
   {

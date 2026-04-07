@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import { Package, PackageCheck } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
+import { useIsOwned } from '@/hooks/useOwnedGames';
 
 interface OwnedButtonProps {
   gameId: string;
@@ -14,45 +14,19 @@ interface OwnedButtonProps {
 
 /**
  * "I Own This" toggle button. Separate from the heart/favorite.
- * Adds/removes from user_owned_games table.
+ * Uses shared hook so /api/owned is fetched once for all instances.
  */
-export default function OwnedButton({ gameId, initialOwned = false, onToggle }: OwnedButtonProps) {
-  const [owned, setOwned] = useState(initialOwned);
+export default function OwnedButton({ gameId, onToggle }: OwnedButtonProps) {
+  const { owned, isLoggedIn, toggle } = useIsOwned(gameId);
   const [loading, setLoading] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) return;
-      setIsLoggedIn(true);
-      // Check if user owns this game
-      fetch('/api/owned')
-        .then((r) => r.ok ? r.json() : { owned: [] })
-        .then((data) => {
-          const owns = (data.owned ?? []).some((o: { game_id: string }) => o.game_id === gameId);
-          setOwned(owns);
-        });
-    });
-  }, [gameId]);
 
   if (!isLoggedIn) return null;
 
-  async function toggle() {
+  async function handleToggle() {
     setLoading(true);
-    const newOwned = !owned;
-    setOwned(newOwned); // Optimistic
-
     try {
-      const res = await fetch('/api/owned', {
-        method: newOwned ? 'POST' : 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ gameId }),
-      });
-      if (!res.ok) setOwned(!newOwned); // Revert on failure
-      else onToggle?.(newOwned);
-    } catch {
-      setOwned(!newOwned);
+      const newOwned = await toggle();
+      onToggle?.(newOwned);
     } finally {
       setLoading(false);
     }
@@ -61,7 +35,7 @@ export default function OwnedButton({ gameId, initialOwned = false, onToggle }: 
   return (
     <Tooltip title={owned ? 'Remove from my collection' : 'I own this game'}>
       <IconButton
-        onClick={toggle}
+        onClick={handleToggle}
         disabled={loading}
         size="small"
         aria-label={owned ? 'Remove from collection' : 'Add to collection'}

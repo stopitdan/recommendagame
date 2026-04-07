@@ -21,7 +21,7 @@ import DiceCustomizer from '@/components/DiceCustomizer';
 import JsonLd from '@/components/JsonLd';
 import { getSkin, DEFAULT_SKIN_ID, type DiceSkin } from '@/lib/dice-skins';
 import { resolveCustomSkin } from '@/lib/custom-dice-utils';
-import { createClient } from '@/lib/supabase/client';
+import { getCachedUser } from '@/lib/supabase/client';
 import { triggerEpicNat20 } from '@/lib/nat20-celebration';
 import type { CustomDiceSkinSummary } from '@/types/custom-dice';
 
@@ -163,8 +163,7 @@ export default function RandomGameView() {
   // Load user's saved dice skin and custom skins on mount
   useEffect(() => {
     async function loadSkin() {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
+      const user = await getCachedUser();
       setIsLoggedIn(!!user);
 
       if (user) {

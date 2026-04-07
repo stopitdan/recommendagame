@@ -84,6 +84,11 @@ export default function RootLayout({
             __html: `(function(){try{var d=document.documentElement;var m=localStorage.getItem('rag_color_mode');if(!m){m=window.matchMedia('(prefers-color-scheme:light)').matches?'light':'dark'}d.setAttribute('data-theme',m);d.style.colorScheme=m;var p=localStorage.getItem('rag_color_preset');if(p)d.setAttribute('data-preset',p)}catch(e){}})()`,
           }}
         />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `addEventListener('unhandledrejection',function(e){if(e.reason&&e.reason.name==='AbortError'&&String(e.reason.message).indexOf('steal')!==-1)e.preventDefault()})`,
+          }}
+        />
         <meta name="google-adsense-account" content="ca-pub-5790683982576164" />
         <script
           async

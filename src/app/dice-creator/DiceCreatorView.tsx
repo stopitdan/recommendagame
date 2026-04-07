@@ -26,7 +26,7 @@ import type { CustomDiceSkinConfig } from '@/types/custom-dice';
 import { SHADER_KEYS, SHADER_DEFAULTS } from '@/lib/dice-shaders';
 import { DICE_SKINS, type DiceSkin } from '@/lib/dice-skins';
 import { resolveCustomSkin, validateSkinConfig } from '@/lib/custom-dice-utils';
-import { createClient } from '@/lib/supabase/client';
+import { getCachedUser } from '@/lib/supabase/client';
 import JsonLd from '@/components/JsonLd';
 
 const PhysicsDice = dynamic(() => import('@/components/PhysicsDice'), {
@@ -296,8 +296,7 @@ export default function DiceCreatorView() {
 
     setSaving(true);
     try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
+      const user = await getCachedUser();
       if (!user) {
         setSnackbar({ message: 'Please sign in to save dice skins', severity: 'error' });
         setSaving(false);

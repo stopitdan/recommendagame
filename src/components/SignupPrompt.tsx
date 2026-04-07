@@ -11,7 +11,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { motion, AnimatePresence } from 'motion/react';
 import { shouldShowSignupPrompt, dismissSignupPrompt } from '@/lib/guest';
-import { createClient } from '@/lib/supabase/client';
+import { getCachedUser } from '@/lib/supabase/client';
 
 /**
  * Signup prompt that appears after N guest recommendations.
@@ -25,8 +25,7 @@ export default function SignupPrompt() {
     // Check after a short delay so it doesn't flash on page load
     const timer = setTimeout(async () => {
       // Don't show if user is already logged in
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
+      const user = await getCachedUser();
       if (user) return;
 
       if (shouldShowSignupPrompt()) {

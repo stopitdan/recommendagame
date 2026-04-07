@@ -65,9 +65,8 @@ export default function QuestionnaireFlow() {
       setState((prev) => ({ ...prev, ...saved }));
     }
     // Check if logged in for collection-only feature
-    import('@/lib/supabase/client').then(({ createClient }) => {
-      const supabase = createClient();
-      supabase.auth.getUser().then(({ data: { user } }) => {
+    import('@/lib/supabase/client').then(({ getCachedUser }) => {
+      getCachedUser().then((user) => {
         setIsLoggedIn(!!user);
       });
     });

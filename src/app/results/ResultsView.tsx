@@ -29,7 +29,7 @@ import { incrementRecommendCount } from '@/lib/guest';
 import { useAchievements } from '@/components/AchievementToast';
 import { CATEGORY_OPTIONS, MECHANIC_OPTIONS, THEME_OPTIONS, PLATFORM_OPTIONS } from '@/lib/filter-options';
 import { getGameTypeConfig } from '@/lib/game-type-config';
-import { createClient } from '@/lib/supabase/client';
+import { getCachedUser } from '@/lib/supabase/client';
 import { Save, Dice5, Puzzle, Gamepad2, Type, PartyPopper, Library, Image as ImageIcon } from 'lucide-react';
 import ShareResultsButton from '@/components/ShareResultsButton';
 import ShareCardDialog from '@/components/ShareCardDialog';
@@ -74,12 +74,12 @@ export default function ResultsView() {
 
   // Get logged-in user ID for rejection learning + collection filtering
   useEffect(() => {
-    createClient().auth.getUser().then(({ data }) => {
-      setUserId(data.user?.id ?? null);
+    getCachedUser().then((user) => {
+      setUserId(user?.id ?? null);
       setUserLoaded(true);
 
       // Auto-sync BGG collection if stale (24h+)
-      if (data.user) {
+      if (user) {
         fetch('/api/profile').then((r) => r.ok ? r.json() : null).then((profile) => {
           if (profile?.bgg_username && profile?.bgg_synced_at) {
             const lastSync = new Date(profile.bgg_synced_at).getTime();

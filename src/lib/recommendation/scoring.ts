@@ -927,11 +927,13 @@ function scoreFreeTextLLM(game: Game, parsed: ParsedPreferences): number {
   }
 
   // Similar-to: "like Catan but better" wants ALTERNATIVES, not Catan itself.
+  // The penalty must be strong enough to overcome genre/mechanic/keyword boosts
+  // that the referenced game naturally accumulates (it matches its own genres).
   if (parsed.similarTo?.length > 0) {
     for (const similar of parsed.similarTo) {
       const lower = similar.toLowerCase();
       if (gameName.includes(lower) || lower.includes(gameName)) {
-        totalScore -= 0.5; // Penalize the referenced game and its variants
+        totalScore -= 2.0; // Strong penalty -- user explicitly wants something ELSE
       }
     }
   }
@@ -943,7 +945,7 @@ function scoreFreeTextLLM(game: Game, parsed: ParsedPreferences): number {
       const fl = franchise.toLowerCase();
       if (parsed.similarTo.some((s) => s.toLowerCase() === fl)
         && (gameName.includes(fl) || fl.includes(gameName))) {
-        totalScore += 0.5; // Undo the similarTo penalty
+        totalScore += 2.0; // Undo the similarTo penalty
       }
     }
   }

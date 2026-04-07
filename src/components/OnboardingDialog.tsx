@@ -10,7 +10,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
 import { MessageSquareText, SlidersHorizontal, Sparkles, Puzzle } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
+import { getCachedUser } from '@/lib/supabase/client';
 
 const STORAGE_KEY = 'onboarding-seen';
 
@@ -44,8 +44,7 @@ export default function OnboardingDialog() {
     if (localStorage.getItem(STORAGE_KEY)) return;
 
     const timer = setTimeout(async () => {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
+      const user = await getCachedUser();
       setIsLoggedIn(!!user);
       setOpen(true);
     }, 800);
