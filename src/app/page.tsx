@@ -2,11 +2,13 @@
 
 import { useEffect, useState, useRef } from "react";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
+import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Card from "@mui/material/Card";
@@ -19,9 +21,10 @@ import {
   useTransform,
   useSpring,
 } from "motion/react";
+import { ArrowUp, Mic } from "lucide-react";
+import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 import QuickCollections from "@/components/QuickCollections";
 import AnimatedHeadline from "@/components/landing/AnimatedHeadline";
-import MagneticButton from "@/components/landing/MagneticButton";
 import JsonLd from "@/components/JsonLd";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import DailyPick from "@/components/DailyPick";
@@ -31,7 +34,324 @@ import type { LucideIcon } from "lucide-react";
 
 // Lazy load heavy interactive components (canvas, game)
 const InteractiveParticles = dynamic(() => import("@/components/landing/InteractiveParticles"), { ssr: false });
-const MeepleRunner = dynamic(() => import("@/components/landing/MeepleRunner"), { ssr: false });
+// const MeepleRunner = dynamic(() => import("@/components/landing/MeepleRunner"), { ssr: false });
+
+/* ─── hero search input ─── */
+const PLACEHOLDER_EXAMPLES = [
+  "a cozy game for date night",
+  "something like Catan but faster",
+  "Resident Evil board game",
+  "roguelike deck builder for 2",
+  "party game for 6 people",
+  "a brain-burner with no luck",
+  "Star Wars",
+  "something my kids would love",
+];
+
+const TYPE_SPEED = 45;   // ms per character typing
+const DELETE_SPEED = 25;  // ms per character deleting
+const PAUSE_AFTER = 2000; // ms to hold the full phrase
+const PAUSE_BETWEEN = 400; // ms pause between delete and next type
+
+function useTypewriter(examples: string[]) {
+  const [displayed, setDisplayed] = useState("");
+  const [exampleIdx, setExampleIdx] = useState(0);
+  const [isActive, setIsActive] = useState(true);
+
+  useEffect(() => {
+    if (!isActive) return;
+
+    const current = examples[exampleIdx];
+    let charIdx = 0;
+    let phase: "typing" | "pausing" | "deleting" | "waiting" = "typing";
+    let timer: ReturnType<typeof setTimeout>;
+
+    function tick() {
+      if (phase === "typing") {
+        charIdx++;
+        setDisplayed(current.slice(0, charIdx));
+        if (charIdx >= current.length) {
+          phase = "pausing";
+          timer = setTimeout(tick, PAUSE_AFTER);
+        } else {
+          timer = setTimeout(tick, TYPE_SPEED);
+        }
+      } else if (phase === "pausing") {
+        phase = "deleting";
+        timer = setTimeout(tick, DELETE_SPEED);
+      } else if (phase === "deleting") {
+        charIdx--;
+        setDisplayed(current.slice(0, charIdx));
+        if (charIdx <= 0) {
+          phase = "waiting";
+          timer = setTimeout(tick, PAUSE_BETWEEN);
+        } else {
+          timer = setTimeout(tick, DELETE_SPEED);
+        }
+      } else {
+        setExampleIdx((i) => (i + 1) % examples.length);
+      }
+    }
+
+    timer = setTimeout(tick, TYPE_SPEED);
+    return () => clearTimeout(timer);
+  }, [exampleIdx, examples, isActive]);
+
+  return { displayed, setIsActive };
+}
+
+const SPEECH_IDLE_MS = 1800; // auto-submit this long after speech stops
+
+function HeroSearch() {
+  const router = useRouter();
+  const theme = useTheme();
+  const [query, setQuery] = useState("");
+  const [focused, setFocused] = useState(false);
+  const [usedSpeech, setUsedSpeech] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const speechIdleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { displayed, setIsActive } = useTypewriter(PLACEHOLDER_EXAMPLES);
+
+  // react-speech-recognition hook -- handles browser detection, permissions, cleanup
+  const {
+    transcript,
+    listening,
+    browserSupportsSpeechRecognition,
+    resetTranscript,
+  } = useSpeechRecognition();
+
+  // Defer browser support check to avoid SSR hydration mismatch
+  // (server renders false, client renders true -> DOM mismatch)
+  const [hasMounted, setHasMounted] = useState(false);
+  useEffect(() => { setHasMounted(true); }, []);
+  const showMic = hasMounted && browserSupportsSpeechRecognition;
+
+  // Sync speech transcript into the query field live
+  useEffect(() => {
+    if (listening && transcript) {
+      setQuery(transcript);
+    }
+  }, [transcript, listening]);
+
+  // Auto-stop after silence, then auto-submit
+  useEffect(() => {
+    if (!listening || !transcript) return;
+    if (speechIdleTimer.current) clearTimeout(speechIdleTimer.current);
+    speechIdleTimer.current = setTimeout(() => {
+      SpeechRecognition.stopListening();
+    }, SPEECH_IDLE_MS);
+    return () => { if (speechIdleTimer.current) clearTimeout(speechIdleTimer.current); };
+  }, [transcript, listening]);
+
+  // Auto-submit after speech ends with text
+  const prevListening = useRef(listening);
+  useEffect(() => {
+    // Detect transition from listening -> not listening
+    if (prevListening.current && !listening && usedSpeech && query.trim()) {
+      const timer = setTimeout(() => {
+        const params = new URLSearchParams();
+        params.set("freeText", query.trim());
+        router.push(`/results?${params.toString()}`);
+      }, 600);
+      prevListening.current = listening;
+      return () => clearTimeout(timer);
+    }
+    prevListening.current = listening;
+  }, [listening, query, router, usedSpeech]);
+
+  const hasText = query.trim().length > 0;
+  const showTypewriter = !hasText && !focused && !listening;
+
+  const handleSubmit = () => {
+    const trimmed = query.trim();
+    if (!trimmed) return;
+    if (listening) SpeechRecognition.stopListening();
+    const params = new URLSearchParams();
+    params.set("freeText", trimmed);
+    router.push(`/results?${params.toString()}`);
+  };
+
+  const handleMicClick = () => {
+    if (listening) {
+      SpeechRecognition.stopListening();
+    } else {
+      resetTranscript();
+      setQuery("");
+      setUsedSpeech(true);
+      setFocused(true);
+      setIsActive(false);
+      SpeechRecognition.startListening({ continuous: true, interimResults: true, language: "en-US" });
+    }
+  };
+
+  return (
+    <Box
+      component="form"
+      onSubmit={(e: React.FormEvent) => { e.preventDefault(); handleSubmit(); }}
+      sx={{ width: "100%", position: "relative" }}
+    >
+      {/* Container styled like Claude's input */}
+      <Box
+        sx={{
+          position: "relative",
+          bgcolor: alpha(theme.palette.background.paper, 0.6),
+          backdropFilter: "blur(16px)",
+          borderRadius: "16px",
+          border: `1px solid ${alpha(theme.palette.divider, focused || listening ? 0.3 : 0.15)}`,
+          boxShadow: focused || listening
+            ? `0 0 0 1px ${alpha(theme.palette.divider, 0.2)}`
+            : "none",
+          transition: "border-color 200ms ease, box-shadow 200ms ease",
+          "&:hover": {
+            borderColor: alpha(theme.palette.divider, 0.25),
+          },
+          // Fixed height: textarea area + action bar
+          minHeight: "120px",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        {/* Textarea -- grows to fill, leaves room for action bar */}
+        <Box
+          component="textarea"
+          ref={textareaRef}
+          value={query}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+            setQuery(e.target.value);
+            setUsedSpeech(false); // typed, not spoken
+          }}
+          onFocus={() => { setFocused(true); setIsActive(false); }}
+          onBlur={() => { setFocused(false); if (!query) setIsActive(true); }}
+          onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              handleSubmit();
+            }
+          }}
+          sx={{
+            flex: 1,
+            width: "100%",
+            maxHeight: "200px",
+            resize: "none",
+            border: "none",
+            outline: "none",
+            bgcolor: "transparent",
+            color: "text.primary",
+            fontSize: { xs: "1rem", md: "1.1rem" },
+            lineHeight: 1.6,
+            fontFamily: "inherit",
+            textAlign: "left",
+            p: "16px",
+            pb: "4px",
+            display: "block",
+            "&::placeholder": { color: "transparent" },
+          }}
+        />
+
+        {/* Bottom action bar -- in normal flow, not absolute */}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            px: 1.5,
+            py: 1,
+            flexShrink: 0,
+          }}
+        >
+          {hasText || listening ? (
+            // Submit button (like Claude's orange arrow)
+            <motion.div
+              key="submit"
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 400, damping: 20 }}
+            >
+              <IconButton
+                type="submit"
+                sx={{
+                  bgcolor: "secondary.main",
+                  color: "secondary.contrastText",
+                  width: 36,
+                  height: 36,
+                  "&:hover": {
+                    bgcolor: "secondary.dark",
+                  },
+                }}
+              >
+                <ArrowUp size={18} />
+              </IconButton>
+            </motion.div>
+          ) : showMic ? (
+            // Mic button
+            <IconButton
+              type="button"
+              onClick={handleMicClick}
+              sx={{
+                color: "text.secondary",
+                width: 36,
+                height: 36,
+              }}
+            >
+              <Mic size={18} />
+            </IconButton>
+          ) : null}
+        </Box>
+
+        {/* Typewriter placeholder -- positioned over the textarea area only */}
+        {showTypewriter && (
+          <Box
+            onClick={() => textareaRef.current?.focus()}
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              // Cover only the textarea area, not the action bar
+              bottom: "52px",
+              p: "16px",
+              pointerEvents: "auto",
+              cursor: "text",
+              textAlign: "left",
+            }}
+          >
+            <Typography
+              component="span"
+              sx={{
+                color: "text.secondary",
+                opacity: 0.4,
+                fontSize: { xs: "1rem", md: "1.1rem" },
+                lineHeight: 1.6,
+                fontFamily: "inherit",
+                userSelect: "none",
+                textAlign: "left",
+              }}
+            >
+              {displayed}
+              <Box
+                component="span"
+                sx={{
+                  display: "inline-block",
+                  width: "2px",
+                  height: "1.15em",
+                  bgcolor: "text.secondary",
+                  opacity: 0.5,
+                  ml: "1px",
+                  verticalAlign: "text-bottom",
+                  animation: "cursorBlink 1s step-end infinite",
+                  "@keyframes cursorBlink": {
+                    "0%, 100%": { opacity: 0.5 },
+                    "50%": { opacity: 0 },
+                  },
+                }}
+              />
+            </Typography>
+          </Box>
+        )}
+      </Box>
+    </Box>
+  );
+}
 
 /* ─── reusable scroll-triggered section ─── */
 function Section({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
@@ -357,97 +677,42 @@ export default function Home() {
         <Container maxWidth="md" sx={{ position: "relative", zIndex: 1, pointerEvents: "none" }}>
           <motion.div style={{ y: smoothY, opacity: smoothOpacity }}>
             <Stack spacing={3} alignItems="center" textAlign="center">
-              {/* Tagline */}
-              <motion.div
-                initial={{ opacity: 0, y: 20, filter: "blur(6px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-              >
-                <Typography
-                  variant="h6"
-                  component="p"
-                  sx={{
-                    color: "secondary.main",
-                    fontWeight: 700,
-                    letterSpacing: "0.2em",
-                    textTransform: "uppercase",
-                    fontSize: { xs: "0.7rem", md: "0.8rem" },
-                  }}
-                >
-                  Board Games · Video Games · Word Games
-                </Typography>
-              </motion.div>
-
               {/* Animated headline (word-by-word spring) */}
               <AnimatedHeadline />
 
-              {/* Subhead */}
+              {/* Search input */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 1.0, ease: [0.22, 1, 0.36, 1] }}
+                style={{ width: "100%", maxWidth: 560, pointerEvents: "auto" }}
               >
-                <Typography
-                  variant="h6"
-                  component="p"
-                  sx={{
-                    color: "text.secondary",
-                    fontWeight: 400,
-                    maxWidth: 520,
-                    lineHeight: 1.6,
-                    fontSize: { xs: "1rem", md: "1.15rem" },
-                  }}
-                >
-                  Tell us what you&apos;re in the mood for and we&apos;ll match you with something great from our catalog of 80,000+ games.
-                </Typography>
+                <HeroSearch />
               </motion.div>
 
-              {/* CTAs with magnetic effect */}
+              {/* Browse All link */}
               <motion.div
-                initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ duration: 0.6, delay: 1.2 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 1.4 }}
+                style={{ pointerEvents: "auto" }}
               >
-                <Stack direction="row" spacing={2} sx={{ mt: 1, pointerEvents: "auto" }}>
-                  <Link href="/find-a-game" style={{ textDecoration: "none" }}>
-                    <MagneticButton strength={0.25} radius={120}>
-                      <motion.div whileTap={{ scale: 0.95 }}>
-                        <Button
-                          variant="contained"
-                          size="large"
-                          sx={{
-                            px: { xs: 4, md: 6 },
-                            py: 1.8,
-                            fontSize: { xs: "1rem", md: "1.15rem" },
-                            borderRadius: 3,
-                            fontWeight: 700,
-                            boxShadow: `0 8px 32px ${alpha(theme.palette.secondary.main, 0.35)}`,
-                          }}
-                        >
-                          Find Me a Game
-                        </Button>
-                      </motion.div>
-                    </MagneticButton>
-                  </Link>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                    or
+                  </Typography>
                   <Link href="/browse" style={{ textDecoration: "none" }}>
-                    <MagneticButton strength={0.15} radius={100}>
-                      <motion.div whileTap={{ scale: 0.97 }}>
-                        <Button
-                          variant="outlined"
-                          size="large"
-                          sx={{
-                            px: { xs: 3, md: 4 },
-                            py: 1.8,
-                            fontSize: { xs: "1rem", md: "1.15rem" },
-                            borderRadius: 3,
-                            borderWidth: 2,
-                            "&:hover": { borderWidth: 2 },
-                          }}
-                        >
-                          Browse All
-                        </Button>
-                      </motion.div>
-                    </MagneticButton>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "primary.main",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        "&:hover": { textDecoration: "underline" },
+                      }}
+                    >
+                      browse all 80,000+ games
+                    </Typography>
                   </Link>
                 </Stack>
               </motion.div>
@@ -853,7 +1118,7 @@ export default function Home() {
       </Box>
 
       {/* ═══════════ MEEPLE RUNNER GAME (fixed bottom bar) ═══════════ */}
-      <MeepleRunner />
+      {/* <MeepleRunner /> */}
     </Box>
   );
 }

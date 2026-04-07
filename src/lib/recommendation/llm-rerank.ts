@@ -14,6 +14,7 @@
 import OpenAI from 'openai';
 import type { ScoredGame } from './scoring';
 import type { QuestionnaireState } from '@/types/questionnaire';
+import { MODELS } from '@/lib/llm/models';
 
 const RERANK_TIMEOUT_MS = 12000;
 
@@ -98,7 +99,7 @@ Return ONLY a JSON object: {"ids": ["game-id-1", "game-id-2", ...]} with the ${l
     const openai = new OpenAI({ apiKey, timeout: RERANK_TIMEOUT_MS });
 
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o',
+      model: MODELS.rerank,
       temperature: 0,
       max_tokens: 1000,
       response_format: { type: 'json_object' },

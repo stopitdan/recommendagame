@@ -828,6 +828,19 @@ function scoreFreeTextLLM(game: Game, parsed: ParsedPreferences): number {
     totalChecks++;
   }
 
+  // Franchise/IP match: if user searched for a franchise name and the game's
+  // title contains it, this is the strongest relevance signal. "Resident Evil"
+  // should surface "Resident Evil: The Board Game" at the very top.
+  if (parsed.franchiseSearch?.length > 0) {
+    for (const franchise of parsed.franchiseSearch) {
+      const lower = franchise.toLowerCase();
+      if (gameName.includes(lower)) {
+        totalScore += 2.5; // Strongest boost -- user wants THIS franchise
+      }
+    }
+    totalChecks++;
+  }
+
   // Mechanics match: alias-aware matching bridges BGG naming
   // ("Deck Building" -> "Deck, Bag, and Pool Building")
   if (parsed.mechanics.length > 0) {
@@ -919,6 +932,18 @@ function scoreFreeTextLLM(game: Game, parsed: ParsedPreferences): number {
       const lower = similar.toLowerCase();
       if (gameName.includes(lower) || lower.includes(gameName)) {
         totalScore -= 0.5; // Penalize the referenced game and its variants
+      }
+    }
+  }
+
+  // Safety: if a term appears in both franchiseSearch AND similarTo (LLM confusion),
+  // the franchise intent should win -- undo the similarTo penalty
+  if (parsed.franchiseSearch?.length > 0 && parsed.similarTo?.length > 0) {
+    for (const franchise of parsed.franchiseSearch) {
+      const fl = franchise.toLowerCase();
+      if (parsed.similarTo.some((s) => s.toLowerCase() === fl)
+        && (gameName.includes(fl) || fl.includes(gameName))) {
+        totalScore += 0.5; // Undo the similarTo penalty
       }
     }
   }

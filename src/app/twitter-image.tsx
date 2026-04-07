@@ -37,7 +37,7 @@ export default async function Image() {
           />
         ))}
 
-        {/* Category labels */}
+        Category labels
         <div
           style={{
             display: 'flex',

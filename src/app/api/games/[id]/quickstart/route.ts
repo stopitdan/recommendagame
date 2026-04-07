@@ -12,6 +12,7 @@ import OpenAI from 'openai';
 import type { GameRow } from '@/types/supabase';
 import { rowToGame, GAME_SELECT_COLUMNS } from '@/lib/supabase/games';
 import { redisCache } from '@/lib/redis';
+import { MODELS } from '@/lib/llm/models';
 
 const CACHE_TTL = 2592000; // 30 days
 
@@ -100,7 +101,7 @@ Keep the total under 400 words. Be conversational, not robotic.`;
   try {
     const openai = new OpenAI({ apiKey, timeout: 15000 });
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: MODELS.quickstart,
       temperature: 0.3,
       max_tokens: 600,
       messages: [{ role: 'user', content: prompt }],

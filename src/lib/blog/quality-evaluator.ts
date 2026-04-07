@@ -7,6 +7,7 @@
 
 import type OpenAI from 'openai';
 import type { BlogGameRow, QualityReport } from './types';
+import { MODELS } from '@/lib/llm/models';
 
 export async function evaluateQuality(
   openai: OpenAI,
@@ -20,7 +21,7 @@ export async function evaluateQuality(
     .map((g) => g.name);
 
   const response = await openai.chat.completions.create({
-    model: 'gpt-4o-mini',
+    model: MODELS.blogAnalysis,
     temperature: 0.2,
     max_tokens: 800,
     response_format: { type: 'json_object' },

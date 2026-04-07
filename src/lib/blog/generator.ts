@@ -8,6 +8,7 @@
 
 import type OpenAI from 'openai';
 import type { BlogDraft, BlogGameRow, GameReference } from './types';
+import { MODELS } from '@/lib/llm/models';
 
 /* -------------------------------------------------------------------------- */
 /*  Helpers                                                                   */
@@ -112,7 +113,7 @@ export async function generateDraft(
   const prompt = buildPrompt(titleHint, gameContext, year);
 
   const completion = await openai.chat.completions.create({
-    model: 'gpt-4o',
+    model: MODELS.blog,
     messages: [{ role: 'user', content: prompt }],
     response_format: { type: 'json_object' },
     temperature: 0.6,

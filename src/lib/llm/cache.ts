@@ -17,6 +17,7 @@ import { createClient } from '@supabase/supabase-js';
 import { MemoryCache } from '@/lib/cache';
 import type { ParsedPreferences } from './types';
 import { normalizeText, isFuzzyMatch } from './normalize';
+import { MODELS } from './models';
 
 // ─── Config ──────────────────────────────────────────────────
 
@@ -118,7 +119,7 @@ export async function setCachedParse(
         raw_input: rawInput,
         normalized_input: normalized,
         parsed_result: result,
-        model: 'gpt-4o-mini',
+        model: MODELS.enrichment,
       }, { onConflict: 'normalized_input' });
   } catch (error) {
     console.warn('[LLM Cache] Supabase write failed:', error);

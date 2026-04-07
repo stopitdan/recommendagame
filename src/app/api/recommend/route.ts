@@ -134,8 +134,11 @@ export async function POST(request: NextRequest) {
   // Merge LLM-parsed preferences into body BEFORE cache key computation.
   // Without this, the cache key uses body.genres=[] and all queries with the
   // same freeText share one stale cache entry regardless of what the LLM extracted.
-  if (body.llmParsed?.gameTypes?.length) {
-    body.gameTypes = [...new Set([...body.gameTypes, ...body.llmParsed.gameTypes])] as typeof body.gameTypes;
+  //
+  // Game types: ONLY use LLM types if the user didn't explicitly select any.
+  // User clicking a chip is a hard filter — LLM should never add extra types.
+  if (body.llmParsed?.gameTypes?.length && body.gameTypes.length === 0) {
+    body.gameTypes = body.llmParsed.gameTypes as typeof body.gameTypes;
   }
   if (body.llmParsed?.genres?.length) {
     body.genres = [...new Set([...body.genres, ...body.llmParsed.genres])];
@@ -284,13 +287,20 @@ export async function POST(request: NextRequest) {
       ? withTimeout(fetchDesignerCandidates(supabase, designerNames), 5000, [])
       : Promise.resolve([]);
 
+    // Franchise/IP search: fetch games whose title matches a franchise name
+    // (e.g., "Resident Evil" finds "Resident Evil: The Board Game")
+    const franchiseNames = body.llmParsed?.franchiseSearch ?? [];
+    const franchiseSearchPromise = franchiseNames.length > 0
+      ? withTimeout(fetchFranchiseCandidates(supabase, franchiseNames), 5000, [])
+      : Promise.resolve([]);
+
     // Canonical game injection: fetch universally-expected games for the query's
     // mechanics/genres (e.g., Dominion for "deck building"). Ensures famous games
     // enter the candidate pool even if vector/tag/text search misses them.
     const canonicalSearchPromise = withTimeout(fetchCanonicalGames(supabase, body), 3000, []);
 
     // Relevance-first: NO unconditional rating pool. All sources are preference-aware.
-    const [vectorCandidates, textCandidates, tagCandidates, mechanicCandidates, designerCandidates, canonicalCandidates] = await Promise.all([
+    const [vectorCandidates, textCandidates, tagCandidates, mechanicCandidates, designerCandidates, canonicalCandidates, franchiseCandidates] = await Promise.all([
       withTimeout(fetchVectorCandidates(body, { limit: VECTOR_POOL_SIZE, columns: GAME_COLUMNS, supabaseClient: supabase }), 8000, []),
       body.freeText && body.freeText.trim().length >= 3
         ? withTimeout(fetchTextSearchCandidates(supabase, body.freeText), 5000, [])
@@ -301,13 +311,14 @@ export async function POST(request: NextRequest) {
       mechanicSearchPromise,
       designerSearchPromise,
       canonicalSearchPromise,
+      franchiseSearchPromise,
     ]);
 
-    // Deduplicate: canonical > designer > mechanic > vector > tag > text
+    // Deduplicate: franchise > canonical > designer > mechanic > vector > tag > text
     const seen = new Set<string>();
     let candidates: ReturnType<typeof rowToGame>[] = [];
 
-    for (const source of [canonicalCandidates, designerCandidates, mechanicCandidates, vectorCandidates, tagCandidates, textCandidates]) {
+    for (const source of [franchiseCandidates, canonicalCandidates, designerCandidates, mechanicCandidates, vectorCandidates, tagCandidates, textCandidates]) {
       for (const g of source) {
         if (!seen.has(g.id)) { candidates.push(g); seen.add(g.id); }
       }
@@ -353,7 +364,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log(`[Recommend] Relevance-first pool: ${canonicalCandidates.length} canonical + ${designerCandidates.length} designer + ${mechanicCandidates.length} mechanic + ${vectorCandidates.length} vector + ${tagCandidates.length} tag + ${textCandidates.length} text + ${expandedCount} expanded + ${popularityFallbackCount} popularity-fallback = ${candidates.length} unique`);
+    console.log(`[Recommend] Relevance-first pool: ${franchiseCandidates.length} franchise + ${canonicalCandidates.length} canonical + ${designerCandidates.length} designer + ${mechanicCandidates.length} mechanic + ${vectorCandidates.length} vector + ${tagCandidates.length} tag + ${textCandidates.length} text + ${expandedCount} expanded + ${popularityFallbackCount} popularity-fallback = ${candidates.length} unique`);
 
     // Progressive fallbacks (only if hybrid produced nothing)
     if (candidates.length === 0) {
@@ -647,10 +658,15 @@ function applyHardFilters(
   }
 
   // If filtering removed too many candidates, keep at least the ones that pass
-  // player count (the hardest constraint) and relax the others
+  // player count + game type (the hardest constraints) and relax the others.
+  // Game type is NEVER relaxed — if a user clicked "Board", they must only see board games.
   if (filtered.length < 5 && candidates.length >= 5) {
-    // Fall back to just player count filtering
     filtered = candidates.filter((g) => {
+      // Game type: inviolable — user explicitly chose this
+      if (prefs.gameTypes.length > 0 && !g.types.some((t) => prefs.gameTypes.includes(t))) {
+        return false;
+      }
+      // Player count: hard constraint
       if (!prefs.playerCount || (prefs.playerCount.min <= 1 && prefs.playerCount.max >= 10)) return true;
       if (!g.playerCount) return true;
       return g.playerCount.max >= prefs.playerCount.min &&
@@ -771,6 +787,37 @@ async function fetchCandidates(
 }
 
 /**
+ * Franchise/IP search: finds games whose title contains a franchise name.
+ * Uses ILIKE for substring matching -- catches "Resident Evil: The Board Game",
+ * "Resident Evil 2: The Board Game", etc. Ordered by popularity so well-known
+ * entries surface first.
+ */
+async function fetchFranchiseCandidates(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+  franchises: string[],
+) {
+  const results: GameRow[] = [];
+  const seen = new Set<string>();
+
+  for (const franchise of franchises.slice(0, 3)) {
+    const { data } = await supabase
+      .from('games')
+      .select(GAME_COLUMNS)
+      .ilike('name', `%${franchise}%`)
+      .eq('is_expansion', false)
+      .order('rating_count', { ascending: false, nullsFirst: false })
+      .limit(20);
+
+    for (const row of (data ?? []) as GameRow[]) {
+      if (!seen.has(row.id)) { results.push(row); seen.add(row.id); }
+    }
+  }
+
+  return results.map(rowToGame);
+}
+
+/**
  * Supplemental text search: finds games matching free text keywords
  * in name, categories, mechanics, or themes. Returns up to 50 results.
  */
@@ -779,11 +826,11 @@ async function fetchTextSearchCandidates(
   supabase: any,
   freeText: string,
 ) {
-  // Two parallel searches: game name (exact) + description keywords (fuzzy)
+  // Three parallel searches: game name (full-text) + name (substring) + description keywords
   const trimmed = freeText.trim();
 
-  const [nameResults, descResults] = await Promise.all([
-    // Full-text search on game name — sort by popularity to surface well-known games
+  const [nameResults, nameIlikeResults, descResults] = await Promise.all([
+    // Full-text search on game name -- sort by popularity to surface well-known games
     supabase
       .from('games')
       .select(GAME_COLUMNS)
@@ -791,6 +838,15 @@ async function fetchTextSearchCandidates(
       .eq('is_expansion', false)
       .order('rating_count', { ascending: false, nullsFirst: false })
       .limit(30),
+    // Substring name search -- catches titles like "Resident Evil: The Board Game"
+    // when full-text search tokenization fails to match multi-word franchise names
+    supabase
+      .from('games')
+      .select(GAME_COLUMNS)
+      .ilike('name', `%${trimmed}%`)
+      .eq('is_expansion', false)
+      .order('rating_count', { ascending: false, nullsFirst: false })
+      .limit(20),
     // Description keyword search (top 2 meaningful words)
     fetchDescriptionMatches(supabase, trimmed),
   ]);
@@ -799,6 +855,9 @@ async function fetchTextSearchCandidates(
   const seen = new Set<string>();
 
   for (const row of (nameResults.data ?? []) as GameRow[]) {
+    if (!seen.has(row.id)) { results.push(row); seen.add(row.id); }
+  }
+  for (const row of (nameIlikeResults.data ?? []) as GameRow[]) {
     if (!seen.has(row.id)) { results.push(row); seen.add(row.id); }
   }
   for (const row of descResults) {

@@ -8,6 +8,7 @@
 
 import type OpenAI from 'openai';
 import type { EditResult } from './types';
+import { MODELS } from '@/lib/llm/models';
 
 // ── Blocklists ──────────────────────────────────────────────
 
@@ -171,7 +172,7 @@ async function llmFixIssues(
   if (issues.length === 0) return content;
 
   const response = await openai.chat.completions.create({
-    model: 'gpt-4o-mini',
+    model: MODELS.blogAnalysis,
     temperature: 0.3,
     max_tokens: 4000,
     messages: [{

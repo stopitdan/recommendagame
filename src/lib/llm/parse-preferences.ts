@@ -1,16 +1,17 @@
 /**
- * LLM-powered preference extraction using OpenAI GPT-4o-mini.
+ * LLM-powered preference extraction using OpenAI.
  *
  * Takes free-form user text and returns structured game preferences.
  * Uses JSON mode for guaranteed valid JSON. Temperature=0 for
  * deterministic outputs (important for caching).
  *
- * Cost: ~$0.0001 per call with GPT-4o-mini.
+ * Model configured in ./models.ts.
  */
 
 import OpenAI from 'openai';
 import type { ParsedPreferences } from './types';
 import { EMPTY_PARSED } from './types';
+import { MODELS } from './models';
 
 const SYSTEM_PROMPT = `You are a game recommendation assistant. The user will describe what kind of game they want in free text. Extract structured preferences from their description.
 
@@ -24,9 +25,18 @@ Return a JSON object with these fields:
 - "timePresets": array from ONLY these values: "quick" (under 15min), "short" (15-30min), "medium" (30-60min), "long" (1-2hr), "epic" (2+hr). Empty array if not mentioned.
 - "maxMinutes": if the user specifies an exact time limit in minutes, extract the number. "under 30 minutes" = 30, "about an hour" = 60, "quick 20 minute game" = 20. null if not mentioned.
 - "timeStrictness": how strict is the time limit? "hard" if they say "under", "less than", "no more than", "no longer than", "max", "within". "soft" if they say "about", "around", "roughly", "approximately", "ish". null if not mentioned or if no specific time given.
-- "similarTo": array of specific game names the user mentioned or compared to (e.g. "Catan", "Slay the Spire", "Wordle", "Hollow Knight"). Empty array if none. Include both board AND video games.
+- "similarTo": array of specific game names the user wants ALTERNATIVES to. Use when the user says "like X", "similar to X", "something like X", or explicitly wants alternatives. Empty array if none.
+- "franchiseSearch": array of franchise/IP names the user wants games FROM (not alternatives). Use when the user types a franchise or IP name without "like" or "similar to" -- they want THAT franchise's actual games. Examples: "Resident Evil" -> franchiseSearch: ["Resident Evil"]. "Star Wars board game" -> franchiseSearch: ["Star Wars"]. "Marvel" -> franchiseSearch: ["Marvel"]. Empty array if no franchise/IP search.
 - "keywords": array of other relevant keywords that don't fit above but help find games (e.g. "replayable", "solo", "legacy", "campaign", "miniatures", "pixel art", "hand-drawn", "atmospheric", "procedural", "permadeath", "base-building", "exploration", "loot").
 - "designers": array of game designer/author names the user mentioned (e.g. "Uwe Rosenberg", "Stefan Feld", "Vlaada Chvátil", "Reiner Knizia", "Hideo Kojima"). Empty array if no designers mentioned. Use full names.
+
+FRANCHISE vs SIMILAR-TO: This distinction is critical.
+- If the user just types a franchise/IP name (e.g., "Resident Evil", "Star Wars", "Pokemon", "Lord of the Rings"), put it in franchiseSearch -- they want games in that franchise.
+- Only use similarTo when the user says "like X", "similar to X", "something like X", "games like X", or explicitly wants alternatives to a specific game.
+- "Resident Evil" -> franchiseSearch: ["Resident Evil"] (wants RE games)
+- "something like Resident Evil" -> similarTo: ["Resident Evil"] (wants horror/survival alternatives)
+- "Star Wars deck building" -> franchiseSearch: ["Star Wars"], mechanics: ["Deck Building"]
+- "a game like Catan" -> similarTo: ["Catan"] (wants alternatives)
 
 IMPORTANT RULES FOR GENRE EXTRACTION:
 - Extract genres that the user mentions OR that are clearly implied by context. "Date night" implies Cooperative and Cozy. "Zombie survival" implies Horror and Survival. These contextual inferences are GOOD.
@@ -37,6 +47,9 @@ IMPORTANT RULES FOR GENRE EXTRACTION:
 Extract preferences from the user's text. Examples:
 - "something my kids would enjoy" → genres: ["Family"], moods: ["chill"], complexity: {min:1, max:2}
 - "Something like Catan" → similarTo: ["Catan"], genres: ["Strategy"], mechanics: ["Trading", "Resource Management"]
+- "Resident Evil" → franchiseSearch: ["Resident Evil"], genres: ["Horror", "Survival"]
+- "Star Wars board game" → franchiseSearch: ["Star Wars"], genres: ["Sci-Fi", "Space"], gameTypes: ["board"]
+- "Pokemon" → franchiseSearch: ["Pokemon"], genres: ["Adventure", "RPG"]
 - "a quick party game for 6 people" → gameTypes: ["board"], genres: ["Party"], timePresets: ["quick"], playerCount: {min:6, max:6}, moods: ["social"]
 - "a metroidvania about bugs" → gameTypes: ["video"], genres: ["Metroidvania", "Platformer"], keywords: ["bugs", "insects", "exploration"], similarTo: ["Hollow Knight"]
 - "something chill to play alone on the couch" → moods: ["chill"], playerCount: {min:1, max:1}, keywords: ["solo", "relaxing"]
@@ -112,7 +125,7 @@ export async function parsePreferencesWithLLM(
 
   try {
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o',
+      model: MODELS.parse,
       temperature: 0,
       max_tokens: 600,
       response_format: { type: 'json_object' },
@@ -153,6 +166,7 @@ function validateAndClean(raw: Record<string, unknown>, originalText: string): P
     playerCount: validateRange(raw.playerCount, 1, 99),
     timePresets: filterArray(raw.timePresets, (v) => VALID_TIME_PRESETS.has(v)),
     similarTo: toStringArray(raw.similarTo),
+    franchiseSearch: toStringArray(raw.franchiseSearch),
     keywords: toStringArray(raw.keywords),
     excludedGenres: toStringArray(raw.excludedGenres),
     excludedMechanics: toStringArray(raw.excludedMechanics),

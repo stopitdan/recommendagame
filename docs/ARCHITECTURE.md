@@ -22,11 +22,11 @@ graph TB
     end
 
     subgraph AI["AI Services (OpenAI)"]
-        LLM_PARSE["GPT-4o-mini Parser<br/>Extracts structured preferences"]
-        LLM_RERANK["GPT-4o Reranker<br/>Top 80 in, top 25 out"]
-        LLM_EXPAND["GPT-4o-mini Expander<br/>Creative search terms"]
+        LLM_PARSE["GPT-4.1-nano Parser<br/>Extracts structured preferences"]
+        LLM_RERANK["GPT-4.1-mini Reranker<br/>Top 80 in, top 25 out"]
+        LLM_EXPAND["GPT-4.1-nano Expander<br/>Creative search terms"]
         EMBED["text-embedding-3-small<br/>1536-dim vectors<br/>100% catalog coverage"]
-        LLM_ENRICH["GPT-4o-mini Enrichment<br/>Batch: moods, vibes, audiences"]
+        LLM_ENRICH["GPT-4.1-nano Enrichment<br/>Batch: moods, vibes, audiences"]
     end
 
     subgraph DB["Supabase PostgreSQL"]
@@ -138,6 +138,14 @@ flowchart TD
     S4 --> FALLBACK --> FILT --> AW --> S_ALL
     S_ALL --> SIM --> CF --> REJ --> RERANK --> DIV --> OUTPUT
 ```
+
+### Candidate Deduplication
+
+Deduplication happens **per-request, in-memory** -- not as a batch or offline process. This is necessary because the 7+ parallel candidate sources (franchise, canonical, designer, mechanic, vector, tag, text, LLM expansion) can each return the same game.
+
+- **How:** A `Set<string>` of game IDs merges candidates in priority order: franchise > canonical > designer > mechanic > vector > tag > text > expanded. The first source to contribute a game "wins" its priority slot.
+- **Cost:** O(1) per game via `Set.has()`. With ~600 total candidates across all sources, dedup takes microseconds -- negligible compared to DB queries and LLM calls.
+- **Why per-request?** Candidate composition changes with every query. A popular strategy game like Catan might appear in vector results, tag results, AND text results for one query but only in vector results for another.
 
 ---
 

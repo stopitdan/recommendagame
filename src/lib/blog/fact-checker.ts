@@ -8,6 +8,7 @@
 
 import type OpenAI from 'openai';
 import type { BlogDraft, BlogGameRow, FactCheckResult, FactError } from './types';
+import { MODELS } from '@/lib/llm/models';
 
 // ── Check 1: Database Accuracy (pure code) ──────────────────
 
@@ -130,7 +131,7 @@ async function verifyContentClaims(
   if (gameData.length === 0) return [];
 
   const response = await openai.chat.completions.create({
-    model: 'gpt-4o-mini',
+    model: MODELS.blogAnalysis,
     temperature: 0.2,
     max_tokens: 1500,
     response_format: { type: 'json_object' },
@@ -188,7 +189,7 @@ async function applyCorrections(
     .join('\n');
 
   const response = await openai.chat.completions.create({
-    model: 'gpt-4o-mini',
+    model: MODELS.blogAnalysis,
     temperature: 0.2,
     max_tokens: 4000,
     messages: [{

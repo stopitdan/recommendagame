@@ -12,6 +12,7 @@
  */
 
 import OpenAI from 'openai';
+import { MODELS } from '@/lib/llm/models';
 
 export interface ExpandedQuery {
   /** Additional search terms to use for text/description search */
@@ -43,7 +44,7 @@ export async function expandQuery(freeText: string): Promise<ExpandedQuery> {
     const openai = new OpenAI({ apiKey, timeout: 5000 });
 
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: MODELS.expand,
       temperature: 0.3,
       max_tokens: 300,
       response_format: { type: 'json_object' },

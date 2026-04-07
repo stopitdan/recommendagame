@@ -28,8 +28,11 @@ export interface ParsedPreferences {
   /** Time presets: "quick", "short", "medium", "long", "epic" */
   timePresets: string[];
 
-  /** Specific game names the user mentioned or compared to */
+  /** Specific game names the user mentioned or compared to (wants alternatives) */
   similarTo: string[];
+
+  /** Franchise/IP names the user wants games FROM (not alternatives) */
+  franchiseSearch: string[];
 
   /** Additional keywords that don't fit other categories */
   keywords: string[];
@@ -90,6 +93,7 @@ export const EMPTY_PARSED: ParsedPreferences = {
   playerCount: null,
   timePresets: [],
   similarTo: [],
+  franchiseSearch: [],
   keywords: [],
   excludedGenres: [],
   excludedMechanics: [],

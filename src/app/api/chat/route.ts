@@ -13,6 +13,7 @@ import OpenAI from 'openai';
 import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 import { createClient } from '@supabase/supabase-js';
 import type { GameRow } from '@/types/supabase';
+import { MODELS } from '@/lib/llm/models';
 import { rowToGame, GAME_SELECT_COLUMNS } from '@/lib/supabase/games';
 import { SOMMELIER_SYSTEM_PROMPT } from '@/lib/chat/system-prompt';
 import { CHAT_TOOLS } from '@/lib/chat/tools';
@@ -213,7 +214,7 @@ export async function POST(request: NextRequest) {
 
     // First call -- may return tool calls
     let completion = await openai.chat.completions.create({
-      model: 'gpt-4o',
+      model: MODELS.chat,
       temperature: 0.7,
       max_tokens: 800,
       tools: CHAT_TOOLS,
@@ -264,7 +265,7 @@ export async function POST(request: NextRequest) {
 
       // Get the next response
       completion = await openai.chat.completions.create({
-        model: 'gpt-4o',
+        model: MODELS.chat,
         temperature: 0.7,
         max_tokens: 800,
         tools: CHAT_TOOLS,

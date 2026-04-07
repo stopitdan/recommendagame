@@ -104,24 +104,33 @@ export default function QuestionnaireFlow() {
       }
     }
 
-    setState((prev) => ({
-      ...prev,
-      // Reset to INITIAL_STATE defaults when LLM doesn't specify a value,
-      // so stale slider/chip state from a previous search doesn't carry over.
-      gameTypes: parsed.gameTypes.length > 0
+    setState((prev) => {
+      // User's explicit chip selection is a 100% hard filter — it ALWAYS wins
+      // over LLM inference. Only use LLM types if user didn't click a chip.
+      const userClickedType = prev.gameTypes.length > 0;
+      const llmTypes = parsed.gameTypes.length > 0
         ? parsed.gameTypes.filter((t) => VALID_GAME_TYPES.has(t)) as GameType[]
-        : INITIAL_STATE.gameTypes,
-      playerCount: parsed.playerCount ?? INITIAL_STATE.playerCount,
-      timePresets: parsed.timePresets.length > 0
-        ? parsed.timePresets.filter((t) => VALID_TIME_PRESETS.has(t)) as TimePreset[]
-        : INITIAL_STATE.timePresets,
-      complexity: parsed.complexity ?? INITIAL_STATE.complexity,
-      genres: matchedGenres.size > 0 ? [...matchedGenres] : INITIAL_STATE.genres,
-      moods: parsed.moods.length > 0
-        ? parsed.moods.filter((m) => VALID_MOODS.has(m))
-        : INITIAL_STATE.moods,
-      llmParsed: parsed,
-    }));
+        : INITIAL_STATE.gameTypes;
+      const userPickedPlayers = prev.playerCount.min !== INITIAL_STATE.playerCount.min
+        || prev.playerCount.max !== INITIAL_STATE.playerCount.max;
+
+      return {
+        ...prev,
+        // Reset to INITIAL_STATE defaults when LLM doesn't specify a value,
+        // so stale slider/chip state from a previous search doesn't carry over.
+        gameTypes: userClickedType ? prev.gameTypes : llmTypes,
+        playerCount: userPickedPlayers ? prev.playerCount : INITIAL_STATE.playerCount,
+        timePresets: parsed.timePresets.length > 0
+          ? parsed.timePresets.filter((t) => VALID_TIME_PRESETS.has(t)) as TimePreset[]
+          : INITIAL_STATE.timePresets,
+        complexity: parsed.complexity ?? INITIAL_STATE.complexity,
+        genres: matchedGenres.size > 0 ? [...matchedGenres] : INITIAL_STATE.genres,
+        moods: parsed.moods.length > 0
+          ? parsed.moods.filter((m) => VALID_MOODS.has(m))
+          : INITIAL_STATE.moods,
+        llmParsed: parsed,
+      };
+    });
   }
 
   /**
@@ -200,11 +209,19 @@ export default function QuestionnaireFlow() {
           // from a previous search should not carry over and constrain results.
           const parsedTypes = (data.parsed.gameTypes ?? []).filter((t: string) => VALID_GAME_TYPES.has(t)) as GameType[];
           const parsedTime = (data.parsed.timePresets ?? []).filter((t: string) => VALID_TIME_PRESETS.has(t)) as TimePreset[];
+          // User's explicit chip selection is a 100% hard filter — it ALWAYS wins
+          // over LLM inference. E.g. clicking "Board" then typing "resident evil"
+          // must return only board games, even though the LLM infers "video".
+          const userClickedType = state.gameTypes.length > 0;
+          // User explicitly picked a player count if it differs from INITIAL_STATE
+          // (either a specific number like {3,3} or the deselected {1,10}).
+          const userPickedPlayers = state.playerCount.min !== INITIAL_STATE.playerCount.min
+            || state.playerCount.max !== INITIAL_STATE.playerCount.max;
           const merged = {
             ...INITIAL_STATE,
             freeText: state.freeText,
-            gameTypes: parsedTypes.length > 0 ? parsedTypes : INITIAL_STATE.gameTypes,
-            playerCount: data.parsed.playerCount ?? INITIAL_STATE.playerCount,
+            gameTypes: userClickedType ? state.gameTypes : (parsedTypes.length > 0 ? parsedTypes : INITIAL_STATE.gameTypes),
+            playerCount: userPickedPlayers ? state.playerCount : INITIAL_STATE.playerCount,
             timePresets: parsedTime.length > 0 ? parsedTime : INITIAL_STATE.timePresets,
             complexity: data.parsed.complexity ?? INITIAL_STATE.complexity,
             genres: data.parsed.genres?.length > 0 ? data.parsed.genres : INITIAL_STATE.genres,
