@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
   const type = searchParams.get('type');
   const textQuery = searchParams.get('q');
   const popularity = searchParams.get('popularity') ?? 'popular';
-  const sort = searchParams.get('sort') ?? 'rating';
+  const sort = searchParams.get('sort') ?? 'popularity';
   const limit = Math.min(parseInt(searchParams.get('limit') ?? '40', 10), 100);
   const offset = parseInt(searchParams.get('offset') ?? '0', 10);
 
@@ -146,6 +146,73 @@ export async function GET(request: NextRequest) {
     query = query.lt('rating_count', 500).gt('rating', 6);
   }
 
+  // ── Type-diverse interleaving ────────────────────────────────
+  // When no type filter is active and there's no text search, fetch
+  // top games per type separately and interleave for a balanced mix.
+  const shouldInterleave = !type && !textQuery;
+
+  if (shouldInterleave) {
+    const gameTypes = ['board', 'video', 'word', 'party'];
+    // Fetch more per type than needed so we have enough after interleaving
+    const perType = Math.ceil(limit / gameTypes.length) + 4;
+
+    function applySort(q: typeof query) {
+      switch (sort) {
+        case 'name': return q.order('name', { ascending: true });
+        case 'year': return q.order('year_published', { ascending: false, nullsFirst: false });
+        case 'rating': return q.order('rating', { ascending: false, nullsFirst: false });
+        case 'popularity':
+        default: return q.order('rating_count', { ascending: false, nullsFirst: false });
+      }
+    }
+
+    const bucketResults = await Promise.all(
+      gameTypes.map((t) => {
+        let typeQuery = query.contains('types', [t]);
+        typeQuery = applySort(typeQuery);
+        return typeQuery.range(0, perType - 1).then(({ data: d }) => ({
+          type: t,
+          games: (d ?? []) as GameRow[],
+        }));
+      }),
+    );
+
+    // Round-robin interleave: take one from each type in rotation
+    const interleaved: GameRow[] = [];
+    const cursors = Object.fromEntries(gameTypes.map((t) => [t, 0]));
+    const bucketMap = Object.fromEntries(bucketResults.map((b) => [b.type, b.games]));
+
+    while (interleaved.length < offset + limit) {
+      let added = false;
+      for (const t of gameTypes) {
+        const bucket = bucketMap[t];
+        if (cursors[t] < bucket.length) {
+          interleaved.push(bucket[cursors[t]]);
+          cursors[t]++;
+          added = true;
+        }
+      }
+      if (!added) break; // All buckets exhausted
+    }
+
+    const paged = interleaved.slice(offset, offset + limit);
+    // Estimate total from all buckets
+    const totalEstimate = bucketResults.reduce((sum, b) => sum + b.games.length, 0);
+
+    const response = {
+      games: paged.map(rowToGame),
+      total: totalEstimate,
+      limit,
+      offset,
+      filters: { category, mechanic, theme, platform, type, q: textQuery, popularity, sort },
+    };
+
+    redisCache.set(browseKey, response, 900);
+    return NextResponse.json(response);
+  }
+
+  // ── Standard single-query path (type filter active or text search) ──
+
   // Sorting
   switch (sort) {
     case 'name':
@@ -181,8 +248,8 @@ export async function GET(request: NextRequest) {
     ...(fuzzyMatch && correctedQuery && { fuzzyMatch: true, correctedQuery }),
   };
 
-  // Cache for 5 minutes (browse data changes slowly)
-  redisCache.set(browseKey, response, 900); // 15 min — browse data changes slowly
+  // Cache for 15 minutes — browse data changes slowly
+  redisCache.set(browseKey, response, 900);
 
   return NextResponse.json(response);
 }

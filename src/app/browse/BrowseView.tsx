@@ -61,7 +61,7 @@ const DEFAULT_FILTERS: Filters = {
   designers: [],
   publishers: [],
   q: '',
-  sort: 'rating',
+  sort: 'popularity',
   popularity: 'popular',
   playerCount: [1, 10],
   playTime: [0, 300],
