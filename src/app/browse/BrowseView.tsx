@@ -159,7 +159,15 @@ export default function BrowseView() {
       const res = await fetch(`/api/games/browse?${params.toString()}`);
       if (!res.ok) return;
       const data = await res.json();
-      const newGames = data.games ?? [];
+      const rawGames: Game[] = data.games ?? [];
+      // Dedupe by ID — the interleaving API path can return the same game
+      // from multiple type buckets; cached responses may also carry dupes.
+      const seen = new Set<string>();
+      const newGames = rawGames.filter((g) => {
+        if (seen.has(g.id)) return false;
+        seen.add(g.id);
+        return true;
+      });
       setGames(newGames);
       setTotal(data.total ?? 0);
       setFuzzyHint(data.fuzzyMatch ? data.correctedQuery : null);

@@ -743,26 +743,6 @@ export default function ResultsView() {
               reasons={game._reasons}
               onClickTrack={(gameId, pos) => track('result_click', { gameId, payload: { position: pos, score: game._score } })}
             />
-            {/* Match score badge */}
-            {game._score != null && (
-              <Box sx={{ px: 2, pb: 0.5, mt: -0.5 }}>
-                <Chip
-                  label={`${Math.round(game._score * 100)}% match`}
-                  size="small"
-                  sx={{
-                    bgcolor: game._score >= 0.7 ? 'success.main'
-                      : game._score >= 0.4 ? 'warning.main'
-                      : 'text.disabled',
-                    color: game._score >= 0.7 ? '#fff'
-                      : game._score >= 0.4 ? 'rgba(0,0,0,0.87)'
-                      : '#fff',
-                    fontWeight: 700,
-                    fontSize: '0.7rem',
-                    height: 22,
-                  }}
-                />
-              </Box>
-            )}
             {/* Inline feedback prompt after 5th result */}
             {i === 4 && (
               <Box sx={{ my: 2 }}>
