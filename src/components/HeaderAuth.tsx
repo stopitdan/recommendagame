@@ -12,7 +12,7 @@ import ListItemText from '@mui/material/ListItemText';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
-import { User, Heart, ClipboardList, Settings, LogOut, Package } from 'lucide-react';
+import { User, Heart, ClipboardList, Settings, LogOut, Package, Shield } from 'lucide-react';
 import { logout } from '@/app/actions/auth';
 
 export interface HeaderAuthProps {
@@ -126,6 +126,16 @@ export default function HeaderAuth({ isLoggedIn, email, displayName }: HeaderAut
             <ListItemIcon sx={{ minWidth: 32 }}><Settings size={18} /></ListItemIcon>
             <ListItemText>Settings</ListItemText>
           </MenuItem>
+
+          {email === 'danjwiegand@gmail.com' && (
+            <>
+              <Divider />
+              <MenuItem onClick={() => router.push('/admin')}>
+                <ListItemIcon sx={{ minWidth: 32 }}><Shield size={18} /></ListItemIcon>
+                <ListItemText>Admin</ListItemText>
+              </MenuItem>
+            </>
+          )}
 
           <Divider />
 

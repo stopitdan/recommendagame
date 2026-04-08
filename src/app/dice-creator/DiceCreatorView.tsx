@@ -28,6 +28,8 @@ import { DICE_SKINS, type DiceSkin } from '@/lib/dice-skins';
 import { resolveCustomSkin, validateSkinConfig } from '@/lib/custom-dice-utils';
 import { getCachedUser } from '@/lib/supabase/client';
 import JsonLd from '@/components/JsonLd';
+import Chip from '@mui/material/Chip';
+import { type DiceType, ALL_DICE_TYPES } from '@/lib/dice-geometries';
 
 const PhysicsDice = dynamic(() => import('@/components/PhysicsDice'), {
   ssr: false,
@@ -243,6 +245,7 @@ export default function DiceCreatorView() {
   const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
   const [saving, setSaving] = useState(false);
   const [spinning, setSpinning] = useState(false);
+  const [previewDiceType, setPreviewDiceType] = useState<DiceType>('d20');
   const [snackbar, setSnackbar] = useState<{ message: string; severity: 'success' | 'error' } | null>(null);
 
   // Load existing skin if ?id=xxx is present
@@ -841,14 +844,29 @@ export default function DiceCreatorView() {
             borderColor: 'divider',
             bgcolor: 'background.paper',
           }}>
+            {/* Dice type preview switcher */}
+            <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', justifyContent: 'center', pt: 2, px: 1 }}>
+              {ALL_DICE_TYPES.map((dt) => (
+                <Chip
+                  key={dt}
+                  label={dt.toUpperCase()}
+                  onClick={() => setPreviewDiceType(dt)}
+                  color={previewDiceType === dt ? 'secondary' : 'default'}
+                  variant={previewDiceType === dt ? 'filled' : 'outlined'}
+                  size="small"
+                  sx={{ fontWeight: 700, fontSize: '0.7rem', minWidth: 40 }}
+                />
+              ))}
+            </Box>
             <Box
               onClick={() => { if (!spinning) setSpinning(true); }}
-              sx={{ cursor: 'pointer', pt: 2 }}
+              sx={{ cursor: 'pointer', pt: 1 }}
             >
               <PhysicsDice
                 rolling={spinning}
                 onSettled={() => setSpinning(false)}
                 skin={previewSkin}
+                diceType={previewDiceType}
               />
             </Box>
             <Box sx={{ p: 2, textAlign: 'center', position: 'relative', bottom: 40 }}>

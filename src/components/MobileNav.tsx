@@ -13,7 +13,7 @@ import ListItemText from '@mui/material/ListItemText';
 import Typography from '@mui/material/Typography';
 import {
   Crosshair, Search, Dice5, Palette, Trophy, BookOpen, Wine, Map,
-  User, Heart, ClipboardList, Settings, Package,
+  User, Heart, ClipboardList, Settings, Package, Shield,
   LogIn, Sparkles, LogOut, Sun, Moon,
 } from 'lucide-react';
 import { logout } from '@/app/actions/auth';
@@ -42,6 +42,8 @@ const USER_ITEMS: { label: string; href: string; icon: ReactNode }[] = [
   { label: 'Saved Presets', href: '/presets', icon: <ClipboardList size={18} /> },
   { label: 'Settings', href: '/settings', icon: <Settings size={18} /> },
 ];
+
+const ADMIN_EMAIL = 'danjwiegand@gmail.com';
 
 export default function MobileNav({ isLoggedIn, email, displayName }: MobileNavProps) {
   const [open, setOpen] = useState(false);
@@ -143,6 +145,26 @@ export default function MobileNav({ isLoggedIn, email, displayName }: MobileNavP
                 </ListItemButton>
               ))}
             </List>
+
+            {email === ADMIN_EMAIL && (
+              <>
+                <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)' }} />
+                <List sx={{ px: 1, py: 1 }}>
+                  <ListItemButton
+                    onClick={() => navigate('/admin')}
+                    selected={pathname.startsWith('/admin')}
+                    sx={{
+                      borderRadius: 2,
+                      '&.Mui-selected': { bgcolor: 'rgba(239, 68, 68, 0.2)' },
+                      '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' },
+                    }}
+                  >
+                    <ListItemIcon sx={{ minWidth: 36, color: 'inherit' }}><Shield size={18} /></ListItemIcon>
+                    <ListItemText primary="Admin" primaryTypographyProps={{ fontWeight: pathname.startsWith('/admin') ? 600 : 400, color: 'white' }} />
+                  </ListItemButton>
+                </List>
+              </>
+            )}
           </>
         )}
 

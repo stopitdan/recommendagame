@@ -11,7 +11,7 @@ import { createD10Geometry } from './d10-geometry';
 
 // ─── Types ──────────────────────────────────────────────────
 
-export type DiceType = 'd4' | 'd6' | 'd8' | 'd10' | 'd12' | 'd20' | 'd100';
+export type DiceType = 'd4' | 'd6' | 'd8' | 'd10' | 'd12' | 'd20';
 
 export interface FaceData {
   center: THREE.Vector3;
@@ -166,15 +166,6 @@ export const DICE_CONFIGS: Record<DiceType, DiceGeometryConfig> = {
     labelConfig: { quadSize: 0.38, liftMultiplier: 1.02, fontSizeMultiplier: 1.0 },
     radius: 0.85,
   },
-  d100: {
-    type: 'd100',
-    faceCount: 10,
-    trisPerFace: 2,
-    createGeometry: createD10,
-    faceLabels: ['00', '10', '20', '30', '40', '50', '60', '70', '80', '90'],
-    labelConfig: { quadSize: 0.35, liftMultiplier: 1.03, fontSizeMultiplier: 0.85 },
-    radius: 0.85,
-  },
 };
 
 // ─── Cached Face Data ───────────────────────────────────────
@@ -208,7 +199,7 @@ export function getInitialQuat(type: DiceType, cameraDir: THREE.Vector3): THREE.
 /**
  * All available dice types in display order.
  */
-export const ALL_DICE_TYPES: DiceType[] = ['d4', 'd6', 'd8', 'd10', 'd12', 'd20', 'd100'];
+export const ALL_DICE_TYPES: DiceType[] = ['d4', 'd6', 'd8', 'd10', 'd12', 'd20'];
 
 /**
  * Get the maximum numeric value for a dice type.

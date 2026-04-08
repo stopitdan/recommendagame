@@ -303,11 +303,6 @@ export default function RandomGameView() {
       if (value === maxLabel) unlock('max_roll');
     }
 
-    // D100 special: rolled 00
-    if (diceType === 'd100' && value === '00') {
-      unlock('percentile_100');
-    }
-
     // Lucky Streak: 15+ three times in a row (D20 only makes sense)
     const h = rollHistory.current;
     if (diceType === 'd20' && h.length >= 3) {
@@ -533,9 +528,7 @@ export default function RandomGameView() {
                 </Box>
               ) : (
                 <Typography variant="h5" fontWeight={700} sx={{ color: 'secondary.main' }}>
-                  {diceType === 'd20'
-                    ? `You rolled ${diceValue === 8 || diceValue === 11 || diceValue === 18 ? 'an' : 'a'} ${diceValue}!`
-                    : `${diceType.toUpperCase()}: ${diceValue}!`}
+                  You rolled {diceValue === 8 || diceValue === 11 || diceValue === 18 ? 'an' : 'a'} {diceValue}!
                 </Typography>
               )}
             </motion.div>

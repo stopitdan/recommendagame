@@ -161,13 +161,6 @@ export const ACHIEVEMENTS: Achievement[] = [
     rarity: 'uncommon',
   },
   {
-    id: 'percentile_100',
-    name: 'One in a Hundred',
-    emoji: '💯',
-    description: 'Rolled 00 on the D100 percentile die',
-    rarity: 'rare',
-  },
-  {
     id: 'full_set_roll',
     name: 'Full Set',
     emoji: '🧰',
