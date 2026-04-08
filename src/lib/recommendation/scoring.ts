@@ -1188,12 +1188,6 @@ function generateReasons(
 ): string[] {
   const reasons: string[] = [];
 
-  // Type match
-  if (breakdown.typeMatch >= 0.8 && prefs.gameTypes.length > 0) {
-    const matchedType = prefs.gameTypes.find((t) => game.types.includes(t as Game['types'][number]));
-    if (matchedType) reasons.push(`It's a ${matchedType} game, just what you asked for`);
-  }
-
   // Player count
   if (breakdown.playerCountFit >= 0.8 && game.playerCount) {
     const { min, max, recommended } = game.playerCount;

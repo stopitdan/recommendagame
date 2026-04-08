@@ -164,8 +164,10 @@ export async function GET(request: NextRequest) {
       }),
     );
 
-    // Round-robin interleave: take one from each type in rotation
+    // Round-robin interleave: take one from each type in rotation,
+    // skipping duplicates (a game with types ['board','party'] appears in both buckets).
     const interleaved: GameRow[] = [];
+    const seen = new Set<string>();
     const cursors = Object.fromEntries(gameTypes.map((t) => [t, 0]));
     const bucketMap = Object.fromEntries(bucketResults.map((b) => [b.type, b.games]));
 
@@ -173,10 +175,15 @@ export async function GET(request: NextRequest) {
       let added = false;
       for (const t of gameTypes) {
         const bucket = bucketMap[t];
-        if (cursors[t] < bucket.length) {
-          interleaved.push(bucket[cursors[t]]);
+        while (cursors[t] < bucket.length) {
+          const row = bucket[cursors[t]];
           cursors[t]++;
-          added = true;
+          if (!seen.has(row.id)) {
+            seen.add(row.id);
+            interleaved.push(row);
+            added = true;
+            break;
+          }
         }
       }
       if (!added) break;

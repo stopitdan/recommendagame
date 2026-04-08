@@ -506,17 +506,16 @@ describe('reason generation', () => {
     expect(result.reasons.length).toBeLessThanOrEqual(3);
   });
 
-  it('includes type match reason for matching type', () => {
+  it('does not include type match reason (removed as redundant with badge)', () => {
     const result = scoreGame(
       makeGame({ types: ['board'] }),
       makePrefs({ gameTypes: ['board'] }),
     );
-    expect(result.reasons.some((r) => r.includes('board'))).toBe(true);
+    expect(result.reasons.every((r) => !r.includes('just what you asked for'))).toBe(true);
   });
 
   it('includes rating reason for highly-rated games with no other matches', () => {
-    // Use types that DON'T match prefs so typeMatch reason doesn't fire,
-    // and empty categories/mechanics/themes so the fallback triggers
+    // Empty categories/mechanics/themes so the fallback triggers
     const result = scoreGame(
       makeGame({
         rating: 9.2,

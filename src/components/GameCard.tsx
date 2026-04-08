@@ -137,7 +137,7 @@ export default function GameCard({ game, showFavorite = true, isFavorited = fals
           sx={{ width: { xs: '100%', sm: 140 }, height: { xs: 160, sm: 'auto' }, objectFit: 'cover' }}
         />
       )}
-      <CardContent sx={{ flex: 1 }}>
+      <CardContent sx={{ flex: 1, ...(!game.imageUrl && { pl: { sm: 6 } }) }}>
         <Stack spacing={1}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1 }}>
             <Typography

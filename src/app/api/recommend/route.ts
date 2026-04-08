@@ -747,13 +747,14 @@ async function fetchCandidates(
     .eq('is_expansion', false);
 
   // ── Quality floor (always applied) ──
+  // Local/curated games have no rating_count — exempt them from the floor.
   if (popularity === 'hidden-gems') {
     query = query.lt('rating_count', 2000);
-    query = query.gte('rating_count', 20);
+    query = query.or('rating_count.gte.20,source.eq.local');
     query = query.gte('rating', 7.0);
     query = query.or('rank_overall.is.null,rank_overall.gt.1000');
   } else {
-    query = query.gte('rating_count', 25);
+    query = query.or('rating_count.gte.25,source.eq.local');
   }
 
   // ── Player count: HARD constraint ──
@@ -1240,10 +1241,11 @@ async function fetchCandidatesNoType(
     .eq('is_expansion', false);
 
   // Soft quality floor (no hard NOT NULL filter — let unrated games through)
+  // Local/curated games have no rating_count — exempt them.
   if (popularity === 'popular') {
-    query = query.gte('rating_count', 10);
+    query = query.or('rating_count.gte.10,source.eq.local');
   } else {
-    query = query.gte('rating_count', 1);
+    query = query.or('rating_count.gte.1,source.eq.local');
   }
 
   // Player count only (no type filter)
