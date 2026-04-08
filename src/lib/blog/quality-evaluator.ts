@@ -91,7 +91,7 @@ Respond with JSON:
   return {
     scores,
     average: Math.round(average * 10) / 10,
-    passed: average >= 5.0,
+    passed: average >= 6.0,
     feedback,
   };
 }

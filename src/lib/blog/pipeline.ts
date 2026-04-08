@@ -2,13 +2,14 @@
  * Blog Post Generation Pipeline
  *
  * Orchestrates all stages:
- * 1. Topic selection
- * 2. Game fetching
- * 3. Draft generation (LLM)
- * 4. Triple fact-check
- * 5. Triple edit sequence
- * 6. Image processing
- * 7. Quality evaluation
+ * 1. Topic selection (slot-aware for 2x daily)
+ * 2. Game fetching (topic-aware constraints)
+ * 3. Recent posts query (for internal linking)
+ * 4. Draft generation (format-aware LLM)
+ * 5. Triple fact-check (+ game-type alignment)
+ * 6. Triple edit sequence
+ * 7. Image processing
+ * 8. Quality evaluation
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -25,33 +26,53 @@ import type { PipelineResult } from './types';
 export async function runBlogPipeline(
   supabase: SupabaseClient,
   openai: OpenAI,
+  slot = 0,
 ): Promise<PipelineResult> {
   // Stage 1: Pick topic
-  const { template, titleHint, topicIndex } = pickTopic();
-  console.log(`[Blog Pipeline] Topic: "${titleHint}"`);
+  const { template, titleHint, topicIndex } = pickTopic(undefined, slot);
+  const allowVideoGames = template.allowVideoGames ?? false;
+  const format = template.format ?? 'list';
+  console.log(`[Blog Pipeline] Topic #${topicIndex}: "${titleHint}" (format: ${format}, slot: ${slot})`);
 
   // Stage 2: Fetch games
-  const games = await fetchTopicGames(supabase, template, topicIndex);
+  const games = await fetchTopicGames(supabase, template, titleHint, allowVideoGames);
   console.log(`[Blog Pipeline] Fetched ${games.length} games`);
 
-  // Stage 3: Generate draft
+  // Stage 3: Fetch recent published posts for internal linking
+  const { data: recentPosts } = await supabase
+    .from('blog_posts')
+    .select('slug, title')
+    .eq('status', 'published')
+    .not('published_at', 'is', null)
+    .order('published_at', { ascending: false })
+    .limit(15);
+
+  // Stage 4: Generate draft
   const year = new Date().getFullYear();
-  const draft = await generateDraft(openai, titleHint, games, year);
+  const draft = await generateDraft(
+    openai,
+    titleHint,
+    games,
+    year,
+    format,
+    allowVideoGames,
+    recentPosts ?? [],
+  );
   console.log(`[Blog Pipeline] Draft generated: "${draft.title}" (${draft.gamesReferenced.length} games referenced)`);
 
-  // Stage 4: Triple fact-check
-  const factResult = await factCheck(openai, draft, games);
+  // Stage 5: Triple fact-check (with game-type alignment)
+  const factResult = await factCheck(openai, draft, games, allowVideoGames);
   console.log(`[Blog Pipeline] Fact-check: ${factResult.corrections.length} corrections${factResult.passed ? ' (passed)' : ' (fixed)'}`);
 
-  // Stage 5: Triple edit sequence
+  // Stage 6: Triple edit sequence
   const editResult = await editDraft(openai, factResult.content);
   console.log(`[Blog Pipeline] Edits: ${editResult.edits.length} changes`);
 
-  // Stage 6: Image processing
+  // Stage 7: Image processing
   const imageResult = await processImages(editResult.content, games);
   console.log(`[Blog Pipeline] Images: ${imageResult.imagesInjected} injected, ${imageResult.imageErrors.length} errors`);
 
-  // Stage 7: Quality evaluation
+  // Stage 8: Quality evaluation
   const qualityReport = await evaluateQuality(
     openai,
     imageResult.content,

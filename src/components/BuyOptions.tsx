@@ -9,6 +9,7 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { ShoppingCart, ExternalLink } from 'lucide-react';
 import type { Game } from '@/types/game';
+import { amazonUrl, targetUrl, walmartUrl, gamenerdzUrl } from '@/lib/affiliate-config';
 
 interface BuyOptionsProps {
   game: Game;
@@ -29,7 +30,7 @@ function getStoreLinks(game: Game): StoreLink[] {
   // Amazon affiliate -- always first
   links.push({
     label: 'Amazon',
-    url: `https://www.amazon.com/s?k=${name}&tag=boredgame-20`,
+    url: amazonUrl(game.name),
     primary: true,
   });
 
@@ -42,9 +43,9 @@ function getStoreLinks(game: Game): StoreLink[] {
     if (isBgg && game.sourceId) {
       links.push({ label: 'BGG Market', url: `https://boardgamegeek.com/boardgame/${game.sourceId}/marketplace` });
     }
-    links.push({ label: 'Target', url: `https://www.target.com/s?searchTerm=${name}` });
-    links.push({ label: 'Walmart', url: `https://www.walmart.com/search?q=${name}` });
-    links.push({ label: 'GameNerdz', url: `https://www.gamenerdz.com/catalogsearch/result/?q=${name}` });
+    links.push({ label: 'Target', url: targetUrl(game.name) });
+    links.push({ label: 'Walmart', url: walmartUrl(game.name) });
+    links.push({ label: 'GameNerdz', url: gamenerdzUrl(game.name) });
   }
 
   return links;

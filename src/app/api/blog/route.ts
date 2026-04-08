@@ -31,6 +31,7 @@ export async function GET(request: NextRequest) {
     .from('blog_posts')
     .select('id, slug, title, description, tags, published_at', { count: 'estimated' })
     .not('published_at', 'is', null)
+    .lte('published_at', new Date().toISOString())
     .order('published_at', { ascending: false })
     .range(offset, offset + limit - 1);
 

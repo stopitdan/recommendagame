@@ -73,6 +73,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={roboto.variable} suppressHydrationWarning>
       <head>
+        <meta name="impact-site-verification" content="e77dcc78-0eb4-40f9-85c4-2ff96bc7018d" />
         {/* Preconnect to external resources for faster loading */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

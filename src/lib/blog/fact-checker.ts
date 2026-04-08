@@ -10,6 +10,28 @@ import type OpenAI from 'openai';
 import type { BlogDraft, BlogGameRow, FactCheckResult, FactError } from './types';
 import { MODELS } from '@/lib/llm/models';
 
+// ── Check 0: Game Type Alignment (pure code) ────────────────
+
+function checkGameTypeAlignment(draft: BlogDraft, games: BlogGameRow[], allowVideoGames: boolean): FactError[] {
+  if (allowVideoGames) return []; // Crossover topics allow both types
+
+  const errors: FactError[] = [];
+  const gameMap = new Map(games.map((g) => [g.name.toLowerCase(), g]));
+
+  for (const ref of draft.gamesReferenced) {
+    const dbGame = gameMap.get(ref.name.toLowerCase());
+    if (dbGame && dbGame.source !== 'bgg') {
+      errors.push({
+        game: dbGame.name,
+        field: 'game type',
+        claimed: `video game (source: ${dbGame.source})`,
+        actual: 'Only board games (source: bgg) should appear in this topic',
+      });
+    }
+  }
+  return errors;
+}
+
 // ── Check 1: Database Accuracy (pure code) ──────────────────
 
 function checkDatabaseAccuracy(draft: BlogDraft, games: BlogGameRow[]): FactError[] {
@@ -215,8 +237,13 @@ export async function factCheck(
   openai: OpenAI,
   draft: BlogDraft,
   games: BlogGameRow[],
+  allowVideoGames = false,
 ): Promise<FactCheckResult> {
   const allErrors: FactError[] = [];
+
+  // Check 0: Game type alignment (code)
+  const typeErrors = checkGameTypeAlignment(draft, games, allowVideoGames);
+  allErrors.push(...typeErrors);
 
   // Check 1: Database accuracy (code)
   const dbErrors = checkDatabaseAccuracy(draft, games);

@@ -8,9 +8,18 @@
 
 import type { BlogGameRow, ImageResult } from './types';
 
-/** Resize BGG image URLs from __original to __imagepage (~250px wide) */
-function resizeBggUrl(url: string): string {
-  return url.replace('__original', '__imagepage');
+/** Resize image URLs for display in blog posts. */
+function resizeImageUrl(url: string): string {
+  // BGG images use __original / __imagepage convention
+  if (url.includes('cf.geekdo-images.com')) {
+    return url.replace('__original', '__imagepage');
+  }
+  // IGDB images use t_thumb, t_cover_big, etc. -- use t_cover_big (~264px)
+  if (url.includes('images.igdb.com') && url.includes('t_thumb')) {
+    return url.replace('t_thumb', 't_cover_big');
+  }
+  // RAWG and other images: return as-is (they're already reasonably sized)
+  return url;
 }
 
 /** Validate that an image URL actually loads (HEAD request, 5s timeout) */
@@ -56,7 +65,7 @@ export async function processImages(
   const validationResults = await Promise.allSettled(
     mentionedGames.map(async (g) => ({
       game: g,
-      valid: await validateImageUrl(resizeBggUrl(g.image_url!)),
+      valid: await validateImageUrl(resizeImageUrl(g.image_url!)),
     })),
   );
 
@@ -83,7 +92,7 @@ export async function processImages(
 
     const match = processed.match(headerPattern);
     if (match && match.index !== undefined) {
-      const sizedUrl = resizeBggUrl(game.image_url!);
+      const sizedUrl = resizeImageUrl(game.image_url!);
       const gameUrl = `/games/${encodeURIComponent(game.id)}`;
       // Wrap image in a link to the game page (opens in new tab)
       const imgTag = `<a href="${gameUrl}" target="_blank" rel="noopener"><img src="${sizedUrl}" alt="${game.name}" /></a>`;

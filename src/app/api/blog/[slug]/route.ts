@@ -32,6 +32,7 @@ export async function GET(_request: NextRequest, { params }: Params) {
     .select('*')
     .eq('slug', slug)
     .not('published_at', 'is', null)
+    .lte('published_at', new Date().toISOString())
     .single();
 
   if (error || !data) {

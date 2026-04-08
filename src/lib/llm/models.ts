@@ -18,11 +18,11 @@ export const MODELS = {
   /** Chat sommelier -- conversational game recommendations */
   chat: 'gpt-4.1-mini',
 
-  /** Blog generation -- long-form SEO content */
-  blog: 'gpt-4.1-mini',
+  /** Blog generation -- long-form SEO content (full model for quality) */
+  blog: 'gpt-4.1',
 
   /** Blog analysis -- fact-checking, editing, quality evaluation */
-  blogAnalysis: 'gpt-4.1-nano',
+  blogAnalysis: 'gpt-4.1-mini',
 
   /** Metadata enrichment -- batch moods/vibes generation */
   enrichment: 'gpt-4.1-nano',

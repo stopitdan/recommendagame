@@ -26,6 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .select('title, description, tags, published_at')
     .eq('slug', slug)
     .not('published_at', 'is', null)
+    .lte('published_at', new Date().toISOString())
     .single();
 
   if (!data) {

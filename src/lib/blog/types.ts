@@ -98,8 +98,12 @@ export interface PipelineResult {
   imageErrors: string[];
 }
 
-/** Topic template from the 365-day rotation */
+/** Topic template from the daily rotation */
 export interface TopicTemplate {
   template: string;
   category: string | null;
+  /** Post format -- controls the structure of the generated content */
+  format?: 'list' | 'comparison' | 'guide' | 'opinion' | 'deep-dive' | 'buying-guide';
+  /** When true, video games (RAWG/IGDB sources) are allowed alongside board games */
+  allowVideoGames?: boolean;
 }
