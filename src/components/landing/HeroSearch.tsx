@@ -198,13 +198,13 @@ export default function HeroSearch() {
           bgcolor: alpha(theme.palette.background.paper, 0.6),
           backdropFilter: "blur(16px)",
           borderRadius: "16px",
-          border: `1px solid ${alpha(theme.palette.divider, focused || listening ? 0.3 : 0.15)}`,
+          border: `1px solid ${alpha(theme.palette.text.secondary, focused || listening ? 0.4 : 0.25)}`,
           boxShadow: focused || listening
-            ? `0 0 0 1px ${alpha(theme.palette.divider, 0.2)}`
-            : "none",
+            ? `0 0 0 1px ${alpha(theme.palette.text.secondary, 0.15)}`
+            : `0 1px 3px ${alpha(theme.palette.common.black, 0.08)}`,
           transition: "border-color 200ms ease, box-shadow 200ms ease",
           "&:hover": {
-            borderColor: alpha(theme.palette.divider, 0.25),
+            borderColor: alpha(theme.palette.text.secondary, 0.35),
           },
           minHeight: "120px",
           display: "flex",
@@ -314,7 +314,7 @@ export default function HeroSearch() {
               component="span"
               sx={{
                 color: "text.secondary",
-                opacity: 0.4,
+                opacity: 0.55,
                 fontSize: { xs: "1rem", md: "1.1rem" },
                 lineHeight: 1.6,
                 fontFamily: "inherit",

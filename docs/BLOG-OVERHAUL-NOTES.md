@@ -1,174 +1,214 @@
 # Blog Ecosystem Overhaul -- Implementation Notes
 
-> Session: 2026-04-07
-> Goal: Transform the automated blog system into a high-quality, 2x/day SEO content machine.
+> Last updated: 2026-04-07
+> Status: **DEPLOYED AND RUNNING** -- monitoring for 1-2 days before next iteration
 
 ---
 
-## Changes Log
+## Current System Architecture (Post-Overhaul)
 
-### Phase 1A: Fix Future-Dated Blog Posts
-
-**Problem:** `scripts/seed-blog-posts.ts` seeded posts with `published_at` through 2026-04-15 (future dates). The blog list API and single-post API only checked `published_at IS NOT NULL`, never `published_at <= now()`. Users could see posts dated a week in the future.
-
-**Files changed:**
-- `src/app/api/blog/route.ts` -- Added `.lte('published_at', new Date().toISOString())` filter
-- `src/app/api/blog/[slug]/route.ts` -- Same filter
-- `src/app/blog/[slug]/page.tsx` -- Same filter in `generateMetadata`
-- `supabase/migrations/031_blog_future_date_filter.sql` -- Updated RLS policy to enforce `published_at <= now()` at the database level
-
-**Why belt-and-suspenders:** The app-level filter handles the API response. The RLS policy is a safety net in case any other query path (direct Supabase client, future endpoints) also needs to respect this rule.
-
----
-
-### Phase 1B-C: Resilient Logging + Email Error Isolation
-
-**Problem:** If `resend.emails.send()` threw an error, the entire generate handler caught it at the outer level and returned a 500 -- making it look like the pipeline failed when the post was actually saved successfully. Also, no logging at the start of the handler to confirm the cron was even hitting the endpoint.
-
-**Files changed:**
-- `src/app/api/blog/generate/route.ts` -- Added entry log, wrapped email block in dedicated try/catch, added `emailSent` flag to response
-
----
-
-### Phase 2A: Model Upgrade
-
-**Previous:** `blog: 'gpt-4.1-mini'`, `blogAnalysis: 'gpt-4.1-nano'`
-**New:** `blog: 'gpt-4.1'`, `blogAnalysis: 'gpt-4.1-mini'`
-
-**Cost analysis:** ~$0.05/post total (generation + 5-6 analysis calls). At 2 posts/day = ~$3/month. The quality difference between mini and full gpt-4.1 for long-form writing is substantial.
-
-**File changed:** `src/lib/llm/models.ts`
-
-Also increased `max_tokens` from 4000 to 6000 in `src/lib/blog/generator.ts` to allow richer content from the more capable model.
-
----
-
-### Phase 2B: Quality Threshold
-
-**Previous:** Pass threshold 5.0/10
-**New:** Pass threshold 6.0/10
-
-**Rationale:** With gpt-4.1-mini doing evaluation (instead of nano), scores are more accurate. 5.0 with nano passed nearly everything. 6.0 is moderate -- filters out bad posts without being so aggressive that most get rejected before we calibrate.
-
-**File changed:** `src/lib/blog/quality-evaluator.ts`
-
----
-
-### Phase 2C: Generator Prompt Enhancements
-
-**File changed:** `src/lib/blog/generator.ts` -- `buildPrompt()` function
-
-**Key changes:**
-1. Format-aware writing instructions based on topic template's `format` field
-2. Explicit game-type alignment instruction (check `source` field)
-3. Stronger keyword instructions (exact phrase 3-4x, 2-3 close variations)
-4. Recent blog post list for genuine internal linking
-5. Removed redundant "no emdashes" instruction (handled by editor's mechanical cleanup)
-
----
-
-### Phase 2D: Game-Type Alignment Check
-
-**File changed:** `src/lib/blog/fact-checker.ts`
-
-Added `checkGameTypeAlignment()` as Check 0 (pre-check). Uses `allowVideoGames` boolean from the topic template instead of hardcoded `topicIndex >= 341`, making it future-proof when topic pool expands.
-
-**Also changed:** `src/lib/blog/types.ts` (added `allowVideoGames` to TopicTemplate), pipeline.ts, game-fetcher.ts
-
----
-
-### Phase 2E: Game-Fetcher Topic Awareness
-
-**File changed:** `src/lib/blog/game-fetcher.ts`
-
-Added basic topic-aware filtering by parsing the title hint:
-- "solo" / "1 player" / "alone" -> `min_players <= 1`
-- "2 player" / "two player" -> `min_players <= 2, max_players >= 2`
-- "under 30 minutes" / "quick" -> `avg_play_time <= 30`
-- "party" / "5+ players" / "large group" -> `max_players >= 5`
-
-Replaced `topicIndex >= 341` with `allowVideoGames` parameter.
+```
+Vercel Cron (2x daily)
+  slot=0 @ 6 AM UTC
+  slot=1 @ 6 PM UTC
+    |
+    v
+/api/blog/generate?slot=N
+    |
+    v
+Insert blog_pipeline_runs row (status: 'running')
+    |
+    v
+pickTopic(slot) -- (dayOfYear * 2 + slot) % 710 topics
+    |   710 templates across 29 categories
+    |   6 post formats: list, comparison, guide, opinion, deep-dive, buying-guide
+    |
+    v
+Fetch recent 15 published posts (for internal linking)
+    |
+    v
+fetchTopicGames() -- Supabase query
+    |   Source filter: bgg-only for board game topics, all sources for crossover
+    |   Topic-aware constraints: solo, 2-player, party, quick parsed from title
+    |
+    v
+generateDraft() -- gpt-4.1 (full model), temp 0.6, max 6000 tokens
+    |   Format-aware prompt (different structure per format type)
+    |   Game-type alignment rules in prompt
+    |   Keyword density: exact phrase 3-4x + 2-3 variations
+    |   Internal links to recent posts + /find-a-game + /browse
+    |   Amazon affiliate links for each featured game
+    |   1-2 external authority links (BGG, publishers, Wikipedia)
+    |
+    v
+factCheck(allowVideoGames) -- 4 checks:
+    |   0. Game-type alignment (board vs video, code)
+    |   1. Database accuracy (player count, time, complexity, code)
+    |   2. Content-claim verification (gpt-4.1-mini)
+    |   3. Apply corrections (gpt-4.1-mini)
+    |
+    v
+editDraft() -- 3 edits:
+    |   1. Structure & SEO: word count, H2s, CTA links, affiliate links (gpt-4.1-mini)
+    |   2. Tone & Voice: 44 AI phrases + 8 cringey phrases + paragraph starts (gpt-4.1-mini)
+    |   3. Mechanical cleanup: em-dashes, en-dashes, double hyphens, exclamation marks (code)
+    |
+    v
+processImages() -- inject game box art
+    |   Supports BGG, RAWG, and IGDB image URLs
+    |   Validates via HEAD request, deduplicates
+    |   Injected after H2 headers mentioning game name
+    |   Display: max-width 420px, rounded corners, shadow
+    |
+    v
+evaluateQuality() -- gpt-4.1-mini, 5 dimensions (0-10 each)
+    |   Accuracy, Readability, Tone, SEO, Completeness
+    |   Pass threshold: >= 6.0 average
+    |
+    v
+Save to blog_posts (status: 'draft' if passed, 'rejected' if failed)
+    |
+    v
+Update blog_pipeline_runs (status, quality, duration, metrics)
+    |
+    v
+Email via Resend (isolated try/catch, only for drafts)
+    |   From: blog@boredgame.lol -> To: contact@boredgame.lol
+    |   Includes: quality scores, fact-check corrections, edits, preview link
+    |   One-click Approve / Reject buttons
+    |
+    v
+Admin clicks Approve -> published_at = now(), status = 'published'
+    |
+    v
+Blog list API: filters published_at <= now() AND status = 'published'
+```
 
 ---
 
-### Phase 2F: Internal Linking via Recent Posts
+## Key Files
 
-**Files changed:**
-- `src/lib/blog/pipeline.ts` -- Queries 15 most recent published posts before calling generateDraft
-- `src/lib/blog/generator.ts` -- Updated signature and prompt to accept and display recent posts for internal linking
-
----
-
-### Phase 3A-C: Slot-Based Topics + 2x Cron
-
-**Files changed:**
-- `src/lib/blog/topic-picker.ts` -- `pickTopic(date?, slot?)` with `(dayOfYear * 2 + slot) % TOPIC_TEMPLATES.length`
-- `src/lib/blog/pipeline.ts` -- Accepts `slot` parameter
-- `src/app/api/blog/generate/route.ts` -- Reads `slot` from query params
-- `vercel.json` -- Two cron entries: slot=0 at 6 AM UTC, slot=1 at 6 PM UTC
-
----
-
-### Phase 3D: Topic Pool Expansion
-
-**File changed:** `src/lib/blog/topic-picker.ts`
-
-Expanded from 365 to 730+ templates. New categories:
-- Opinion/Hot Take, Deep Dives, Seasonal, Buying Guides, Beginner Guides
-- Collection Management, Game Night Hosting, Crossover/Lifestyle
-- Hidden Gems, Head-to-Head, Genre Explainers, Narrative/Storytelling
-- Strategy Tips, Meta/Industry
-
-Each new template includes a `format` field for prompt customization.
+| File | Purpose |
+|------|---------|
+| `vercel.json` | 2 cron entries (slot=0 at 6AM, slot=1 at 6PM UTC) |
+| `src/lib/llm/models.ts` | Model config: blog=gpt-4.1, blogAnalysis=gpt-4.1-mini |
+| `src/lib/blog/types.ts` | Pipeline types, TopicTemplate (format, allowVideoGames) |
+| `src/lib/blog/topic-picker.ts` | 710 topics, slot-aware pickTopic() |
+| `src/lib/blog/game-fetcher.ts` | Topic-aware game queries (player count, time, source) |
+| `src/lib/blog/generator.ts` | Format-aware LLM prompt, internal linking, affiliate links |
+| `src/lib/blog/fact-checker.ts` | 4-check system (game-type alignment + DB + LLM verify + LLM fix) |
+| `src/lib/blog/editor.ts` | 3-edit system (structure + tone + mechanical) |
+| `src/lib/blog/image-processor.ts` | Multi-source image injection (BGG, RAWG, IGDB) |
+| `src/lib/blog/quality-evaluator.ts` | 5-dimension scoring, pass >= 6.0 |
+| `src/lib/blog/pipeline.ts` | Orchestrates all 8 stages |
+| `src/app/api/blog/generate/route.ts` | Cron endpoint, pipeline run tracking, email sending |
+| `src/app/api/blog/approve/route.ts` | One-click approve/reject from email |
+| `src/app/api/blog/preview/route.ts` | Token-protected draft preview (HTML) |
+| `src/app/api/blog/route.ts` | Public blog list (filtered: published_at <= now) |
+| `src/app/api/blog/[slug]/route.ts` | Single post API (same filter) |
+| `src/app/blog/[slug]/BlogPostView.tsx` | Blog post renderer (images at 420px max) |
+| `src/lib/affiliate-config.ts` | Centralized affiliate tags (Amazon active, Target/Walmart pending) |
+| `src/components/BuyOptions.tsx` | Game page buy links (uses affiliate-config) |
 
 ---
 
-### Phase 3E: Image Handling
+## Database Tables
 
-**File changed:** `src/lib/blog/image-processor.ts`
+| Table | Purpose |
+|-------|---------|
+| `blog_posts` | All posts (draft/published/rejected). RLS: public sees only published + past-dated |
+| `blog_pipeline_runs` | Tracks every pipeline execution (status, quality, duration, errors) |
 
-Added support for RAWG (`media.rawg.io`) and IGDB (`images.igdb.com`) image URLs. BGG-specific resize logic only applied to BGG URLs.
-
----
-
-### Phase 4: Pipeline Monitoring
-
-**Files created/changed:**
-- `supabase/migrations/032_blog_pipeline_runs.sql` -- New tracking table
-- `src/app/api/blog/generate/route.ts` -- Inserts run record at start, updates at end with all metrics
-
----
-
-### Phase 5: Affiliate Configuration
-
-**File created:** `src/lib/affiliate-config.ts`
-
-Centralized affiliate tag management. Currently only Amazon (`boredgame-20`) is active. Target and Walmart affiliate programs need to be applied for by the user:
-- Target: https://affiliate.target.com (via Impact.com)
-- Walmart: https://affiliates.walmart.com (via Impact.com)
-
-Updated `BuyOptions.tsx` and generator prompt to use centralized config.
+**Key migrations:**
+- `018_blog_posts.sql` -- Original blog table
+- `027_blog_draft_approval.sql` -- Added approval_token + status columns
+- `031_blog_future_date_filter.sql` -- RLS policy: published_at <= now()
+- `032_blog_pipeline_runs.sql` -- Pipeline monitoring table
 
 ---
 
-### Phase 6: Tests
+## Cost
 
-**Files created:**
-- `src/lib/blog/topic-picker.test.ts`
-- `src/lib/blog/editor.test.ts`
-- `src/lib/blog/fact-checker.test.ts`
-
-All test pure-code functions (no LLM mocking needed).
+~$0.05/post (gpt-4.1 generation + gpt-4.1-mini for 5-6 analysis calls). At 2 posts/day = ~$3/month.
 
 ---
 
-## User Action Items
+## Monitoring
 
-After deploy, the user needs to:
-1. Check Vercel dashboard for cron job status and function logs
-2. Check Resend dashboard for domain verification status
-3. Verify Vercel plan supports `maxDuration: 300` (Pro required)
-4. Apply for Target affiliate program at https://affiliate.target.com
-5. Apply for Walmart affiliate program at https://affiliates.walmart.com
-6. Contact GameNerdz about affiliate program (check footer)
-7. Once approved, update affiliate tags in `src/lib/affiliate-config.ts`
+After each cron run, check:
+1. **Vercel Logs** -- filter for `[Blog Generate]` to see cron hits, pipeline results
+2. **Supabase `blog_pipeline_runs`** -- every run logged with status, quality score, duration, error messages
+3. **Resend dashboard** -- email delivery status
+4. **Blog list** (`/blog`) -- new posts should appear after approval
+
+---
+
+## What's Working (as of 2026-04-07)
+
+- Pipeline runs successfully via manual trigger
+- Approval emails send correctly via Resend
+- Preview page renders with properly sized images (420px max)
+- Draft/approve/reject flow works end-to-end
+- Quality scoring with gpt-4.1-mini is more discerning than nano was
+- Format-aware prompts produce varied content (not just lists)
+- Cron schedule deployed: 6 AM + 6 PM UTC
+
+---
+
+## Pending / Next Session
+
+### Waiting on external approvals
+- [ ] **Target affiliate** -- application submitted via Impact.com, processing
+- [ ] **Walmart affiliate** -- application submitted via Impact.com, processing
+- [ ] **Google AdSense** -- verification still pending (script is live, just slow for low-traffic sites)
+- [ ] **GameNerdz affiliate** -- not yet contacted
+
+### After 1-2 days of monitoring
+- [ ] Review `blog_pipeline_runs` table for failure patterns
+- [ ] Check quality scores -- if most posts score 6-7, threshold is right. If most score 8+, consider raising to 7.0
+- [ ] Review 2-3 published posts for actual content quality, keyword density, link correctness
+- [ ] Check if approval emails are arriving consistently at both 6 AM and 6 PM UTC slots
+- [ ] Verify no duplicate topics are being picked (different slots = different topics)
+
+### Potential improvements for next iteration
+- [ ] Auto-publish high-quality posts (score >= 8.0) without email approval
+- [ ] Add "request changes" flow to approval email (not just approve/reject)
+- [ ] Blog sitemap -- add published blog posts to sitemap.xml for faster Google indexing
+- [ ] Increase topic pool further (currently 710, could go to 1000+)
+- [ ] Add hero images / header images to blog posts (not just game box art)
+- [ ] Track affiliate click-through rates to see which posts generate revenue
+- [ ] A/B test blog post titles for CTR optimization
+- [ ] Once Target/Walmart approved, update `src/lib/affiliate-config.ts` with tags and add multi-retailer links to generator prompt
+
+---
+
+## Changes Log (2026-04-07 Session)
+
+### Phase 1: Critical Fixes
+- **1A: Future-dated posts** -- Added `.lte('published_at', now())` to 3 API routes + RLS migration
+- **1B-C: Logging + email isolation** -- Entry log in generate route, email wrapped in isolated try/catch
+
+### Phase 2: Quality Upgrade
+- **2A: Models** -- blog: gpt-4.1-mini -> gpt-4.1, blogAnalysis: gpt-4.1-nano -> gpt-4.1-mini
+- **2B: Threshold** -- Quality pass threshold 5.0 -> 6.0
+- **2C: Prompt** -- Format-aware (6 types), stronger keywords, game-type rules, internal linking
+- **2D: Fact-checker** -- Game-type alignment pre-check using `allowVideoGames` flag
+- **2E: Game-fetcher** -- Topic-aware player count/time filters, `allowVideoGames` param
+- **2F: Internal linking** -- Pipeline queries recent 15 posts, passes to generator
+
+### Phase 3: Scale
+- **3A-C: 2x daily** -- Slot-based topic picker, vercel.json with 2 cron entries
+- **3D: Topic expansion** -- 365 -> 710 templates with 14 new format categories
+- **3E: Images** -- Processor supports RAWG/IGDB URLs, display at 420px max-width
+
+### Phase 4: Monitoring
+- **Pipeline run tracking** -- `blog_pipeline_runs` table, generate route records every run
+
+### Phase 5: Affiliates
+- **Config file** -- `src/lib/affiliate-config.ts` centralizes all affiliate tags
+- **BuyOptions** -- Updated to use centralized config
+- **Applications** -- Target + Walmart submitted, pending approval
+
+### Phase 6: Testing
+- **32 new tests** -- topic-picker, editor, fact-checker (all pure-code, no LLM mocking)
+- **Full suite** -- 475/477 pass (2 pre-existing failures unrelated to blog)
