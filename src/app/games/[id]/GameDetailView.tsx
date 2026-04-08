@@ -30,6 +30,7 @@ import CrossTypeRecommendations from '@/components/CrossTypeRecommendations';
 import JsonLd from '@/components/JsonLd';
 import { Users, Clock, Brain, Calendar, BarChart3, ExternalLink, ShoppingCart, Trophy, UserCheck } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { useDwellTracker, useScrollDepthTracker } from '@/hooks/useSignalTracker';
 
 export default function GameDetailView() {
   const { id } = useParams<{ id: string }>();
@@ -37,6 +38,8 @@ export default function GameDetailView() {
   const [game, setGame] = useState<Game | null>(null);
   const [loading, setLoading] = useState(true);
   const [reviewRefreshKey, setReviewRefreshKey] = useState(0);
+  useDwellTracker(id);
+  useScrollDepthTracker(`game-${id}`);
 
   useEffect(() => {
     async function fetchGame() {

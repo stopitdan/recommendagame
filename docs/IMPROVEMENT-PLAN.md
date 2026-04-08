@@ -6,40 +6,42 @@ Copy this entire document into a Claude Code prompt. It contains a prioritized l
 
 Current eval baseline: **76.9% pass rate** on 307 cases (up from 68.4% before this session's changes). Catalog coverage: 3.0% (up from 0.5%).
 
+> **Update 2026-04-07:** All Tier 1 and Tier 2 items below have been fixed. See Phase 11 in MASTER-TODO.md.
+
 ---
 
-## TIER 1: CRITICAL BUGS (Fix These First)
+## TIER 1: CRITICAL BUGS ~~(Fix These First)~~ ✅ ALL FIXED
 
-### 1.1 Cache Key Computed Before LLM Merge
+### 1.1 Cache Key Computed Before LLM Merge ✅ FIXED
 **File:** `src/app/api/recommend/route.ts` lines 70-82 vs 133-156
 **Bug:** The cache key is computed from `body` BEFORE LLM-parsed genres/mechanics/gameTypes are merged into `body`. Two identical queries can get different cache hits because the key was computed with empty arrays.
 **Fix:** Move the `cacheKey()` call to AFTER line 156 (after all LLM data is merged into body). This is a one-line move.
 
-### 1.2 Denormalize Function Is a No-Op
+### 1.2 Denormalize Function Is a No-Op ✅ FIXED
 **File:** `src/lib/recommendation/embeddings.ts` line 238
 **Bug:** `denormalize()` just clones the vector (`return [...vec]`). It claims to reverse normalization but doesn't restore original magnitudes. When `enrichedPreferencesToVector()` calls denormalize → add LLM signals → normalize, the original vector values get diluted relative to the new LLM signals.
 **Fix:** Either track and restore the pre-normalization magnitude, or redesign enrichment to multiply rather than add.
 
-### 1.3 Genre Match Has 0.4 Floor for Zero Matches
+### 1.3 Genre Match Has 0.4 Floor for Zero Matches ✅ FIXED
 **File:** `src/lib/recommendation/scoring.ts` lines 645-647
 **Bug:** The genre scoring formula gives 0.4 base + (matches/total)*0.6. A game with ZERO matching genres still gets 0.4 credit on the genre dimension (26% weight = 0.104 free points).
 **Fix:** Change the formula: zero matches should score 0.0, not 0.4. Use `matches === 0 ? 0.0 : 0.4 + (matches/total)*0.6`.
 
-### 1.4 MMR Diversity Assumes Sorted Input
+### 1.4 MMR Diversity Assumes Sorted Input ✅ FIXED
 **File:** `src/lib/recommendation/diversity.ts` line 65
 **Bug:** `maxScore = candidates[0].score` assumes input is sorted descending. If unsorted, normalization is wrong and scores can invert.
 **Fix:** Add `candidates.sort((a, b) => b.score - a.score)` at the start of `mmrRerank()`, or assert sorted input.
 
-### 1.5 Time Fit Falloff Is Cliff-Like
+### 1.5 Time Fit Falloff Is Cliff-Like ✅ FIXED
 **File:** `src/lib/recommendation/scoring.ts` line 377
 **Bug:** The formula `1.0 - (distance / rangeSize) * 0.8` creates a cliff where a 45-minute game scores 0.2 for a 30-minute request, but a 60-minute game scores 0.0. There's no graceful degradation.
 **Fix:** Use sigmoid or exponential decay: `Math.exp(-distance / rangeSize * 2)` gives smoother falloff. A 45-min game would score ~0.5 instead of 0.2.
 
 ---
 
-## TIER 2: SCORING CALIBRATION (High Impact on Eval Pass Rate)
+## TIER 2: SCORING CALIBRATION ✅ ALL FIXED
 
-### 2.1 Mood-Vibe Still at 29% Pass Rate
+### 2.1 Mood-Vibe Still at 29% Pass Rate ✅ FIXED
 **Problem:** Mood scoring accumulates without diminishing returns. Multiple chill signals all add up and get clamped to 1.0, removing differentiation between "very chill" and "somewhat chill" games.
 **Files:** `src/lib/recommendation/scoring.ts` scoreMoodAlignment function
 **Fix:** Cap each sub-signal contribution and use weighted combinations instead of raw addition. Also add more mood signals:
@@ -48,31 +50,31 @@ Current eval baseline: **76.9% pass rate** on 307 cases (up from 68.4% before th
 - "Story-driven" should weight `narrative` and `campaign` differently (campaign = long story, narrative = any story)
 - Add new moods: "intense", "relaxing", "creative", "educational"
 
-### 2.2 Bayesian Dampening Kills Hidden Gems
+### 2.2 Bayesian Dampening Kills Hidden Gems ✅ FIXED
 **File:** `src/lib/recommendation/scoring.ts` lines 1083-1089
 **Problem:** A brilliant game with 50 votes and 8.5 rating gets Bayesian-dampened to 6.56 (nearly the global mean of 6.5). The HIDDEN_GEMS_WEIGHTS give quality 15% weight, but the Bayesian adjustment already killed the signal.
 **Fix:** Use a lower confidence threshold for hidden gems mode (100 instead of 1000), or use raw rating when ratingCount > 20.
 
-### 2.3 Quality Signal Weight Too Low (3%)
+### 2.3 Quality Signal Weight Too Low (3%) ✅ FIXED
 **Problem:** A game rated 5.0 vs 8.5 has only 0.015 point impact on final score. Quality differences are invisible.
 **Fix:** Increase to 5% (take from recency 3% -> 1%). Quality matters more than when a game was published.
 
-### 2.4 Complexity Fit Returns 0.5 for Null
+### 2.4 Complexity Fit Returns 0.5 for Null ✅ FIXED
 **File:** `src/lib/recommendation/scoring.ts` line 387
 **Problem:** Games with missing complexity data get 0.5 (neutral) even when user explicitly set a complexity range. Should be penalized.
 **Fix:** Return 0.2 when complexity is null and user specified a range, 0.5 when no range specified.
 
-### 2.5 Free Text Scoring: Designer Queries Get 11% Boost Over Mechanics
+### 2.5 Free Text Scoring: Designer Queries Get 11% Boost Over Mechanics ✅ FIXED
 **File:** `src/lib/recommendation/scoring.ts` lines 823-843
 **Problem:** Designer match contributes +2.0 per check, mechanic match +1.5*1.2=1.8. After dividing by totalChecks, designer queries are arbitrarily 11% higher. No principled reason.
 **Fix:** Normalize both to the same range, or use the same multiplier system.
 
-### 2.6 Mechanic Alias: "Social Deduction" Maps to "Voting"
+### 2.6 Mechanic Alias: "Social Deduction" Maps to "Voting" ✅ FIXED
 **File:** `src/lib/recommendation/mechanic-aliases.ts`
 **Problem:** `'social deduction'` includes `'Voting'` as an alias. But Voting is not social deduction (many games with voting aren't deduction games).
 **Fix:** Remove `'Voting'` from social deduction aliases. Add it to `'negotiation'` or `'politics'` instead.
 
-### 2.7 Engine Building Maps to "Income"
+### 2.7 Engine Building Maps to "Income" ✅ FIXED
 **File:** `src/lib/recommendation/mechanic-aliases.ts`
 **Problem:** `'engine building'` maps to `['Income', 'Increase Value of Unchosen Resources', 'Engine Building']`. "Income" is a reward mechanism, not an engine-building mechanic.
 **Fix:** Remove `'Income'` and `'Increase Value of Unchosen Resources'`. Keep only `'Engine Building'` and add `'Tableau Building'`.

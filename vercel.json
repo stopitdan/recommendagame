@@ -7,6 +7,14 @@
     {
       "path": "/api/blog/generate?slot=1",
       "schedule": "0 18 * * *"
+    },
+    {
+      "path": "/api/reports/daily",
+      "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/reports/weekly",
+      "schedule": "0 8 * * 1"
     }
   ]
 }

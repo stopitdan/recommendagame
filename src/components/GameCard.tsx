@@ -33,6 +33,8 @@ export interface GameCardProps {
   index?: number;
   /** Recommendation reasons to show below description */
   reasons?: string[];
+  /** Called when user clicks to navigate to this game */
+  onClickTrack?: (gameId: string, index: number) => void;
 }
 
 const TYPE_ICONS: Record<string, React.ReactNode> = {
@@ -43,7 +45,7 @@ const TYPE_ICONS: Record<string, React.ReactNode> = {
   card: <Puzzle size={14} />,
 };
 
-export default function GameCard({ game, showFavorite = true, isFavorited = false, onFavoriteToggle, showActions = false, onDismiss, onMoreLikeThis, index, reasons }: GameCardProps) {
+export default function GameCard({ game, showFavorite = true, isFavorited = false, onFavoriteToggle, showActions = false, onDismiss, onMoreLikeThis, index, reasons, onClickTrack }: GameCardProps) {
   const router = useRouter();
   const typeConfig = getPrimaryTypeConfig(game.types);
   const details: string[] = [];
@@ -66,6 +68,7 @@ export default function GameCard({ game, showFavorite = true, isFavorited = fals
     if (target.closest('button') || target.closest('a') || target.closest('[role="button"]')) {
       return;
     }
+    onClickTrack?.(game.id, index ?? 0);
     router.push(`/games/${encodeURIComponent(game.id)}`);
   }
 

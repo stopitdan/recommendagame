@@ -240,16 +240,16 @@ flowchart TD
 
 ```mermaid
 pie title Default Scoring Weights (sum = 100%)
-    "Genre Match" : 28
+    "Genre Match" : 26
     "Free Text" : 22
     "Type Match" : 10
     "Player Count" : 8
     "Mood" : 8
     "Time Fit" : 7
     "Complexity" : 7
-    "Popularity" : 4
-    "Quality" : 3
-    "Recency" : 3
+    "Popularity" : 6
+    "Quality" : 5
+    "Recency" : 1
 ```
 
 Weights are adaptive: if the user specifies a tight player count (e.g., exactly 4), that dimension gets a 2x boost, then all weights renormalize to 100%. Additional adaptive rules:

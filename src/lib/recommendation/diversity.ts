@@ -61,8 +61,11 @@ export function diversityRerank(scored: ScoredGame[]): ScoredGame[] {
 function mmrRerank(candidates: ScoredGame[], lambda: number): ScoredGame[] {
   if (candidates.length === 0) return [];
 
+  // Sort descending so normalization and first-pick are correct
+  candidates.sort((a, b) => b.score - a.score);
+
   // Normalize scores to 0-1 for fair comparison with novelty
-  const maxScore = candidates[0].score; // Already sorted by score desc
+  const maxScore = candidates[0].score;
   const minScore = candidates[candidates.length - 1].score;
   const scoreRange = maxScore - minScore || 1;
 

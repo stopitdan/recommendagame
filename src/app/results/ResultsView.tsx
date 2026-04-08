@@ -37,6 +37,7 @@ import FeedbackButton from '@/components/FeedbackButton';
 import FloatingFeedbackButton from '@/components/FloatingFeedbackButton';
 import ResultsFeedbackPrompt from '@/components/ResultsFeedbackPrompt';
 import LoginPromptBanner from '@/components/LoginPromptBanner';
+import { useSignalTracker, useScrollDepthTracker } from '@/hooks/useSignalTracker';
 
 type PopularityMode = 'any' | 'hidden-gems';
 
@@ -71,6 +72,8 @@ export default function ResultsView() {
   const [userId, setUserId] = useState<string | null>(null);
   const [userLoaded, setUserLoaded] = useState(false);
   const [shareCardOpen, setShareCardOpen] = useState(false);
+  const track = useSignalTracker();
+  useScrollDepthTracker('results');
 
   // Get logged-in user ID for rejection learning + collection filtering
   useEffect(() => {
@@ -221,6 +224,9 @@ export default function ResultsView() {
       }
 
       setHasLoaded(true);
+
+      // Track search event for implicit signals
+      track('search', { payload: { query: freeText, resultCount: data.results?.length ?? 0 } });
 
       // Track recommendation count for guest signup prompt
       if (data.results?.length > 0) {
@@ -735,6 +741,7 @@ export default function ResultsView() {
               onDismiss={handleDismiss}
               onMoreLikeThis={handleMoreLikeThis}
               reasons={game._reasons}
+              onClickTrack={(gameId, pos) => track('result_click', { gameId, payload: { position: pos, score: game._score } })}
             />
             {/* Match score badge */}
             {game._score != null && (

@@ -285,12 +285,12 @@ describe('scoreGame — complexity', () => {
     expect(result.breakdown.complexityFit).toBeLessThan(0.5);
   });
 
-  it('scores 0.5 when complexity is unknown', () => {
+  it('penalizes unknown complexity when user specified a range', () => {
     const result = scoreGame(
       makeGame({ complexity: undefined }),
       makePrefs({ complexity: { min: 2, max: 4 } }),
     );
-    expect(result.breakdown.complexityFit).toBe(0.5);
+    expect(result.breakdown.complexityFit).toBe(0.2);
   });
 });
 
@@ -355,9 +355,10 @@ describe('scoreGame — mood alignment', () => {
 
   it('scores high for chill mood + low complexity family game', () => {
     const result = scoreGame(
-      makeGame({ complexity: 1.5, categories: ['Family'], mechanics: [], themes: [] }),
+      makeGame({ complexity: 1.5, categories: ['Family'], mechanics: [], themes: [], playTime: { average: 30 } }),
       makePrefs({ moods: ['chill'] }),
     );
+    // Low complexity (0.4) + family (0.25) + short time (0.1) = 0.75
     expect(result.breakdown.moodAlignment).toBeGreaterThan(0.7);
   });
 
@@ -383,9 +384,9 @@ describe('scoreGame — mood alignment', () => {
 describe('scoreGame — quality signal', () => {
   it('uses Bayesian-adjusted rating (dampened toward mean for low-vote games)', () => {
     // With 5000 votes (default makeGame), rating 8.0:
-    // bayesian = (5000*8 + 1000*6.5) / 6000 = 7.75 → 0.775
+    // bayesian = (5000*8 + 500*6.5) / 5500 = 7.864 → 0.786
     const result = scoreGame(makeGame({ rating: 8.0 }), makePrefs());
-    expect(result.breakdown.qualitySignal).toBeCloseTo(0.775, 2);
+    expect(result.breakdown.qualitySignal).toBeCloseTo(0.786, 2);
   });
 
   it('scores 0.3 for unknown rating', () => {
@@ -402,11 +403,11 @@ describe('scoreGame — quality signal', () => {
 
   it('low-vote games are dampened toward global mean', () => {
     // With 50 votes, rating 9.5:
-    // bayesian = (50*9.5 + 1000*6.5) / 1050 ≈ 6.643 → 0.664
+    // bayesian = (50*9.5 + 500*6.5) / 550 ≈ 6.773 → 0.677
     const lowVote = scoreGame(makeGame({ rating: 9.5, ratingCount: 50 }), makePrefs());
     const highVote = scoreGame(makeGame({ rating: 9.5, ratingCount: 50000 }), makePrefs());
     expect(lowVote.breakdown.qualitySignal).toBeLessThan(highVote.breakdown.qualitySignal);
-    expect(lowVote.breakdown.qualitySignal).toBeCloseTo(0.664, 2);
+    expect(lowVote.breakdown.qualitySignal).toBeCloseTo(0.677, 2);
   });
 });
 

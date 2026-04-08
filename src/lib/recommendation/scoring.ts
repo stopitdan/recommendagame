@@ -71,9 +71,9 @@ export const DEFAULT_WEIGHTS: ScoringWeights = {
   genreMatch: 0.26,      // PRIMARY relevance signal — user taste (was 0.28, -0.02 to fund popularity)
   moodAlignment: 0.08,   // Soft signal — vibes
   freeTextMatch: 0.22,   // User's exact words are high-intent
-  qualitySignal: 0.03,   // Minor tiebreaker — rating score matters very little
+  qualitySignal: 0.05,   // Quality matters -- a 5.0 vs 8.5 game should be distinguishable
   popularitySignal: 0.06, // Canonical game tiebreaker — ensures Dominion beats Colony (was 0.04, +0.02)
-  recencyBoost: 0.03,    // Mild freshness boost
+  recencyBoost: 0.01,    // Mild freshness boost (reduced to fund quality)
 };
 
 /**
@@ -211,7 +211,7 @@ export function scoreGame(
     genreMatch: scoreGenreMatch(game, prefs.genres),
     moodAlignment: scoreMoodAlignment(game, prefs.moods),
     freeTextMatch: scoreFreeText(game, prefs.freeText, prefs.llmParsed),
-    qualitySignal: scoreQuality(game),
+    qualitySignal: scoreQuality(game, weights === HIDDEN_GEMS_WEIGHTS),
     popularitySignal: scorePopularity(game),
     recencyBoost: scoreRecency(game),
   };
@@ -373,8 +373,8 @@ function scoreTimeFit(
   const distance = Math.min(distanceMin, distanceMax);
   const rangeSize = unionMax - unionMin;
 
-  // Graceful falloff: half the range away = 0.5 score
-  return Math.max(0, 1.0 - (distance / Math.max(rangeSize, 15)) * 0.8);
+  // Smooth exponential decay instead of cliff: half-range away ≈ 0.37, full range ≈ 0.14
+  return Math.exp((-distance / Math.max(rangeSize, 15)) * 2);
 }
 
 /**
@@ -384,7 +384,8 @@ function scoreComplexity(
   game: Game,
   complexityRange: { min: number; max: number },
 ): number {
-  if (game.complexity == null) return 0.5; // Unknown
+  // Missing complexity when user specified a range = penalize (they care about it)
+  if (game.complexity == null) return 0.2;
 
   if (game.complexity >= complexityRange.min && game.complexity <= complexityRange.max) {
     return 1.0;
@@ -699,52 +700,69 @@ function scoreMoodAlignment(game: Game, moods: string[]): number {
         break;
 
       case 'chill': {
+        let chillScore = 0;
         // Low complexity is the strongest chill signal
-        if (game.complexity != null && game.complexity <= 2.5) score += 0.5;
+        if (game.complexity != null && game.complexity <= 2.5) chillScore += 0.4;
         // Classic chill tags
         if (gameTags.some((t) => t.includes('family') || t.includes('party') || t.includes('casual'))) {
-          score += 0.3;
+          chillScore += 0.25;
         }
         // Intimate 2-player + low complexity = quintessentially chill (Patchwork, Jaipur)
         if (game.playerCount && game.playerCount.max <= 2 && game.complexity != null && game.complexity < 2.5) {
-          score += 0.3;
+          chillScore += 0.2;
         }
         // Abstract/set-collection/pattern games feel chill even without "family" tag
         if (gameTags.some((t) => t.includes('abstract') || t.includes('set collection') || t.includes('pattern') || t.includes('card game'))) {
-          score += 0.2;
+          chillScore += 0.15;
         }
         // Short games feel chill
-        if (game.playTime?.average && game.playTime.average < 45) {
-          score += 0.1;
-        }
+        if (game.playTime?.average && game.playTime.average < 45) chillScore += 0.1;
+        score += Math.min(chillScore, 1.0);
         break;
       }
 
-      case 'brain-teaser':
-        if (game.complexity != null && game.complexity >= 3.0) score += 0.5;
-        if (gameTags.some((t) => t.includes('strategy') || t.includes('puzzle') || t.includes('deduction') || t.includes('logic'))) {
-          score += 0.5;
+      case 'brain-teaser': {
+        let brainScore = 0;
+        if (game.complexity != null && game.complexity >= 3.0) brainScore += 0.5;
+        if (gameTags.some((t) => t.includes('abstract strategy') || t.includes('spatial') || t.includes('logic'))) {
+          brainScore += 0.4;
         }
+        if (gameTags.some((t) => t.includes('strategy') || t.includes('puzzle') || t.includes('deduction'))) {
+          brainScore += 0.3;
+        }
+        score += Math.min(brainScore, 1.0);
         break;
+      }
 
-      case 'social':
-        if (gameTags.some((t) => t.includes('party') || t.includes('social') || t.includes('bluffing') || t.includes('negotiation') || t.includes('voting'))) {
-          score += 1.0;
-        } else if (game.playerCount && game.playerCount.max >= 5) {
-          score += 0.4; // Large player count games tend to be social
+      case 'social': {
+        let socialScore = 0;
+        if (gameTags.some((t) => t.includes('party') || t.includes('social') || t.includes('bluffing') || t.includes('negotiation'))) {
+          socialScore += 0.6;
         }
+        if (gameTags.some((t) => t.includes('humor') || t.includes('communication limits') || t.includes('word game') || t.includes('trivia'))) {
+          socialScore += 0.4;
+        }
+        if (game.playerCount && game.playerCount.max >= 5) socialScore += 0.2;
+        score += Math.min(socialScore, 1.0);
         break;
+      }
 
-      case 'story-driven':
-        if (gameTags.some((t) =>
-          t.includes('narrative') || t.includes('story') || t.includes('campaign') ||
-          t.includes('role playing') || t.includes('rpg') || t.includes('adventure')
-        )) {
-          score += 1.0;
-        } else if (gameDesc.includes('story') || gameDesc.includes('narrative') || gameDesc.includes('campaign')) {
-          score += 0.5;
+      case 'story-driven': {
+        let storyScore = 0;
+        // Campaign = long story commitment, weight it higher
+        if (gameTags.some((t) => t.includes('campaign') || t.includes('legacy'))) {
+          storyScore += 0.6;
         }
+        // Narrative = any story element
+        if (gameTags.some((t) => t.includes('narrative') || t.includes('story') || t.includes('role playing') || t.includes('rpg') || t.includes('adventure'))) {
+          storyScore += 0.4;
+        }
+        if (storyScore === 0 && (gameDesc.includes('story') || gameDesc.includes('narrative'))) {
+          storyScore += 0.3;
+        }
+        score += Math.min(storyScore, 1.0);
         break;
+      }
     }
   }
 
@@ -821,7 +839,7 @@ function scoreFreeTextLLM(game: Game, parsed: ParsedPreferences): number {
     }
     const designerRatio = designerHits / parsed.designers.length;
     if (designerRatio > 0) {
-      totalScore += 2.0; // Right designer: massive boost
+      totalScore += 1.5; // Right designer: strong boost (same scale as mechanics)
     } else {
       totalScore -= 0.8; // Wrong designer: heavy penalty
     }
@@ -1101,17 +1119,23 @@ function scoreRecency(game: Game): number {
  * This means a game needs ~1000 ratings before its score is fully
  * trusted; below that, it's dampened toward 6.5/10.
  */
-function scoreQuality(game: Game): number {
+function scoreQuality(game: Game, isHiddenGems = false): number {
   // Use BGG's own Bayesian average if available (already dampened toward global mean)
   if (game.bayesAvgRating) return game.bayesAvgRating / 10;
   if (game.rating == null) return 0.3;
 
-  // Fallback: our own Bayesian dampening for non-BGG games
-  const CONFIDENCE_THRESHOLD = 1000;
+  // Hidden gems: use a much lower confidence threshold so niche games
+  // with fewer votes can shine. A game rated 8.5 by 50 people should
+  // score near 8.5, not get dragged to the 6.5 global mean.
   const GLOBAL_MEAN = 6.5;
   const votes = game.ratingCount ?? 0;
-  const bayesian = (votes * game.rating + CONFIDENCE_THRESHOLD * GLOBAL_MEAN)
-    / (votes + CONFIDENCE_THRESHOLD);
+
+  // For hidden gems, trust ratings earlier (100 votes). For normal mode,
+  // use raw rating once a game has at least 20 votes (avoids 12-vote flukes
+  // while not crushing legitimate quality signals at 50-200 votes).
+  const threshold = isHiddenGems ? 100 : 500;
+  const bayesian = (votes * game.rating + threshold * GLOBAL_MEAN)
+    / (votes + threshold);
 
   return bayesian / 10;
 }

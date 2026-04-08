@@ -1,6 +1,6 @@
 # boredgame.lol — Master TODO
 
-Last updated: 2026-03-27
+Last updated: 2026-04-07
 
 ## Legend
 - ✅ Done
@@ -86,23 +86,33 @@ Last updated: 2026-03-27
 - ✅ Match Percentage Badges on Results
 - 📋 Iconography & Less Text
 
-## Phase 6: Growth & Monetization — 📋 Planned
+## Phase 6: Growth & Monetization — ✅ Complete
 - ✅ Vercel Deployment
 - ✅ Share Game Night Invite (/invite page + share button)
-- 📋 Custom Domain (Squarespace → Vercel)
-- 📋 Shareability & Social Cards (Open Graph previews)
-- 📋 AI-Generated Blog / Game News
-- 📋 Google Ads Integration
-- 📋 Email Validation
+- ✅ Custom Domain (boredgame.lol via Cloudflare)
+- ✅ Shareability & Social Cards (OpenGraph meta, dynamic OG images, share card API)
+- ✅ AI-Generated Blog (2x daily via Vercel Cron, GPT-4.1, 710 topics, 6 formats)
+- ✅ Google Ads Integration (AdSense script live, verification pending)
+- ✅ Email Validation (Supabase email confirmation)
+- ✅ Help Desk / Bug Reporting (/contact page + feedback widget)
+- ✅ FAQ Page (/faq with 10+ common questions)
+- ✅ Privacy Policy + Terms of Service
+- ✅ Cookie Consent Banner
+- ✅ GDPR Data Export & Deletion (in /settings)
+- ✅ Amazon Affiliate Links (tag: boredgame-20)
+- ✅ Google Analytics (G-5W6KCSVEJP)
+- ✅ Sitemap + robots.txt (games sitemap paginated)
+- ✅ JSON-LD Structured Data (WebSite, VideoGame/BoardGame schemas)
+- ✅ Implicit Signal Collection (click tracking, dwell time, scroll depth)
+- ✅ Automated Daily + Weekly Email Reports (via Resend + Vercel Cron)
 - 📋 Marketing Plan (SEO, Reddit, BGG forums)
-- 📋 Help Desk / Bug Reporting
-- 🔮 Weekly Digest Email
+- 🔮 Weekly Digest Email (for users)
 
 ## Phase 7: Fun Gimmicks & Engagement — Partial
 - ✅ Achievement System (43 achievements, all wired)
-- 🔮 D20 Dice Skin System (custom uploads, sharing, leaderboard)
+- ✅ Dice Creator (custom dice uploads and sharing)
+- ✅ Daily Game Pick (deterministic high-rated game of the day)
 - 🔮 Spin the Wheel Randomizer
-- 🔮 Daily Game Pick (Wordle-style)
 - 🔮 Game Night Playlist Generator
 - 🔮 Game Night Timer
 - 🔮 "What Should WE Play?" (multi-player room code)
@@ -124,12 +134,11 @@ Last updated: 2026-03-27
 - ✅ Advanced LLM Prompt (tone detection, intensity, expanded genres)
 - ✅ Caching Layer (Redis via Upstash)
 - ✅ OpenAI Semantic Embeddings module (ready, needs generation)
-- 🔮 Conversational Recommendations
+- ✅ Conversational Recommendations (/chat with GPT-4o function calling)
+- ✅ Import BGG / Steam Library (sync endpoints + profile UI)
+- ✅ FAQ / Tutorial Page (/faq)
 - 🔮 Game Group Matching
 - 🔮 Trending / Seasonal Recommendations
-- 🔮 Import BGG / Steam Library
-- 🔮 Tech Stack Diagram
-- 🔮 FAQ / Tutorial Page
 
 ## Phase 10: Performance — Partial
 - ✅ Kill all ILIKE queries (replaced with GIN-indexed tsvector RPCs)
@@ -141,26 +150,36 @@ Last updated: 2026-03-27
 - ✅ Pre-computed popularity cache in Redis (38 lists, 1390 games)
 - ✅ Redis caching on recommend (2min), browse (5min), detail (10min), similar (10min)
 - ✅ match_games RPC fix (removed WHERE clause defeating HNSW index)
-- 🔄 Hash embedding generation (39k/178k — 22% coverage, script running)
 - 📋 Semantic embedding generation (OpenAI text-embedding-3-small, ~$0.40)
 - 📋 Meilisearch for browse/search (sub-100ms, $5-15/mo self-hosted)
-- 📋 Finish tsvector column migration (Block 2 — needs re-run)
 
-## Bugs & Fixes Needed
-- 📋 Favorites RLS error ("violates row-level security policy") — needs UPDATE policy
+## Phase 11: Scoring & Engine Improvements — ✅ Complete (April 2026)
+- ✅ Fix cache key computed before LLM merge (Tier 1.1)
+- ✅ Fix genre match 0.4 floor for zero matches (Tier 1.3)
+- ✅ Fix denormalize() no-op in embeddings (Tier 1.2)
+- ✅ Fix MMR diversity assumes sorted input (Tier 1.4)
+- ✅ Fix time fit cliff-like falloff -> smooth exponential decay (Tier 1.5)
+- ✅ Fix mechanic alias: social deduction no longer maps to "Voting" (Tier 2.6)
+- ✅ Fix mechanic alias: engine building no longer maps to "Income" (Tier 2.7)
+- ✅ Fix complexity null handling: penalize missing data when user set range (Tier 2.4)
+- ✅ Increase quality signal weight 3% -> 5%, reduce recency 3% -> 1% (Tier 2.3)
+- ✅ Fix Bayesian dampening for hidden gems mode (lower threshold) (Tier 2.2)
+- ✅ Mood scoring: capped sub-signals, expanded tag mappings (Tier 2.1)
+- ✅ Normalize designer/mechanic scoring imbalance (Tier 2.5)
+- ✅ Favorites RLS UPDATE policy fix
+
+## Bugs & Fixes
+- ✅ Favorites RLS error — added UPDATE policy (migration 033)
 - 📋 Finish Block 2 of migration 011 (tsvector columns may not have been created)
-- 🔄 BGG API crawler still ingesting (at ~177k/400k IDs)
 
 ## Untracked / Ongoing
 - 📋 Shared component refactor audit
-- ✅ Test coverage (306 tests, 29 files)
-- 🔄 BGG API crawler (ingesting 400k games, ~12 hours remaining)
+- ✅ Test coverage (477 tests, 42 files)
 
 ## Scripts Reference
-- `source .env.local && npx tsx scripts/generate-embeddings.ts 200` — hash embeddings (re-run after BGG finishes)
+- `source .env.local && npx tsx scripts/generate-embeddings.ts 200` — hash embeddings
 - `source .env.local && npx tsx scripts/generate-semantic-embeddings.ts` — OpenAI semantic embeddings (~$0.40)
 - `source .env.local && npx tsx scripts/populate-popularity-cache.ts` — refresh Redis popularity cache
 - `source .env.local && npx tsx scripts/check-embeddings.ts` — diagnostic: embedding coverage, RPC health
 - `source .env.local && npx tsx scripts/crawl-igdb.ts` — IGDB video game crawler
 - `source .env.local && npx tsx scripts/dedupe-rawg-igdb.ts` — remove RAWG dupes that exist in IGDB
-- `source .env.local && npx tsx scripts/sync-meilisearch.ts` — sync to Meilisearch (Phase 2, not yet built)

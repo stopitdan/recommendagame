@@ -232,14 +232,15 @@ export function enrichedPreferencesToVector(
 }
 
 /**
- * Reverses normalization to get back the raw (un-unit-length) vector.
- * We need this to add more signals before re-normalizing.
+ * Scales a unit-length vector back to a meaningful magnitude before adding
+ * new signals. Without this, LLM-enrichment signals (magnitude ~1.5) would
+ * dominate the already-normalized base vector (magnitude 1.0). We scale
+ * by the dimensionality's square root so base and enrichment are comparable.
  */
 function denormalize(vec: number[]): number[] {
-  // Since we normalize to unit length, we can just scale back up.
-  // But we don't know the original magnitude — the relative proportions
-  // are what matter for cosine similarity, so we just clone and add to it.
-  return [...vec];
+  const nonZero = vec.filter((v) => v !== 0).length;
+  const scale = Math.sqrt(nonZero) || 1;
+  return vec.map((v) => v * scale);
 }
 
 // ─── Similarity ──────────────────────────────────────────────
