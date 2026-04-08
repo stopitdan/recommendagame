@@ -524,6 +524,29 @@ export async function POST(request: NextRequest) {
     // Step 7: Take top N
     const topResults = diversified.slice(0, limit);
 
+    // Step 7.5: Exact name match pinning — if the user's free text is just
+    // a game name (no modifier words like "like", "similar to"), pin the
+    // exact-match game to position #1 so it's always the top result.
+    if (body.freeText) {
+      const ft = body.freeText.trim();
+      const modifierPattern = /\b(like|similar\s+to|games?\s+like|such\s+as|but|with|for|and|more|better|other|instead\s+of)\b/i;
+      if (ft.length >= 2 && !modifierPattern.test(ft)) {
+        const normalized = ft.toLowerCase();
+        const exactIdx = topResults.findIndex((r) => r.game.name.toLowerCase() === normalized);
+        if (exactIdx > 0) {
+          const [exact] = topResults.splice(exactIdx, 1);
+          topResults.unshift(exact);
+        } else if (exactIdx === -1) {
+          // Exact match might be in the full scored list but missed the top N
+          const fromScored = scored.find((r) => r.game.name.toLowerCase() === normalized);
+          if (fromScored) {
+            topResults.unshift(fromScored);
+            topResults.pop(); // keep the count the same
+          }
+        }
+      }
+    }
+
     const latencyMs = Date.now() - startTime;
     console.log(`[Recommend] Done in ${latencyMs}ms: ${candidates.length} candidates → ${topResults.length} results (${engineVersion})`);
 
