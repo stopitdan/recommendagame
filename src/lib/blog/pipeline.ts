@@ -14,6 +14,7 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type OpenAI from 'openai';
+import type Anthropic from '@anthropic-ai/sdk';
 import { pickTopic } from './topic-picker';
 import { fetchTopicGames } from './game-fetcher';
 import { generateDraft } from './generator';
@@ -26,6 +27,7 @@ import type { PipelineResult } from './types';
 export async function runBlogPipeline(
   supabase: SupabaseClient,
   openai: OpenAI,
+  anthropic: Anthropic,
   slot = 0,
 ): Promise<PipelineResult> {
   // Stage 1: Pick topic
@@ -47,10 +49,10 @@ export async function runBlogPipeline(
     .order('published_at', { ascending: false })
     .limit(15);
 
-  // Stage 4: Generate draft
+  // Stage 4: Generate draft (Claude Sonnet for human-like writing)
   const year = new Date().getFullYear();
   const draft = await generateDraft(
-    openai,
+    anthropic,
     titleHint,
     games,
     year,

@@ -145,6 +145,36 @@ export const ACHIEVEMENTS: Achievement[] = [
     rarity: 'uncommon',
   },
 
+  // ── Multi-Dice ──
+  {
+    id: 'dice_collector',
+    name: 'Dice Collector',
+    emoji: '🎰',
+    description: 'Rolled 4 different types of dice',
+    rarity: 'uncommon',
+  },
+  {
+    id: 'max_roll',
+    name: 'Max Roll',
+    emoji: '📈',
+    description: 'Rolled the maximum value on any non-D20 die',
+    rarity: 'uncommon',
+  },
+  {
+    id: 'percentile_100',
+    name: 'One in a Hundred',
+    emoji: '💯',
+    description: 'Rolled 00 on the D100 percentile die',
+    rarity: 'rare',
+  },
+  {
+    id: 'full_set_roll',
+    name: 'Full Set',
+    emoji: '🧰',
+    description: 'Rolled all 7 dice types in one session',
+    rarity: 'rare',
+  },
+
   // ── Discovery & Search ──
   {
     id: 'genre_hopper',

@@ -3,68 +3,38 @@
 import { useRef, useEffect, useMemo, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { type DiceSkin, type DiceSkinType, getSkin, getEmojiForFace, DEFAULT_SKIN_ID } from '@/lib/dice-skins';
+import { type DiceSkin, getSkin, getEmojiForFace, DEFAULT_SKIN_ID } from '@/lib/dice-skins';
 import { getShaderCode, SHADER_DEFAULTS } from '@/lib/dice-shaders';
 import type { CustomDiceSkinConfig } from '@/types/custom-dice';
+import {
+  type DiceType,
+  type FaceData,
+  DICE_CONFIGS,
+  getFaceData,
+  getInitialQuat,
+} from '@/lib/dice-geometries';
 
 /**
- * 3D D20 with physically correct rigid body rotation.
+ * 3D dice with physically correct rigid body rotation.
  *
- * Supports three material modes:
+ * Supports all D&D 5e dice types (D4, D6, D8, D10, D12, D20, D100)
+ * and three material modes:
  * - solid: MeshStandardMaterial with a flat color
  * - shader: Custom GLSL ShaderMaterial with time-based animation
  * - emoji: MeshStandardMaterial + emoji face labels instead of numbers
  *
- * Physics: A regular icosahedron is a "spherical top" — all three
- * principal moments of inertia are equal (I1 = I2 = I3). For a
- * torque-free spherical top, angular velocity omega is CONSTANT
- * in the world frame (conservation of angular momentum).
- *
- * Integration: q(t+dt) = deltaQ * q(t)
+ * Physics: All convex polyhedra are approximated as spherical tops --
+ * angular velocity omega is constant in the world frame (conservation
+ * of angular momentum). Integration: q(t+dt) = deltaQ * q(t)
  */
 
-// ─── Compute face data from icosahedron geometry ─────────────
-
-interface FaceData {
-  center: THREE.Vector3;
-  normal: THREE.Vector3;
-}
-
-function computeFaceData(): FaceData[] {
-  const geo = new THREE.IcosahedronGeometry(0.85, 0);
-  const pos = geo.attributes.position;
-  const faces: FaceData[] = [];
-
-  for (let i = 0; i < pos.count; i += 3) {
-    const a = new THREE.Vector3(pos.getX(i), pos.getY(i), pos.getZ(i));
-    const b = new THREE.Vector3(pos.getX(i + 1), pos.getY(i + 1), pos.getZ(i + 1));
-    const c = new THREE.Vector3(pos.getX(i + 2), pos.getY(i + 2), pos.getZ(i + 2));
-
-    const center = a.clone().add(b).add(c).divideScalar(3);
-    const normal = new THREE.Vector3()
-      .crossVectors(b.clone().sub(a), c.clone().sub(a))
-      .normalize();
-
-    faces.push({ center, normal });
-  }
-
-  geo.dispose();
-  return faces;
-}
-
-// Compute once, shared by all components
-const globalFaces = computeFaceData();
-
-// Pre-compute the quaternion that makes face 20 point at the camera
-const INITIAL_QUAT = new THREE.Quaternion().setFromUnitVectors(
-  globalFaces[19].normal, // face 20 is index 19
-  new THREE.Vector3(0, -0.2, 7).normalize(),
-);
+/** Camera direction -- the face we want pointing at the user */
+const TO_CAMERA = new THREE.Vector3(0, -0.2, 7).normalize();
 
 // ─── Create number texture via canvas ────────────────────────
 
 function createNumberTexture(
-  num: number,
+  label: number | string,
   color = '#FFFFFF',
   shadowColor = 'rgba(0,0,0,0.5)',
   sizeMultiplier = 1.0,
@@ -77,7 +47,8 @@ function createNumberTexture(
   canvas.height = size;
   const ctx = canvas.getContext('2d')!;
 
-  const basePx = num > 9 ? 48 : 56;
+  const text = String(label);
+  const basePx = text.length > 1 ? 48 : 56;
   const px = Math.round(basePx * sizeMultiplier);
 
   ctx.clearRect(0, 0, size, size);
@@ -87,7 +58,7 @@ function createNumberTexture(
   ctx.font = `${fontWeight} ${px}px ${fontFamily}, sans-serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText(String(num), size / 2, size / 2);
+  ctx.fillText(text, size / 2, size / 2);
 
   const tex = new THREE.CanvasTexture(canvas);
   tex.needsUpdate = true;
@@ -96,7 +67,7 @@ function createNumberTexture(
 
 // ─── Create emoji texture via canvas ─────────────────────────
 
-function createEmojiTexture(num: number, skinId: string): THREE.CanvasTexture {
+function createEmojiTexture(faceValue: number | string, faceCount: number, skinId: string): THREE.CanvasTexture {
   const size = 128;
   const canvas = document.createElement('canvas');
   canvas.width = size;
@@ -105,8 +76,13 @@ function createEmojiTexture(num: number, skinId: string): THREE.CanvasTexture {
 
   ctx.clearRect(0, 0, size, size);
 
-  // Emoji expression based on face value
-  const emoji = getEmojiForFace(num, skinId);
+  // Normalize value to 1-20 range for emoji mapping
+  const numValue = typeof faceValue === 'number' ? faceValue : parseInt(faceValue, 10) || 0;
+  const normalized = faceCount === 20
+    ? numValue
+    : Math.max(1, Math.round((numValue / Math.max(faceCount - 1, 1)) * 19) + 1);
+
+  const emoji = getEmojiForFace(normalized, skinId);
   ctx.font = '52px serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -117,7 +93,7 @@ function createEmojiTexture(num: number, skinId: string): THREE.CanvasTexture {
   ctx.shadowBlur = 3;
   ctx.fillStyle = '#FFFFFF';
   ctx.font = 'bold 20px Arial, sans-serif';
-  ctx.fillText(String(num), size / 2, size - 16);
+  ctx.fillText(String(faceValue), size / 2, size - 16);
 
   const tex = new THREE.CanvasTexture(canvas);
   tex.needsUpdate = true;
@@ -126,39 +102,44 @@ function createEmojiTexture(num: number, skinId: string): THREE.CanvasTexture {
 
 // ─── Face labels on the die ──────────────────────────────────
 
-function FaceLabels({ faces, skin, labelStyle, labelSize, labelFont, labelWeight }: {
+function FaceLabels({ faces, faceLabels, labelConfig, skin, labelStyle, labelSize, labelFont, labelWeight }: {
   faces: FaceData[];
+  faceLabels: (number | string)[];
+  labelConfig: { quadSize: number; liftMultiplier: number; fontSizeMultiplier: number };
   skin: DiceSkin;
-  /** Override label style — used by custom dice for 'hidden' mode */
   labelStyle?: 'numbers' | 'emoji' | 'hidden';
   labelSize?: number;
   labelFont?: string;
   labelWeight?: string;
 }) {
   const effectiveStyle = labelStyle ?? (skin.type === 'emoji' ? 'emoji' : 'numbers');
+  const sizeMul = (labelSize ?? 1.0) * labelConfig.fontSizeMultiplier;
 
   const textures = useMemo(() => {
     if (effectiveStyle === 'hidden') return null;
     if (effectiveStyle === 'emoji') {
-      return Array.from({ length: 20 }, (_, i) => createEmojiTexture(i + 1, skin.id));
+      return faceLabels.map((label) =>
+        createEmojiTexture(label, faceLabels.length, skin.id),
+      );
     }
-    return Array.from({ length: 20 }, (_, i) =>
-      createNumberTexture(i + 1, skin.label, skin.labelShadow, labelSize, labelFont, labelWeight),
+    return faceLabels.map((label) =>
+      createNumberTexture(label, skin.label, skin.labelShadow, sizeMul, labelFont, labelWeight),
     );
-  }, [effectiveStyle, skin.id, skin.label, skin.labelShadow, labelSize, labelFont, labelWeight]);
+  }, [effectiveStyle, faceLabels, skin.id, skin.label, skin.labelShadow, sizeMul, labelFont, labelWeight]);
 
   if (!textures) return null;
 
   return (
     <>
       {faces.map((face, i) => {
-        const pos = face.center.clone().multiplyScalar(1.02);
+        if (i >= textures.length) return null;
+        const pos = face.center.clone().multiplyScalar(labelConfig.liftMultiplier);
         const quat = new THREE.Quaternion();
         quat.setFromUnitVectors(new THREE.Vector3(0, 0, 1), face.normal);
 
         return (
           <mesh key={i} position={pos} quaternion={quat}>
-            <planeGeometry args={[0.38, 0.38]} />
+            <planeGeometry args={[labelConfig.quadSize, labelConfig.quadSize]} />
             <meshBasicMaterial
               map={textures[i]}
               transparent
@@ -176,20 +157,16 @@ function FaceLabels({ faces, skin, labelStyle, labelSize, labelFont, labelWeight
 
 function ShaderDiceMaterial({ shaderKey, shaderColors, speed = 1.0 }: {
   shaderKey: string;
-  /** Optional custom colors — falls back to SHADER_DEFAULTS for this key */
   shaderColors?: { color1: string; color2: string; color3: string };
-  /** Animation speed multiplier (default 1.0) */
   speed?: number;
 }) {
   const matRef = useRef<THREE.ShaderMaterial>(null!);
 
-  // Resolve colors: custom → defaults → white fallback
   const defaults = SHADER_DEFAULTS[shaderKey];
   const c1 = shaderColors?.color1 ?? defaults?.color1 ?? '#FFFFFF';
   const c2 = shaderColors?.color2 ?? defaults?.color2 ?? '#FFFFFF';
   const c3 = shaderColors?.color3 ?? defaults?.color3 ?? '#FFFFFF';
 
-  // Only recreate the material when the shader KEY changes (different GLSL program)
   const material = useMemo(() => {
     const code = getShaderCode(shaderKey);
     if (!code) return null;
@@ -206,7 +183,6 @@ function ShaderDiceMaterial({ shaderKey, shaderColors, speed = 1.0 }: {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shaderKey]);
 
-  // Update color uniforms and advance time at custom speed
   useFrame((_, delta) => {
     if (matRef.current) {
       matRef.current.uniforms.uTime.value += delta * speed;
@@ -227,7 +203,6 @@ function ImageDiceMaterial({ url, bodyColor, metalness, roughness, tile = false 
   bodyColor: string;
   metalness: number;
   roughness: number;
-  /** When true, repeats the image across each face instead of wrapping once */
   tile?: boolean;
 }) {
   const matRef = useRef<THREE.MeshStandardMaterial>(null!);
@@ -238,12 +213,10 @@ function ImageDiceMaterial({ url, bodyColor, metalness, roughness, tile = false 
     if (!url) return;
     let active = true;
 
-    // Load via Image element with crossOrigin to handle CORS
     const img = new Image();
     img.crossOrigin = 'anonymous';
     img.onload = () => {
       if (!active) return;
-      // Draw onto a canvas so Three.js can use it as a CanvasTexture
       const canvas = document.createElement('canvas');
       const size = 512;
       canvas.width = size;
@@ -266,7 +239,6 @@ function ImageDiceMaterial({ url, bodyColor, metalness, roughness, tile = false 
     return () => { active = false; };
   }, [url, tile]);
 
-  // Tell Three.js the material changed whenever texture updates
   useEffect(() => {
     if (matRef.current) matRef.current.needsUpdate = true;
   }, [texture]);
@@ -284,18 +256,24 @@ function ImageDiceMaterial({ url, bodyColor, metalness, roughness, tile = false 
 
 // ─── Overlay shader mesh (transparent layer on top of base) ───
 
-function OverlayMesh({ shaderKey, opacity }: {
+function OverlayMesh({ shaderKey, opacity, diceType }: {
   shaderKey: string;
   opacity: number;
+  diceType: DiceType;
 }) {
   const matRef = useRef<THREE.ShaderMaterial>(null!);
   const defaults = SHADER_DEFAULTS[shaderKey];
+  const config = DICE_CONFIGS[diceType];
+
+  const geometry = useMemo(
+    () => config.createGeometry(config.radius * 1.001),
+    [config],
+  );
 
   const material = useMemo(() => {
     const code = getShaderCode(shaderKey);
     if (!code) return null;
 
-    // Inject uOpacity uniform into the fragment shader and multiply alpha by it
     const overlayFragment = code.fragment.replace(
       'uniform float uTime;',
       'uniform float uTime;\nuniform float uOpacity;',
@@ -320,7 +298,6 @@ function OverlayMesh({ shaderKey, opacity }: {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shaderKey]);
 
-  // Update opacity reactively without recreating the material
   useFrame((_, delta) => {
     if (matRef.current) {
       matRef.current.uniforms.uTime.value += delta;
@@ -332,44 +309,51 @@ function OverlayMesh({ shaderKey, opacity }: {
 
   return (
     <mesh>
-      <icosahedronGeometry args={[0.851, 0]} />
+      <primitive object={geometry} attach="geometry" />
       <primitive ref={matRef} object={material} attach="material" />
     </mesh>
   );
 }
 
-// ─── Animated D20 with rigid body physics ────────────────────
+// ─── Animated Die with rigid body physics ────────────────────
 
 type Phase = 'idle' | 'shrink' | 'flight' | 'decel' | 'settle' | 'present';
 
 const SHRINK_DUR = 0.25;
-const FLIGHT_DUR = 1.3;   // Free flight at constant omega
-const DECEL_DUR = 0.8;    // Friction slowing it down
-const SETTLE_DUR = 0.3;   // Final tiny SLERP to flat face
-const PRESENT_DUR = 0.35; // Grow to highlight result
+const FLIGHT_DUR = 1.3;
+const DECEL_DUR = 0.8;
+const SETTLE_DUR = 0.3;
+const PRESENT_DUR = 0.35;
 
-/** Camera direction — the face we want pointing at the user */
-const TO_CAMERA = new THREE.Vector3(0, -0.2, 7).normalize();
-
-function AnimatedD20({
+function AnimatedDie({
   rolling,
   onSettled,
   skin,
   isNat20,
+  diceType,
 }: {
   rolling: boolean;
-  onSettled: (value: number) => void;
+  onSettled: (value: number | string) => void;
   skin: DiceSkin;
   isNat20?: boolean;
+  diceType: DiceType;
 }) {
   const groupRef = useRef<THREE.Group>(null);
+  const config = DICE_CONFIGS[diceType];
+  const faces = useMemo(() => getFaceData(diceType), [diceType]);
 
-  // Set initial orientation to show face 20 on mount
+  const geometry = useMemo(
+    () => config.createGeometry(config.radius),
+    [config],
+  );
+
+  // Set initial orientation to show highest-value face on mount and type change
   useEffect(() => {
     if (groupRef.current) {
-      groupRef.current.quaternion.copy(INITIAL_QUAT);
+      const q = getInitialQuat(diceType, TO_CAMERA);
+      groupRef.current.quaternion.copy(q);
     }
-  }, []);
+  }, [diceType]);
 
   const state = useRef({
     phase: 'idle' as Phase,
@@ -382,7 +366,7 @@ function AnimatedD20({
     deltaQ: new THREE.Quaternion(),
     settleFrom: new THREE.Quaternion(),
     settleTo: new THREE.Quaternion(),
-    resultValue: 1,
+    resultValue: config.faceLabels[config.faceLabels.length - 1] as number | string,
     resultReported: false,
   });
 
@@ -394,13 +378,13 @@ function AnimatedD20({
     state.current.phaseStart = 0;
   }
 
-  function computeLanding(group: THREE.Group): { value: number; quat: THREE.Quaternion } {
+  function computeLanding(group: THREE.Group): { value: number | string; quat: THREE.Quaternion } {
     const worldNormal = new THREE.Vector3();
     let bestDot = -Infinity;
     let bestIdx = 0;
 
-    for (let i = 0; i < globalFaces.length; i++) {
-      worldNormal.copy(globalFaces[i].normal).applyQuaternion(group.quaternion);
+    for (let i = 0; i < faces.length; i++) {
+      worldNormal.copy(faces[i].normal).applyQuaternion(group.quaternion);
       const dot = worldNormal.dot(TO_CAMERA);
       if (dot > bestDot) {
         bestDot = dot;
@@ -408,11 +392,11 @@ function AnimatedD20({
       }
     }
 
-    worldNormal.copy(globalFaces[bestIdx].normal).applyQuaternion(group.quaternion);
+    worldNormal.copy(faces[bestIdx].normal).applyQuaternion(group.quaternion);
     const correction = new THREE.Quaternion().setFromUnitVectors(worldNormal, TO_CAMERA);
     const landingQuat = group.quaternion.clone().premultiply(correction);
 
-    return { value: bestIdx + 1, quat: landingQuat };
+    return { value: config.faceLabels[bestIdx], quat: landingQuat };
   }
 
   useEffect(() => {
@@ -575,8 +559,6 @@ function AnimatedD20({
   });
 
   const isShader = skin.type === 'shader' && skin.shaderKey;
-
-  // Extract custom config if present (from resolveCustomSkin)
   const customConfig = (skin as DiceSkin & { customConfig?: CustomDiceSkinConfig }).customConfig;
   const labelStyle = customConfig?.labelStyle;
   const isImage = customConfig?.baseType === 'image' && !!customConfig?.wrapImageUrl;
@@ -584,7 +566,7 @@ function AnimatedD20({
   return (
     <group ref={groupRef}>
       <mesh castShadow>
-        <icosahedronGeometry args={[0.85, 0]} />
+        <primitive object={geometry} attach="geometry" />
         {isShader ? (
           <ShaderDiceMaterial
             shaderKey={skin.shaderKey!}
@@ -612,10 +594,13 @@ function AnimatedD20({
         <OverlayMesh
           shaderKey={customConfig.overlayShaderKey}
           opacity={customConfig.overlayOpacity ?? 0.5}
+          diceType={diceType}
         />
       )}
       <FaceLabels
-        faces={globalFaces}
+        faces={faces}
+        faceLabels={config.faceLabels}
+        labelConfig={config.labelConfig}
         skin={skin}
         labelStyle={labelStyle}
         labelSize={customConfig?.labelSize}
@@ -625,8 +610,6 @@ function AnimatedD20({
     </group>
   );
 }
-
-// ─── Main Component ──────────────────────────────────────────
 
 // ─── Pulsing gold light for Nat 20 ──────────────────────────
 
@@ -648,14 +631,16 @@ function Nat20PulsingLight() {
 
 interface PhysicsDiceProps {
   rolling: boolean;
-  onSettled: (value: number) => void;
-  /** Full skin object — controls colors, material, and label style */
+  onSettled: (value: number | string) => void;
+  /** Full skin object -- controls colors, material, and label style */
   skin?: DiceSkin;
   /** When true, adds pulsing gold light and larger present scale */
   isNat20?: boolean;
+  /** Which dice type to render (default: 'd20') */
+  diceType?: DiceType;
 }
 
-export default function PhysicsDice({ rolling, onSettled, skin, isNat20 }: PhysicsDiceProps) {
+export default function PhysicsDice({ rolling, onSettled, skin, isNat20, diceType = 'd20' }: PhysicsDiceProps) {
   const activeSkin = skin ?? getSkin(DEFAULT_SKIN_ID);
 
   return (
@@ -669,7 +654,13 @@ export default function PhysicsDice({ rolling, onSettled, skin, isNat20 }: Physi
         <directionalLight position={[3, 5, 3]} intensity={1.2} />
         <pointLight position={[-2, 3, -1]} intensity={0.3} color={activeSkin.accent} />
         {isNat20 && <Nat20PulsingLight />}
-        <AnimatedD20 rolling={rolling} onSettled={onSettled} skin={activeSkin} isNat20={isNat20} />
+        <AnimatedDie
+          rolling={rolling}
+          onSettled={onSettled}
+          skin={activeSkin}
+          isNat20={isNat20}
+          diceType={diceType}
+        />
       </Canvas>
     </div>
   );

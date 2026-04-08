@@ -79,6 +79,9 @@ export async function GET() {
   // OpenAI
   health.openai = process.env.OPENAI_API_KEY ? 'CONFIGURED' : 'NOT SET';
 
+  // Anthropic (blog generation)
+  health.anthropic = process.env.ANTHROPIC_API_KEY ? 'CONFIGURED' : 'NOT SET';
+
   // Overall status
   const isHealthy = (totalGames ?? 0) > 0 && !hashRpcError;
   health.status = isHealthy ? 'healthy' : 'degraded';

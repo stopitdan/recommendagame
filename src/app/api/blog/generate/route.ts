@@ -11,6 +11,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import OpenAI from 'openai';
+import Anthropic from '@anthropic-ai/sdk';
 import { Resend } from 'resend';
 import { runBlogPipeline } from '@/lib/blog/pipeline';
 
@@ -51,7 +52,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'OpenAI not configured' }, { status: 503 });
   }
 
+  const anthropicKey = process.env.ANTHROPIC_API_KEY;
+  if (!anthropicKey) {
+    return NextResponse.json({ error: 'Anthropic not configured' }, { status: 503 });
+  }
+
   const openai = new OpenAI({ apiKey: openaiKey });
+  const anthropic = new Anthropic({ apiKey: anthropicKey });
   const slot = parseInt(request.nextUrl.searchParams.get('slot') ?? '0', 10);
   const startTime = Date.now();
 
@@ -67,7 +74,7 @@ export async function GET(request: NextRequest) {
 
   try {
     // Run the full pipeline
-    const result = await runBlogPipeline(supabase, openai, slot);
+    const result = await runBlogPipeline(supabase, openai, anthropic, slot);
 
     const slug = slugify(result.title) + `-${Date.now().toString(36)}`;
 

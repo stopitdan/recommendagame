@@ -6,7 +6,7 @@
  * including games_referenced for downstream fact-checking.
  */
 
-import type OpenAI from 'openai';
+import type Anthropic from '@anthropic-ai/sdk';
 import type { BlogDraft, BlogGameRow, GameReference } from './types';
 import { MODELS } from '@/lib/llm/models';
 
@@ -125,9 +125,9 @@ The games_referenced array MUST list every game you mention in the article, with
 /* -------------------------------------------------------------------------- */
 
 /**
- * Generate an initial blog draft.
+ * Generate an initial blog draft via Claude Sonnet.
  *
- * @param openai      - Initialized OpenAI client
+ * @param anthropic   - Initialized Anthropic client
  * @param titleHint   - Topic / title seed (e.g. "Best Solo Board Games")
  * @param games       - Candidate games from the database
  * @param year        - Current year for the post title
@@ -137,7 +137,7 @@ The games_referenced array MUST list every game you mention in the article, with
  * @returns Parsed BlogDraft with game references for fact-checking
  */
 export async function generateDraft(
-  openai: OpenAI,
+  anthropic: Anthropic,
   titleHint: string,
   games: BlogGameRow[],
   year: number,
@@ -148,20 +148,23 @@ export async function generateDraft(
   const gameContext = buildGameContext(games);
   const prompt = buildPrompt(titleHint, gameContext, year, format, !allowVideoGames, recentPosts);
 
-  const completion = await openai.chat.completions.create({
+  const message = await anthropic.messages.create({
     model: MODELS.blog,
-    messages: [{ role: 'user', content: prompt }],
-    response_format: { type: 'json_object' },
-    temperature: 0.6,
     max_tokens: 6000,
+    temperature: 0.6,
+    messages: [{ role: 'user', content: prompt }],
   });
 
-  const raw = completion.choices[0]?.message?.content;
+  const textBlock = message.content.find((b) => b.type === 'text');
+  const raw = textBlock?.text;
   if (!raw) {
     throw new Error('Empty AI response from blog generation');
   }
 
-  const parsed = JSON.parse(raw) as {
+  // Claude may wrap JSON in markdown code fences -- strip them
+  const jsonStr = raw.replace(/^```(?:json)?\s*\n?/m, '').replace(/\n?```\s*$/m, '');
+
+  const parsed = JSON.parse(jsonStr) as {
     title: string;
     description: string;
     content: string;

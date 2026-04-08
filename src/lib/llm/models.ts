@@ -1,9 +1,9 @@
 /**
- * Central model configuration for all OpenAI API calls.
+ * Central model configuration for all LLM API calls.
  *
  * Change models in one place instead of editing 12+ files.
- * Starting with GPT-4.1 series -- better than GPT-4o at lower cost.
- * Can bump to GPT-5.4 series after eval testing confirms no regressions.
+ * Most endpoints use OpenAI GPT-4.1 series.
+ * Blog generation uses Claude Sonnet for better writing quality.
  */
 export const MODELS = {
   /** Preference parsing -- structured JSON extraction from free text */
@@ -18,10 +18,10 @@ export const MODELS = {
   /** Chat sommelier -- conversational game recommendations */
   chat: 'gpt-4.1-mini',
 
-  /** Blog generation -- long-form SEO content (full model for quality) */
-  blog: 'gpt-4.1',
+  /** Blog generation -- long-form SEO content (Claude Sonnet for human-like writing) */
+  blog: 'claude-sonnet-4-6-20250514',
 
-  /** Blog analysis -- fact-checking, editing, quality evaluation */
+  /** Blog analysis -- fact-checking, editing, quality evaluation (OpenAI) */
   blogAnalysis: 'gpt-4.1-mini',
 
   /** Metadata enrichment -- batch moods/vibes generation */

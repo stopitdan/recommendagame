@@ -24,6 +24,8 @@ import { resolveCustomSkin } from '@/lib/custom-dice-utils';
 import { getCachedUser } from '@/lib/supabase/client';
 import { triggerEpicNat20 } from '@/lib/nat20-celebration';
 import type { CustomDiceSkinSummary } from '@/types/custom-dice';
+import { type DiceType, ALL_DICE_TYPES, DICE_CONFIGS } from '@/lib/dice-geometries';
+import RollHistory, { type RollEntry } from '@/components/RollHistory';
 
 // Dynamic import — Three.js can't SSR
 const PhysicsDice = dynamic(() => import('@/components/PhysicsDice'), {
@@ -151,10 +153,11 @@ export default function RandomGameView() {
   const [game, setGame] = useState<Game | null>(null);
   const [loading, setLoading] = useState(false);
   const [rolling, setRolling] = useState(false);
-  const [diceValue, setDiceValue] = useState<number | null>(null);
+  const [diceValue, setDiceValue] = useState<number | string | null>(null);
   const [isNat20, setIsNat20] = useState(false);
   const [isNat1, setIsNat1] = useState(false);
   const [type, setType] = useState<string | null>(null);
+  const [diceType, setDiceType] = useState<DiceType>('d20');
   const [activeSkin, setActiveSkin] = useState<DiceSkin>(getSkin(DEFAULT_SKIN_ID));
   const [skinReady, setSkinReady] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -251,33 +254,63 @@ export default function RandomGameView() {
   // Dice achievement tracking
   const rollHistory = useRef<number[]>([]);
   const rollTimestamps = useRef<number[]>([]);
+  const [rollEntries, setRollEntries] = useState<RollEntry[]>([]);
   const totalRolls = useRef(0);
 
-  const handleDiceSettled = useCallback((value: number) => {
+  // Track which dice types have been rolled this session (for achievements)
+  const rolledDiceTypes = useRef(new Set<DiceType>());
+
+  const handleDiceSettled = useCallback((value: number | string) => {
     setDiceValue(value);
     setRolling(false);
+
+    // Add to visible roll history
+    setRollEntries((prev) => [...prev.slice(-49), { diceType, value, timestamp: Date.now() }]);
 
     unlock('first_roll');
     totalRolls.current++;
 
-    // Track roll history for streak achievements
-    rollHistory.current.push(value);
+    const numValue = typeof value === 'number' ? value : parseInt(value as string, 10) || 0;
+    rollHistory.current.push(numValue);
     rollTimestamps.current.push(Date.now());
 
-    // Natural 20 / Natural 1
-    if (value === 20) {
-      setIsNat20(true);
-      triggerEpicNat20();
-      unlock('natural_20');
-    } else if (value === 1) {
-      setIsNat1(true);
-      triggerNat1Blood();
-      unlock('natural_1');
+    // Track dice type variety
+    rolledDiceTypes.current.add(diceType);
+    if (rolledDiceTypes.current.size >= ALL_DICE_TYPES.length) {
+      unlock('full_set_roll');
+    }
+    if (rolledDiceTypes.current.size >= 4) {
+      unlock('dice_collector');
     }
 
-    // Lucky Streak: 15+ three times in a row
+    // D20-only celebrations
+    if (diceType === 'd20') {
+      if (value === 20) {
+        setIsNat20(true);
+        triggerEpicNat20();
+        unlock('natural_20');
+      } else if (value === 1) {
+        setIsNat1(true);
+        triggerNat1Blood();
+        unlock('natural_1');
+      }
+    }
+
+    // Max roll on any non-D20 die
+    if (diceType !== 'd20') {
+      const labels = DICE_CONFIGS[diceType].faceLabels;
+      const maxLabel = labels[labels.length - 1];
+      if (value === maxLabel) unlock('max_roll');
+    }
+
+    // D100 special: rolled 00
+    if (diceType === 'd100' && value === '00') {
+      unlock('percentile_100');
+    }
+
+    // Lucky Streak: 15+ three times in a row (D20 only makes sense)
     const h = rollHistory.current;
-    if (h.length >= 3) {
+    if (diceType === 'd20' && h.length >= 3) {
       const last3 = h.slice(-3);
       if (last3.every((v) => v >= 15)) unlock('lucky_streak');
     }
@@ -301,7 +334,7 @@ export default function RandomGameView() {
       const last5 = ts.slice(-5);
       if (last5[4] - last5[0] < 60000) unlock('speed_demon');
     }
-  }, [unlock]);
+  }, [unlock, diceType]);
 
   const typeOptions = [
     { label: 'Any Game', value: null, icon: <Dice5 size={14} /> },
@@ -353,7 +386,22 @@ export default function RandomGameView() {
           </Typography>
         </Box>
 
-        {/* Dice + Customizer — side-by-side on desktop, stacked on mobile */}
+        {/* Dice type selector */}
+        <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', justifyContent: 'center' }}>
+          {ALL_DICE_TYPES.map((dt) => (
+            <Chip
+              key={dt}
+              label={dt.toUpperCase()}
+              onClick={() => { setDiceType(dt); setDiceValue(null); setIsNat20(false); setIsNat1(false); }}
+              color={diceType === dt ? 'secondary' : 'default'}
+              variant={diceType === dt ? 'filled' : 'outlined'}
+              size="small"
+              sx={{ fontWeight: 700, fontSize: '0.75rem', minWidth: 48 }}
+            />
+          ))}
+        </Box>
+
+        {/* Dice + Customizer -- side-by-side on desktop, stacked on mobile */}
         <Box
           sx={{
             display: 'flex',
@@ -383,6 +431,7 @@ export default function RandomGameView() {
                 onSettled={handleDiceSettled}
                 skin={activeSkin}
                 isNat20={isNat20}
+                diceType={diceType}
               />
             ) : (
               <Box sx={{ width: '100%', height: 300 }} />
@@ -484,7 +533,9 @@ export default function RandomGameView() {
                 </Box>
               ) : (
                 <Typography variant="h5" fontWeight={700} sx={{ color: 'secondary.main' }}>
-                  You rolled {diceValue === 8 || diceValue === 11 || diceValue === 18 ? 'an' : 'a'} {diceValue}!
+                  {diceType === 'd20'
+                    ? `You rolled ${diceValue === 8 || diceValue === 11 || diceValue === 18 ? 'an' : 'a'} ${diceValue}!`
+                    : `${diceType.toUpperCase()}: ${diceValue}!`}
                 </Typography>
               )}
             </motion.div>
@@ -635,6 +686,7 @@ export default function RandomGameView() {
           )}
         </AnimatePresence>
       </Stack>
+      <RollHistory entries={rollEntries} />
     </Container>
   );
 }
