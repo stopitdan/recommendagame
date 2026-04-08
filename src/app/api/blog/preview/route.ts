@@ -75,6 +75,7 @@ export async function GET(request: NextRequest) {
   ul { padding-left: 20px; }
   li { margin-bottom: 4px; }
   blockquote { border-left: 3px solid #ddd; padding-left: 16px; color: #666; }
+  img { max-width: 420px; width: 100%; height: auto; border-radius: 8px; margin: 20px 0; display: block; box-shadow: 0 2px 12px rgba(0,0,0,0.15); }
 </style>
 </head><body>
 ${post.status === 'draft' ? `<div class="bar">${statusBadge}<a href="${approveUrl}" class="approve">Approve</a><a href="${rejectUrl}" class="reject">Reject</a></div>` : `<div class="bar">${statusBadge}</div>`}

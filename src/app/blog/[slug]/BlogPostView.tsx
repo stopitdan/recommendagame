@@ -156,7 +156,7 @@ export default function BlogPostView() {
           '& ul': { pl: 3, mb: 2 },
           '& li': { lineHeight: 1.8, color: 'text.secondary', mb: 0.5 },
           '& strong': { color: 'text.primary' },
-          '& img': { maxWidth: 260, height: 'auto', borderRadius: 2, my: 2, display: 'block', boxShadow: '0 2px 8px rgba(0,0,0,0.12)' },
+          '& img': { maxWidth: 420, width: '100%', height: 'auto', borderRadius: 2, my: 2.5, display: 'block', boxShadow: '0 2px 12px rgba(0,0,0,0.15)' },
           '& table': { width: '100%', borderCollapse: 'collapse', mb: 3, mt: 2 },
           '& th': { textAlign: 'left', borderBottom: '2px solid', borderColor: 'divider', py: 1, px: 1.5, fontWeight: 700, color: 'text.primary' },
           '& td': { borderBottom: '1px solid', borderColor: 'divider', py: 1, px: 1.5, color: 'text.secondary' },
