@@ -39,6 +39,14 @@ vi.mock('@/lib/recommendation/diversity', () => ({
   diversityRerank: vi.fn().mockImplementation((scored: unknown[]) => scored),
 }));
 
+// --- Mock semantic cache (no real Supabase/Redis in tests) ---
+vi.mock('@/lib/recommendation/semantic-cache', () => ({
+  buildCanonicalKey: vi.fn().mockReturnValue('{}'),
+  hashCanonicalKey: vi.fn().mockReturnValue('test-hash'),
+  getSemanticCache: vi.fn().mockResolvedValue(null),
+  setSemanticCache: vi.fn().mockResolvedValue(undefined),
+}));
+
 // --- Mock Supabase with factory (no external refs) ---
 vi.mock('@supabase/supabase-js', () => {
   const chainable: Record<string, ReturnType<typeof vi.fn>> = {};

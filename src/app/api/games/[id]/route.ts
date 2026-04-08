@@ -7,6 +7,7 @@ import { createClient } from '@supabase/supabase-js';
 import type { GameRow } from '@/types/supabase';
 import { rowToGame, GAME_SELECT_COLUMNS } from '@/lib/supabase/games';
 import { redisCache } from '@/lib/redis';
+import { shouldSkipCache, jsonWithCacheHeader } from '@/lib/cache-bypass';
 
 function createDbClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -16,20 +17,23 @@ function createDbClient() {
 }
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
   const supabase = createDbClient();
+  const skipCache = shouldSkipCache(request);
 
   if (!supabase) {
     return NextResponse.json({ error: 'Database not configured' }, { status: 500 });
   }
 
-  // Check Redis (game data rarely changes — 10 min TTL)
+  // Check Redis (game data rarely changes -- 10 min TTL)
   const cacheKey = `game:${id}`;
-  const cached = await redisCache.get<unknown>(cacheKey);
-  if (cached) return NextResponse.json(cached);
+  if (!skipCache) {
+    const cached = await redisCache.get<unknown>(cacheKey);
+    if (cached) return jsonWithCacheHeader(cached, true);
+  }
 
   const { data, error } = await supabase
     .from('games')
@@ -44,5 +48,5 @@ export async function GET(
   const response = { game: rowToGame(data as GameRow) };
   redisCache.set(cacheKey, response, 600); // 10 min TTL
 
-  return NextResponse.json(response);
+  return jsonWithCacheHeader(response, false);
 }

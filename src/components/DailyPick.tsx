@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -12,17 +11,14 @@ import { CalendarDays, Star, Users, Clock } from 'lucide-react';
 import type { Game } from '@/types/game';
 import { formatGameType } from '@/lib/utils/format';
 import AnimatedRating from './AnimatedRating';
+import { useCachedFetch } from '@/hooks/useCachedFetch';
 
 export default function DailyPick() {
   const router = useRouter();
-  const [game, setGame] = useState<Game | null>(null);
-
-  useEffect(() => {
-    fetch('/api/daily-pick')
-      .then((r) => r.ok ? r.json() : null)
-      .then((data) => { if (data?.game) setGame(data.game); })
-      .catch(() => {});
-  }, []);
+  const { data: game } = useCachedFetch<Game | null>(
+    '/api/daily-pick',
+    { transform: (d) => (d as { game?: Game })?.game ?? null },
+  );
 
   if (!game) return null;
 

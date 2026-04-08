@@ -11,6 +11,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { redisCache } from '@/lib/redis';
+import { shouldSkipCache } from '@/lib/cache-bypass';
 
 const ALLOWED_DOMAINS = [
   'cf.geekdo-images.com',
@@ -39,8 +40,9 @@ export async function GET(request: NextRequest) {
   }
 
   // Check Redis cache
+  const skipCache = shouldSkipCache(request);
   const cacheKey = `map-img:${imageUrl}`;
-  const cached = await redisCache.get<string>(cacheKey);
+  const cached = !skipCache ? await redisCache.get<string>(cacheKey) : null;
   if (cached) {
     const buf = Buffer.from(cached, 'base64');
     return new NextResponse(buf, {

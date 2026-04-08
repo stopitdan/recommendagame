@@ -12,8 +12,10 @@ import ListItemText from '@mui/material/ListItemText';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
-import { User, Heart, ClipboardList, Settings, LogOut, Package, Shield } from 'lucide-react';
+import Switch from '@mui/material/Switch';
+import { User, Heart, ClipboardList, Settings, LogOut, Package, Shield, Zap } from 'lucide-react';
 import { logout } from '@/app/actions/auth';
+import { useCacheBypass } from '@/hooks/useCacheBypass';
 
 export interface HeaderAuthProps {
   isLoggedIn: boolean;
@@ -25,6 +27,7 @@ export default function HeaderAuth({ isLoggedIn, email, displayName }: HeaderAut
   const router = useRouter();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const menuOpen = Boolean(anchorEl);
+  const { isNoCacheMode, toggleNoCache } = useCacheBypass();
 
   if (isLoggedIn) {
     const initials = (displayName || email || '?')
@@ -132,6 +135,20 @@ export default function HeaderAuth({ isLoggedIn, email, displayName }: HeaderAut
             <MenuItem key="admin" onClick={() => router.push('/admin')}>
               <ListItemIcon sx={{ minWidth: 32 }}><Shield size={18} /></ListItemIcon>
               <ListItemText>Admin</ListItemText>
+            </MenuItem>,
+            <MenuItem
+              key="nocache"
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleNoCache();
+              }}
+              sx={{ justifyContent: 'space-between' }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <ListItemIcon sx={{ minWidth: 32 }}><Zap size={18} /></ListItemIcon>
+                <ListItemText>Skip Cache</ListItemText>
+              </Box>
+              <Switch size="small" checked={isNoCacheMode} />
             </MenuItem>,
           ]}
 

@@ -20,10 +20,10 @@
 import { Redis } from '@upstash/redis';
 
 // ─── Kill Switch ─────────────────────────────────────────────
-// Set to true to disable all Redis caching. Every consumer already
-// handles null gracefully, so this is safe. Flip back to false when
-// the site has enough traffic to justify caching.
-const REDIS_DISABLED = true;
+// Set REDIS_DISABLED=true in env to disable all Redis caching.
+// Every consumer handles null gracefully, so this is safe.
+// When unset (default), Redis is enabled if credentials are available.
+const REDIS_DISABLED = process.env.REDIS_DISABLED === 'true';
 
 // ─── Singleton Client ────────────────────────────────────────
 

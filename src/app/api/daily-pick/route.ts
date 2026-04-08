@@ -8,11 +8,12 @@
  * Cached in Redis for 1 hour to avoid repeated DB hits.
  */
 
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import type { GameRow } from '@/types/supabase';
 import { rowToGame, GAME_SELECT_COLUMNS } from '@/lib/supabase/games';
 import { redisCache } from '@/lib/redis';
+import { shouldSkipCache, jsonWithCacheHeader } from '@/lib/cache-bypass';
 
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -31,13 +32,16 @@ function hashString(str: string): number {
   return Math.abs(hash);
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD in UTC
   const cacheKey = `daily-pick:${today}`;
+  const skipCache = shouldSkipCache(request);
 
   // Check cache
-  const cached = await redisCache.get<ReturnType<typeof rowToGame>>(cacheKey);
-  if (cached) return NextResponse.json({ game: cached, date: today });
+  if (!skipCache) {
+    const cached = await redisCache.get<ReturnType<typeof rowToGame>>(cacheKey);
+    if (cached) return jsonWithCacheHeader({ game: cached, date: today }, true);
+  }
 
   const supabase = getSupabase();
   if (!supabase) {
@@ -66,5 +70,5 @@ export async function GET() {
   // Cache for 1 hour
   redisCache.set(cacheKey, game, 3600);
 
-  return NextResponse.json({ game, date: today });
+  return jsonWithCacheHeader({ game, date: today }, false);
 }

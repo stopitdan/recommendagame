@@ -32,6 +32,7 @@ import { computeSimilarityInMemory, fetchVectorCandidates } from '@/lib/recommen
 import { MemoryCache } from '@/lib/cache';
 import { rateLimit, LIMITS } from '@/lib/rate-limit';
 import { redisCache } from '@/lib/redis';
+import { shouldSkipCache, jsonWithCacheHeader } from '@/lib/cache-bypass';
 import { diversityRerank } from '@/lib/recommendation/diversity';
 import { buildRejectionProfile, computeRejectionPenalty } from '@/lib/recommendation/rejection';
 import { getPopularFallback } from '@/lib/recommendation/popularity-cache';
@@ -39,6 +40,12 @@ import { llmRerank } from '@/lib/recommendation/llm-rerank';
 import { expandQuery } from '@/lib/recommendation/llm-query-expand';
 import { getCollaborativeSignals } from '@/lib/recommendation/collaborative';
 import { parsePreferencesWithLLM } from '@/lib/llm/parse-preferences';
+import {
+  buildCanonicalKey,
+  hashCanonicalKey,
+  getSemanticCache,
+  setSemanticCache,
+} from '@/lib/recommendation/semantic-cache';
 
 // ─── Config ──────────────────────────────────────────────────
 
@@ -162,24 +169,41 @@ export async function POST(request: NextRequest) {
   const limit = Math.min(body.limit ?? DEFAULT_RESULT_LIMIT, MAX_RESULT_LIMIT);
   const popularity: PopularityMode = body.popularity ?? 'popular';
 
-  // Check caches: Redis (persistent) → in-memory (warm start)
+  // Skip cache via unified bypass (cookie/header/query param) or legacy body field
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const skipCache = shouldSkipCache(request) || (body as any)._nocache === true;
+
+  // ── Cache Layer 1: Exact-match (raw prefs) ────────────────
   const key = cacheKey(body, popularity);
   const redisKey = `rec:${key}`;
-
-  // Skip cache if ?nocache=1 is in the request URL (for testing)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const skipCache = (body as any)._nocache === true;
 
   if (!skipCache) {
     const memoryCached = recommendCache.get(key);
     if (memoryCached) {
-      return NextResponse.json(memoryCached);
+      return jsonWithCacheHeader(memoryCached, true);
     }
 
     const redisCached = await redisCache.get<unknown>(redisKey);
     if (redisCached) {
       recommendCache.set(key, redisCached);
-      return NextResponse.json(redisCached);
+      return jsonWithCacheHeader(redisCached, true);
+    }
+  }
+
+  // ── Cache Layer 2: Semantic (canonical parsed prefs) ──────
+  // Different free text that parses to the same structured prefs
+  // produces the same canonical key. This is the "smart" cache.
+  const canonicalKey = buildCanonicalKey(body, popularity);
+  const canonicalHash = hashCanonicalKey(canonicalKey);
+
+  if (!skipCache) {
+    const semanticHit = await getSemanticCache(canonicalHash);
+    if (semanticHit && !semanticHit.isStale) {
+      // Warm the exact-match caches too
+      recommendCache.set(key, semanticHit.payload);
+      redisCache.set(redisKey, semanticHit.payload, 120);
+      console.log(`[Recommend] Semantic cache HIT (hash=${canonicalHash.slice(0, 8)})`);
+      return jsonWithCacheHeader(semanticHit.payload, true);
     }
   }
 
@@ -570,13 +594,20 @@ export async function POST(request: NextRequest) {
       },
     };
 
-    // Cache responses with results in both layers
+    // Cache responses with results in all layers
     if (topResults.length > 0) {
       recommendCache.set(key, response);
       redisCache.set(redisKey, response, 120); // 2 min TTL in Redis
+      // Semantic cache: keyed by canonical parsed prefs (cross-user)
+      setSemanticCache(
+        canonicalHash,
+        { gameTypes: body.gameTypes, genres: body.genres, moods: body.moods },
+        response,
+        topResults.length,
+      );
     }
 
-    return NextResponse.json(response);
+    return jsonWithCacheHeader(response, false);
   } catch (error) {
     console.error('[Recommend] Error:', error);
     return NextResponse.json({ error: 'Recommendation failed' }, { status: 500 });

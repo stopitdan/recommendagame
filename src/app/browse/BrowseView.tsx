@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { getFromClientCache, setInClientCache } from '@/lib/client-cache';
 import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -156,11 +157,22 @@ export default function BrowseView() {
       if (f.yearRange[0] > 1950) params.set('yearFrom', String(f.yearRange[0]));
       if (f.yearRange[1] < 2026) params.set('yearTo', String(f.yearRange[1]));
 
-      const res = await fetch(`/api/games/browse?${params.toString()}`);
-      if (!res.ok) return;
-      const data = await res.json();
+      const fetchUrl = `/api/games/browse?${params.toString()}`;
+
+      // Check client-side cache first
+      const cached = getFromClientCache(fetchUrl);
+      let data;
+      if (cached && !cached.isStale) {
+        data = cached.data as { games?: Game[]; total?: number; fuzzyMatch?: boolean; correctedQuery?: string };
+      } else {
+        const res = await fetch(fetchUrl);
+        if (!res.ok) return;
+        data = await res.json();
+        setInClientCache(fetchUrl, data);
+      }
+
       const rawGames: Game[] = data.games ?? [];
-      // Dedupe by ID — the interleaving API path can return the same game
+      // Dedupe by ID -- the interleaving API path can return the same game
       // from multiple type buckets; cached responses may also carry dupes.
       const seen = new Set<string>();
       const newGames = rawGames.filter((g) => {
@@ -178,6 +190,13 @@ export default function BrowseView() {
         if (next >= 50) unlock('explorer');
         return next;
       });
+
+      // Prefetch next page in background (warms server Redis cache)
+      if (newGames.length === PAGE_SIZE) {
+        const nextParams = new URLSearchParams(params);
+        nextParams.set('offset', String(newOffset + PAGE_SIZE));
+        fetch(`/api/games/browse?${nextParams.toString()}`).catch(() => {});
+      }
     } finally {
       setLoading(false);
     }

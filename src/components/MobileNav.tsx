@@ -11,13 +11,15 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Typography from '@mui/material/Typography';
+import Switch from '@mui/material/Switch';
 import {
   Crosshair, Search, Dice5, Palette, Trophy, BookOpen, Wine, Map,
-  User, Heart, ClipboardList, Settings, Package, Shield,
+  User, Heart, ClipboardList, Settings, Package, Shield, Zap,
   LogIn, Sparkles, LogOut, Sun, Moon,
 } from 'lucide-react';
 import { logout } from '@/app/actions/auth';
 import { useColorMode } from './ThemeRegistry';
+import { useCacheBypass } from '@/hooks/useCacheBypass';
 
 interface MobileNavProps {
   isLoggedIn: boolean;
@@ -162,6 +164,7 @@ export default function MobileNav({ isLoggedIn, email, displayName }: MobileNavP
                     <ListItemIcon sx={{ minWidth: 36, color: 'inherit' }}><Shield size={18} /></ListItemIcon>
                     <ListItemText primary="Admin" primaryTypographyProps={{ fontWeight: pathname.startsWith('/admin') ? 600 : 400, color: 'white' }} />
                   </ListItemButton>
+                  <MobileCacheBypassToggle />
                 </List>
               </>
             )}
@@ -207,6 +210,20 @@ export default function MobileNav({ isLoggedIn, email, displayName }: MobileNavP
         </List>
       </Drawer>
     </>
+  );
+}
+
+function MobileCacheBypassToggle() {
+  const { isNoCacheMode, toggleNoCache } = useCacheBypass();
+  return (
+    <ListItemButton
+      onClick={toggleNoCache}
+      sx={{ borderRadius: 2, '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' } }}
+    >
+      <ListItemIcon sx={{ minWidth: 36, color: 'inherit' }}><Zap size={18} /></ListItemIcon>
+      <ListItemText primary="Skip Cache" primaryTypographyProps={{ color: 'white' }} />
+      <Switch size="small" checked={isNoCacheMode} sx={{ ml: 1 }} />
+    </ListItemButton>
   );
 }
 

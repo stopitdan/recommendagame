@@ -1,22 +1,28 @@
 /**
- * LLM Reranking — Second-Stage Recommendation Quality
+ * LLM Reranking -- Second-Stage Recommendation Quality
  *
  * Takes the top N candidates from the rule-based scoring pipeline
  * and asks GPT-4o to rerank them based on how well they actually
  * match the user's intent. This catches everything the rule-based
  * scoring misses: nuance, context, common sense.
  *
+ * Results are cached in Redis keyed by (candidate IDs + preference summary)
+ * since temperature=0 makes output deterministic. Saves 1-3s per cache hit.
+ *
  * Research basis: ICLR 2025 papers on LLM-based reranking show
  * significant precision improvements over traditional scoring.
  * Zero-shot, no training data needed.
  */
 
+import { createHash } from 'crypto';
 import OpenAI from 'openai';
 import type { ScoredGame } from './scoring';
 import type { QuestionnaireState } from '@/types/questionnaire';
 import { MODELS } from '@/lib/llm/models';
+import { redisCache } from '@/lib/redis';
 
 const RERANK_TIMEOUT_MS = 12000;
+const RERANK_CACHE_TTL = 600; // 10 minutes
 
 /**
  * Rerank the top candidates using GPT-4o.
@@ -52,6 +58,21 @@ export async function llmRerank(
   // For large pools, evaluate top 80 so the LLM sees well-known games that
   // rule-based scoring may have ranked at position 60-80.
   const maxCandidates = candidates.length <= 100 ? candidates.length : 80;
+
+  // ── Rerank Cache ─────────────────────────────────────────────
+  // temperature=0 makes output deterministic: same candidates + same prefs = same result.
+  // Cache the ordered ID list to skip the 1-3s OpenAI call on repeat queries.
+  const candidateIds = candidates.slice(0, maxCandidates).map((c) => c.game.id).sort();
+  const cacheInput = JSON.stringify({ ids: candidateIds, prefs: wantsSummary, limit });
+  const cacheHash = createHash('sha256').update(cacheInput).digest('hex').slice(0, 16);
+  const cacheKey = `rerank:${cacheHash}`;
+
+  const cachedIds = await redisCache.get<string[]>(cacheKey);
+  if (cachedIds && cachedIds.length > 0) {
+    console.log(`[LLM Rerank] Cache HIT (${cacheKey})`);
+    return reconstructOrder(candidates, cachedIds);
+  }
+
   const gameSummaries = candidates.slice(0, maxCandidates).map((c, i) => {
     const g = c.game;
     const parts = [`${i + 1}. "${g.name}" [ID:${g.id}]`];
@@ -114,32 +135,40 @@ Return ONLY a JSON object: {"ids": ["game-id-1", "game-id-2", ...]} with the ${l
 
     if (rerankedIds.length === 0) return candidates;
 
-    // Build a map for quick lookup
-    const candidateMap = new Map(candidates.map((c) => [c.game.id, c]));
-
-    // Reorder: LLM picks first, then remaining in original order
-    const reranked: ScoredGame[] = [];
-    const usedIds = new Set<string>();
-
-    for (const id of rerankedIds) {
-      const match = candidateMap.get(id);
-      if (match && !usedIds.has(id)) {
-        reranked.push(match);
-        usedIds.add(id);
-      }
-    }
-
-    // Append remaining candidates not picked by LLM
-    for (const c of candidates) {
-      if (!usedIds.has(c.game.id)) {
-        reranked.push(c);
-      }
-    }
+    // Cache the result for future identical queries
+    redisCache.set(cacheKey, rerankedIds, RERANK_CACHE_TTL);
 
     console.log(`[LLM Rerank] Reranked ${rerankedIds.length} games from ${candidates.length} candidates`);
-    return reranked;
+    return reconstructOrder(candidates, rerankedIds);
   } catch (err) {
     console.error('[LLM Rerank] Failed, using original order:', err);
     return candidates;
   }
+}
+
+/**
+ * Reconstruct the full candidate list in the order specified by rerankedIds.
+ * LLM picks come first, then remaining candidates in original order.
+ */
+function reconstructOrder(candidates: ScoredGame[], rerankedIds: string[]): ScoredGame[] {
+  const candidateMap = new Map(candidates.map((c) => [c.game.id, c]));
+  const reranked: ScoredGame[] = [];
+  const usedIds = new Set<string>();
+
+  for (const id of rerankedIds) {
+    const match = candidateMap.get(id);
+    if (match && !usedIds.has(id)) {
+      reranked.push(match);
+      usedIds.add(id);
+    }
+  }
+
+  // Append remaining candidates not picked by LLM
+  for (const c of candidates) {
+    if (!usedIds.has(c.game.id)) {
+      reranked.push(c);
+    }
+  }
+
+  return reranked;
 }

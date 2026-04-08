@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { leaderboardCache } from '@/lib/cache';
+import { shouldSkipCache, jsonWithCacheHeader } from '@/lib/cache-bypass';
 
 function createDbClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -23,10 +24,13 @@ export async function GET(request: NextRequest) {
   const limit = Math.min(parseInt(searchParams.get('limit') ?? '25', 10), 100);
 
   // Check cache first (5 min TTL)
+  const skipCache = shouldSkipCache(request);
   const cacheKey = `leaderboard:${type ?? 'all'}:${limit}`;
-  const cached = leaderboardCache.get(cacheKey);
-  if (cached) {
-    return NextResponse.json(cached);
+  if (!skipCache) {
+    const cached = leaderboardCache.get(cacheKey);
+    if (cached) {
+      return jsonWithCacheHeader(cached, true);
+    }
   }
 
   const supabase = createDbClient();

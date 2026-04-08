@@ -31,6 +31,7 @@ import { localAdapter } from '@/lib/adapters/local';
 import { syncSearchResults } from '@/lib/sync/game-sync';
 import { rateLimit, LIMITS } from '@/lib/rate-limit';
 import { redisCache } from '@/lib/redis';
+import { shouldSkipCache, jsonWithCacheHeader } from '@/lib/cache-bypass';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -104,9 +105,12 @@ export async function GET(request: NextRequest) {
   const limit = Math.min(parseIntParam(searchParams.get('limit')) ?? 20, 100);
 
   // Check Redis cache first
+  const skipCache = shouldSkipCache(request);
   const searchKey = `search:${searchParams.toString()}`;
-  const cached = await redisCache.get<{ query: string; count: number; popularity: string; results: Game[] }>(searchKey);
-  if (cached) return NextResponse.json(cached);
+  if (!skipCache) {
+    const cached = await redisCache.get<{ query: string; count: number; popularity: string; results: Game[] }>(searchKey);
+    if (cached) return jsonWithCacheHeader(cached, true);
+  }
 
   try {
     // Step 1: Search local DB first (fast, no rate limits)

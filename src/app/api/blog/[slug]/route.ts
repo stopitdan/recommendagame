@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { redisCache } from '@/lib/redis';
+import { shouldSkipCache, jsonWithCacheHeader } from '@/lib/cache-bypass';
 
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -15,12 +16,15 @@ function getSupabase() {
 
 type Params = { params: Promise<{ slug: string }> };
 
-export async function GET(_request: NextRequest, { params }: Params) {
+export async function GET(request: NextRequest, { params }: Params) {
   const { slug } = await params;
+  const skipCache = shouldSkipCache(request);
 
   const cacheKey = `blog:post:${slug}`;
-  const cached = await redisCache.get<unknown>(cacheKey);
-  if (cached) return NextResponse.json(cached);
+  if (!skipCache) {
+    const cached = await redisCache.get<unknown>(cacheKey);
+    if (cached) return jsonWithCacheHeader(cached, true);
+  }
 
   const supabase = getSupabase();
   if (!supabase) {

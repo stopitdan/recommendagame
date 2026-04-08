@@ -12,6 +12,7 @@ import { rowToGame, GAME_SELECT_COLUMNS } from '@/lib/supabase/games';
 import { gameToVector, normalize, cosineSimilarity } from '@/lib/recommendation/embeddings';
 import { similarGamesCache } from '@/lib/cache';
 import { redisCache } from '@/lib/redis';
+import { shouldSkipCache, jsonWithCacheHeader } from '@/lib/cache-bypass';
 import type { GameRow } from '@/types/supabase';
 
 function getSupabase() {
@@ -22,20 +23,23 @@ function getSupabase() {
 }
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-
-  // Check caches: in-memory → Redis
-  const memoryCached = similarGamesCache.get(id);
-  if (memoryCached) return NextResponse.json(memoryCached);
-
+  const skipCache = shouldSkipCache(request);
   const redisCacheKey = `similar:${id}`;
-  const redisCached = await redisCache.get<unknown>(redisCacheKey);
-  if (redisCached) {
-    similarGamesCache.set(id, redisCached);
-    return NextResponse.json(redisCached);
+
+  // Check caches: in-memory -> Redis
+  if (!skipCache) {
+    const memoryCached = similarGamesCache.get(id);
+    if (memoryCached) return jsonWithCacheHeader(memoryCached, true);
+
+    const redisCached = await redisCache.get<unknown>(redisCacheKey);
+    if (redisCached) {
+      similarGamesCache.set(id, redisCached);
+      return jsonWithCacheHeader(redisCached, true);
+    }
   }
 
   const supabase = getSupabase();

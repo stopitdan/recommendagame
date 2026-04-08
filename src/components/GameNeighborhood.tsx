@@ -19,6 +19,7 @@ import {
 } from 'd3-force';
 import { getGameTypeConfig } from '@/lib/game-type-config';
 import type { GameType } from '@/types/game';
+import { getFromClientCache, setInClientCache } from '@/lib/client-cache';
 
 interface NodeData extends SimulationNodeDatum {
   id: string;
@@ -64,10 +65,18 @@ export default function GameNeighborhood({ gameId, height = 450, onRecenter }: G
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/games/${encodeURIComponent(targetId)}/neighborhood`);
-      if (!res.ok) throw new Error('Failed to load');
-      const data = await res.json();
-      const { center, neighbors } = data;
+      const url = `/api/games/${encodeURIComponent(targetId)}/neighborhood`;
+      const cached = getFromClientCache(url);
+      let data;
+      if (cached && !cached.isStale) {
+        data = cached.data;
+      } else {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Failed to load');
+        data = await res.json();
+        setInClientCache(url, data);
+      }
+      const { center, neighbors } = data as { center: NodeData; neighbors: NodeData[] };
 
       setCenterInfo({ id: center.id, name: center.name });
 

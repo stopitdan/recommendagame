@@ -22,6 +22,7 @@ import { createClient } from '@supabase/supabase-js';
 import type { GameRow } from '@/types/supabase';
 import { rowToGame } from '@/lib/supabase/games';
 import { redisCache } from '@/lib/redis';
+import { shouldSkipCache, jsonWithCacheHeader } from '@/lib/cache-bypass';
 import { rateLimit, LIMITS } from '@/lib/rate-limit';
 
 function createDbClient() {
@@ -66,10 +67,15 @@ export async function GET(request: NextRequest) {
   const yearFrom = searchParams.get('yearFrom');
   const yearTo = searchParams.get('yearTo');
 
-  // Check Redis cache (browse results change slowly — 5 min TTL)
-  const browseKey = `browse:${searchParams.toString()}`;
-  const cached = await redisCache.get<unknown>(browseKey);
-  if (cached) return NextResponse.json(cached);
+  // Check Redis cache (browse results change slowly -- 5 min TTL)
+  // Normalize cache key: sort params so ?type=a&q=x === ?q=x&type=a
+  const skipCache = shouldSkipCache(request);
+  const sortedParams = new URLSearchParams([...searchParams.entries()].sort());
+  const browseKey = `browse:${sortedParams.toString()}`;
+  if (!skipCache) {
+    const cached = await redisCache.get<unknown>(browseKey);
+    if (cached) return jsonWithCacheHeader(cached, true);
+  }
 
   const selectColumns = 'id,source,source_id,name,description,year_published,types,min_players,max_players,recommended_players,min_play_time,max_play_time,avg_play_time,complexity,rating,rating_count,categories,mechanics,themes,platforms,thumbnail_url,image_url,source_url';
 

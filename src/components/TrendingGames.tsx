@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -12,21 +11,16 @@ import Typography from '@mui/material/Typography';
 import { motion } from 'motion/react';
 import { Flame } from 'lucide-react';
 import type { Game } from '@/types/game';
+import { useCachedFetch } from '@/hooks/useCachedFetch';
 
 export default function TrendingGames() {
   const router = useRouter();
-  const [games, setGames] = useState<Game[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: games, loading } = useCachedFetch<Game[]>(
+    '/api/games/trending',
+    { transform: (d) => (d as { games?: Game[] }).games ?? [] },
+  );
 
-  useEffect(() => {
-    fetch('/api/games/trending')
-      .then((res) => res.json())
-      .then((data) => setGames(data.games ?? []))
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (!loading && games.length === 0) return null;
+  if (!loading && (!games || games.length === 0)) return null;
 
   return (
     <Container maxWidth="lg">
@@ -48,7 +42,7 @@ export default function TrendingGames() {
           '&::-webkit-scrollbar-thumb': { bgcolor: 'divider', borderRadius: 3 },
         }}
       >
-        {loading
+        {loading || !games
           ? Array.from({ length: 8 }).map((_, i) => (
               <Box key={i} sx={{ minWidth: 140, scrollSnapAlign: 'start' }}>
                 <Skeleton variant="rounded" width={140} height={180} sx={{ borderRadius: 2 }} />

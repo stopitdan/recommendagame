@@ -1,35 +1,22 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import GameCard from './GameCard';
 import type { Game } from '@/types/game';
+import { useCachedFetch } from '@/hooks/useCachedFetch';
 
 export interface SimilarGamesProps {
   gameId: string;
 }
 
 export default function SimilarGames({ gameId }: SimilarGamesProps) {
-  const [games, setGames] = useState<Game[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchSimilar() {
-      setLoading(true);
-      try {
-        const res = await fetch(`/api/games/${encodeURIComponent(gameId)}/similar`);
-        if (!res.ok) return;
-        const data = await res.json();
-        setGames(data.similar ?? []);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchSimilar();
-  }, [gameId]);
+  const { data: games, loading } = useCachedFetch<Game[]>(
+    `/api/games/${encodeURIComponent(gameId)}/similar`,
+    { transform: (d) => (d as { similar?: Game[] }).similar ?? [] },
+  );
 
   if (loading) {
     return (
@@ -39,7 +26,7 @@ export default function SimilarGames({ gameId }: SimilarGamesProps) {
     );
   }
 
-  if (games.length === 0) return null;
+  if (!games || games.length === 0) return null;
 
   return (
     <Box>

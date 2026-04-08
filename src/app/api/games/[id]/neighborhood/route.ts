@@ -12,6 +12,7 @@ import type { GameRow } from '@/types/supabase';
 import { rowToGame, GAME_SELECT_COLUMNS } from '@/lib/supabase/games';
 import { gameToVector, normalize, cosineSimilarity } from '@/lib/recommendation/embeddings';
 import { redisCache } from '@/lib/redis';
+import { shouldSkipCache, jsonWithCacheHeader } from '@/lib/cache-bypass';
 
 const NEIGHBOR_COUNT = 20;
 const CACHE_TTL = 3600; // 1 hour
@@ -28,14 +29,17 @@ interface NeighborNode {
 }
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
   const cacheKey = `neighborhood:${id}`;
+  const skipCache = shouldSkipCache(request);
 
-  const cached = await redisCache.get<unknown>(cacheKey);
-  if (cached) return NextResponse.json(cached);
+  if (!skipCache) {
+    const cached = await redisCache.get<unknown>(cacheKey);
+    if (cached) return jsonWithCacheHeader(cached, true);
+  }
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -166,5 +170,5 @@ export async function GET(
   };
 
   await redisCache.set(cacheKey, response, CACHE_TTL);
-  return NextResponse.json(response);
+  return jsonWithCacheHeader(response, false);
 }

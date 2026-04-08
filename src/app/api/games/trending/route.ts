@@ -6,20 +6,25 @@
  * Cached in Redis for 6 hours.
  */
 
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import type { GameRow } from '@/types/supabase';
 import { rowToGame, GAME_SELECT_COLUMNS } from '@/lib/supabase/games';
 import { redisCache } from '@/lib/redis';
+import { shouldSkipCache, jsonWithCacheHeader } from '@/lib/cache-bypass';
 
 const CACHE_KEY = 'trending:bgg';
 const CACHE_TTL = 21600; // 6 hours
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const skipCache = shouldSkipCache(request);
+
   // Check Redis cache
-  const cached = await redisCache.get<unknown>(CACHE_KEY);
-  if (cached) {
-    return NextResponse.json(cached);
+  if (!skipCache) {
+    const cached = await redisCache.get<unknown>(CACHE_KEY);
+    if (cached) {
+      return jsonWithCacheHeader(cached, true);
+    }
   }
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -58,7 +63,7 @@ export async function GET() {
     // Cache the result
     await redisCache.set(CACHE_KEY, response, CACHE_TTL);
 
-    return NextResponse.json(response);
+    return jsonWithCacheHeader(response, false);
   } catch (err) {
     console.error('[Trending] Error:', err);
     return NextResponse.json({ games: [] });

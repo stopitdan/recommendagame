@@ -12,20 +12,24 @@ import OpenAI from 'openai';
 import type { GameRow } from '@/types/supabase';
 import { rowToGame, GAME_SELECT_COLUMNS } from '@/lib/supabase/games';
 import { redisCache } from '@/lib/redis';
+import { shouldSkipCache, jsonWithCacheHeader } from '@/lib/cache-bypass';
 import { MODELS } from '@/lib/llm/models';
 
 const CACHE_TTL = 2592000; // 30 days
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id: gameId } = await params;
   const cacheKey = `quickstart:${gameId}`;
+  const skipCache = shouldSkipCache(request);
 
   // Check cache first
-  const cached = await redisCache.get<{ summary: string }>(cacheKey);
-  if (cached) return NextResponse.json(cached);
+  if (!skipCache) {
+    const cached = await redisCache.get<{ summary: string }>(cacheKey);
+    if (cached) return jsonWithCacheHeader(cached, true);
+  }
 
   // Fetch game data
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
