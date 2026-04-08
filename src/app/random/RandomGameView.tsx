@@ -158,20 +158,39 @@ export default function RandomGameView() {
   const [isNat1, setIsNat1] = useState(false);
   const [type, setType] = useState<string | null>(null);
   const [diceType, setDiceType] = useState<DiceType>('d20');
-  const [activeSkin, setActiveSkin] = useState<DiceSkin>(getSkin(DEFAULT_SKIN_ID));
+  // Per-dice-type skin selections (each dice remembers its own skin)
+  const [skinMap, setSkinMap] = useState<Record<string, DiceSkin>>(() => {
+    const def = getSkin(DEFAULT_SKIN_ID);
+    return Object.fromEntries(ALL_DICE_TYPES.map((dt) => [dt, def]));
+  });
+  const activeSkin = skinMap[diceType] ?? getSkin(DEFAULT_SKIN_ID);
   const [skinReady, setSkinReady] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [customSkins, setCustomSkins] = useState<CustomDiceSkinSummary[]>([]);
 
-  // Load user's saved dice skin and custom skins on mount
+  // Load user's saved dice skins and custom skins on mount
   useEffect(() => {
     async function loadSkin() {
       const user = await getCachedUser();
       setIsLoggedIn(!!user);
 
+      // Load per-type skin prefs from localStorage
+      try {
+        const saved = localStorage.getItem('dice-skin-map');
+        if (saved) {
+          const parsed = JSON.parse(saved) as Record<string, string>;
+          setSkinMap((prev) => {
+            const next = { ...prev };
+            for (const [dt, skinId] of Object.entries(parsed)) {
+              if (skinId) next[dt] = getSkin(skinId);
+            }
+            return next;
+          });
+        }
+      } catch { /* ignore corrupt localStorage */ }
+
       if (user) {
         try {
-          // Load saved skin preference + custom skins in parallel
           const [skinRes, customRes] = await Promise.all([
             fetch('/api/user/dice-skin'),
             fetch('/api/dice-skins'),
@@ -184,39 +203,52 @@ export default function RandomGameView() {
 
           if (skinRes.ok) {
             const data = await skinRes.json();
-            if (data.customSkin) {
-              // Custom skin — resolve from config
-              setActiveSkin(resolveCustomSkin(
-                data.customSkin.id,
-                data.customSkin.name,
-                data.customSkin.emoji,
-                data.customSkin.config,
-              ));
-            } else {
-              setActiveSkin(getSkin(data.skinId));
+            // Server skin becomes the D20 default if no localStorage override
+            const saved = localStorage.getItem('dice-skin-map');
+            if (!saved) {
+              let serverSkin: DiceSkin;
+              if (data.customSkin) {
+                serverSkin = resolveCustomSkin(
+                  data.customSkin.id,
+                  data.customSkin.name,
+                  data.customSkin.emoji,
+                  data.customSkin.config,
+                );
+              } else {
+                serverSkin = getSkin(data.skinId);
+              }
+              setSkinMap((prev) => ({ ...prev, d20: serverSkin }));
             }
           }
         } catch {
           // Fall back to default skin silently
         }
       }
-      // Always mark ready — logged-out users just get the default skin immediately
       setSkinReady(true);
     }
     loadSkin();
   }, []);
 
-  // Handle skin selection — save to server if logged in
+  // Handle skin selection -- save for current dice type
   function handleSkinSelect(skin: DiceSkin) {
-    setActiveSkin(skin);
+    setSkinMap((prev) => {
+      const next = { ...prev, [diceType]: skin };
+      // Persist to localStorage
+      try {
+        const ids = Object.fromEntries(
+          Object.entries(next).map(([dt, s]) => [dt, s.id]),
+        );
+        localStorage.setItem('dice-skin-map', JSON.stringify(ids));
+      } catch { /* quota exceeded etc */ }
+      return next;
+    });
+    // Also save to server for the current type (backward-compat: saves as the user's "main" skin)
     if (isLoggedIn) {
       fetch('/api/user/dice-skin', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ skinId: skin.id }),
-      }).catch(() => {
-        // Silently fail — local state already updated
-      });
+      }).catch(() => {});
     }
   }
 
@@ -303,6 +335,11 @@ export default function RandomGameView() {
       if (value === maxLabel) unlock('max_roll');
     }
 
+    // D100: rolled 00
+    if (diceType === 'd100' && value === '00') {
+      unlock('percentile_100');
+    }
+
     // Lucky Streak: 15+ three times in a row (D20 only makes sense)
     const h = rollHistory.current;
     if (diceType === 'd20' && h.length >= 3) {
@@ -386,7 +423,7 @@ export default function RandomGameView() {
           {ALL_DICE_TYPES.map((dt) => (
             <Chip
               key={dt}
-              label={dt.toUpperCase()}
+              label={dt === 'd100' ? 'D%' : dt.toUpperCase()}
               onClick={() => { setDiceType(dt); setDiceValue(null); setIsNat20(false); setIsNat1(false); }}
               color={diceType === dt ? 'secondary' : 'default'}
               variant={diceType === dt ? 'filled' : 'outlined'}
@@ -576,9 +613,12 @@ export default function RandomGameView() {
               <Card
                 variant="outlined"
                 sx={{
+                  display: 'flex',
+                  flexDirection: { xs: 'column', sm: 'row' },
                   cursor: 'pointer',
-                  transition: 'all 200ms',
+                  transition: 'box-shadow 150ms ease, transform 150ms ease',
                   '&:hover': { boxShadow: 4, transform: 'translateY(-2px)' },
+                  '&:active': { transform: 'translateY(0)' },
                   ...(isNat20 ? {
                     border: '2px solid',
                     borderColor: 'warning.main',
@@ -596,83 +636,96 @@ export default function RandomGameView() {
                     component="img"
                     src={(game as any).image_url}
                     alt={(game as any).name}
-                    sx={{ width: '100%', height: 200, objectFit: 'cover' }}
+                    sx={{
+                      width: { xs: '100%', sm: 180 },
+                      height: { xs: 180, sm: 'auto' },
+                      minHeight: { sm: 180 },
+                      objectFit: 'cover',
+                      flexShrink: 0,
+                    }}
                   />
                 )}
-                <CardContent sx={{ p: 3 }}>
-                  {isNat20 && (
-                    <Typography
-                      variant="overline"
-                      sx={{ color: 'warning.main', fontWeight: 700, letterSpacing: 2 }}
-                    >
-                      Critical Success
-                    </Typography>
-                  )}
-                  {isNat1 && (
-                    <Typography
-                      variant="overline"
-                      sx={{ color: 'error.main', fontWeight: 700, letterSpacing: 2 }}
-                    >
-                      Critical Failure
-                    </Typography>
-                  )}
-                  <Typography variant="h5" fontWeight={700} sx={{ mb: 1 }}>
-                    {(game as any).name}
-                  </Typography>
+                <CardContent sx={{ flex: 1, textAlign: 'left' }}>
+                  <Stack spacing={1}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1 }}>
+                      {isNat20 && (
+                        <Typography
+                          variant="overline"
+                          sx={{ color: 'warning.main', fontWeight: 700, letterSpacing: 2 }}
+                        >
+                          Critical Success
+                        </Typography>
+                      )}
+                      {isNat1 && (
+                        <Typography
+                          variant="overline"
+                          sx={{ color: 'error.main', fontWeight: 700, letterSpacing: 2 }}
+                        >
+                          Critical Failure
+                        </Typography>
+                      )}
+                    </Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1 }}>
+                      <Typography variant="h5" fontWeight={700} sx={{ flex: 1 }}>
+                        {(game as any).name}
+                      </Typography>
+                      {(game as any).rating && (
+                        <Chip
+                          label={<AnimatedRating value={Number((game as any).rating)} prefix="⭐ " delay={500} />}
+                          size="small"
+                          sx={{ fontWeight: 600, flexShrink: 0 }}
+                        />
+                      )}
+                    </Box>
 
-                  <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2, justifyContent: 'center' }}>
-                    {(game as any).rating && (
-                      <Chip
-                        label={<AnimatedRating value={Number((game as any).rating)} prefix="⭐ " delay={500} />}
-                        size="small"
-                        sx={{ fontWeight: 600 }}
-                      />
+                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                      {(game as any).min_players && (
+                        <Chip
+                          icon={<Users size={14} /> as React.ReactElement}
+                          label={`${(game as any).min_players}${(game as any).max_players && (game as any).max_players !== (game as any).min_players ? `–${(game as any).max_players}` : ''} players`}
+                          size="small"
+                          variant="outlined"
+                        />
+                      )}
+                      {(game as any).avg_play_time && (
+                        <Chip
+                          icon={<Clock size={14} /> as React.ReactElement}
+                          label={`${(game as any).avg_play_time} min`}
+                          size="small"
+                          variant="outlined"
+                        />
+                      )}
+                    </Box>
+
+                    {(game as any).description && (
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{
+                          display: '-webkit-box',
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                          lineHeight: 1.6,
+                        }}
+                      >
+                        {(game as any).description}
+                      </Typography>
                     )}
-                    {(game as any).min_players && (
-                      <Chip
-                        icon={<Users size={14} /> as React.ReactElement}
-                        label={`${(game as any).min_players}${(game as any).max_players && (game as any).max_players !== (game as any).min_players ? `–${(game as any).max_players}` : ''} players`}
-                        size="small"
+
+                    <Box>
+                      <Button
                         variant="outlined"
-                      />
-                    )}
-                    {(game as any).avg_play_time && (
-                      <Chip
-                        icon={<Clock size={14} /> as React.ReactElement}
-                        label={`${(game as any).avg_play_time} min`}
                         size="small"
-                        variant="outlined"
-                      />
-                    )}
-                  </Box>
-
-                  {(game as any).description && (
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{
-                        display: '-webkit-box',
-                        WebkitLineClamp: 3,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden',
-                        lineHeight: 1.6,
-                      }}
-                    >
-                      {(game as any).description}
-                    </Typography>
-                  )}
-
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    sx={{ mt: 2 }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      router.push(`/games/${encodeURIComponent((game as any).id)}`);
-                    }}
-                  >
-                    View Details
-                  </Button>
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/games/${encodeURIComponent((game as any).id)}`);
+                        }}
+                      >
+                        View Details
+                      </Button>
+                    </Box>
+                  </Stack>
                 </CardContent>
               </Card>
             </motion.div>

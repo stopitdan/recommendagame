@@ -102,7 +102,7 @@ function createEmojiTexture(faceValue: number | string, faceCount: number, skinI
 
 // ─── Face labels on the die ──────────────────────────────────
 
-function FaceLabels({ faces, faceLabels, labelConfig, skin, labelStyle, labelSize, labelFont, labelWeight }: {
+function FaceLabels({ faces, faceLabels, labelConfig, skin, labelStyle, labelSize, labelFont, labelWeight, diceType }: {
   faces: FaceData[];
   faceLabels: (number | string)[];
   labelConfig: { quadSize: number; liftMultiplier: number; fontSizeMultiplier: number };
@@ -111,6 +111,7 @@ function FaceLabels({ faces, faceLabels, labelConfig, skin, labelStyle, labelSiz
   labelSize?: number;
   labelFont?: string;
   labelWeight?: string;
+  diceType: DiceType;
 }) {
   const effectiveStyle = labelStyle ?? (skin.type === 'emoji' ? 'emoji' : 'numbers');
   const sizeMul = (labelSize ?? 1.0) * labelConfig.fontSizeMultiplier;
@@ -133,7 +134,13 @@ function FaceLabels({ faces, faceLabels, labelConfig, skin, labelStyle, labelSiz
     <>
       {faces.map((face, i) => {
         if (i >= textures.length) return null;
-        const pos = face.center.clone().multiplyScalar(labelConfig.liftMultiplier);
+        // For Platonic solids, face centers are equidistant from origin so
+        // multiplyScalar works. For D10/D100 kites, centers are deep inside
+        // the shape, so we push outward along the face normal instead.
+        const isD10Shape = diceType === 'd10' || diceType === 'd100';
+        const pos = isD10Shape
+          ? face.center.clone().addScaledVector(face.normal, 0.01)
+          : face.center.clone().multiplyScalar(labelConfig.liftMultiplier);
         const quat = new THREE.Quaternion();
         quat.setFromUnitVectors(new THREE.Vector3(0, 0, 1), face.normal);
 
@@ -342,10 +349,14 @@ function AnimatedDie({
   const config = DICE_CONFIGS[diceType];
   const faces = useMemo(() => getFaceData(diceType), [diceType]);
 
-  const geometry = useMemo(
-    () => config.createGeometry(config.radius),
-    [config],
-  );
+  // Create a fresh geometry per dice type. Must not be shared across renders
+  // because R3F's <primitive> doesn't reconcile geometry object swaps well.
+  const geometry = useMemo(() => {
+    const geo = config.createGeometry(config.radius);
+    // Ensure non-indexed for flat shading on all types
+    if (geo.index) return geo.toNonIndexed();
+    return geo;
+  }, [config]);
 
   // Set initial orientation to show highest-value face on mount and type change
   useEffect(() => {
@@ -565,7 +576,7 @@ function AnimatedDie({
 
   return (
     <group ref={groupRef}>
-      <mesh castShadow>
+      <mesh castShadow key={diceType}>
         <primitive object={geometry} attach="geometry" />
         {isShader ? (
           <ShaderDiceMaterial
@@ -606,6 +617,7 @@ function AnimatedDie({
         labelSize={customConfig?.labelSize}
         labelFont={customConfig?.labelFont}
         labelWeight={customConfig?.labelWeight}
+        diceType={diceType}
       />
     </group>
   );

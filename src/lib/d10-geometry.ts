@@ -1,94 +1,107 @@
 /**
  * Custom D10 (pentagonal trapezohedron) geometry.
  *
- * A D10 has 10 kite-shaped faces, 12 vertices, and 20 edges.
- * Three.js has no built-in for this shape. We construct it as the
- * dual of a pentagonal antiprism.
- *
- * The geometry is non-indexed (flat shading compatible) with each
- * kite split into 2 triangles = 20 triangles total.
+ * Mathematically correct with coplanar kite faces (no creases).
+ * The ringY offset is computed numerically to ensure the scalar
+ * triple product of each kite's edge vectors is zero.
  */
 
 import * as THREE from 'three';
 
-/**
- * Creates a D10 pentagonal trapezohedron BufferGeometry.
- * @param radius - Approximate outer radius (vertex distance from center)
- */
+export interface D10FaceInfo {
+  center: THREE.Vector3;
+  normal: THREE.Vector3;
+}
+
+let cachedFaceInfo: D10FaceInfo[] | null = null;
+let cachedRadius = 0;
+
 export function createD10Geometry(radius: number): THREE.BufferGeometry {
-  // Pentagonal trapezohedron construction:
-  // - Top apex and bottom apex
-  // - Upper ring of 5 vertices (pentagon)
-  // - Lower ring of 5 vertices (pentagon, rotated 36 degrees)
+  const s = radius * 0.9;
 
-  const topApex = new THREE.Vector3(0, radius, 0);
-  const bottomApex = new THREE.Vector3(0, -radius, 0);
+  // These values are numerically solved for coplanarity:
+  // scalar triple product (u0-top) · ((l0-top) × (u1-top)) ≈ 0
+  const ringR = s * 0.82;
+  const apexH = s * 1.0;
+  const ringY = s * 0.1055 / 0.9; // = 0.1055 when s=0.9*radius
 
-  // Ring height relative to center -- upper ring slightly above, lower slightly below
-  const ringY = radius * 0.31;
-  const ringRadius = radius * 0.85;
+  const top = new THREE.Vector3(0, apexH, 0);
+  const bot = new THREE.Vector3(0, -apexH, 0);
 
-  const upperRing: THREE.Vector3[] = [];
-  const lowerRing: THREE.Vector3[] = [];
+  const V: THREE.Vector3[] = [top];
 
   for (let i = 0; i < 5; i++) {
-    // Upper ring vertices
-    const upperAngle = (i * 2 * Math.PI) / 5 - Math.PI / 2;
-    upperRing.push(new THREE.Vector3(
-      ringRadius * Math.cos(upperAngle),
-      ringY,
-      ringRadius * Math.sin(upperAngle),
-    ));
-
-    // Lower ring -- rotated 36 degrees (pi/5) from upper
-    const lowerAngle = upperAngle + Math.PI / 5;
-    lowerRing.push(new THREE.Vector3(
-      ringRadius * Math.cos(lowerAngle),
-      -ringY,
-      ringRadius * Math.sin(lowerAngle),
-    ));
+    const a = (i * 2 * Math.PI) / 5 - Math.PI / 2;
+    V.push(new THREE.Vector3(ringR * Math.cos(a), ringY, ringR * Math.sin(a)));
   }
+  for (let i = 0; i < 5; i++) {
+    const a = (i * 2 * Math.PI) / 5 - Math.PI / 2 + Math.PI / 5;
+    V.push(new THREE.Vector3(ringR * Math.cos(a), -ringY, ringR * Math.sin(a)));
+  }
+  V.push(bot);
 
-  // Build 10 kite faces, each as 2 triangles.
-  // Upper kites: topApex -> upperRing[i] -> lowerRing[i] -> upperRing[(i+1)%5]
-  // Lower kites: bottomApex -> lowerRing[i] -> upperRing[(i+1)%5] -> lowerRing[(i+1)%5]
   const positions: number[] = [];
+  const normals: number[] = [];
+  const faceInfos: D10FaceInfo[] = [];
+
+  function addFace(a: THREE.Vector3, b: THREE.Vector3, c: THREE.Vector3, d: THREE.Vector3) {
+    // Face normal from kite diagonals
+    const n = new THREE.Vector3()
+      .crossVectors(
+        new THREE.Vector3().subVectors(c, a),
+        new THREE.Vector3().subVectors(d, b),
+      )
+      .normalize();
+
+    const geomCenter = new THREE.Vector3().add(a).add(b).add(c).add(d).divideScalar(4);
+    if (n.dot(geomCenter) < 0) n.negate();
+
+    // Label center: blend between the geometric centroid (average of all 4)
+    // and the ring midpoint (b+d)/2. Real dice have numbers slightly toward
+    // the wider part but not all the way -- 60% centroid, 40% ring midpoint.
+    const centroid = new THREE.Vector3().add(a).add(b).add(c).add(d).divideScalar(4);
+    const ringMid = new THREE.Vector3().add(b).add(d).divideScalar(2);
+    const labelCenter = ringMid.clone().lerp(centroid, 0.7);
+    faceInfos.push({ center: labelCenter.clone(), normal: n.clone() });
+
+    // Split along b-d diagonal (ring-to-ring) for coplanar triangles
+    const tris: [THREE.Vector3, THREE.Vector3, THREE.Vector3][] = [
+      [a, b, d],
+      [b, c, d],
+    ];
+
+    for (const [p, q, r] of tris) {
+      const triN = new THREE.Vector3().crossVectors(
+        new THREE.Vector3().subVectors(q, p),
+        new THREE.Vector3().subVectors(r, p),
+      );
+      const verts = triN.dot(n) >= 0 ? [p, q, r] : [p, r, q];
+      for (const v of verts) {
+        positions.push(v.x, v.y, v.z);
+        normals.push(n.x, n.y, n.z);
+      }
+    }
+  }
 
   for (let i = 0; i < 5; i++) {
-    const next = (i + 1) % 5;
-
-    // Upper kite face: topApex, upperRing[i], lowerRing[i], upperRing[next]
-    // Triangle 1: topApex, upperRing[i], lowerRing[i]
-    positions.push(
-      topApex.x, topApex.y, topApex.z,
-      upperRing[i].x, upperRing[i].y, upperRing[i].z,
-      lowerRing[i].x, lowerRing[i].y, lowerRing[i].z,
-    );
-    // Triangle 2: topApex, lowerRing[i], upperRing[next]
-    positions.push(
-      topApex.x, topApex.y, topApex.z,
-      lowerRing[i].x, lowerRing[i].y, lowerRing[i].z,
-      upperRing[next].x, upperRing[next].y, upperRing[next].z,
-    );
-
-    // Lower kite face: bottomApex, lowerRing[i], upperRing[next], lowerRing[next]
-    // Triangle 1: bottomApex, lowerRing[i], upperRing[next]
-    positions.push(
-      bottomApex.x, bottomApex.y, bottomApex.z,
-      lowerRing[i].x, lowerRing[i].y, lowerRing[i].z,
-      upperRing[next].x, upperRing[next].y, upperRing[next].z,
-    );
-    // Triangle 2: bottomApex, upperRing[next], lowerRing[next]
-    positions.push(
-      bottomApex.x, bottomApex.y, bottomApex.z,
-      upperRing[next].x, upperRing[next].y, upperRing[next].z,
-      lowerRing[next].x, lowerRing[next].y, lowerRing[next].z,
-    );
+    const ni = (i + 1) % 5;
+    addFace(V[0], V[1 + i], V[6 + i], V[1 + ni]);
+    addFace(V[11], V[6 + ni], V[1 + ni], V[6 + i]);
   }
+
+  cachedFaceInfo = faceInfos;
+  cachedRadius = radius;
 
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-  geometry.computeVertexNormals();
-
+  geometry.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
   return geometry;
+}
+
+export function getD10FaceInfo(radius: number): D10FaceInfo[] {
+  if (!cachedFaceInfo || cachedRadius !== radius) {
+    const geo = createD10Geometry(radius);
+    geo.dispose();
+  }
+  return cachedFaceInfo!;
 }

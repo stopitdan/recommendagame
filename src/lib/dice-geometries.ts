@@ -7,11 +7,11 @@
  */
 
 import * as THREE from 'three';
-import { createD10Geometry } from './d10-geometry';
+import { createD10Geometry, getD10FaceInfo } from './d10-geometry';
 
 // ─── Types ──────────────────────────────────────────────────
 
-export type DiceType = 'd4' | 'd6' | 'd8' | 'd10' | 'd12' | 'd20';
+export type DiceType = 'd4' | 'd6' | 'd8' | 'd10' | 'd12' | 'd20' | 'd100';
 
 export interface FaceData {
   center: THREE.Vector3;
@@ -54,14 +54,21 @@ export function computeFaceData(geometry: THREE.BufferGeometry, trisPerFace: num
   const verticesPerFace = trisPerFace * 3;
 
   for (let i = 0; i < pos.count; i += verticesPerFace) {
-    // Collect all vertices for this logical face
-    const center = new THREE.Vector3();
+    // Deduplicate vertices to get the true face centroid.
+    // When a kite/quad is split into 2 triangles, shared vertices appear twice,
+    // which biases a naive average toward the shared vertex (e.g., the apex).
+    // Deduplication gives the proper geometric center of the polygon.
+    const uniqueVerts = new Map<string, THREE.Vector3>();
     for (let v = 0; v < verticesPerFace; v++) {
-      center.x += pos.getX(i + v);
-      center.y += pos.getY(i + v);
-      center.z += pos.getZ(i + v);
+      const x = pos.getX(i + v), y = pos.getY(i + v), z = pos.getZ(i + v);
+      const key = `${x.toFixed(5)},${y.toFixed(5)},${z.toFixed(5)}`;
+      if (!uniqueVerts.has(key)) {
+        uniqueVerts.set(key, new THREE.Vector3(x, y, z));
+      }
     }
-    center.divideScalar(verticesPerFace);
+    const center = new THREE.Vector3();
+    for (const vert of uniqueVerts.values()) center.add(vert);
+    center.divideScalar(uniqueVerts.size);
 
     // Compute normal from the first triangle of this face
     const a = new THREE.Vector3(pos.getX(i), pos.getY(i), pos.getZ(i));
@@ -144,8 +151,8 @@ export const DICE_CONFIGS: Record<DiceType, DiceGeometryConfig> = {
     faceCount: 10,
     trisPerFace: 2,
     createGeometry: createD10,
-    faceLabels: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-    labelConfig: { quadSize: 0.35, liftMultiplier: 1.03, fontSizeMultiplier: 1.0 },
+    faceLabels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    labelConfig: { quadSize: 0.38, liftMultiplier: 1.02, fontSizeMultiplier: 0.9 },
     radius: 0.85,
   },
   d12: {
@@ -166,6 +173,15 @@ export const DICE_CONFIGS: Record<DiceType, DiceGeometryConfig> = {
     labelConfig: { quadSize: 0.38, liftMultiplier: 1.02, fontSizeMultiplier: 1.0 },
     radius: 0.85,
   },
+  d100: {
+    type: 'd100',
+    faceCount: 10,
+    trisPerFace: 2,
+    createGeometry: createD10,
+    faceLabels: ['00', '10', '20', '30', '40', '50', '60', '70', '80', '90'],
+    labelConfig: { quadSize: 0.38, liftMultiplier: 1.02, fontSizeMultiplier: 0.9 },
+    radius: 0.85,
+  },
 };
 
 // ─── Cached Face Data ───────────────────────────────────────
@@ -179,9 +195,16 @@ export function getFaceData(type: DiceType): FaceData[] {
   let faces = faceDataCache.get(type);
   if (!faces) {
     const config = DICE_CONFIGS[type];
-    const geo = config.createGeometry(config.radius);
-    faces = computeFaceData(geo, config.trisPerFace);
-    geo.dispose();
+    if (type === 'd10' || type === 'd100') {
+      // D10/D100 use pre-computed face info from the geometry builder
+      // because their kite faces need exact 4-vertex centroids for labels.
+      const d10Faces = getD10FaceInfo(config.radius);
+      faces = d10Faces.map((f) => ({ center: f.center.clone(), normal: f.normal.clone() }));
+    } else {
+      const geo = config.createGeometry(config.radius);
+      faces = computeFaceData(geo, config.trisPerFace);
+      geo.dispose();
+    }
     faceDataCache.set(type, faces);
   }
   return faces;
@@ -199,7 +222,7 @@ export function getInitialQuat(type: DiceType, cameraDir: THREE.Vector3): THREE.
 /**
  * All available dice types in display order.
  */
-export const ALL_DICE_TYPES: DiceType[] = ['d4', 'd6', 'd8', 'd10', 'd12', 'd20'];
+export const ALL_DICE_TYPES: DiceType[] = ['d4', 'd6', 'd8', 'd10', 'd12', 'd20', 'd100'];
 
 /**
  * Get the maximum numeric value for a dice type.

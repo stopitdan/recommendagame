@@ -127,15 +127,13 @@ export default function HeaderAuth({ isLoggedIn, email, displayName }: HeaderAut
             <ListItemText>Settings</ListItemText>
           </MenuItem>
 
-          {email === 'danjwiegand@gmail.com' && (
-            <>
-              <Divider />
-              <MenuItem onClick={() => router.push('/admin')}>
-                <ListItemIcon sx={{ minWidth: 32 }}><Shield size={18} /></ListItemIcon>
-                <ListItemText>Admin</ListItemText>
-              </MenuItem>
-            </>
-          )}
+          {email === 'danjwiegand@gmail.com' && [
+            <Divider key="admin-divider" />,
+            <MenuItem key="admin" onClick={() => router.push('/admin')}>
+              <ListItemIcon sx={{ minWidth: 32 }}><Shield size={18} /></ListItemIcon>
+              <ListItemText>Admin</ListItemText>
+            </MenuItem>,
+          ]}
 
           <Divider />
 
