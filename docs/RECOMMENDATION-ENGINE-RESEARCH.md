@@ -29,7 +29,7 @@ User Input (free text + questionnaire selections)
     designers, excludedGenres, excludedMechanics
          |
          v
-[CANDIDATE GENERATION] 6 parallel sources (~500-1000 games)
+[CANDIDATE GENERATION] 6 parallel retrieval strategies (~500-1000 games)
   |-- Rating-based: 125 by quality + 125 by popularity
   |-- Vector search: 250 via pgvector (semantic or hash)
   |-- Text search: up to 50 via full-text on name/description

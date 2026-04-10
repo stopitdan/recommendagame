@@ -260,7 +260,7 @@ flowchart TD
 
 ### Candidate Generation Detail
 
-The system fetches candidates from 6 parallel sources, then deduplicates. This is the "recall" stage -- the goal is to cast a wide net so the scoring engine has good candidates to rank.
+The system fetches candidates from 6 parallel retrieval strategies (all querying the same unified `games` table through different indexes), then deduplicates overlapping results. This is the "recall" stage -- the goal is to cast a wide net so the scoring engine has good candidates to rank.
 
 ```mermaid
 flowchart LR
@@ -637,7 +637,7 @@ flowchart TD
     subgraph Ours["Our Pipeline"]
         O1["Game adapters + Supabase<br/>+ LLM enrichment"]
         O2["Embeddings + tag expansion<br/>+ mechanic aliases"]
-        O3["6 parallel sources<br/>+ hard filtering"]
+        O3["6 parallel retrieval strategies<br/>+ hard filtering"]
         O4["10-dim scoring + LLM rerank<br/>+ diversity MMR"]
         O5["3,028-case eval suite<br/>+ IR metrics + LLM judge"]
         O6["Feedback: CF boost,<br/>rejection learning,<br/>preference vector update"]
@@ -826,7 +826,7 @@ npx tsx evals/runner.ts --tag=regression
 
 1. **Scoring architecture:** Is 10 dimensions with hand-tuned weights the right approach, or should I collapse to fewer dimensions and let a meta-learner optimize? At what user data volume does this become worth it?
 
-2. **Candidate generation:** With 7 parallel sources (vector, tag, text, mechanic, designer, LLM expansion, canonical games) and 500-1000 candidates, am I over-fetching or under-fetching? The 0.5% catalog coverage suggests the problem is in which 500 I'm fetching, not how many.
+2. **Candidate generation:** With 7 parallel retrieval strategies (vector, tag, text, mechanic, designer, LLM expansion, canonical games) all querying the same `games` table and 500-1000 candidates, am I over-fetching or under-fetching? The 0.5% catalog coverage suggests the problem is in which 500 I'm fetching, not how many.
 
 3. **Evaluation blind spots:** The eval suite tests "did the right games appear?" but not "did the user feel satisfied?" -- is there a practical way to bridge this offline?
 

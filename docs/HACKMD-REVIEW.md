@@ -49,7 +49,7 @@ The engine has been iterated through a 3,028-case evaluation suite that tests 16
 | Fuzzy Search | pg_trgm (trigram) | Typo-tolerant name search with GIN index fallback |
 | AI | OpenAI GPT-4o / GPT-4o-mini | Parsing, reranking, query expansion, metadata enrichment |
 | Embeddings | text-embedding-3-small | 1536-dim semantic vectors, 100% catalog coverage |
-| Cache | Upstash Redis + in-memory LRU | 2 min TTL, 50-entry in-memory |
+| Cache | 6-layer smart cache stack | Client SWR + in-memory + Redis + semantic cache (Redis + Supabase) + LLM rerank cache |
 | Testing | Vitest + React Testing Library | Unit + integration tests |
 | Eval | Custom TypeScript framework | 3,028 cases, IR metrics, LLM-as-judge |
 | Deployment | Vercel | Serverless functions |
@@ -87,9 +87,12 @@ graph TB
         PREFS[("user_preferences<br/>Saved questionnaire state")]
     end
 
-    subgraph Cache["Caching Layer"]
-        REDIS[("Upstash Redis<br/>TTL: 120s")]
-        MEM[("In-Memory LRU<br/>TTL: 120s, max 50")]
+    subgraph Cache["6-Layer Smart Cache"]
+        CLIENT[("Client SWR<br/>60s stale")]
+        MEM[("In-Memory LRU<br/>2 min TTL")]
+        REDIS[("Upstash Redis<br/>2-15 min TTL")]
+        SEM[("Semantic Cache<br/>Redis 10m + Supabase 24h")]
+        RERANK_C[("LLM Rerank Cache<br/>Redis 10 min")]
     end
 
     subgraph Eval["Evaluation System"]
@@ -140,7 +143,8 @@ sequenceDiagram
     U->>C: POST /api/recommend
     C->>C: Check in-memory (0ms)
     C->>C: Check Redis (50ms)
-    C-->>U: Cache hit? Return (50ms total)
+    C->>C: Check semantic cache (canonical key, 50ms)
+    C-->>U: Cache hit? Return (50-100ms total)
 
     C->>L: Parse free text (1-2s)
     L-->>C: Structured preferences
@@ -228,8 +232,8 @@ graph TD
         FETCH["Inherit attributes from referenced game"]
     end
 
-    subgraph S3["Stage 3: Cache Check"]
-        HIT{Hit?}
+    subgraph S3["Stage 3: Smart Cache Check"]
+        HIT{"Memory -> Redis -> Semantic (canonical key) -> Supabase?"}
     end
 
     subgraph S4["Stage 4: Candidate Generation"]
@@ -276,10 +280,10 @@ graph TD
 ## Candidate Generation Detail
 
 :::info
-**Why 7 sources?** Each source catches games the others miss. Vector search finds semantically similar games but doesn't guarantee famous ones. Text search finds games with matching names but misses games where the mechanic isn't in the name. Canonical game injection (new) guarantees that when someone asks for "deck building," Dominion enters the candidate pool even if the other 6 sources didn't find it. This is the "editorial override" pattern used by Netflix and Spotify.
+**Why 7 retrieval strategies?** All games live in one unified `games` table, but each retrieval strategy queries it through different indexes and catches games the others miss. Vector search finds semantically similar games but doesn't guarantee famous ones. Text search finds games with matching names but misses games where the mechanic isn't in the name. Canonical game injection (new) guarantees that when someone asks for "deck building," Dominion enters the candidate pool even if the other 6 strategies didn't find it. This is the "editorial override" pattern used by Netflix and Spotify.
 :::
 
-The system fetches candidates from 7 parallel sources, then deduplicates. This is the "recall" stage.
+The system fetches candidates from 7 parallel retrieval strategies (all querying the same `games` table through different indexes), then deduplicates overlapping results. This is the "recall" stage.
 
 ```mermaid
 flowchart LR
@@ -393,6 +397,21 @@ Two implementations:
 
 ### Layer 4: Hybrid + LLM Enhancement (ACTIVE)
 Combines all signals, then GPT-4o reranks top 80 -> 25 with semantic understanding. Finally, MMR diversity (88% relevance + 12% novelty) prevents homogeneous results.
+
+## Smart Caching Architecture (6 Layers)
+
+The caching system is designed to get faster as more people use the site. The key innovation is the **semantic recommendation cache**: after the LLM parses "deck building for 2" into structured preferences, a canonical key is built from the parsed result. A different user typing "2 player deck builders" produces the same canonical key and gets an instant cache hit.
+
+| Layer | Location | TTL | Purpose |
+|-------|----------|-----|---------|
+| Client-side SWR | Browser Map | 60s stale | Instant back-navigation, tab switching |
+| In-memory (exact) | Server MemoryCache | 2 min | Same-session same-query fast path |
+| Redis (exact) | Upstash | 2-15 min | Cross-instance, per-route TTLs |
+| Semantic cache (Redis) | Upstash | 10 min | Cross-user: canonical parsed prefs as key |
+| Semantic cache (Supabase) | `recommendation_cache` table | 24h stale | Persistent across deploys |
+| LLM rerank cache | Upstash | 10 min | Caches deterministic (temp=0) rerank results |
+
+**Admin bypass:** Cookie (`__nocache=1`), header (`X-No-Cache: 1`), or query param (`?nocache=1`). Skips all cache reads but still writes (so other users benefit). All responses include `x-cache: HIT/MISS` header.
 
 ## The Feedback Loop
 
@@ -656,7 +675,7 @@ The standard recommendation pipeline from academic surveys (Raza et al.):
 |-------|------------------|-------------------|--------|
 | 1. Data Acquisition | Multi-source ingestion | 4 game API adapters + Supabase + LLM enrichment | Implemented |
 | 2. Feature Engineering | Embeddings + feature extraction | 1536d semantic vectors + tag expansion + mechanic aliases | Implemented |
-| 3. Candidate Generation | Multiple retrieval paths | 7 parallel sources + hard filtering | Implemented |
+| 3. Candidate Generation | Multiple retrieval paths | 7 parallel retrieval strategies + hard filtering | Implemented |
 | 4. Ranking | Multi-signal scoring | 10-dim scoring + LLM rerank + MMR diversity | Implemented |
 | 5. Evaluation | Offline + online metrics | 3,028-case eval suite + IR metrics + LLM judge | Implemented (offline only) |
 | 6. Feedback Loop | User signals -> model updates | Thumbs up/down -> CF + rejection learning + preference vectors | Implemented |
@@ -749,7 +768,7 @@ Adaptive amplification helps (2x for tight player count, etc.) but base weights 
 
 **7. Collaborative filtering effectively dormant.** BPR is built but needs user data.
 
-**8. 9.6s p50 latency.** LLM calls dominate. Could improve with prompt caching.
+**8. 9.6s p50 latency (cold cache).** LLM calls dominate first-time queries. Smart semantic caching now means repeat/similar queries return in <100ms. LLM rerank results are also cached (temperature=0, deterministic), saving 1-3s per cache hit.
 
 **9. No confidence intervals on eval metrics.** Point estimates only, no statistical significance.
 
@@ -784,7 +803,10 @@ Adaptive amplification helps (2x for tight player count, etc.) but base weights 
 | Rejection cap | 50% | Max penalty from "Not This" |
 | LLM rerank in/out | 80 / 25 | Candidates to/from GPT-4o |
 | Diversity lambda | 0.12 | MMR: 88% relevance, 12% novelty |
-| Cache TTL | 120s | Both Redis and in-memory |
+| Cache TTL (exact) | 120s | Both Redis and in-memory |
+| Semantic cache TTL | 600s Redis / 24h Supabase | Cross-user canonical key cache |
+| LLM rerank cache TTL | 600s | Redis, keyed by candidate IDs + prefs |
+| Client cache stale | 60s | Browser-side stale-while-revalidate |
 | LLM parse timeout | 8s | Preference extraction |
 | LLM rerank timeout | 12s | Semantic reranking |
 | Mechanic aliases | 67 | BGG naming gap bridge |
@@ -857,7 +879,7 @@ These are the specific things I'd love your opinion on. Feel free to comment inl
 
 1. **Scoring architecture:** Is 10 dimensions with hand-tuned weights the right approach, or should I collapse to fewer and let a meta-learner optimize? At what data volume?
 
-2. **Candidate generation:** With 7 parallel sources and 500-1000 candidates, am I over- or under-fetching? The 0.5% catalog coverage suggests the problem is WHICH 500, not how many.
+2. **Candidate generation:** With 7 parallel retrieval strategies and 500-1000 candidates, am I over- or under-fetching? The 0.5% catalog coverage suggests the problem is WHICH 500, not how many.
 
 3. **Evaluation blind spots:** The eval tests "did the right games appear?" but not "did the user feel satisfied?" Is there a practical way to bridge this offline?
 

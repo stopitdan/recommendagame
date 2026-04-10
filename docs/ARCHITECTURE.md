@@ -37,9 +37,12 @@ graph TB
         PROFILES[("user_profiles")]
     end
 
-    subgraph Cache["Caching"]
-        REDIS[("Upstash Redis<br/>2 min TTL")]
-        MEM[("In-Memory LRU<br/>2 min TTL, max 50")]
+    subgraph Cache["6-Layer Smart Cache"]
+        CLIENT[("Client SWR<br/>60s stale")]
+        MEM[("In-Memory LRU<br/>2 min TTL")]
+        REDIS[("Upstash Redis<br/>2-15 min TTL")]
+        SEM[("Semantic Cache<br/>Redis 10m + Supabase 24h")]
+        RERANK_C[("LLM Rerank Cache<br/>Redis 10 min")]
     end
 
     subgraph Eval["Evaluation System"]
@@ -97,7 +100,7 @@ flowchart TD
         HIT{Cache hit?}
     end
 
-    subgraph S4["Stage 4: Candidate Fetching (6 parallel sources)"]
+    subgraph S4["Stage 4: Candidate Fetching (6 parallel retrieval strategies)"]
         VEC["pgvector Semantic (250)"]
         TAG["GIN Tag Search (150)"]
         TXT["Full-Text Search (50)"]
@@ -141,11 +144,25 @@ flowchart TD
 
 ### Candidate Deduplication
 
-Deduplication happens **per-request, in-memory** -- not as a batch or offline process. This is necessary because the 7+ parallel candidate sources (franchise, canonical, designer, mechanic, vector, tag, text, LLM expansion) can each return the same game.
+> **"Data sources" vs. "retrieval strategies"** -- these are different things. Data sources (BGG, IGDB, RAWG, local JSON) are where games are *imported from* during batch ingestion. They all land in a single unified `games` table (81k rows). Retrieval strategies are the 7+ different *ways of querying that same table* at recommendation time. Dedup is about the latter, not the former.
 
-- **How:** A `Set<string>` of game IDs merges candidates in priority order: franchise > canonical > designer > mechanic > vector > tag > text > expanded. The first source to contribute a game "wins" its priority slot.
-- **Cost:** O(1) per game via `Set.has()`. With ~600 total candidates across all sources, dedup takes microseconds -- negligible compared to DB queries and LLM calls.
-- **Why per-request?** Candidate composition changes with every query. A popular strategy game like Catan might appear in vector results, tag results, AND text results for one query but only in vector results for another.
+All 81k games live in one table. There's no duplication problem at the storage level. The dedup problem arises because we query that single table through multiple retrieval strategies in parallel, and those strategies return overlapping results. For example, a query about "deck building games" might find Dominion via:
+
+- **Vector search** (semantic embedding is close to "deck building")
+- **Tag search** (has "Deck Building" in its mechanics array)
+- **Mechanic search** (direct mechanic overlap with aliases)
+- **Text search** ("Dominion" matched by name)
+- **Canonical games** (hardcoded as the quintessential deck builder)
+
+That's the same game appearing in 5 result sets from 5 different queries against the same table.
+
+**Why not just run one big query?** Each retrieval strategy uses different indexes and matching logic (pgvector HNSW for vectors, GIN for array overlaps, full-text search for names/descriptions, ILIKE for designers). There's no single SQL query that efficiently combines all of these. Running them in parallel with different indexes is faster than one monolithic query scoring all 81k games.
+
+**How dedup works:** A `Set<string>` of game IDs merges candidates in priority order: franchise > canonical > designer > mechanic > vector > tag > text > expanded. The first strategy to contribute a game "wins" its slot. This is just bookkeeping about insertion order -- it doesn't affect final scoring or ranking.
+
+**Cost:** O(1) per game via `Set.has()`. With ~600 total candidates across all strategies, dedup takes microseconds -- negligible compared to DB queries and LLM calls.
+
+**Why per-request?** Which strategies find which games changes with every query. Catan might appear in vector, tag, AND text results for one query but only vector results for another.
 
 ---
 
@@ -177,38 +194,88 @@ flowchart LR
 
 ---
 
-## Caching Architecture
+## Caching Architecture (6-Layer Smart Cache Stack)
+
+The caching system spans from the browser through the API into persistent storage. The "smart" layer (Semantic Recommendation Cache) uses canonical keys derived from LLM-parsed preferences, so different phrasing of the same request ("deck building for 2" vs "2 player deck builders") produces cache hits.
 
 ```mermaid
 flowchart TD
-    REQ["Incoming /api/recommend Request"]
+    REQ["Incoming Request"]
 
-    LLM_P["LLM Parse freeText"]
-    MERGE_G["Merge genres/mechanics<br/>into body"]
-
-    subgraph Key["Cache Key = JSON of:"]
-        K["Hash of all user preferences<br/>freeText, genres, moods, etc."]
+    subgraph Client["Browser Cache"]
+        CC["Client-Side Fetch Cache<br/>Module-level Map, stale-while-revalidate<br/>60s stale threshold"]
     end
 
-    L1["In-Memory Cache<br/>TTL: 120s, max 50 entries<br/>Cleared on server restart"]
-    L2["Upstash Redis<br/>TTL: 120s<br/>Persists across restarts"]
+    subgraph API["API Route Handler"]
+        BYPASS{"Cache Bypass?<br/>cookie / header / param"}
+    end
+
+    subgraph Exact["Layer 1-2: Exact Match"]
+        L1["In-Memory Cache<br/>TTL: 2 min, max 50 entries"]
+        L2["Upstash Redis<br/>TTL: 2-15 min by route"]
+    end
+
+    subgraph Semantic["Layer 3-4: Semantic Cache (Smart)"]
+        SEM_R["Redis: Canonical Key<br/>TTL: 10 min"]
+        SEM_DB["Supabase: recommendation_cache<br/>Persistent, 24hr staleness"]
+    end
+
+    subgraph LLM["Layer 5: LLM Rerank Cache"]
+        RERANK["Redis: Candidate IDs + Pref Hash<br/>TTL: 10 min, temperature=0"]
+    end
 
     ENGINE["Full Pipeline<br/>(~5-12 seconds)"]
 
-    BYPASS["_nocache: true<br/>Skips both layers"]
-
-    REQ --> LLM_P --> MERGE_G --> Key
-    Key --> L1
-    L1 -->|Hit| RETURN["Return cached"]
+    REQ --> CC
+    CC -->|Miss or Stale| API
+    API --> BYPASS
+    BYPASS -->|No| L1
+    BYPASS -->|"Yes (admin)"| ENGINE
+    L1 -->|Hit| RETURN["Return cached<br/>x-cache: HIT"]
     L1 -->|Miss| L2
     L2 -->|Hit| RETURN
-    L2 -->|Miss| ENGINE
-    ENGINE -->|Store| L1 & L2
-    ENGINE --> RETURN
-    BYPASS -.->|Skip| ENGINE
+    L2 -->|Miss| SEM_R
+    SEM_R -->|Hit| RETURN
+    SEM_R -->|Miss| SEM_DB
+    SEM_DB -->|Hit| RETURN
+    SEM_DB -->|Miss| ENGINE
+    ENGINE -->|Store all layers| L1 & L2 & SEM_R & SEM_DB
+    RERANK -.->|"Skips 1-3s LLM call"| ENGINE
 
     style BYPASS fill:#ff6b6b,color:#fff
+    style SEM_R fill:#4CAF50,color:#fff
+    style SEM_DB fill:#4CAF50,color:#fff
 ```
+
+### Cache Layers
+
+| Layer | Location | TTL | What It Caches |
+|-------|----------|-----|----------------|
+| Client fetch cache | Browser Map | 60s stale | All GET responses (trending, browse, game detail, similar) |
+| In-memory (exact match) | Server MemoryCache | 2 min | Recommend responses, identical raw prefs |
+| Redis (exact match) | Upstash | 2-15 min | Per-route: recommend (2m), browse (15m), trending (6h), game detail (10m) |
+| Semantic cache (Redis) | Upstash | 10 min | Canonical parsed prefs (cross-user, different text = same key) |
+| Semantic cache (Supabase) | `recommendation_cache` table | 24h stale | Persistent across deploys, survives Redis eviction |
+| LLM rerank cache | Upstash | 10 min | Reranking results keyed by candidate IDs + preference summary |
+
+### Cache Bypass (Admin)
+
+Admins can bypass all caching for testing via any of:
+- **Cookie**: `__nocache=1` (toggled via profile dropdown "Skip Cache" switch)
+- **Header**: `X-No-Cache: 1`
+- **Query param**: `?nocache=1`
+
+When bypass is active, cache reads are skipped but writes still execute (so other users benefit from the fresh computation). All API responses include an `x-cache: HIT` or `x-cache: MISS` header for debugging.
+
+### Semantic Cache: How "Smart" Works
+
+1. User types "deck building games for 2 players"
+2. LLM parses to: `{ mechanics: ["Deck Building"], playerCount: {min:2, max:2} }`
+3. Canonical key built from parsed prefs (freeText deliberately excluded)
+4. Hash checked against Redis, then Supabase `recommendation_cache`
+5. Another user types "2 player deck builders" -- same canonical key -- instant hit
+
+The canonical key includes: sorted gameTypes, genres, mechanics, moods, playerCount, complexity, timePresets, similarTo, designers, keywords, and popularity mode. Default/empty values are omitted to maximize hit rates.
 
 ---
 
@@ -322,7 +389,7 @@ See [evals/EVAL-OVERVIEW.md](../evals/EVAL-OVERVIEW.md) for the complete eval sy
 | Vector Search | pgvector (HNSW) | 768-dim hash + 1536-dim semantic embeddings |
 | AI | OpenAI (GPT-4o, GPT-4o-mini) | Parsing, reranking, query expansion, enrichment |
 | Embeddings | text-embedding-3-small | 1536-dim semantic vectors |
-| Cache | Upstash Redis + in-memory | 2 min TTL, 50-entry in-memory LRU |
+| Cache | 6-layer smart cache stack | Client SWR + in-memory + Redis + semantic (Redis + Supabase) + LLM rerank cache |
 | Animations | Motion (Framer Motion) | Page transitions, scroll animations |
 | Testing | Vitest + React Testing Library | Unit + integration tests |
 | Deployment | Vercel | Serverless functions |
@@ -343,6 +410,9 @@ See [evals/EVAL-OVERVIEW.md](../evals/EVAL-OVERVIEW.md) for the complete eval sy
 | **Diversity** | `src/lib/recommendation/diversity.ts` |
 | **Query Expansion** | `src/lib/recommendation/llm-query-expand.ts` |
 | **Redis Cache** | `src/lib/redis.ts` |
+| **Cache Bypass** | `src/lib/cache-bypass.ts` |
+| **Semantic Cache** | `src/lib/recommendation/semantic-cache.ts` |
+| **Client Cache** | `src/lib/client-cache.ts`, `src/hooks/useCachedFetch.ts` |
 | **BGG Adapter** | `src/lib/adapters/bgg.ts` |
 | **IGDB Adapter** | `src/lib/adapters/igdb.ts` |
 | **Game DB Layer** | `src/lib/supabase/games.ts` |

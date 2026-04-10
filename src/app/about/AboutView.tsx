@@ -109,7 +109,7 @@ const TECH_STACK: { name: string; role: string; icon: ReactNode }[] = [
   { name: 'Supabase', role: 'Database & Auth', icon: <Database size={20} /> },
   { name: 'pgvector', role: 'Similarity Search', icon: <Search size={20} /> },
   { name: 'LLMs', role: 'AI Parsing & Ranking', icon: <Sparkles size={20} /> },
-  { name: 'Redis', role: 'Caching', icon: <Cpu size={20} /> },
+  { name: 'Redis', role: 'Smart Caching (6 layers)', icon: <Cpu size={20} /> },
 ];
 
 export default function AboutView() {

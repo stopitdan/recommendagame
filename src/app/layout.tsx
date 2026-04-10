@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     template: "%s | boredgame.lol",
   },
   description:
-    "Smart game recommendation engine for board games, video games, word games, and party games. 100,000+ games scored by a 4-layer AI recommendation engine.",
+    "Smart game recommendation engine for board games, video games, word games, and party games. 80,000+ games scored by a 6-layer AI recommendation engine with smart semantic caching.",
   metadataBase: new URL("https://boredgame.lol"),
   keywords: [
     "game recommendations",

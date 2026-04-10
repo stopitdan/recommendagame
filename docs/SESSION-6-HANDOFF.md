@@ -294,7 +294,7 @@ User Input (free text + questionnaire)
   Boost core mechanics 1.5x
     |
     v
-[CANDIDATE GENERATION] 6 parallel sources
+[CANDIDATE GENERATION] 6 parallel retrieval strategies
   Vector search now uses 100% semantic embeddings         <-- IMPROVED (1A)
     |
     v

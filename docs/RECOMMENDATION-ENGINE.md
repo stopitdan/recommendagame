@@ -180,7 +180,9 @@ The engine is measured by a 3,028-case eval suite across 16 categories. See [eva
 | LLM rerank input | 80 | Candidates sent to LLM reranker (was 60) |
 | LLM rerank output | 25 | Candidates returned by LLM reranker |
 | Diversity lambda | 0.12 | MMR: 88% relevance, 12% novelty (was 0.2) |
-| Cache TTL | 120s | Both Redis and in-memory |
+| Cache TTL (exact) | 120s | In-memory + Redis |
+| Cache TTL (semantic) | 600s Redis / 24h Supabase | Cross-user canonical key cache |
+| Cache TTL (LLM rerank) | 600s Redis | Keyed by candidate IDs + pref summary |
 | LLM parse timeout | 8s | GPT-4o-mini preference extraction |
 | LLM rerank timeout | 12s | GPT-4o semantic reranking |
 

@@ -218,10 +218,10 @@ const FEATURES: { Icon: LucideIcon; title: string; description: string; href: st
     Icon: Brain,
     title: "Smart Engine",
     description:
-      "7 search strategies, 10 scoring dimensions, AI re-ranking, and learning from your feedback. It gets smarter every time you use it.",
+      "7 search strategies, 10 scoring dimensions, AI re-ranking, smart caching, and learning from your feedback. Similar searches get faster as more people use it.",
     href: "/find-a-game",
     stat: "6 layers",
-    statLabel: "of recommendation AI",
+    statLabel: "of smart caching + AI",
     iconColor: "success.main",
   },
 ];
@@ -237,7 +237,7 @@ const STEPS = [
     number: "02",
     title: "We Search Everything",
     description:
-      "7 search strategies run in parallel across 80,000+ games. Then 10 scoring dimensions, AI re-ranking, and diversity balancing find the best matches.",
+      "7 search strategies run in parallel across 80,000+ games. 10 scoring dimensions, AI re-ranking, and diversity balancing find the best matches. Similar queries are near-instant thanks to smart semantic caching.",
   },
   {
     number: "03",
@@ -690,7 +690,7 @@ export default function Home() {
                 { value: 4, suffix: "", label: "Game categories", sublabel: "Board, video, word, and party" },
                 { value: 200, suffix: "+", label: "Genres and mechanics", sublabel: "From deck-building to open world" },
                 { value: 2000000, suffix: "+", label: "Community ratings", sublabel: "Aggregated from every source" },
-                { value: 6, suffix: "", label: "AI recommendation layers", sublabel: "NLU, search, scoring, similarity, AI re-ranking, learning" },
+                { value: 6, suffix: "", label: "AI + caching layers", sublabel: "NLU, search, scoring, similarity, AI re-ranking, smart caching" },
               ].map((stat) => (
                 <Grid size={{ xs: 6, sm: 4, md: 2.4 }} key={stat.label}>
                   <motion.div variants={staggerChild}>

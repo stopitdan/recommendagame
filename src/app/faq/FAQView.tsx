@@ -24,12 +24,13 @@ const FAQS: FAQItem[] = [
     question: 'How do recommendations work?',
     answer: (
       <>
-        Our recommendation engine uses a 4-layer system: rule-based scoring (matching your
-        preferences on player count, time, complexity, genres, and moods), content-based filtering
-        (finding games similar to ones you like using vector embeddings), collaborative filtering
-        (learning from what other users with similar tastes enjoy), and semantic analysis (understanding
-        free-text descriptions of what you&apos;re looking for). The results are blended together and
-        re-ranked for diversity so you get a mix of perfect matches and pleasant surprises.
+        Our recommendation engine uses a 6-layer system: natural language understanding (an AI
+        parses what you type in plain English), relevance-first candidate search (7 strategies
+        run in parallel across 80,000+ games), multi-dimensional scoring (10 weighted dimensions
+        like genre match, player count, and complexity), semantic similarity (vector embeddings
+        capture meaning that tags miss), AI re-ranking (a second AI reviews the top candidates
+        with common sense), and learning from you (your feedback sharpens your profile over time).
+        A smart caching layer means similar searches from other users are near-instant.
       </>
     ),
   },
@@ -143,7 +144,7 @@ const FAQS: FAQItem[] = [
 
 // Plain text answers for JSON-LD (Google can't parse JSX)
 const FAQ_JSONLD_ANSWERS: string[] = [
-  'Our recommendation engine uses a 4-layer system: rule-based scoring, content-based filtering, collaborative filtering, and semantic analysis. The results are blended and re-ranked for diversity.',
+  'Our recommendation engine uses a 6-layer system: natural language understanding, relevance-first candidate search (7 parallel strategies), multi-dimensional scoring (10 dimensions), semantic similarity via vector embeddings, AI re-ranking, and learning from your feedback. A smart semantic caching layer makes similar searches near-instant.',
   'We aggregate data from BoardGameGeek (board games), RAWG and IGDB (video games), plus a hand-curated collection of word and party games. This gives us a catalog of 100,000+ games.',
   'Yes! All core features are completely free. We support the site through non-intrusive advertising.',
   'You can get recommendations and browse games without an account. Creating a free account unlocks saving favorites, writing reviews, creating custom dice skins, and getting better recommendations over time.',
