@@ -19,7 +19,7 @@ export const MODELS = {
   chat: 'gpt-4.1-mini',
 
   /** Blog generation -- long-form SEO content (Claude Sonnet for human-like writing) */
-  blog: 'claude-sonnet-4-6-20250514',
+  blog: 'claude-sonnet-4-6-latest',
 
   /** Blog analysis -- fact-checking, editing, quality evaluation (OpenAI) */
   blogAnalysis: 'gpt-4.1-mini',

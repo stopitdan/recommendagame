@@ -33,7 +33,7 @@ const NAV_ITEMS: { label: string; href: string; icon: ReactNode }[] = [
   // { label: 'Game Map', href: '/map', icon: <Map size={18} /> }, // Hidden until polished
   // { label: 'Sommelier', href: '/chat', icon: <Wine size={18} /> }, // Hidden until paid tier
   { label: 'Roll the Dice', href: '/random', icon: <Dice5 size={18} /> },
-  { label: 'Leaderboard', href: '/leaderboard', icon: <Trophy size={18} /> },
+  // { label: 'Leaderboard', href: '/leaderboard', icon: <Trophy size={18} /> }, // Hidden — not polished enough yet
   { label: 'Blog', href: '/blog', icon: <BookOpen size={18} /> },
 ];
 

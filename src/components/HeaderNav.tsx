@@ -14,7 +14,7 @@ const NAV_ITEMS: { label: string; href: string; Icon: LucideIcon; tip: string }[
   // { label: 'Sommelier', href: '/chat', Icon: Wine, tip: 'Chat with our AI game expert' }, // Hidden until paid tier
   // { label: 'Game Map', href: '/map', Icon: Map, tip: 'Explore the game universe' }, // Hidden until polished
   { label: 'Roll the Dice', href: '/random', Icon: Dice5, tip: 'Roll the d20 for a random pick' },
-  { label: 'Leaderboard', href: '/leaderboard', Icon: Trophy, tip: 'See the most popular games' },
+  // { label: 'Leaderboard', href: '/leaderboard', Icon: Trophy, tip: 'See the most popular games' }, // Hidden — not polished enough yet
   { label: 'Blog', href: '/blog', Icon: BookOpen, tip: 'Game guides and recommendations' },
 ];
 
