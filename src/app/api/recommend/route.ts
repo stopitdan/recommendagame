@@ -542,6 +542,33 @@ export async function POST(request: NextRequest) {
       console.log(`[Recommend] Rejection profile: ${rejectionProfile.totalRejections} rejections, ${rejectionProfile.rejectedTags.size} tags, penalized ${penalizedCount}/${scored.length} games`);
     }
 
+    // Step 4.5: Relevance cliff detection — if freeTextMatch drops sharply between
+    // consecutive results, truncate noise. This prevents Poker from appearing in
+    // "games by Stefan Feld" results and similar padding with irrelevant popular games.
+    // Only applies when there's a clear high-signal cluster (freeText > 0.3) followed
+    // by a steep drop (> 3x decrease). Keeps at least 10 results for diversity.
+    if (scored.length > 10 && body.freeText) {
+      const MIN_CLUSTER = 5;        // Need at least 5 high-signal results
+      const DROP_RATIO = 3;         // freeText must drop by 3x+ to trigger
+      const HIGH_SIGNAL = 0.3;      // Minimum freeText to be considered "high signal"
+
+      let cliffPosition = -1;
+      for (let i = MIN_CLUSTER; i < scored.length - 1; i++) {
+        const curr = scored[i].breakdown.freeTextMatch;
+        const next = scored[i + 1].breakdown.freeTextMatch;
+        // Detect cliff: current result is high-signal, next drops by 3x+
+        if (curr >= HIGH_SIGNAL && next < HIGH_SIGNAL && curr / Math.max(next, 0.001) >= DROP_RATIO) {
+          cliffPosition = i + 1;
+          break;
+        }
+      }
+
+      if (cliffPosition > 0 && cliffPosition >= MIN_CLUSTER) {
+        console.log(`[Recommend] Relevance cliff at position ${cliffPosition}: freeText ${scored[cliffPosition - 1].breakdown.freeTextMatch.toFixed(3)} -> ${scored[cliffPosition].breakdown.freeTextMatch.toFixed(3)}, truncating ${scored.length - cliffPosition} noise results`);
+        scored.length = cliffPosition;
+      }
+    }
+
     // Step 5: LLM reranking — ask GPT-4o to pick the best matches from top 50 candidates
     const reranked = await llmRerank(scored, body, Math.min(limit, scored.length <= 50 ? scored.length : 25));
 

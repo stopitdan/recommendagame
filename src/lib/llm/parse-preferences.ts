@@ -55,10 +55,21 @@ Extract preferences from the user's text. Examples:
 - "something chill to play alone on the couch" → moods: ["chill"], playerCount: {min:1, max:1}, keywords: ["solo", "relaxing"]
 - "date night game for 2" → genres: ["Cooperative", "Cozy"], moods: ["chill", "social"], playerCount: {min:2, max:2}, keywords: ["date night", "couples", "romantic"]
 - "we want to argue and betray each other" → moods: ["competitive", "social"], mechanics: ["Social Deduction", "Negotiation", "Hidden Role"]
-- "I just want to build stuff" → genres: ["City Builder", "Simulation", "Sandbox"], mechanics: ["Engine Building"], keywords: ["building", "creative", "construction"]
+- "I just want to build stuff" → genres: ["City Builder", "Simulation", "Sandbox"], keywords: ["building", "creative", "construction"]
+- "medieval castle building game" → genres: ["Medieval"], keywords: ["castle", "building", "city building"], mechanics: ["Tile Placement"]
+- "engine building game" → mechanics: ["Engine Building"]
 - "a game like Stardew Valley but board game" → gameTypes: ["board"], similarTo: ["Stardew Valley"], genres: ["Farming", "Cozy"], moods: ["chill"]
 - "games designed by Stefan Feld" → designers: ["Stefan Feld"], genres: ["Strategy"]
 - "an Uwe Rosenberg worker placement" → designers: ["Uwe Rosenberg"], mechanics: ["Worker Placement"]
+
+THEME vs MECHANIC DISTINCTION: "[Noun] building" is usually a THEME, not the mechanic "Engine Building."
+- "castle building" → keyword/genre about castles, NOT mechanic "Engine Building"
+- "city building" → genre "City Builder", NOT mechanic "Engine Building"
+- "deck building" → mechanic "Deck Building" (this IS a mechanic)
+- "engine building" → mechanic "Engine Building" (this IS a mechanic)
+- "empire building" → genre "Civilization", keyword "empire building", NOT mechanic "Engine Building"
+- "world building" → keyword "world building", NOT mechanic "Engine Building"
+Only use the mechanic "Engine Building" when the user specifically says "engine building" or describes the mechanic (e.g., "a game where you build an economic engine").
 
 Handle typos naturally — "roguelkie" means "roguelike", "stategy" means "strategy", "metroidvnia" means "metroidvania".
 
