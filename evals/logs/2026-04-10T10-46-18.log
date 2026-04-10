@@ -1,0 +1,158 @@
+
+========================================================================
+  BOREDGAME.LOL EVALUATION REPORT
+  Run ID: 2026-04-10T10-46-18
+  2026-04-10T10:46:18.122Z -> 2026-04-10T12:30:46.391Z
+  Duration: 6268.3s | Cases: 2523 | Concurrency: 8
+========================================================================
+
+  OVERALL RESULTS
+------------------------------------------------------------------------
+  Pass Rate:       600/2523 (23.8%)
+  Avg NDCG@10:     0.1250
+  Avg Precision@10: 0.0306
+  Avg MRR:         0.1048
+  Avg Hit Rate@5:  0.1522
+  Constraint Viol: 3.5%
+  LLM Judge Score: 6.43/10
+  Latency p50/p95: 8263ms / 13150ms
+  Catalog Coverage: 3.8% (3073 unique games)
+  Trust Busters:   72 (obviously wrong results)
+  Violations by type: time=617, complexity=258
+
+  REGRESSION vs 2026-04-05T10-05-16
+------------------------------------------------------------------------
+  Pass Rate Delta: -0.1525
+  NDCG Delta:      -0.8218
+  MRR Delta:       -0.8857
+  Fixed (155):
+    + mechanic-focused-001: "deck building game" -- was failing, now passing
+    + player-count-046: "game I can play solo or with a friend" -- was failing, now passing
+    + mood-vibe-065: "A very thematic euro-style game that takes about a" -- was failing, now passing
+    + mechanic-focused-131: "i wanna build a deck" -- was failing, now passing
+    + mechanic-focused-152: "storytelling game where you make up stories" -- was failing, now passing
+    + multi-constraint-249: "light 2 player game under 30 minutes" -- was failing, now passing
+    + mechanic-focused-00314: "deck builder but not too complex" -- was failing, now passing
+    + mechanic-focused-00322: "hey, any deck-building games you like?" -- was failing, now passing
+    + mechanic-focused-00324: "deck bilder games under 1 hr" -- was failing, now passing
+    + mechanic-focused-00325: "deck builder but simple" -- was failing, now passing
+  New Failures (394):
+    - mechanic-focused-003: "worker placement for beginners" -- was passing, now failing
+    - mechanic-focused-007: "social deduction game for a big group" -- was passing, now failing
+    - mechanic-focused-012: "route building train game" -- was passing, now failing
+    - mechanic-focused-016: "trick taking card game" -- was passing, now failing
+    - theme-focused-023: "zombie survival board game" -- was passing, now failing
+    - theme-focused-029: "cyberpunk sci-fi game" -- was passing, now failing
+    - theme-focused-032: "western cowboy themed game" -- was passing, now failing
+    - theme-focused-033: "Lovecraftian Cthulhu horror game" -- was passing, now failing
+    - theme-focused-034: "train game" -- was passing, now failing
+    - player-count-039: "best solo board game" -- was passing, now failing
+
+  PER-CATEGORY BREAKDOWN
+------------------------------------------------------------------------
+  complexity               3/100 (3%)  NDCG=0.026  MRR=0.022  Violations=9%
+  player-count             12/156 (8%)  NDCG=0.064  MRR=0.062  Violations=3%
+  similar-to               13/167 (8%)  NDCG=0.102  MRR=0.092  Violations=2%
+  negative-preference      5/63 (8%)  NDCG=0.085  MRR=0.083  Violations=7%
+  free-text-intent         11/131 (8%)  NDCG=0.049  MRR=0.040  Violations=0%
+  mood-vibe                18/184 (10%)  NDCG=0.068  MRR=0.064  Violations=0%
+  multi-constraint         47/367 (13%)  NDCG=0.117  MRR=0.094  Violations=13%
+  real-user-feedback       13/77 (17%)  NDCG=0.086  MRR=0.068  Violations=2%
+  video-game               41/239 (17%)  NDCG=0.097  MRR=0.080  Violations=0%
+  theme-focused            52/267 (19%)  NDCG=0.141  MRR=0.126  Violations=0%
+  time-constraint          26/114 (23%)  NDCG=0.130  MRR=0.095  Violations=12%
+  mechanic-focused         147/388 (38%)  NDCG=0.253  MRR=0.202  Violations=1%
+  designer-search          51/106 (48%)  NDCG=0.347  MRR=0.300  Violations=0%
+  party-game               1/2 (50%)  NDCG=0.215  MRR=0.125  Violations=0%
+  regression               7/9 (78%)  NDCG=0.000  MRR=0.000  Violations=0%
+  edge-case                153/153 (100%)  NDCG=0.007  MRR=0.007  Violations=0%
+
+  FAILURE TYPES
+------------------------------------------------------------------------
+  missing-ideal-game           1884 cases
+  llm-judge-low-score          256 cases
+  constraint-violation         181 cases
+  anti-game-present            72 cases
+  empty-results                32 cases
+  api-error                    2 cases
+
+  WORST 20 CASES
+------------------------------------------------------------------------
+  [video-game-02816] "What are some top auto battlers right now?" Judge=1/10 missing=[Teamfight Tactics]
+    Top 5: Toy Soldiers: Cold War | Excessive Speed | NieR:Automata Game of the YoRHa Edition | A.D. 2044 | Gladiator Guild Manager: Prologue
+    Judge: None of the results are auto battlers, which is the specific genre requested. The games listed are from various genres s
+  [theme-focused-00981] "I’m lookin for something samurai themed, any " Judge=1.3/10 missing=[Samurai]
+    Top 5: Eldritch Horror | Gloomhaven | Arkham Horror: The Card Game | Gloomhaven: Jaws of the Lion | Chronicles of Crime
+    Judge: None of the results are samurai-themed, which is the primary focus of the user's query. All games listed fall under the 
+  [video-game-02841] "I’m looking to get into auto battler games, a" Judge=1.3/10 missing=[Teamfight Tactics]
+    Top 5: Excessive Speed | Gladiator Guild Manager: Prologue | Everlusting Life | Mario Party | Guitar Hero World Tour
+    Judge: None of the results are auto battler games, which is the specific genre the user is looking to explore. The results are 
+  [video-game-02875] "Got any good auto battler games?" Judge=1.3/10 missing=[Teamfight Tactics]
+    Top 5: Excessive Speed | Gladiator Guild Manager: Prologue | Everlusting Life | Mario Party | Guitar Hero World Tour
+    Judge: None of the results are auto battler games, which is the specific genre requested. The games listed are from various unr
+  [multi-constraint-02029] "Got any solo games that are chill and can be " Judge=1.7/10 [14 violations] missing=[Onirim] BAD=[Gloomhaven]
+    Top 5: Wingspan | Sagrada | Everdell | Arkham Horror: The Card Game | Lost Ruins of Arnak
+    Judge: All results violate the time constraint of 30 minutes, with the shortest being 45 minutes. None of the games are chill s
+  [negative-preference-02245] "I want to play a game, but no dice involved. " Judge=1.7/10 missing=[Carcassonne]
+    Top 5: Stone Age | T.I.M.E Stories | Space Base | Draftosaurus | Kingsburg
+    Judge: All results violate the constraint of having no dice involved, as every game listed includes dice mechanics. The relevan
+  [video-game-02764] "What's the most exciting fighting game out ri" Judge=1.7/10 missing=[Tekken 7]
+    Top 5: Top Trumps Turbo | KARDS | Gang of Four | Koi-Koi Japan [Hanafuda playing cards] | Unity of Command: Stalingrad Campaign
+    Judge: None of the results are fighting games, which is a major violation of the query's intent. All results are strategy or ca
+  [video-game-02872] "What’s a good walking simulator to try?" Judge=1.7/10 missing=[Firewatch]
+    Top 5: Silent Hill 2 (2001) | Observеr | Horizon Zero Dawn Complete Edition | Shin Megami Tensei: Persona 4 | Final Fantasy VII (1997)
+    Judge: None of the results are walking simulators, which is a specific genre that emphasizes exploration and narrative over act
+  [video-game-02939] "Can anyone recommend a solid fighting game wi" Judge=1.7/10 missing=[Tekken 7]
+    Top 5: Tyl3R5 | Unity of Command: Stalingrad Campaign | Chapter I - First steps | Warhammer 40,000: Sanctus Reach | Prologue (2017)
+    Judge: None of the results match the query for a fighting game; they are all strategy or indie games with no fighting mechanics
+  [designer-search-222] "Eric Lang board games" Judge=2/10 missing=[Blood Rage]
+    Top 5: Carcassonne | The Lord of the Rings | Taboo | Through the Desert | Nemesis
+    Judge: None of the results are designed by Eric Lang, which is a major violation of the query's constraints. The games listed a
+  [theme-focused-00918] "Suggest some vampire themed games that are st" Judge=2/10 missing=[Blood on the Clocktower]
+    Top 5: Outpost | Poker | Attila | Serenissima | Way Out West
+    Judge: None of the results are vampire-themed games, which is a major violation of the user's request. While all results are st
+  [theme-focused-01014] "Looking for games that are about wine or wine" Judge=2/10 missing=[Viticulture]
+    Top 5: Hegemony: Lead Your Class to Victory | John Company: Second Edition | Coffee Rush | Captain Sonar | Pax Pamir: Second Edition
+    Judge: None of the results relate to wine or winemaking, which is the core of the user's query. The games listed are from vario
+  [designer-search-01574] "Any games by Eric Lang that are must-plays?" Judge=2/10 missing=[Blood Rage, Rising Sun]
+    Top 5: Carcassonne | Poker | The Lord of the Rings | Age of War | SET
+    Judge: None of the results are designed by Eric Lang, which is a major constraint violation. The games listed do not match the 
+  [video-game-02734] "Looking for some challenging puzzle games to " Judge=2/10 missing=[The Witness]
+    Top 5: WayOut | Sleeping Valley | Tyl3R5 | Chapter I - First steps | Prologue (2017)
+    Judge: None of the results are explicitly puzzle games, which is the main focus of the user's query. Most results fall into act
+  [multi-constraint-01858] "Need a social game that won’t take long, mayb" Judge=2.3/10 [9 violations] missing=[Codenames]
+    Top 5: Junta | Hegemony: Lead Your Class to Victory | Sheriff of Nottingham | Through the Ages: A New Story of Civilization | Android: Netrunner
+    Judge: All results violate the strict time constraint of 45 minutes, with most games taking significantly longer. While some ga
+  [multi-constraint-02194] "I wanna find a solo game that I can finish in" Judge=2.3/10 [10 violations] missing=[Onirim]
+    Top 5: Harmonies | Sagrada | Calico | Sherlock Holmes Consulting Detective: The Thames Murders & Other Cases | Robinson Crusoe: Adventures on the Cursed Island
+    Judge: All results violate the time constraint of 30 minutes, as the shortest game listed (Harmonies) is 45 minutes. The releva
+  [mechanic-focused-009] "roll and write game" Judge=2.3/10 missing=[Yahtzee]
+    Top 5: So Clover! | Codenames | Catch Phrase! | Decrypto | Just One
+    Judge: None of the results are roll and write games; they all fall under party or deduction games. The results do not match the
+  [designer-search-219] "Alexander Pfister board games" Judge=2.3/10 missing=[Great Western Trail]
+    Top 5: Isle of Skye: From Chieftain to King | Maracaibo | Outpost | Poker | Attila
+    Judge: None of the results are designed by Alexander Pfister, which is a major constraint violation. The relevance is low as th
+  [mechanic-focused-00726] "I need a roll and write game to try!" Judge=2.3/10 missing=[Welcome To...]
+    Top 5: Azul: Summer Pavilion | EXIT: The Game – The Abandoned Cabin | A Feast for Odin | SET | Azul: Queen's Garden
+    Judge: None of the results are roll and write games, which is a major violation of the user's request. The games listed are all
+  [theme-focused-01019] "Got any recommendations for samurai-themed bo" Judge=2.3/10 missing=[Samurai]
+    Top 5: Attila | History of the World | Outpost | Poker | Capitol
+    Judge: None of the results are samurai-themed, which is a major violation of the user's request. While the games listed are all
+
+========================================================================
+
+============================================================
+  REGRESSION GATE: FAIL (11 critical violations)
+============================================================
+  [X] Pass rate regression: Pass rate dropped -15.3pp (39.0% -> 23.8%), max allowed: -3pp
+  [X] Category regression: mechanic-focused: mechanic-focused dropped -19.3pp (57% -> 38%), max allowed: -10pp
+  [X] Category regression: theme-focused: theme-focused dropped -30.0pp (49% -> 19%), max allowed: -10pp
+  [X] Category regression: player-count: player-count dropped -12.6pp (20% -> 8%), max allowed: -10pp
+  [X] Category regression: designer-search: designer-search dropped -20.9pp (69% -> 48%), max allowed: -10pp
+  [X] Category regression: negative-preference: negative-preference dropped -40.0pp (48% -> 8%), max allowed: -10pp
+  [X] Category regression: real-user-feedback: real-user-feedback dropped -17.7pp (35% -> 17%), max allowed: -10pp
+  [X] Category regression: free-text-intent: free-text-intent dropped -18.0pp (26% -> 8%), max allowed: -10pp
+  [X] Category regression: video-game: video-game dropped -18.7pp (36% -> 17%), max allowed: -10pp
+  [X] Constraint violations increased: Violation rate increased 1.5pp (2.0% -> 3.5%), max allowed: +1pp
+  [X] Statistically significant regression: Pass rate drop is statistically significant (p=0.001, 95% CI [-11.2%, -7.8%])
+============================================================

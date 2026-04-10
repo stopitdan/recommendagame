@@ -1,0 +1,149 @@
+
+========================================================================
+  BOREDGAME.LOL EVALUATION REPORT
+  Run ID: 2026-04-10T14-07-32
+  2026-04-10T14:07:32.647Z -> 2026-04-10T16:21:05.494Z
+  Duration: 8012.8s | Cases: 2523 | Concurrency: 8
+========================================================================
+
+  OVERALL RESULTS
+------------------------------------------------------------------------
+  Pass Rate:       588/2523 (23.3%)
+  Avg NDCG@10:     0.1215
+  Avg Precision@10: 0.0295
+  Avg MRR:         0.1020
+  Avg Hit Rate@5:  0.1467
+  Constraint Viol: 3.4%
+  LLM Judge Score: 6.43/10
+  Latency p50/p95: 8627ms / 14516ms
+  Catalog Coverage: 3.8% (3117 unique games)
+  Trust Busters:   64 (obviously wrong results)
+  Violations by type: time=595, complexity=251
+
+  REGRESSION vs 2026-04-10T10-46-18
+------------------------------------------------------------------------
+  Pass Rate Delta: -0.0048
+  NDCG Delta:      -0.0035
+  MRR Delta:       -0.0028
+  Fixed (37):
+    + theme-focused-037: "farming themed game" -- was failing, now passing
+    + mechanic-focused-00487: "Anyone got suggestions for area control games like" -- was failing, now passing
+    + mechanic-focused-00519: "Are there any area control games with strategy car" -- was failing, now passing
+    + mechanic-focused-00529: "I need some interesting engine builder games, any " -- was failing, now passing
+    + mechanic-focused-00605: "What are some fun party games with hidden roles an" -- was failing, now passing
+    + mechanic-focused-00643: "Can someone help me find hidden roles games?" -- was failing, now passing
+    + mechanic-focused-00697: "Any good roll and write games for solo play?" -- was failing, now passing
+    + mechanic-focused-00726: "I need a roll and write game to try!" -- was failing, now passing
+    + theme-focused-00839: "What about some spooky horror board games to play " -- was failing, now passing
+    + theme-focused-00914: "Looking for a sick sci-fi game to play with my bud" -- was failing, now passing
+  New Failures (49):
+    - player-count-046: "game I can play solo or with a friend" -- was passing, now failing
+    - mood-vibe-065: "A very thematic euro-style game that takes about a" -- was passing, now failing
+    - party-game-112: "ice breaker game for a work event" -- was passing, now failing
+    - mechanic-focused-152: "storytelling game where you make up stories" -- was passing, now failing
+    - mechanic-focused-00410: "Can you recommend something like Lords of Waterdee" -- was passing, now failing
+    - mechanic-focused-00419: "I love complex games like Agricola, any ideas?" -- was passing, now failing
+    - mechanic-focused-00528: "What engine building games have the most depth and" -- was passing, now failing
+    - mechanic-focused-00581: "What’s new in engine building games? Anyone know?" -- was passing, now failing
+    - mechanic-focused-00586: "What’s a good strategy engine builder board game?" -- was passing, now failing
+    - mechanic-focused-00676: "Any good trick takin games we can try?" -- was passing, now failing
+
+  PER-CATEGORY BREAKDOWN
+------------------------------------------------------------------------
+  party-game               0/2 (0%)  NDCG=0.000  MRR=0.045  Violations=0%
+  complexity               2/100 (2%)  NDCG=0.025  MRR=0.022  Violations=8%
+  negative-preference      4/63 (6%)  NDCG=0.046  MRR=0.043  Violations=6%
+  player-count             11/156 (7%)  NDCG=0.065  MRR=0.059  Violations=4%
+  free-text-intent         10/131 (8%)  NDCG=0.043  MRR=0.036  Violations=0%
+  mood-vibe                16/184 (9%)  NDCG=0.054  MRR=0.056  Violations=0%
+  similar-to               16/167 (10%)  NDCG=0.106  MRR=0.088  Violations=2%
+  multi-constraint         49/367 (13%)  NDCG=0.117  MRR=0.095  Violations=13%
+  real-user-feedback       11/77 (14%)  NDCG=0.094  MRR=0.078  Violations=0%
+  video-game               42/239 (18%)  NDCG=0.108  MRR=0.090  Violations=0%
+  theme-focused            47/267 (18%)  NDCG=0.126  MRR=0.113  Violations=0%
+  time-constraint          24/114 (21%)  NDCG=0.120  MRR=0.094  Violations=11%
+  mechanic-focused         144/388 (37%)  NDCG=0.247  MRR=0.199  Violations=1%
+  designer-search          52/106 (49%)  NDCG=0.352  MRR=0.303  Violations=0%
+  regression               7/9 (78%)  NDCG=0.000  MRR=0.000  Violations=0%
+  edge-case                153/153 (100%)  NDCG=0.007  MRR=0.007  Violations=0%
+
+  FAILURE TYPES
+------------------------------------------------------------------------
+  missing-ideal-game           1888 cases
+  llm-judge-low-score          238 cases
+  constraint-violation         177 cases
+  anti-game-present            64 cases
+  empty-results                29 cases
+  api-error                    19 cases
+
+  WORST 20 CASES
+------------------------------------------------------------------------
+  [negative-preference-02251] "I want suggestions for games that are not abo" Judge=1/10 missing=[Carcassonne]
+    Top 5: Battle Masters | Harry Potter: Hogwarts Battle | War of the Ring: Second Edition | Terra Mystica | Kemet
+    Judge: All results are either fantasy-themed or war-themed, which directly contradicts the user's request for games that are no
+  [video-game-02711] "Got any auto battlers to check out?" Judge=1/10 missing=[Teamfight Tactics]
+    Top 5: Excessive Speed | Gladiator Guild Manager: Prologue | Everlusting Life | Tyl3R5 | Unity of Command: Stalingrad Campaign
+    Judge: None of the results are auto battlers, which is the specific genre requested. The results include various unrelated game
+  [theme-focused-01015] "Can you suggest some fun cooking or food-rela" Judge=1.3/10 missing=[Overcooked!]
+    Top 5: On to Richmond II: The Union Strikes South | Fields of Fire: Deluxe Edition | Lost in the Shuffle | The Castles of Burgundy: Special Edition | Final Girl: S3 Ultimate Box
+    Judge: None of the results are cooking or food-related games, which is the main focus of the user's query. The games listed are
+  [video-game-02713] "What are some solid soulslike games?" Judge=1.3/10 missing=[Dark Souls III]
+    Top 5: The Guild II Renaissance | Out There: Omega Edition | Bear and Breakfast | Patron | Potion Craft: Alchemist Simulator
+    Judge: None of the results are soulslike games, which is a specific genre characterized by challenging gameplay and dark themes
+  [video-game-02816] "What are some top auto battlers right now?" Judge=1.3/10 missing=[Teamfight Tactics]
+    Top 5: Excessive Speed | Gladiator Guild Manager: Prologue | Everlusting Life | Mario Party | Guitar Hero World Tour
+    Judge: None of the results are auto battlers, which is the specific genre requested. The games listed are from various unrelate
+  [video-game-02734] "Looking for some challenging puzzle games to " Judge=1.7/10 missing=[The Witness]
+    Top 5: WayOut | Sleeping Valley | Tyl3R5 | Chapter I - First steps | Prologue (2017)
+    Judge: None of the results are explicitly puzzle games, which is the main focus of the query. The majority of the games listed 
+  [video-game-02761] "Can you suggest a short and sweet RPG?" Judge=1.7/10 missing=[Undertale]
+    Top 5: Gothic 2 | Pokémon Gold, Silver | Pokémon Alpha Sapphire, Omega Ruby | Pokémon Diamond, Pearl | Pokémon HeartGold, SoulSilver
+    Judge: All results violate the time constraint significantly, as they are all much longer than the expected short RPG. The rele
+  [video-game-02872] "What’s a good walking simulator to try?" Judge=1.7/10 missing=[Firewatch]
+    Top 5: Silent Hill 2 (2001) | Observеr | Horizon Zero Dawn Complete Edition | Shin Megami Tensei: Persona 4 | Final Fantasy VII (1997)
+    Judge: None of the results are walking simulators, which is a specific genre that emphasizes exploration and narrative over act
+  [video-game-02921] "What underappreciated RPGs deserve more love?" Judge=1.7/10 missing=[Ni no Kuni: Wrath of the White Witch]
+    Top 5: Gothic 2 | Pokémon Gold, Silver | Pokémon Alpha Sapphire, Omega Ruby | Pokémon HeartGold, SoulSilver | Pokémon Diamond, Pearl
+    Judge: All results are RPGs, but they are predominantly from the Pokémon franchise, which does not align with the request for u
+  [theme-focused-032] "western cowboy themed game" Judge=2/10 missing=[Great Western Trail]
+    Top 5: Carcassonne | Kingdomino | Queendomino | Kingdom Builder | The Castles of Burgundy
+    Judge: None of the results match the query for a western cowboy themed game. All results are medieval-themed games, which is a 
+  [designer-search-222] "Eric Lang board games" Judge=2/10 missing=[Blood Rage]
+    Top 5: Carcassonne | Poker | The Lord of the Rings | Taboo | Wizard
+    Judge: None of the results are designed by Eric Lang, which is a major constraint violation. The games listed do not match the 
+  [theme-focused-01019] "Got any recommendations for samurai-themed bo" Judge=2/10 missing=[Samurai]
+    Top 5: Attila | History of the World | Outpost | Poker | Capitol
+    Judge: None of the results are samurai-themed board games, which is the primary focus of the user's query. While the player cou
+  [designer-search-01554] "Got any suggestions for Eric Lang games?" Judge=2/10 missing=[Blood Rage]
+    Top 5: Carcassonne | SETI: Search for Extraterrestrial Intelligence | Village | Through the Ages: A New Story of Civilization | War of the Ring: Second Edition
+    Judge: None of the results are designed by Eric Lang, which is a major constraint violation. The games listed do not match the 
+  [designer-search-01574] "Any games by Eric Lang that are must-plays?" Judge=2/10 missing=[Blood Rage, Rising Sun]
+    Top 5: Carcassonne | Poker | The Lord of the Rings | Taboo | Age of War
+    Judge: None of the results are designed by Eric Lang, which is a major constraint violation. The relevance is extremely low as 
+  [negative-preference-02245] "I want to play a game, but no dice involved. " Judge=2/10 missing=[Carcassonne]
+    Top 5: Stone Age | T.I.M.E Stories | Space Base | Draftosaurus | Kingsburg
+    Judge: All results violate the constraint of having no dice involved, as every game listed includes dice rolling as a mechanism
+  [negative-preference-02276] "Give me options where no dice are involved, p" Judge=2/10 missing=[Carcassonne]
+    Top 5: Stone Age | T.I.M.E Stories | Space Base | Draftosaurus | Kingsburg
+    Judge: All results involve dice, which violates the user's explicit request for games without dice. The relevance is low as non
+  [video-game-02875] "Got any good auto battler games?" Judge=2/10 missing=[Teamfight Tactics]
+    Top 5: Excessive Speed | Gladiator Guild Manager: Prologue | Everlusting Life | Mario Party | Warcraft III: Reign of Chaos
+    Judge: None of the results are auto battler games, which is a specific genre. The results include a mix of unrelated game types
+  [multi-constraint-02029] "Got any solo games that are chill and can be " Judge=2.3/10 [11 violations] missing=[Onirim]
+    Top 5: Harmonies | Legendary: A Marvel Deck Building Game | Wingspan | Everdell | Sagrada
+    Judge: None of the results meet the strict time constraint of 30 minutes, as all games exceed this limit significantly. The rel
+  [mechanic-focused-009] "roll and write game" Judge=2.3/10 missing=[Yahtzee]
+    Top 5: So Clover! | Codenames | Catch Phrase! | Decrypto | Just One
+    Judge: None of the results are roll and write games, which is a major constraint violation. The games listed are primarily part
+  [designer-search-066] "A game designed by Stefan Feld" Judge=2.3/10 missing=[The Castles of Burgundy, Bora Bora, Notre Dame]
+    Top 5: Trajan | In the Year of the Dragon | Forum Trajanum | Bruges | Carpe Diem
+    Judge: None of the results are designed by Stefan Feld, which is a major constraint violation. The relevance is low as the quer
+
+========================================================================
+
+============================================================
+  REGRESSION GATE: PASS
+============================================================
+  Pass rate: 23.8% -> 23.3% (-0.5pp)
+  Significance: p=0.100, 95% CI [-1.1%, 0.3%]
+============================================================

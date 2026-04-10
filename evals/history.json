@@ -1,0 +1,72 @@
+[
+  {
+    "runId": "2026-04-10T10-46-18",
+    "timestamp": "2026-04-10T10:46:18.122Z",
+    "totalCases": 2523,
+    "passRate": 0.23781212841854935,
+    "ndcg10": 0.12503180440060682,
+    "mrr": 0.10480092538635334,
+    "llmJudge": 6.425357142857163,
+    "catalogCoverage": 0.03793827160493827,
+    "constraintViolations": {
+      "time": 617,
+      "complexity": 258
+    },
+    "trustBusters": 72,
+    "p50Latency": 8263,
+    "p95Latency": 13150,
+    "categoryPassRates": {
+      "mechanic-focused": 0.3788659793814433,
+      "theme-focused": 0.1947565543071161,
+      "player-count": 0.07692307692307693,
+      "time-constraint": 0.22807017543859648,
+      "complexity": 0.03,
+      "mood-vibe": 0.09782608695652174,
+      "designer-search": 0.4811320754716981,
+      "similar-to": 0.07784431137724551,
+      "negative-preference": 0.07936507936507936,
+      "multi-constraint": 0.12806539509536785,
+      "edge-case": 1,
+      "real-user-feedback": 0.16883116883116883,
+      "party-game": 0.5,
+      "free-text-intent": 0.08396946564885496,
+      "regression": 0.7777777777777778,
+      "video-game": 0.17154811715481172
+    }
+  },
+  {
+    "runId": "2026-04-10T14-07-32",
+    "timestamp": "2026-04-10T14:07:32.647Z",
+    "totalCases": 2523,
+    "passRate": 0.23305588585017836,
+    "ndcg10": 0.12151628255766783,
+    "mrr": 0.10198823850721736,
+    "llmJudge": 6.427178257394107,
+    "catalogCoverage": 0.038481481481481485,
+    "constraintViolations": {
+      "time": 595,
+      "complexity": 251
+    },
+    "trustBusters": 64,
+    "p50Latency": 8627,
+    "p95Latency": 14516,
+    "categoryPassRates": {
+      "mechanic-focused": 0.3711340206185567,
+      "theme-focused": 0.1760299625468165,
+      "player-count": 0.07051282051282051,
+      "time-constraint": 0.21052631578947367,
+      "complexity": 0.02,
+      "mood-vibe": 0.08695652173913043,
+      "designer-search": 0.49056603773584906,
+      "similar-to": 0.09580838323353294,
+      "negative-preference": 0.06349206349206349,
+      "multi-constraint": 0.1335149863760218,
+      "edge-case": 1,
+      "real-user-feedback": 0.14285714285714285,
+      "party-game": 0,
+      "free-text-intent": 0.07633587786259542,
+      "regression": 0.7777777777777778,
+      "video-game": 0.17573221757322174
+    }
+  }
+]
