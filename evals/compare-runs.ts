@@ -9,6 +9,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import type { EvalRun } from './types';
+import { bootstrapPassRate, bootstrapMetric, formatSignificance } from './significance';
+import { checkRegressionGate } from './regression-gate';
 
 const RUNS_DIR = path.join(process.cwd(), 'evals', 'runs');
 
@@ -132,6 +134,50 @@ function main() {
       console.log(`  - [${id}] "${c.query.slice(0, 60)}"`);
     }
   }
+
+  // Statistical significance
+  console.log(`\n  STATISTICAL SIGNIFICANCE`);
+  console.log(thin);
+
+  const passRateSig = bootstrapPassRate(runA.cases, runB.cases);
+  console.log(`  Pass Rate:   ${formatSignificance(passRateSig, true)}`);
+
+  const ndcgSig = bootstrapMetric(runA.cases, runB.cases, c => c.metrics.ndcg10);
+  console.log(`  NDCG@10:     ${formatSignificance(ndcgSig)}`);
+
+  const judgeSig = bootstrapMetric(runA.cases, runB.cases, c => c.llmJudgeScore);
+  if (judgeSig.sharedCases > 0) {
+    console.log(`  LLM Judge:   ${formatSignificance(judgeSig)}`);
+  }
+
+  // Regression gate
+  const gate = checkRegressionGate(runB, runA);
+  console.log('\n' + gate.summary);
+
+  // Save comparison as markdown report
+  const LOGS_DIR = path.join(process.cwd(), 'evals', 'logs');
+  fs.mkdirSync(LOGS_DIR, { recursive: true });
+  const reportFile = path.join(LOGS_DIR, `compare-${runA.runId}-vs-${runB.runId}.md`);
+  const reportLines = [
+    `# Eval Comparison: ${runA.runId} vs ${runB.runId}`,
+    '',
+    `| Metric | Run A | Run B | Delta | Significance |`,
+    `|--------|-------|-------|-------|-------------|`,
+    `| Pass Rate | ${(runA.passRate * 100).toFixed(1)}% | ${(runB.passRate * 100).toFixed(1)}% | ${sign(runB.passRate - runA.passRate)} | ${formatSignificance(passRateSig, true)} |`,
+    `| NDCG@10 | ${runA.aggregateMetrics.avgNdcg10.toFixed(4)} | ${runB.aggregateMetrics.avgNdcg10.toFixed(4)} | ${sign(runB.aggregateMetrics.avgNdcg10 - runA.aggregateMetrics.avgNdcg10)} | ${formatSignificance(ndcgSig)} |`,
+    '',
+    `## Regression Gate: ${gate.passed ? 'PASS' : 'FAIL'}`,
+    '',
+    ...gate.violations.map(v => `- **${v.severity}**: ${v.detail}`),
+    '',
+    `## Newly Passing (${newlyPassing.length})`,
+    ...newlyPassing.map(id => `- ${id}`),
+    '',
+    `## Newly Failing (${newlyFailing.length})`,
+    ...newlyFailing.map(id => `- ${id}`),
+  ];
+  fs.writeFileSync(reportFile, reportLines.join('\n'));
+  console.log(`\n  Report saved to: ${reportFile}`);
 
   console.log(`\n${bar}`);
 }

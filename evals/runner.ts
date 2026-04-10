@@ -30,6 +30,7 @@ import type {
 import { computeCaseMetrics } from './metrics';
 import { checkConstraintViolations } from './constraint-checker';
 import { judgeResults } from './llm-judge';
+import { checkRegressionGate } from './regression-gate';
 
 dotenv.config({ path: '.env.local' });
 
@@ -159,6 +160,28 @@ async function queryRecommendAPI(
 
 // ─── Case Evaluation ────────────────────────────────────────
 
+/**
+ * Match a result game to an eval target.
+ * Prefers ID-based matching (exact, no false positives).
+ * Falls back to case-insensitive exact name match, then loose substring match.
+ */
+function gameMatch(
+  result: { id: string; name: string },
+  target: { name: string; dbGameId?: string },
+): boolean {
+  // Prefer ID match when available (eliminates "Azul" matching "Azul: Summer Pavilion")
+  if (target.dbGameId && result.id) {
+    return result.id === target.dbGameId;
+  }
+  // Fallback: case-insensitive exact name match
+  const a = result.name.toLowerCase().trim();
+  const b = target.name.toLowerCase().trim();
+  if (a === b) return true;
+  // Loose fallback: substring match (legacy behavior for cases without IDs)
+  return a.includes(b) || b.includes(a);
+}
+
+/** @deprecated Use gameMatch() instead */
 function nameMatch(gameName: string, targetName: string): boolean {
   const a = gameName.toLowerCase();
   const b = targetName.toLowerCase();
@@ -172,20 +195,20 @@ function evaluateCase(
   latencyMs: number,
   llmJudge?: { score: number; reasoning: string; violations: string[] } | null,
 ): CaseResult {
-  const resultNames = results.slice(0, 10).map(r => r.name);
+  const topResults = results.slice(0, 10);
 
-  // Check ideal games
+  // Check ideal games (using ID-based matching when available)
   const idealGamesFound = evalCase.idealGames
-    .filter(ig => resultNames.some(rn => nameMatch(rn, ig.name)))
+    .filter(ig => topResults.some(r => gameMatch(r, ig)))
     .map(ig => ig.name);
   const idealGamesMissing = evalCase.idealGames
     .filter(ig => ig.relevance >= 2)
-    .filter(ig => !resultNames.some(rn => nameMatch(rn, ig.name)))
+    .filter(ig => !topResults.some(r => gameMatch(r, ig)))
     .map(ig => ig.name);
 
-  // Check anti games
+  // Check anti games (using ID-based matching when available)
   const antiGamesFound = evalCase.antiGames
-    .filter(ag => resultNames.some(rn => nameMatch(rn, ag.name)))
+    .filter(ag => topResults.some(r => gameMatch(r, ag)))
     .map(ag => ag.name);
 
   // Determine failure types
@@ -625,6 +648,39 @@ export async function runEvalSuite(config: RunConfig): Promise<EvalRun> {
   console.log(report);
   console.log(`\n  Results saved to: ${runFile}`);
   console.log(`  Log saved to: ${logFile}`);
+
+  // Regression gate (if previous run exists)
+  if (prevRun) {
+    const gate = checkRegressionGate(run, prevRun);
+    console.log('\n' + gate.summary);
+    // Append gate result to log
+    fs.appendFileSync(logFile, '\n\n' + gate.summary);
+  }
+
+  // Append to metrics history (Phase 2.1)
+  const historyFile = path.join(EVALS_DIR, 'history.json');
+  const history: any[] = fs.existsSync(historyFile)
+    ? JSON.parse(fs.readFileSync(historyFile, 'utf8'))
+    : [];
+  history.push({
+    runId: run.runId,
+    timestamp: run.startedAt,
+    totalCases: run.totalCases,
+    passRate: run.passRate,
+    ndcg10: run.aggregateMetrics.avgNdcg10,
+    mrr: run.aggregateMetrics.avgMrr,
+    llmJudge: run.aggregateMetrics.avgLlmJudgeScore ?? null,
+    catalogCoverage: run.aggregateMetrics.catalogCoverage ?? null,
+    constraintViolations: run.aggregateMetrics.constraintViolationsByType ?? {},
+    trustBusters: run.aggregateMetrics.trustBusterCount ?? 0,
+    p50Latency: run.aggregateMetrics.p50LatencyMs,
+    p95Latency: run.aggregateMetrics.p95LatencyMs,
+    categoryPassRates: Object.fromEntries(
+      Object.entries(run.categoryBreakdown).map(([k, v]) => [k, v.passRate]),
+    ),
+  });
+  fs.writeFileSync(historyFile, JSON.stringify(history, null, 2) + '\n');
+  console.log(`  History appended to: ${historyFile}`);
 
   return run;
 }

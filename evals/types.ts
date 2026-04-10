@@ -35,9 +35,9 @@ export interface EvalCase {
     designer?: string;
   };
   /** Games that SHOULD appear in results, with graded relevance */
-  idealGames: { name: string; relevance: RelevanceGrade; reason?: string }[];
+  idealGames: { name: string; relevance: RelevanceGrade; reason?: string; dbGameId?: string }[];
   /** Games that should NOT appear in results */
-  antiGames: { name: string; reason?: string }[];
+  antiGames: { name: string; reason?: string; dbGameId?: string }[];
   /** Tags for filtering (e.g., 'regression', 'critical', 'edge-case') */
   tags?: string[];
 }

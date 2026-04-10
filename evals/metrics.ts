@@ -65,25 +65,38 @@ export function computeCaseMetrics(
   evalCase: EvalCase,
   constraintViolationCount: number,
 ): CaseMetrics {
-  // Build relevance map from ideal/anti games
-  const relevanceMap = new Map<string, RelevanceGrade>();
+  // Build relevance lookup from ideal/anti games
+  // Supports both ID-based matching (preferred) and name-based (fallback)
+  const idRelevance = new Map<string, RelevanceGrade>();
+  const nameRelevance = new Map<string, RelevanceGrade>();
   for (const ig of evalCase.idealGames) {
-    relevanceMap.set(ig.name.toLowerCase(), ig.relevance);
+    if (ig.dbGameId) idRelevance.set(ig.dbGameId, ig.relevance);
+    nameRelevance.set(ig.name.toLowerCase(), ig.relevance);
   }
   for (const ag of evalCase.antiGames) {
-    relevanceMap.set(ag.name.toLowerCase(), 0);
+    if (ag.dbGameId) idRelevance.set(ag.dbGameId, 0);
+    nameRelevance.set(ag.name.toLowerCase(), 0);
   }
 
   // Grade results
   const graded: GradedResult[] = results.slice(0, 20).map(r => {
-    const name = (r.name ?? '').toLowerCase();
-    let relevance: RelevanceGrade = 1; // Default: partial match
+    let relevance: RelevanceGrade = 0; // Default: unjudged = non-relevant (standard TREC practice)
 
-    // Check known games
-    for (const [known, rel] of relevanceMap) {
-      if (name.includes(known) || known.includes(name)) {
-        relevance = rel;
-        break;
+    // Prefer ID-based matching (no false positives)
+    if (r.id && idRelevance.has(r.id)) {
+      relevance = idRelevance.get(r.id)!;
+    } else {
+      // Fallback: name-based matching (exact first, then substring)
+      const name = (r.name ?? '').toLowerCase();
+      if (nameRelevance.has(name)) {
+        relevance = nameRelevance.get(name)!;
+      } else {
+        for (const [known, rel] of nameRelevance) {
+          if (name.includes(known) || known.includes(name)) {
+            relevance = rel;
+            break;
+          }
+        }
       }
     }
 
