@@ -55,9 +55,9 @@ export async function llmRerank(
 
   // Build compact game summaries for the LLM
   // For small candidate pools (e.g., user's collection), evaluate all of them.
-  // For large pools, evaluate top 80 so the LLM sees well-known games that
-  // rule-based scoring may have ranked at position 60-80.
-  const maxCandidates = candidates.length <= 100 ? candidates.length : 80;
+  // For large pools, evaluate top 50 (reduced from 80 for latency -- the LLM
+  // doesn't meaningfully distinguish candidates past position 50).
+  const maxCandidates = candidates.length <= 60 ? candidates.length : 50;
 
   // ── Rerank Cache ─────────────────────────────────────────────
   // temperature=0 makes output deterministic: same candidates + same prefs = same result.

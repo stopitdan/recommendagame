@@ -287,8 +287,11 @@ export async function POST(request: NextRequest) {
       maxTime: body.maxTime,
     };
 
-    // LLM query expansion: creatively expand the user's intent into additional search terms
-    const queryExpansion = body.freeText
+    // LLM query expansion: only run for sparse queries where the LLM parser
+    // extracted fewer than 2 genres+mechanics (saves 1-3s on most requests).
+    const parsedSignals = (body.llmParsed?.genres?.length ?? 0) + (body.llmParsed?.mechanics?.length ?? 0);
+    const shouldExpand = body.freeText && parsedSignals < 2;
+    const queryExpansion = shouldExpand
       ? expandQuery(body.freeText)
       : Promise.resolve({ searchTerms: [], categories: [], mechanics: [], themes: [] });
 
@@ -540,10 +543,34 @@ export async function POST(request: NextRequest) {
     }
 
     // Step 5: LLM reranking — ask GPT-4o to pick the best matches from top 50 candidates
-    const reranked = await llmRerank(scored, body, Math.min(limit, scored.length <= 80 ? scored.length : 25));
+    const reranked = await llmRerank(scored, body, Math.min(limit, scored.length <= 50 ? scored.length : 25));
 
     // Step 6: Diversity re-ranking (prevent 20 strategy games in a row)
     const diversified = diversityRerank(reranked);
+
+    // Step 6.5: Time demotion — if user specified a time limit, push games
+    // exceeding it by >30% out of the top 10 to prevent trust-busting results.
+    // The hard filter already removed extreme violators; this catches borderline cases.
+    const llmMaxMinutes = body.llmParsed?.maxMinutes;
+    if (llmMaxMinutes && diversified.length > 10) {
+      const threshold = llmMaxMinutes * 1.3;
+      const top10 = diversified.slice(0, 10);
+      const rest = diversified.slice(10);
+      const demoted: typeof top10 = [];
+      const kept: typeof top10 = [];
+      for (const item of top10) {
+        const gameTime = item.game.playTime?.average ?? item.game.playTime?.min;
+        if (gameTime && gameTime > threshold) {
+          demoted.push(item);
+        } else {
+          kept.push(item);
+        }
+      }
+      if (demoted.length > 0 && kept.length >= 5) {
+        diversified.splice(0, diversified.length, ...kept, ...demoted, ...rest);
+        console.log(`[Recommend] Demoted ${demoted.length} games exceeding ${llmMaxMinutes}min by >30%`);
+      }
+    }
 
     // Step 7: Take top N
     const topResults = diversified.slice(0, limit);
@@ -646,7 +673,7 @@ function applyHardFilters(
   const llmStrictness = prefs.llmParsed?.timeStrictness;
 
   if (llmMaxMin) {
-    const buffer = llmStrictness === 'hard' ? 15 : llmMaxMin * 0.5;
+    const buffer = llmStrictness === 'hard' ? 10 : llmMaxMin * 0.25;
     const hardMax = llmMaxMin + buffer;
     filtered = filtered.filter((g) => {
       const gameTime = g.playTime?.average ?? g.playTime?.min;
