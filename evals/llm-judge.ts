@@ -20,7 +20,7 @@ interface JudgeInput {
   gameTypes?: string[];
   playerCount?: { min: number; max: number };
   constraints?: Record<string, any>;
-  results: { name: string; rank: number; categories?: string[]; mechanics?: string[]; complexity?: number; avgPlayTime?: number; minPlayers?: number; maxPlayers?: number }[];
+  results: { name: string; rank: number; categories?: string[]; mechanics?: string[]; complexity?: number; avgPlayTime?: number; minPlayers?: number; maxPlayers?: number; designers?: string[] }[];
 }
 
 interface JudgeOutput {
@@ -126,6 +126,7 @@ export async function judgeResults(input: JudgeInput): Promise<JudgeOutput | nul
 
   const resultsSummary = shuffled.map((r, i) => {
     const parts = [`Result ${i + 1}: ${r.name}`];
+    if (r.designers?.length) parts.push(`designers=[${r.designers.slice(0, 3).join(',')}]`);
     if (r.categories?.length) parts.push(`cats=[${r.categories.slice(0, 3).join(',')}]`);
     if (r.mechanics?.length) parts.push(`mechs=[${r.mechanics.slice(0, 3).join(',')}]`);
     if (r.minPlayers != null) parts.push(`${r.minPlayers}-${r.maxPlayers}p`);

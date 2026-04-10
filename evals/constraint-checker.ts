@@ -44,12 +44,14 @@ export function checkConstraintViolations(
       }
     }
 
-    // Time violations
+    // Time violations -- aligned with engine's actual hard filter logic
+    // (route.ts applyHardFilters): hard = maxMinutes + 10, soft = maxMinutes * 1.25
     if (constraints.maxMinutes) {
       const gTime = game.avgPlayTime;
       if (gTime != null) {
-        const buffer = constraints.timeStrictness === 'hard' ? 1.15 : 1.5;
-        const limit = constraints.maxMinutes * buffer;
+        const limit = constraints.timeStrictness === 'hard'
+          ? constraints.maxMinutes + 10
+          : constraints.maxMinutes * 1.25;
         if (gTime > limit) {
           violations.push({
             gameId: game.id,

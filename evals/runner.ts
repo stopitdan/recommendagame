@@ -571,6 +571,7 @@ export async function runEvalSuite(config: RunConfig): Promise<EvalRun> {
           avgPlayTime: r.avgPlayTime ?? undefined,
           minPlayers: r.minPlayers ?? undefined,
           maxPlayers: r.maxPlayers ?? undefined,
+          designers: r.designers,
         })),
       });
     }
