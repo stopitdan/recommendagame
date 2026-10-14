@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v16-appRouter";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import ThemeRegistry from "@/components/ThemeRegistry";
 import Header from "@/components/Header";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -120,6 +121,7 @@ export default function RootLayout({
             </SmoothScroll>
           </ThemeRegistry>
         </AppRouterCacheProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
