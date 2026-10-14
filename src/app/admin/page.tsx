@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
@@ -38,11 +38,12 @@ export default function AdminIndexPage() {
   const router = useRouter();
   const [authed, setAuthed] = useState<boolean | null>(null);
 
-  useState(() => {
+  // Check auth on mount (in an effect so it never runs during static prerender)
+  useEffect(() => {
     createClient().auth.getUser().then(({ data: d }) => {
       setAuthed(d.user?.email === ADMIN_EMAIL);
     });
-  });
+  }, []);
 
   if (authed === false) {
     return (
