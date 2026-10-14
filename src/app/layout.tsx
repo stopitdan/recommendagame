@@ -13,6 +13,7 @@ import GoogleAnalytics from "@/components/GoogleAnalytics";
 import SkipNav from "@/components/SkipNav";
 import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
 import SmoothScroll from "@/components/SmoothScroll";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const roboto = Roboto({
@@ -120,6 +121,7 @@ export default function RootLayout({
             </SmoothScroll>
           </ThemeRegistry>
         </AppRouterCacheProvider>
+        <Analytics />
       </body>
     </html>
   );
