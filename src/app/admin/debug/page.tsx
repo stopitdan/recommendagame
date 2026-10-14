@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
@@ -116,12 +116,12 @@ export default function AdminDebugPage() {
   const [data, setData] = useState<DebugResponse | null>(null);
   const [authed, setAuthed] = useState<boolean | null>(null);
 
-  // Check auth on mount
-  useState(() => {
+  // Check auth on mount (in an effect so it never runs during static prerender)
+  useEffect(() => {
     createClient().auth.getUser().then(({ data: d }) => {
       setAuthed(d.user?.email === 'danjwiegand@gmail.com');
     });
-  });
+  }, []);
 
   const runDebug = useCallback(async () => {
     if (!freeText.trim()) return;
